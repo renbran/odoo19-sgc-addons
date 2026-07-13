@@ -112,15 +112,17 @@
     <template id="aurum_meta_replace" name="Aurum Meta Description Replace" inherit_id="website.layout">
         <xpath expr="//head/meta[@name='description']" position="replace">
             <t t-set="_default_meta" t-value="'SGC Tech delivers integrated CFO advisory, compliance and technology services for ambitious UAE businesses. Operator-led, outcome-focused.'"/>
-            <meta name="description" t-att-content="meta_description or _default_meta"/>
+            <t t-set="meta_description" t-value="aurum_page_meta or _default_meta"/>
+            <meta name="description" t-att-content="meta_description"/>
         </xpath>
     </template>
 
     <template id="aurum_og_replace" name="Aurum OG Tags" inherit_id="website.layout">
         <xpath expr="//head" position="inside">
             <t t-set="_default_meta" t-value="'SGC Tech delivers integrated CFO advisory, compliance and technology services for ambitious UAE businesses. Operator-led, outcome-focused.'"/>
+            <t t-set="_meta_for_og" t-value="aurum_page_meta or _default_meta"/>
             <meta property="og:title" t-att-content="title or 'SGC Tech'"/>
-            <meta property="og:description" t-att-content="meta_description or _default_meta"/>
+            <meta property="og:description" t-att-content="_meta_for_og"/>
             <meta property="og:type" content="website"/>
             <meta property="og:site_name" content="SGC Tech"/>
             <meta property="og:locale" content="en_AE"/>
@@ -129,9 +131,10 @@
     <template id="aurum_twitter_replace" name="Aurum Twitter Tags" inherit_id="website.layout">
         <xpath expr="//head" position="inside">
             <t t-set="_default_meta" t-value="'SGC Tech delivers integrated CFO advisory, compliance and technology services for ambitious UAE businesses. Operator-led, outcome-focused.'"/>
+            <t t-set="_meta_for_tw" t-value="aurum_page_meta or _default_meta"/>
             <meta name="twitter:card" content="summary_large_image"/>
             <meta name="twitter:title" t-att-content="title or 'SGC Tech'"/>
-            <meta name="twitter:description" t-att-content="meta_description or _default_meta"/>
+            <meta name="twitter:description" t-att-content="_meta_for_tw"/>
         </xpath>
     </template>
 

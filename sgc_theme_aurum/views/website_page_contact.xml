@@ -3,7 +3,7 @@
 
 <template id="sgc_contact_content" name="SGC Contact Page">
 <t t-set="title">Contact SGC Tech | Book a Strategy Consultation UAE</t>
-<t t-set="meta_description">Book a strategy call with SGC Tech. Email, phone or send a message. We typically respond within 24 business hours. UAE-based advisory firm.</t>
+<t t-set="aurum_page_meta">Book a strategy call with SGC Tech. Email, phone or send a message. We typically respond within 24 business hours. UAE-based advisory firm.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

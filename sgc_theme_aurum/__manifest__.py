@@ -1,7 +1,7 @@
 {
     "name": "SGC Aurum Theme",
     "summary": "Navy & gold Aurum theme for SGC Tech backend and website",
-    "version": "19.0.2.0.1",
+    "version": "19.0.2.0.2",
     "category": "Theme/Corporate",
     "author": "SGC Tech",
     "license": "LGPL-3",

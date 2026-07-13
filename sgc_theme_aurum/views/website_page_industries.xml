@@ -3,7 +3,7 @@
 
 <template id="sgc_industries_content" name="SGC Industries Page">
 <t t-set="title">Industries We Serve | SGC Tech Sector Expertise UAE</t>
-<t t-set="meta_description">SGC Tech brings deep expertise to Financial Services, Real Estate, Healthcare, Technology, E-commerce and Manufacturing across the UAE and MENA region.</t>
+<t t-set="aurum_page_meta">SGC Tech brings deep expertise to Financial Services, Real Estate, Healthcare, Technology, E-commerce and Manufacturing across the UAE and MENA region.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

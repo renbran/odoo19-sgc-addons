@@ -3,7 +3,7 @@
 
 <template id="homepage_content" name="Aurum Homepage Content">
 <t t-set="title">SGC Tech | CFO Advisory, Compliance &amp; Technology | UAE</t>
-<t t-set="meta_description">SGC Tech helps ambitious UAE businesses transform finance, compliance and technology operations. Operator-led advisory with a 90-day transformation roadmap.</t>
+<t t-set="aurum_page_meta">SGC Tech helps ambitious UAE businesses transform finance, compliance and technology operations. Operator-led advisory with a 90-day transformation roadmap.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

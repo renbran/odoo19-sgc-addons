@@ -3,7 +3,7 @@
 
 <template id="sgc_approach_content" name="SGC Approach Page">
 <t t-set="title">Our 90-Day Approach | SGC Tech Transformation Roadmap</t>
-<t t-set="meta_description">Our proven 90-day methodology: Assess, Design, Implement and Optimize. A structured transformation roadmap that delivers measurable outcomes for UAE businesses.</t>
+<t t-set="aurum_page_meta">Our proven 90-day methodology: Assess, Design, Implement and Optimize. A structured transformation roadmap that delivers measurable outcomes for UAE businesses.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

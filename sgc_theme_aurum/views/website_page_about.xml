@@ -3,7 +3,7 @@
 
 <template id="sgc_about_content" name="SGC About Us Page">
 <t t-set="title">About SGC Tech | Operator-Led Advisory Firm in UAE</t>
-<t t-set="meta_description">Meet the SGC Tech founders — operators who deliver CFO advisory, compliance and technology enablement for UAE businesses. Built by leaders, trusted by leaders.</t>
+<t t-set="aurum_page_meta">Meet the SGC Tech founders — operators who deliver CFO advisory, compliance and technology enablement for UAE businesses. Built by leaders, trusted by leaders.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

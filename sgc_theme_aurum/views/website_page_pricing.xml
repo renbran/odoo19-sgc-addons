@@ -3,7 +3,7 @@
 
 <template id="sgc_pricing_content" name="SGC Pricing Page">
 <t t-set="title">Pricing | SGC Tech Advisory Engagement Tiers UAE</t>
-<t t-set="meta_description">Transparent monthly engagement tiers from AED 15,000 to AED 75,000+. Foundation, Strategic, Growth and Enterprise advisory packages for UAE businesses.</t>
+<t t-set="aurum_page_meta">Transparent monthly engagement tiers from AED 15,000 to AED 75,000+. Foundation, Strategic, Growth and Enterprise advisory packages for UAE businesses.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">

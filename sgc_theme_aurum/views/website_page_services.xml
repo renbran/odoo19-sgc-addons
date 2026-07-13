@@ -3,7 +3,7 @@
 
 <template id="sgc_services_content" name="SGC Services Page">
 <t t-set="title">Services | CFO Advisory, Compliance &amp; Technology | SGC Tech</t>
-<t t-set="meta_description">Integrated advisory services across CFO Advisory, Compliance &amp; Governance, and Technology Enablement. Fixed-scope and retainer engagements for UAE organizations.</t>
+<t t-set="aurum_page_meta">Integrated advisory services across CFO Advisory, Compliance &amp; Governance, and Technology Enablement. Fixed-scope and retainer engagements for UAE organizations.</t>
 <t t-call="website.layout">
 <div id="wrap" class="oe_structure">
             <script type="application/ld+json">
