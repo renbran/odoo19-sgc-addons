@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="action_sgc_chat_panel" model="ir.actions.client">
+        <field name="name">SGC AI Assistant</field>
+        <field name="tag">sgc_persona.sgc_chat_panel</field>
+    </record>
+
+    <menuitem id="menu_sgc_persona_root"
+              name="SGC AI"
+              sequence="99"
+              web_icon="sgc_persona,static/description/icon.png"/>
+    <menuitem id="menu_sgc_chat_panel"
+              name="AI Assistant"
+              parent="menu_sgc_persona_root"
+              action="action_sgc_chat_panel"
+              sequence="10"/>
+</odoo>

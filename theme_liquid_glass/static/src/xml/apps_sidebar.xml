@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Extend AppsMenu to add sidebar toggle alongside the existing Dropdown -->
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//div[contains(@class, 'o_navbar_apps_menu')]" position="before">
+            <t t-if="!isScopedApp and !this.ui.isSmall">
+                <button
+                    class="btn btn-light o_navbar_sidebar_toggle d-flex align-items-center justify-content-center"
+                    t-on-click="_openAppMenuSidebar"
+                    style="width: 40px; height: 40px; border-radius: 12px; margin-right: 10px;"
+                    title="Applications">
+                    <i class="oi oi-apps" style="font-size: 18px;"/>
+                </button>
+            </t>
+        </xpath>
+    </t>
+
+    <!-- Extend NavBar to add sidebar + overlay via portal (renders in body, outside navbar stacking context) -->
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//header" position="after">
+            <t t-portal="'body'">
+                <!-- Sidebar -->
+                <div class="o_apps_sidebar" t-att-class="{ 'o_sidebar_open': state.isAppMenuSidebarOpened }">
+                    <div class="o_sidebar_header mb-4 d-flex align-items-center justify-content-between">
+                        <h3 class="m-0 fw-bold text-white">Applications</h3>
+                        <button class="btn btn-link text-white p-0 o_sidebar_close" t-on-click="_closeAppMenuSidebar">
+                            <i class="oi oi-close fs-4"/>
+                        </button>
+                    </div>
+                    <div class="o_sidebar_content">
+                        <div class="row g-3">
+                            <t t-foreach="menuService.getApps()" t-as="app" t-key="app.id">
+                                <div class="col-6">
+                                    <a t-att-href="getMenuItemHref(app)"
+                                       class="o_apps_sidebar_item d-flex flex-column align-items-center p-3 text-decoration-none"
+                                       t-on-click.prevent="() => { this.onNavBarDropdownItemSelection(app); this._closeAppMenuSidebar(); }">
+                                        <div class="o_app_icon_container mb-2">
+                                            <img t-if="app.webIconData"
+                                                 t-att-src="app.webIconData"
+                                                 class="o_app_icon"
+                                                 style="width: 54px; height: 54px; object-fit: contain;"/>
+                                            <div t-else="" class="o_app_icon_placeholder d-flex align-items-center justify-content-center">
+                                                <i class="oi oi-apps fs-2"/>
+                                            </div>
+                                        </div>
+                                        <span class="o_app_name text-center fw-medium text-white" t-esc="app.name" style="font-size: 13px;"/>
+                                    </a>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+                <!-- Overlay -->
+                <div class="o_sidebar_overlay"
+                     t-if="state.isAppMenuSidebarOpened"
+                     t-on-click="_closeAppMenuSidebar"/>
+            </t>
+        </xpath>
+    </t>
+
+</templates>

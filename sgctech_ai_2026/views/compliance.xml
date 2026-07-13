@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="sgctech_compliance_2026" name="SGC Compliance 2026">
+    <t t-call="website.layout">
+      <t t-set="no_footer" t-value="False"/>
+
+      <section class="sgc26-page-hero">
+        <div class="sgc26-page-hero__inner" data-sgc-reveal="1">
+          <p class="sgc26-label">Regulatory Readiness</p>
+          <h1 class="sgc26-page-hero-title sgc26-h1">UAE Compliance Built In</h1>
+          <p class="sgc26-body-lg" style="text-align:center;max-width:560px">
+            Every deployment includes FTA e-invoicing, VAT return mapping, IFRS reporting,
+            and ESR templates — configured, not just described.
+          </p>
+        </div>
+      </section>
+
+      <!-- Coverage grid -->
+      <section class="sgc26-section">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Compliance Scope</p>
+            <h2 class="sgc26-h2">What is Covered</h2>
+          </div>
+
+          <div class="sgc26-grid-2" style="margin-bottom:3rem">
+
+            <div class="sgc26-compliance-card sgc26-compliance-card--pass" data-sgc-reveal="1" data-sgc-delay="100">
+              <div class="sgc26-compliance-card__header">
+                <svg width="20" height="20"><use href="#i-check"/></svg>
+                <h3 class="sgc26-h4">FTA e-Invoicing</h3>
+                <span class="sgc26-compliance-card__badge">Included</span>
+              </div>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> XML e-invoice generation per FTA Phase 2</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> QR code embedding on tax invoices</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Simplified and standard tax invoice formats</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Credit and debit note handling</li>
+              </ul>
+            </div>
+
+            <div class="sgc26-compliance-card sgc26-compliance-card--pass" data-sgc-reveal="1" data-sgc-delay="200">
+              <div class="sgc26-compliance-card__header">
+                <svg width="20" height="20"><use href="#i-check"/></svg>
+                <h3 class="sgc26-h4">VAT 5% Configuration</h3>
+                <span class="sgc26-compliance-card__badge">Included</span>
+              </div>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Standard 5% VAT on taxable supplies</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Zero-rated categories (export, healthcare, education)</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Exempt supplies configuration</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Input VAT recovery mapping</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> VAT return (Box 1–10) pre-populated report</li>
+              </ul>
+            </div>
+
+            <div class="sgc26-compliance-card sgc26-compliance-card--pass" data-sgc-reveal="1" data-sgc-delay="100">
+              <div class="sgc26-compliance-card__header">
+                <svg width="20" height="20"><use href="#i-check"/></svg>
+                <h3 class="sgc26-h4">IFRS Financial Reporting</h3>
+                <span class="sgc26-compliance-card__badge">Included</span>
+              </div>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> IFRS-compliant chart of accounts template</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Balance sheet (IAS 1 format)</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Profit &amp; loss statement</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Cash flow statement</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Notes disclosures framework</li>
+              </ul>
+            </div>
+
+            <div class="sgc26-compliance-card sgc26-compliance-card--amber" data-sgc-reveal="1" data-sgc-delay="200">
+              <div class="sgc26-compliance-card__header">
+                <svg width="20" height="20"><use href="#i-alert-triangle"/></svg>
+                <h3 class="sgc26-h4">ESR Notifications</h3>
+                <span class="sgc26-compliance-card__badge">Growth / Enterprise</span>
+              </div>
+              <ul class="sgc26-check-list sgc26-check-list--warn">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Economic Substance Regulations templates</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> UAE MoF notification data extraction</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Relevant activity classification guidance</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Annual report data compilation</li>
+              </ul>
+            </div>
+
+          </div>
+
+          <!-- Compliance standards table -->
+          <div class="sgc26-card" data-sgc-reveal="1" style="padding:0;overflow:hidden">
+            <table class="sgc26-compare-table">
+              <thead>
+                <tr>
+                  <th>Standard</th>
+                  <th>Coverage</th>
+                  <th>Packages</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>UAE VAT (Federal Decree-Law No. 8 of 2017)</td>
+                  <td>Full 5%, zero-rated, exempt, input recovery</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--uae">All</span></td>
+                </tr>
+                <tr>
+                  <td>FTA e-Invoicing Phase 2</td>
+                  <td>XML generation, QR code, credit/debit notes</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--uae">All</span></td>
+                </tr>
+                <tr>
+                  <td>IFRS (as adopted in UAE)</td>
+                  <td>CoA template, financial statements, disclosures</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--ifrs">All</span></td>
+                </tr>
+                <tr>
+                  <td>UAE Corporate Tax (CT)</td>
+                  <td>Taxable income mapping, exempt income tagging</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--vat">Growth+</span></td>
+                </tr>
+                <tr>
+                  <td>Economic Substance Regulations (ESR)</td>
+                  <td>Templates and data extraction for MoF notifications</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--vat">Growth+</span></td>
+                </tr>
+                <tr>
+                  <td>GDPR-compatible data handling</td>
+                  <td>Data residency options, retention policies</td>
+                  <td><span class="sgc26-scope-badge sgc26-scope-badge--gdpr">Enterprise</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Voice scope -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Scope Boundary</p>
+            <h2 class="sgc26-h2">What We Configure vs What You File</h2>
+            <p>We configure the ERP to produce compliant data. Filing obligations remain with your company and appointed tax agent.</p>
+          </div>
+          <div class="sgc26-voice-grid">
+            <div class="sgc26-voice-cell" data-sgc-reveal="1" data-sgc-delay="100">
+              <p class="sgc26-voice-cell__label">We Configure</p>
+              <p class="sgc26-voice-cell__text">VAT tax groups, FTA e-invoice XML templates, chart of accounts, VAT return mapping in the ERP.</p>
+            </div>
+            <div class="sgc26-voice-cell" data-sgc-reveal="1" data-sgc-delay="200">
+              <p class="sgc26-voice-cell__label">You File</p>
+              <p class="sgc26-voice-cell__text">VAT returns with FTA, corporate tax returns with MoF, ESR notifications — using data the ERP produces.</p>
+            </div>
+            <div class="sgc26-voice-cell" data-sgc-reveal="1" data-sgc-delay="300">
+              <p class="sgc26-voice-cell__label">Optional Add-On</p>
+              <p class="sgc26-voice-cell__text">We can connect you with a UAE-registered tax agent for filing services as a separate engagement.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="sgc26-section">
+        <div class="sgc26-container" style="text-align:center">
+          <div data-sgc-reveal="1">
+            <h2 class="sgc26-h2" style="margin-bottom:1rem">Compliance Questions?</h2>
+            <p class="sgc26-body-lg" style="max-width:480px;margin:0 auto 2rem">
+              Our consultants can walk through your specific regulatory requirements before the project starts.
+            </p>
+            <a href="/sgctech/contact?topic=compliance" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+              Ask a Compliance Question
+              <svg width="18" height="18"><use href="#i-shield"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </t>
+  </template>
+
+</odoo>

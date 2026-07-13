@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Public "Book a Session" page (served by the /book-session controller) -->
+    <template id="sgc_book_session" name="Book an Online Session">
+        <t t-call="website.layout">
+            <div id="wrap" class="sgc-main-wrap oe_structure">
+
+                <!-- Hero -->
+                <section class="sgc-page-hero">
+                    <div class="container" style="position:relative;z-index:10;">
+                        <div class="row justify-content-center text-center">
+                            <div class="col-lg-8">
+                                <nav class="sgc-breadcrumb justify-content-center">
+                                    <a href="/">Home</a>
+                                    <span class="sgc-breadcrumb-sep">/</span>
+                                    <span>Book a Session</span>
+                                </nav>
+                                <h1 class="sgc-page-title">
+                                    Book an <span class="sgc-gradient-text">Online Session</span>
+                                </h1>
+                                <p class="sgc-page-subtitle">
+                                    Pick a date and time that works for you. You'll get a meeting
+                                    link by email, and our AI notetaker captures the discussion.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Booking widget -->
+                <section class="sgc-section">
+                    <div class="container">
+                        <div class="row g-4 sgc-booking" id="sgc-booking-app"
+                             t-att-data-duration="booking_type and booking_type.duration or 0.5">
+                            <!-- Calendar -->
+                            <div class="col-lg-7">
+                                <div class="sgc-booking-card glass">
+                                    <div class="sgc-booking-calhead">
+                                        <button type="button" class="sgc-cal-nav" id="sgc-bk-prev"
+                                                aria-label="Previous month">&#8249;</button>
+                                        <h3 class="sgc-cal-month" id="sgc-bk-month-label">&#160;</h3>
+                                        <button type="button" class="sgc-cal-nav" id="sgc-bk-next"
+                                                aria-label="Next month">&#8250;</button>
+                                    </div>
+                                    <div class="sgc-cal-grid" id="sgc-bk-cal">
+                                        <div class="sgc-cal-loading">Loading availability…</div>
+                                    </div>
+                                    <div class="sgc-slots-wrap">
+                                        <h4 class="sgc-slots-title" id="sgc-bk-slots-title">Select a day</h4>
+                                        <div class="sgc-slots" id="sgc-bk-slots"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form -->
+                            <div class="col-lg-5">
+                                <div class="sgc-booking-card glass">
+                                    <h3>Your details</h3>
+                                    <div class="sgc-selected-slot" id="sgc-bk-selected">
+                                        No time selected yet.
+                                    </div>
+                                    <form id="sgc-bk-form" class="sgc-booking-form">
+                                        <input type="hidden" name="when" id="sgc-bk-when"/>
+                                        <div class="mb-3">
+                                            <label class="sgc-form-label" for="sgc-bk-name">Full Name *</label>
+                                            <input type="text" id="sgc-bk-name" name="name"
+                                                   class="sgc-form-input" required="required"
+                                                   placeholder="Your name"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="sgc-form-label" for="sgc-bk-email">Email *</label>
+                                            <input type="email" id="sgc-bk-email" name="email"
+                                                   class="sgc-form-input" required="required"
+                                                   placeholder="you@company.com"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="sgc-form-label" for="sgc-bk-phone">Phone / WhatsApp</label>
+                                            <input type="tel" id="sgc-bk-phone" name="phone"
+                                                   class="sgc-form-input" placeholder="+971 50 000 0000"/>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="sgc-form-label" for="sgc-bk-topic">Session Topic</label>
+                                            <select id="sgc-bk-topic" name="topic" class="sgc-form-input">
+                                                <option>Implementation Planning</option>
+                                                <option>Technology Assessment</option>
+                                                <option>ROI Discussion</option>
+                                                <option>General Inquiry</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="sgc-form-label" for="sgc-bk-notes">Additional Notes</label>
+                                            <textarea id="sgc-bk-notes" name="notes" rows="3"
+                                                      class="sgc-form-input"
+                                                      placeholder="Anything you'd like us to prepare?"/>
+                                        </div>
+                                        <button type="submit" class="sgc-btn sgc-btn-primary sgc-btn-full"
+                                                id="sgc-bk-submit" disabled="disabled">
+                                            Confirm Booking <i class="fa fa-calendar-check-o ms-1"/>
+                                        </button>
+                                        <div id="sgc-bk-message" class="sgc-bk-message mt-3"></div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+    <!-- Top-nav menu item -->
+    <record id="menu_book_session" model="website.menu">
+        <field name="name">Book a Session</field>
+        <field name="url">/book-session</field>
+        <field name="parent_id" ref="website.main_menu"/>
+        <field name="sequence">65</field>
+    </record>
+
+</odoo>

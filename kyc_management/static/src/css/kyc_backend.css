@@ -1,0 +1,160 @@
+.o_kyc_form .o_kyc_sheet {
+    max-width: 1360px;
+}
+
+.o_kyc_form .o_kyc_title_block {
+    margin-bottom: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #f9fbfd 0%, #f3f6fa 100%);
+}
+
+.o_kyc_form .o_kyc_title_block h1 {
+    margin-bottom: 1rem;
+    color: #16233b;
+    font-size: 1.65rem;
+    font-weight: 700;
+}
+
+.o_kyc_form .o_kyc_summary_row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.9rem;
+    margin: 0;
+}
+
+.o_kyc_form .o_kyc_summary_item {
+    min-width: 0;
+    padding: 0.85rem 1rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.o_kyc_form .o_kyc_summary_item strong {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.o_kyc_form .o_notebook_headers .nav-link {
+    border-radius: 999px;
+    margin-right: 0.35rem;
+    font-weight: 600;
+}
+
+.o_kyc_form .o_notebook_headers .nav-link.active {
+    background: #0f172a;
+    color: #fff;
+}
+
+.o_kyc_form .o_group .o_inner_group {
+    padding: 1rem 1.1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fbfcfe;
+}
+
+.o_kyc_form .o_group .o_td_label .o_form_label {
+    color: #334155;
+    font-weight: 600;
+}
+
+.o_kyc_form .o_field_image img {
+    border-radius: 14px;
+    border: 1px solid #dbe2ea;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+}
+
+.o_kyc_form .o_kyc_button_box .oe_stat_button {
+    border-radius: 14px;
+    border: 1px solid #dbe2ea;
+    background: #fff;
+}
+
+.o_kyc_form .o_kyc_alert {
+    margin-bottom: 0.85rem;
+    padding: 0.95rem 1.1rem;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 14px;
+}
+
+.o_kyc_form .o_kyc_alert_danger {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #9f1239;
+}
+
+.o_kyc_form .o_kyc_alert_warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.o_kyc_form .o_kyc_alert_info {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.o_kyc_form .o-mail-Chatter,
+.o_kyc_form .o_ChatterContainer {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.o_kyc_kanban .o_kanban_record {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+}
+
+.o_kyc_kanban .o_kyc_kanban_card {
+    padding: 1rem;
+    border: 1px solid #dbe2ea;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.o_kyc_kanban .o_kyc_kanban_title {
+    color: #0f172a;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.o_kyc_kanban .o_kyc_kanban_subtitle {
+    color: #475569;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+}
+
+.o_kyc_kanban .o_kyc_kanban_text {
+    color: #64748b;
+    margin-bottom: 0.75rem;
+}
+
+.o_kyc_kanban .o_kyc_kanban_footer_left,
+.o_kyc_kanban .o_kyc_kanban_footer_right {
+    color: #475569;
+}
+
+.o_kyc_kanban .o_kyc_kanban_card_bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+}
+
+.o_kyc_kanban .o_kyc_kanban_card_bottom .btn {
+    border-radius: 999px;
+    padding-inline: 0.9rem;
+}

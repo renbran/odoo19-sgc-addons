@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_eh_uae_wps_root"
+              name="UAE WPS"
+              sequence="55"
+              groups="hr.group_hr_user"/>
+    <menuitem id="menu_eh_uae_wps_wizard"
+              name="Generate SIF File"
+              parent="menu_eh_uae_wps_root"
+              action="action_eh_uae_wps_wizard"
+              sequence="10"/>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Professional Invoice report.
+        Inherits the standard Odoo 19 template and applies clean styling
+        overrides with high priority to ensure it renders last.
+    -->
+    <template id="report_invoice_professional"
+              inherit_id="account.report_invoice_document"
+              priority="99">
+
+        <!-- Clean table styling -->
+        <xpath expr="//table[hasclass('table')]" position="attributes">
+            <attribute name="class">table table-sm o_main_table mt-4</attribute>
+            <attribute name="style">border-collapse: collapse;</attribute>
+        </xpath>
+
+    </template>
+</odoo>

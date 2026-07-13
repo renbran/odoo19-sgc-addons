@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_account_payment_user,Payment User Access,account.model_account_payment,sgc_payment.group_payment_user,1,1,1,0
+access_account_payment_verifier,Payment Verifier Access,account.model_account_payment,sgc_payment.group_payment_verifier,1,0,0,0
+access_account_payment_reviewer,Payment Reviewer Access,account.model_account_payment,sgc_payment.group_payment_reviewer,1,1,0,0
+access_account_payment_approver,Payment Approver Access,account.model_account_payment,sgc_payment.group_payment_approver,1,1,0,0
+access_account_payment_authorizer,Payment Authorizer Access,account.model_account_payment,sgc_payment.group_payment_authorizer,1,1,0,0
+access_account_payment_poster,Payment Poster Access,account.model_account_payment,sgc_payment.group_payment_poster,1,1,0,0
+access_account_payment_manager,Payment Manager Full Access,account.model_account_payment,sgc_payment.group_payment_manager,1,1,1,1

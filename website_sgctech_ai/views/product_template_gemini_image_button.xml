@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ── Bulk Action: Generate AI Images (list view Action menu) ── -->
+    <record id="action_bulk_generate_ai_images" model="ir.actions.server">
+        <field name="name">Generate AI Images</field>
+        <field name="model_id" ref="product.model_product_template"/>
+        <field name="binding_model_id" ref="product.model_product_template"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_generate_ai_images()</field>
+    </record>
+
+    <record id="product_template_form_view_gemini_image_button" model="ir.ui.view">
+        <field name="name">product.template.form.gemini.image.button</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <!--
+                Insert a header bar before the <sheet>.
+                Visible only when the product has no extra images yet.
+                Calls action_generate_ai_images (fal.ai Seedream 3 — ByteDance).
+            -->
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_generate_ai_images"
+                            string="Generate AI Image"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="product_template_image_ids"
+                            title="Generate a HD product image with FLUX Pro by Black Forest Labs (via fal.ai)"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

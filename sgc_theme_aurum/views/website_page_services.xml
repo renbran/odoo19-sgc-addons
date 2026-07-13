@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="sgc_services_content" name="SGC Services Page">
+<t t-set="title">Services | CFO Advisory, Compliance &amp; Technology | SGC Tech</t>
+<t t-set="meta_description">Integrated advisory services across CFO Advisory, Compliance &amp; Governance, and Technology Enablement. Fixed-scope and retainer engagements for UAE organizations.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Services", "item": "https://sgctech.ai/services"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero has-slideshow">
+        <div class="aurum-hero-slideshow">
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/services_documents.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/services_professional.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/services_workspace.jpg);"/>
+        </div>
+        <div class="aurum-hero-particles">
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+        </div>
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">CORE OFFERINGS</span>
+                    <h1 class="aurum-reveal aurum-shimmer" data-aurum-delay="1">Three Pillars of Advisory Excellence</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        SGC Tech delivers integrated advisory across three interconnected domains—financial strategy,
+                        regulatory compliance, and technology enablement.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PILLAR 1: CFO ADVISORY -->
+    <section class="aurum-section aurum-cream-bg py-5" id="cfo-advisory">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 aurum-reveal">
+                    <div class="aurum-pillar-num" style="text-align:left;">01</div>
+                    <h2 class="aurum-h">CFO Advisory</h2>
+                    <ul class="list-unstyled mt-4" style="font-family:Inter,sans-serif;">
+                        <li class="mb-2">Strategic Financial Planning &amp; Analysis</li>
+                        <li class="mb-2">Cash Flow Optimization &amp; Working Capital</li>
+                        <li class="mb-2">M&amp;A Advisory &amp; Due Diligence</li>
+                        <li class="mb-2">Board Reporting &amp; Investor Relations</li>
+                        <li class="mb-2">Finance Talent Strategy &amp; Organization Design</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-pillar aurum-pillar-bg aurum-sheen" style="background-image:url(/sgc_theme_aurum/static/src/img/service_cfo_advisory.jpg);">
+                        <span class="aurum-pillar-num mb-0" style="font-size:5rem;">01</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PILLAR 2: COMPLIANCE &amp; GOVERNANCE -->
+    <section class="aurum-section py-5" id="compliance-governance">
+        <div class="container">
+            <div class="row align-items-center g-5 flex-lg-row-reverse">
+                <div class="col-lg-6 aurum-reveal">
+                    <div class="aurum-pillar-num" style="text-align:left;">02</div>
+                    <h2 class="aurum-h">Compliance &amp; Governance</h2>
+                    <ul class="list-unstyled mt-4" style="font-family:Inter,sans-serif;">
+                        <li class="mb-2">Regulatory Risk Assessments &amp; Audits</li>
+                        <li class="mb-2">Policy Design &amp; Implementation</li>
+                        <li class="mb-2">Enterprise Risk Management Frameworks</li>
+                        <li class="mb-2">Internal Audit &amp; Controls Transformation</li>
+                        <li class="mb-2">Governance, Compliance &amp; Ethics Programs</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-pillar aurum-pillar-bg aurum-sheen" style="background-image:url(/sgc_theme_aurum/static/src/img/service_compliance.jpg);">
+                        <span class="aurum-pillar-num mb-0" style="font-size:5rem;">02</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PILLAR 3: TECHNOLOGY ENABLEMENT -->
+    <section class="aurum-section aurum-cream-bg py-5" id="technology-enablement">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 aurum-reveal">
+                    <div class="aurum-pillar-num" style="text-align:left;">03</div>
+                    <h2 class="aurum-h">Technology Enablement</h2>
+                    <ul class="list-unstyled mt-4" style="font-family:Inter,sans-serif;">
+                        <li class="mb-2">Enterprise Architecture &amp; Strategy</li>
+                        <li class="mb-2">Digital Transformation Roadmaps</li>
+                        <li class="mb-2">AI &amp; Automation Implementation</li>
+                        <li class="mb-2">ERP &amp; Platform Selection &amp; Deployment</li>
+                        <li class="mb-2">Change Management &amp; Adoption</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-pillar aurum-pillar-bg aurum-sheen" style="background-image:url(/sgc_theme_aurum/static/src/img/service_technology.jpg);">
+                        <span class="aurum-pillar-num mb-0" style="font-size:5rem;">03</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ENGAGEMENT MODELS -->
+    <section class="aurum-section aurum-cream-bg" id="engagement-models">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">HOW WE WORK</span>
+            <h2 class="aurum-h aurum-reveal">Engagement Models Designed for Impact</h2>
+            <div class="aurum-divider"/>
+            <div class="row g-4 mt-4">
+                <div class="col-md-6 col-lg-3 aurum-reveal">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">A</div>
+                        <h5>Advisory</h5>
+                        <p class="text-muted mb-0">Strategic guidance on demand. Fractional expertise when you need it.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">P</div>
+                        <h5>Project-Based</h5>
+                        <p class="text-muted mb-0">Defined scope, timeline, and deliverables. Fixed-fee or milestone-based.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">I</div>
+                        <h5>Interim Leadership</h5>
+                        <p class="text-muted mb-0">Embedded executives driving transformation from within your team.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">F</div>
+                        <h5>Fractional</h5>
+                        <p class="text-muted mb-0">Ongoing retained partnership for sustained strategic advantage.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="aurum-section">
+        <div class="container">
+            <div class="aurum-cta aurum-reveal">
+                <h2 class="aurum-h mb-3">Ready to transform?</h2>
+                <a href="/contact-us" class="btn btn-aurum-gold" aria-label="Start the Conversation">Start the Conversation</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

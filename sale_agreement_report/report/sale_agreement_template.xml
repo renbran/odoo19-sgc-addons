@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_sale_agreement">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="order">
+                <t t-call="web.external_layout">
+                    <style>
+                        .sgc-report {
+                            font-family: "Helvetica", "Arial", sans-serif;
+                            font-size: 12px;
+                            color: #1f2937;
+                            line-height: 1.45;
+                        }
+                        .sgc-header {
+                            border: 1px solid #1e3a8a;
+                            border-left: 6px solid #10b981;
+                            background: #f8fafc;
+                            padding: 12px 14px;
+                            margin-bottom: 16px;
+                        }
+                        .sgc-kicker {
+                            font-size: 10px;
+                            letter-spacing: 0.08em;
+                            text-transform: uppercase;
+                            color: #1e3a8a;
+                            font-weight: 700;
+                        }
+                        .sgc-title {
+                            font-size: 22px;
+                            color: #1e3a8a;
+                            margin: 4px 0 0 0;
+                            font-weight: 700;
+                        }
+                        .sgc-section-title {
+                            margin: 16px 0 8px 0;
+                            padding-bottom: 4px;
+                            border-bottom: 1px solid #cbd5e1;
+                            color: #1e3a8a;
+                            font-size: 14px;
+                            font-weight: 700;
+                        }
+                        .sgc-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 8px;
+                        }
+                        .sgc-table td {
+                            border: 1px solid #d1d5db;
+                            padding: 6px 8px;
+                            vertical-align: top;
+                        }
+                        .sgc-table td:first-child {
+                            width: 38%;
+                            background: #f3f4f6;
+                            font-weight: 700;
+                            color: #111827;
+                        }
+                        .sgc-signature td {
+                            min-height: 120px;
+                        }
+                    </style>
+                    <div class="page sgc-report">
+                        <div class="sgc-header">
+                            <div class="sgc-kicker">SGC TECH AI - Commercial Agreement</div>
+                            <h2 class="sgc-title">SaaS Subscription and Support Agreement</h2>
+                        </div>
+                        <p>
+                            This SaaS Subscription and Support Agreement is entered into on
+                            <strong><span t-field="order.agreement_date"/></strong>
+                            between <strong><span t-field="order.company_id.name"/></strong>
+                            (the "Provider") and <strong><span t-field="order.partner_id.name"/></strong>
+                            (the "Customer").
+                        </p>
+
+                        <h3 class="sgc-section-title">1. Commercial Summary</h3>
+                        <table class="sgc-table">
+                            <tr>
+                                <td><strong>Quotation / Order</strong></td>
+                                <td><span t-field="order.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Customer Contact</strong></td>
+                                <td><span t-field="order.agreement_contact_person"/> <t t-if="order.agreement_job_title">(<span t-field="order.agreement_job_title"/>)</t></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authorized Users</strong></td>
+                                <td><span t-field="order.num_users"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Term</strong></td>
+                                <td><span t-esc="order._get_service_term_text()"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monthly Subscription Fee</strong></td>
+                                <td><span t-field="order.monthly_subscription_amount" t-options='{"widget": "monetary", "display_currency": order.currency_id}'/></td>
+                            </tr>
+                        </table>
+
+                        <h3 class="sgc-section-title">2. Services</h3>
+                        <p>
+                            Provider shall make available the hosted software services, user access, standard maintenance,
+                            updates, and reasonable technical support for the modules and business functions purchased by Customer.
+                        </p>
+                        <p t-if="order.odoo_modules"><strong>Subscribed Modules:</strong></p>
+                        <ul t-if="order.odoo_modules">
+                            <li t-foreach="order._get_modules_list()" t-as="module_name"><span t-esc="module_name"/></li>
+                        </ul>
+
+                        <h3 class="sgc-section-title">3. Subscription, Billing, and Renewal</h3>
+                        <p>
+                            Customer agrees to pay the monthly subscription fee stated above. Unless otherwise agreed in writing,
+                            subscription charges are billed in advance on a recurring monthly basis and remain payable throughout
+                            the active subscription term.
+                        </p>
+                        <p>
+                            Any implementation, onboarding, or project fees reflected in the sales order remain payable in accordance
+                            with the commercial terms of that order. Recurring subscription fees may be revised upon renewal or by
+                            prior written notice where permitted by applicable law and the governing commercial documents.
+                        </p>
+
+                        <h3 class="sgc-section-title">4. User Access and Acceptable Use</h3>
+                        <p>
+                            Customer may permit up to the agreed number of named or authorized users to access the service.
+                            Customer is responsible for all activities performed through its accounts, for safeguarding credentials,
+                            and for ensuring users do not misuse the platform, attempt unauthorized access, or infringe third-party rights.
+                        </p>
+
+                        <h3 class="sgc-section-title">5. Support and Maintenance</h3>
+                        <p>
+                            Provider will use commercially reasonable efforts to maintain service availability, apply updates,
+                            correct defects, and provide operational support during normal support coverage windows. Support does not
+                            include custom development or third-party issues unless expressly included in the applicable order.
+                        </p>
+
+                        <h3 class="sgc-section-title">6. Customer Responsibilities</h3>
+                        <p>
+                            Customer shall provide timely cooperation, accurate business information, designated points of contact,
+                            and any licenses, approvals, or documents reasonably required for onboarding, configuration, compliance,
+                            and ongoing service delivery.
+                        </p>
+
+                        <h3 class="sgc-section-title">7. Data Protection and Confidentiality</h3>
+                        <p>
+                            Each party shall protect the other party's confidential information and use it only for purposes of this
+                            Agreement. Customer retains ownership of its business data. Provider may process and host Customer data solely
+                            for the purpose of delivering the subscribed services, subject to applicable law and Provider's security practices.
+                        </p>
+
+                        <h3 class="sgc-section-title">8. Intellectual Property</h3>
+                        <p>
+                            Provider and its licensors retain all right, title, and interest in the software, platform, documentation,
+                            updates, and related intellectual property. Customer receives a limited, non-exclusive, non-transferable right
+                            to use the subscribed services during the active subscription term.
+                        </p>
+
+                        <h3 class="sgc-section-title">9. Suspension and Termination</h3>
+                        <p>
+                            Provider may suspend or terminate access for material breach, non-payment, security risk, or unlawful use,
+                            following notice where commercially reasonable. Customer may terminate in accordance with the applicable order
+                            or by written notice at the end of the current subscription term, subject to any minimum term commitments.
+                        </p>
+
+                        <h3 class="sgc-section-title">10. Warranties and Liability</h3>
+                        <p>
+                            Provider warrants that the services will be provided in a professional and commercially reasonable manner.
+                            Except as expressly stated, the services are provided on an "as available" basis. To the maximum extent permitted
+                            by law, neither party shall be liable for indirect, incidental, special, or consequential damages. Provider's total
+                            aggregate liability arising out of this Agreement shall not exceed the fees paid by Customer for the three months
+                            immediately preceding the event giving rise to the claim.
+                        </p>
+
+                        <h3 class="sgc-section-title">11. General</h3>
+                        <p>
+                            This Agreement together with the related sales order constitutes the entire agreement between the parties for the
+                            subscribed services. Any amendment must be in writing. If any provision is unenforceable, the remaining provisions
+                            will continue in full force and effect.
+                        </p>
+
+                        <h3 class="sgc-section-title">12. Signatures</h3>
+                        <table class="sgc-table sgc-signature" style="margin-top: 16px;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <strong>Customer</strong><br/>
+                                    Name: <span t-field="order.client_signer_name"/><br/>
+                                    Company: <span t-field="order.partner_id.name"/><br/>
+                                    Date: <span t-field="order.client_sign_date"/>
+                                </td>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <strong>Provider</strong><br/>
+                                    Name: <span t-field="order.provider_signer_name"/><br/>
+                                    Company: <span t-field="order.company_id.name"/><br/>
+                                    Date: <span t-field="order.provider_sign_date"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_sale_agreement_yearly">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="agreement">
+                <t t-call="web.external_layout">
+                    <div class="page sgc-report">
+                        <div class="sgc-header">
+                            <div class="sgc-kicker">SGC TECH AI - Annual Renewal</div>
+                            <h2 class="sgc-title">Annual SaaS Subscription Renewal Agreement</h2>
+                        </div>
+                        <p>
+                            This renewal agreement confirms the annual SaaS subscription arrangement between
+                            <strong><span t-field="agreement.company_id.name"/></strong>
+                            (the "Provider") and <strong><span t-field="agreement.partner_id.name"/></strong>
+                            (the "Customer") for agreement year <strong><span t-field="agreement.agreement_year"/></strong>.
+                        </p>
+
+                        <h3 class="sgc-section-title">1. Renewal Summary</h3>
+                        <table class="sgc-table">
+                            <tr>
+                                <td><strong>Agreement Reference</strong></td>
+                                <td><span t-field="agreement.name"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Agreement Date</strong></td>
+                                <td><span t-field="agreement.agreement_date"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Customer Contact</strong></td>
+                                <td><span t-field="agreement.agreement_contact_person"/> <t t-if="agreement.agreement_job_title">(<span t-field="agreement.agreement_job_title"/>)</t></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Authorized Users</strong></td>
+                                <td><span t-field="agreement.num_users"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Service Term</strong></td>
+                                <td><span t-esc="agreement._get_service_term_text()"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Monthly Subscription Fee</strong></td>
+                                <td><span t-field="agreement.monthly_subscription_amount" t-options='{"widget": "monetary", "display_currency": agreement.currency_id}'/></td>
+                            </tr>
+                            <tr t-if="agreement.sale_order_id">
+                                <td><strong>Related Sales Order</strong></td>
+                                <td><span t-field="agreement.sale_order_id.name"/></td>
+                            </tr>
+                        </table>
+
+                        <h3 class="sgc-section-title">2. Continued Subscription Services</h3>
+                        <p>
+                            Provider shall continue to provide hosted access to the subscribed software environment, platform maintenance,
+                            updates, standard support, and operational continuity for the Customer's active deployment.
+                        </p>
+                        <p t-if="agreement.odoo_modules"><strong>Covered Modules:</strong></p>
+                        <ul t-if="agreement.odoo_modules">
+                            <li t-foreach="agreement._get_modules_list()" t-as="module_name"><span t-esc="module_name"/></li>
+                        </ul>
+
+                        <h3 class="sgc-section-title">3. Fees and Payment Terms</h3>
+                        <p>
+                            Customer shall pay the monthly subscription fee stated above for the renewal term. Fees are billed monthly in advance,
+                            unless another written billing arrangement applies. Late payment may result in suspension of services after reasonable notice.
+                        </p>
+
+                        <h3 class="sgc-section-title">4. User Management</h3>
+                        <p>
+                            Customer is responsible for keeping its authorized user count accurate and ensuring only approved personnel have access.
+                            Additional users, storage, modules, or service scope changes may require a commercial amendment.
+                        </p>
+
+                        <h3 class="sgc-section-title">5. Support, Security, and Data Handling</h3>
+                        <p>
+                            Provider will continue commercially reasonable support, maintenance, and security administration for the hosted environment.
+                            Customer remains responsible for the lawful use of the platform, the content it uploads, and internal user administration.
+                        </p>
+
+                        <h3 class="sgc-section-title">6. Confidentiality, IP, and Liability</h3>
+                        <p>
+                            Confidentiality, intellectual property ownership, warranty limitations, and liability limitations remain governed by the main
+                            commercial agreement, applicable order documents, and Provider policies, except where expressly modified in writing.
+                        </p>
+
+                        <h3 class="sgc-section-title">7. Renewal and Termination</h3>
+                        <p>
+                            This renewal continues for the stated annual cycle and renews subject to the commercial agreement between the parties.
+                            Either party may elect not to renew or may terminate for material breach in accordance with the governing subscription terms.
+                        </p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

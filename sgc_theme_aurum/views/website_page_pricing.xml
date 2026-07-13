@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="sgc_pricing_content" name="SGC Pricing Page">
+<t t-set="title">Pricing | SGC Tech Advisory Engagement Tiers UAE</t>
+<t t-set="meta_description">Transparent monthly engagement tiers from AED 15,000 to AED 75,000+. Foundation, Strategic, Growth and Enterprise advisory packages for UAE businesses.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://sgctech.ai/engagement-pricing"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero">
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">INVESTMENT LEVELS</span>
+                    <h1 class="aurum-reveal" data-aurum-delay="1">Transparent Pricing for Every Stage</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        Flexible engagement models designed to meet your organization where it is—from
+                        foundational support to enterprise transformation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING TIERS -->
+    <section class="aurum-section aurum-cream-bg">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">PRICING PLANS</span>
+            <h2 class="aurum-h aurum-reveal">Choose the Right Level of Engagement</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row g-4 mt-4">
+                <!-- TIER 1: FOUNDATION -->
+                <div class="col-md-6 col-lg-3 aurum-reveal">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted mb-1" style="letter-spacing:.08em;">Foundation</div>
+                        <p class="small text-muted mb-2">Essential financial &amp; operational clarity</p>
+                        <div class="aurum-tier-price" style="color:#8a6a1b;">AED 15,000</div>
+                        <p class="small text-muted mt-2" style="min-height:2.5em;">Ideal for startups and small teams seeking foundational advisory support.</p>
+                        <ul class="list-unstyled mt-3 text-start small" style="font-family:Inter,sans-serif;">
+                            <li class="mb-2">✓ Monthly financial review &amp; health check</li>
+                            <li class="mb-2">✓ Basic compliance gap assessment</li>
+                            <li class="mb-2">✓ Cash flow monitoring &amp; reporting</li>
+                            <li class="mb-2">✓ Quarterly strategy sessions</li>
+                            <li class="mb-2">✓ Email support with 48hr response</li>
+                        </ul>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;" aria-label="Choose Foundation plan">Choose Foundation</a>
+                        <div class="small text-muted mt-2">per month</div>
+                    </div>
+                </div>
+
+                <!-- TIER 2: STRATEGIC -->
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted mb-1" style="letter-spacing:.08em;">Strategic</div>
+                        <p class="small text-muted mb-2">Comprehensive advisory partnership</p>
+                        <div class="aurum-tier-price" style="color:#8a6a1b;">AED 25,000</div>
+                        <p class="small text-muted mt-2" style="min-height:2.5em;">For growing businesses ready to strengthen their strategic financial position.</p>
+                        <ul class="list-unstyled mt-3 text-start small" style="font-family:Inter,sans-serif;">
+                            <li class="mb-2">✓ Everything in Foundation, plus:</li>
+                            <li class="mb-2">✓ Bi-weekly strategic advisory sessions</li>
+                            <li class="mb-2">✓ Full compliance framework review</li>
+                            <li class="mb-2">✓ Technology assessment &amp; roadmap</li>
+                            <li class="mb-2">✓ Monthly board reporting pack</li>
+                            <li class="mb-2">✓ Priority email &amp; phone support</li>
+                        </ul>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;" aria-label="Choose Strategic plan">Choose Strategic</a>
+                        <div class="small text-muted mt-2">per month</div>
+                    </div>
+                </div>
+
+                <!-- TIER 3: GROWTH (FEATURED) -->
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-tier aurum-tier-featured aurum-sheen" style="position:relative;">
+                        <div class="badge position-absolute top-0 end-0 mt-2 me-2" style="background:#c9a227;color:#0b1f3f;font-size:.65rem;letter-spacing:.08em;">POPULAR</div>
+                        <div class="small text-uppercase mb-1" style="letter-spacing:.08em;color:#e8c766;">Growth</div>
+                        <p class="small text-white-50 mb-2">Integrated transformation partnership</p>
+                        <div class="aurum-tier-price" style="color:#e8c766;">AED 40,000</div>
+                        <p class="small text-white-50 mt-2" style="min-height:2.5em;">For organizations pursuing ambitious growth and operational transformation.</p>
+                        <ul class="list-unstyled mt-3 text-start small text-white-50" style="font-family:Inter,sans-serif;">
+                            <li class="mb-2">✓ Everything in Strategic, plus:</li>
+                            <li class="mb-2">✓ Dedicated engagement lead</li>
+                            <li class="mb-2">✓ Full technology implementation support</li>
+                            <li class="mb-2">✓ Risk management framework</li>
+                            <li class="mb-2">✓ Weekly progress reviews</li>
+                            <li class="mb-2">✓ 24hr priority support</li>
+                        </ul>
+                        <a href="/contact-us" class="btn btn-aurum-gold btn-sm mt-2" aria-label="Choose Growth plan">Choose Growth</a>
+                        <div class="small text-white-50 mt-2">per month</div>
+                    </div>
+                </div>
+
+                <!-- TIER 4: ENTERPRISE -->
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted mb-1" style="letter-spacing:.08em;">Enterprise</div>
+                        <p class="small text-muted mb-2">Full-scale enterprise transformation</p>
+                        <div class="aurum-tier-price" style="color:#8a6a1b;">AED 75,000+</div>
+                        <p class="small text-muted mt-2" style="min-height:2.5em;">For large enterprises requiring comprehensive, cross-functional transformation.</p>
+                        <ul class="list-unstyled mt-3 text-start small" style="font-family:Inter,sans-serif;">
+                            <li class="mb-2">✓ Everything in Growth, plus:</li>
+                            <li class="mb-2">✓ Multi-workstream program management</li>
+                            <li class="mb-2">✓ Interim executive placement</li>
+                            <li class="mb-2">✓ Custom technology development</li>
+                            <li class="mb-2">✓ Board-level strategic advisory</li>
+                            <li class="mb-2">✓ Dedicated on-site team</li>
+                        </ul>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;" aria-label="Contact Us about Enterprise">Contact Us</a>
+                        <div class="small text-muted mt-2">per month (custom scoping)</div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="small text-muted mt-4">AED = United Arab Emirates Dirham. Custom pricing available upon request.</p>
+        </div>
+    </section>
+
+    <!-- COMPARISON TABLE (desktop only) -->
+    <section class="aurum-section d-none d-lg-block">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">FEATURE COMPARISON</span>
+            <h2 class="aurum-h aurum-reveal">See What Each Tier Includes</h2>
+            <div class="aurum-divider"/>
+            <div class="table-responsive mt-4 aurum-reveal">
+                <table class="table align-middle mb-0" style="border:1px solid #c9a227;font-family:Inter,sans-serif;">
+                    <thead>
+                        <tr style="background:#0b1f3f;color:#fff;">
+                            <th style="padding:1rem;border:1px solid #c9a227;text-align:left;font-family:Playfair Display,serif;">Feature</th>
+                            <th style="padding:1rem;border:1px solid #c9a227;text-align:center;font-family:Playfair Display,serif;">Foundation</th>
+                            <th style="padding:1rem;border:1px solid #c9a227;text-align:center;font-family:Playfair Display,serif;">Strategic</th>
+                            <th style="padding:1rem;border:1px solid #c9a227;text-align:center;font-family:Playfair Display,serif;background:#c9a227;color:#0b1f3f;">Growth</th>
+                            <th style="padding:1rem;border:1px solid #c9a227;text-align:center;font-family:Playfair Display,serif;">Enterprise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Monthly Financial Review</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                        </tr>
+                        <tr style="background:#f7f0df;">
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Compliance Assessment</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">✓</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Strategic Advisory Sessions</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">—</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Bi-weekly</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Weekly</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">On-demand</td>
+                        </tr>
+                        <tr style="background:#f7f0df;">
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Tech Implementation</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">—</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Assessment</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Full Support</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Custom Build</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Dedicated Team</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">—</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">—</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Lead</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Full Team</td>
+                        </tr>
+                        <tr style="background:#f7f0df;">
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:left;font-weight:600;">Response Time</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">48hr</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">24hr</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">Priority</td>
+                            <td style="padding:.75rem 1rem;border:1px solid #dee2e6;text-align:center;">On-site</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="aurum-section aurum-cream-bg">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">HAVE QUESTIONS?</span>
+            <h2 class="aurum-h aurum-reveal">Frequently Asked Questions</h2>
+            <div class="aurum-divider"/>
+            <div class="row justify-content-center mt-4">
+                <div class="col-lg-8 text-start aurum-reveal">
+                    <details class="mb-3" style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">What's included in each tier?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Each tier builds on the one before it. Foundation delivers essential financial and compliance support. Strategic adds advisory sessions and technology assessment. Growth includes a dedicated lead and full implementation support. Enterprise provides a full cross-functional team with on-site presence. Detailed breakdowns are available in the comparison table above.</div>
+                    </details>
+                    <details class="mb-3" style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">How long are typical engagements?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Most engagements begin with a 3-month commitment, allowing us to establish momentum and deliver measurable outcomes. Many clients choose to extend or convert to ongoing retainer arrangements once the initial transformation milestones are achieved.</div>
+                    </details>
+                    <details class="mb-3" style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Do you offer custom pricing?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Yes. Enterprise and custom-scoped engagements are priced based on scope, duration, and resource requirements. We invite you to contact us for a tailored proposal that aligns with your organization's specific needs and objectives.</div>
+                    </details>
+                    <details class="mb-3" style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Can we switch tiers?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Absolutely. You can upgrade your tier at any time. We provide prorated billing to ensure you only pay for what you use. Downgrades take effect at the start of the next billing cycle.</div>
+                    </details>
+                    <details class="mb-3" style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">What is the expected ROI timeline?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Most clients begin to see measurable impact within 60 to 90 days of engagement. Our structured methodology is designed to deliver early wins while building toward sustainable, long-term transformation.</div>
+                    </details>
+                    <details style="background:#fff;border:1px solid #dee2e6;border-radius:8px;overflow:hidden;font-family:Inter,sans-serif;">
+                        <summary style="padding:1rem 1.25rem;cursor:pointer;font-weight:600;color:#0b1f3f;list-style:none;display:flex;justify-content:space-between;align-items:center;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">Do you offer retainer models?</summary>
+                        <div style="padding:0 1.25rem 1rem;color:rgba(11,31,63,.78);display:none;">Yes. We offer ongoing fractional and retainer arrangements for organizations that prefer sustained strategic partnership over project-based engagement. Retainers can be customized to your required level of support and availability.</div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="aurum-section">
+        <div class="container">
+            <div class="aurum-cta aurum-reveal">
+                <h2 class="aurum-h mb-3">Ready to transform?</h2>
+                <a href="/contact-us" class="btn btn-aurum-gold" aria-label="Start the Conversation">Start the Conversation</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

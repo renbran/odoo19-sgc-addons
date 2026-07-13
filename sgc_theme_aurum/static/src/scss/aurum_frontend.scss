@@ -1,0 +1,1301 @@
+// SGC Aurum Theme — Frontend / Website
+// Navy + gold luxury palette, serif display type, scroll animations.
+
+:root {
+    --aurum-navy: #0b1f3f;
+    --aurum-navy-2: #142b52;
+    --aurum-gold: #c48f2b;
+    --aurum-gold-light: #d4a843;
+    --aurum-gold-text: #7a5d17;
+    --aurum-cream: #f7f0df;
+    --aurum-ink: #16213a;
+    --aurum-focus-ring: #7a5d17;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .aurum-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .aurum-hero::before,
+    .aurum-hero-orbit,
+    * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+/* Visible focus states for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+.btn-aurum-gold:focus-visible,
+.btn-aurum-outline:focus-visible {
+    outline: 2px solid var(--aurum-focus-ring);
+    outline-offset: 3px;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--aurum-ink);
+}
+h1, h2, h3, h4, h5, h6, .card-title, .heading {
+    text-wrap: balance;
+}
+p, li, .description, .caption {
+    text-wrap: pretty;
+}
+
+img {
+    outline: 1px solid rgba(0, 0, 0, 0.08);
+    outline-offset: -1px;
+}
+.aurum-serif, h1.aurum-h, h2.aurum-h, h3.aurum-h, .aurum-hero h1, .aurum-section h2 {
+    font-family: 'Playfair Display', serif;
+}
+
+// ---------------------------------------------------------------- helpers
+.aurum-navy-bg { background: linear-gradient(135deg, var(--aurum-navy) 0%, var(--aurum-navy-2) 100%); color: #fff; }
+.aurum-cream-bg { background: var(--aurum-cream); }
+.aurum-gold-text { color: var(--aurum-gold-text); }
+.aurum-navy-bg .aurum-gold-text, .aurum-cta .aurum-gold-text { color: var(--aurum-gold-light); }
+.aurum-eyebrow {
+    display: inline-block;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--aurum-gold-text);
+    margin-bottom: .75rem;
+}
+/* On dark sections the bright gold has plenty of contrast; keep it vivid there */
+.aurum-navy-bg .aurum-eyebrow,
+.aurum-hero .aurum-eyebrow,
+.aurum-founder-card .aurum-eyebrow,
+.aurum-tier-featured .aurum-eyebrow,
+.aurum-cta .aurum-eyebrow {
+    color: var(--aurum-gold-light);
+}
+.aurum-divider {
+    width: 64px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--aurum-gold), var(--aurum-gold-light));
+    margin: 1.25rem auto;
+    border-radius: 4px;
+}
+
+// ---------------------------------------------------------------- reveal
+.aurum-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .8s cubic-bezier(.22, .61, .36, 1), transform .8s cubic-bezier(.22, .61, .36, 1);
+}
+.aurum-reveal.aurum-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+.aurum-reveal[data-aurum-delay="1"] { transition-delay: .1s; }
+.aurum-reveal[data-aurum-delay="2"] { transition-delay: .2s; }
+.aurum-reveal[data-aurum-delay="3"] { transition-delay: .3s; }
+.aurum-reveal[data-aurum-delay="4"] { transition-delay: .4s; }
+.aurum-reveal[data-aurum-delay="5"] { transition-delay: .5s; }
+
+// ---------------------------------------------------------------- navbar
+header#top.aurum-navbar {
+    transition-property: background, box-shadow, padding;
+    transition-duration: .3s;
+    transition-timing-function: ease;
+    background: transparent;
+}
+/* Top premium accent line on navbar */
+header#top.aurum-navbar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 5%, var(--aurum-gold) 25%, var(--aurum-gold-light) 50%, var(--aurum-gold) 75%, transparent 95%);
+    opacity: .6;
+    z-index: 1;
+}
+header#top.aurum-navbar.aurum-scrolled {
+    background: rgba(11, 31, 63, .92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+}
+header#top .nav-link {
+    color: #fff !important;
+    font-weight: 500;
+    position: relative;
+    text-shadow: 0 1px 8px rgba(0,0,0,.45);
+}
+header#top.aurum-scrolled .nav-link {
+    text-shadow: none;
+}
+header#top .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -4px;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--aurum-gold), var(--aurum-gold-light));
+    transition: width .3s ease;
+    border-radius: 1px;
+}
+header#top .nav-link:hover::after { width: 100%; }
+header#top .nav-link.active,
+header#top .nav-link:hover {
+    color: var(--aurum-gold-light) !important;
+}
+
+// ---------------------------------------------------------------- hero
+.aurum-hero {
+    position: relative;
+    background: radial-gradient(circle at 15% 20%, var(--aurum-navy-2) 0%, var(--aurum-navy) 60%);
+    color: #fff;
+    padding: 9rem 0 7rem;
+    overflow: hidden;
+}
+.aurum-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 5%, var(--aurum-gold) 25%, var(--aurum-gold-light) 50%, var(--aurum-gold) 75%, transparent 95%);
+    opacity: .5;
+}
+.aurum-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle, rgba(201,162,39,.35) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: .25;
+    animation: aurumDrift 40s linear infinite;
+    pointer-events: none;
+}
+@keyframes aurumDrift {
+    from { background-position: 0 0; }
+    to { background-position: 400px 400px; }
+}
+.aurum-hero .aurum-hero-inner { position: relative; z-index: 1; }
+.aurum-hero h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 700;
+    line-height: 1.1;
+}
+.aurum-hero .aurum-lead {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, .82);
+    max-width: 640px;
+}
+.aurum-price,
+.aurum-stat-num,
+.aurum-tier-price {
+    font-variant-numeric: tabular-nums;
+}
+.aurum-hero-orbit {
+    position: absolute;
+    right: -80px; top: 50%;
+    transform: translateY(-50%);
+    width: 420px; height: 420px;
+    border: 1px solid rgba(201, 162, 39, .35);
+    border-radius: 50%;
+}
+.aurum-hero-orbit::before {
+    content: '';
+    position: absolute;
+    inset: 40px;
+    border: 1px solid rgba(201, 162, 39, .22);
+    border-radius: 50%;
+}
+
+// ---------------------------------------------------------------- buttons
+.btn-aurum-gold {
+    background: linear-gradient(90deg, var(--aurum-gold) 0%, var(--aurum-gold-light) 100%);
+    background-size: 200% auto;
+    color: var(--aurum-navy) !important;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    padding: .75rem 1.9rem;
+    transition: background-position .5s ease, transform .25s ease, box-shadow .25s ease;
+    box-shadow: 0 8px 24px rgba(201, 162, 39, .28);
+}
+.btn-aurum-gold:hover {
+    background-position: right center;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(201, 162, 39, .4);
+    color: var(--aurum-navy) !important;
+}
+.btn-aurum-gold:active {
+    transform: translateY(0) scale(0.97);
+    transition-duration: 80ms;
+}
+.btn-aurum-gold:focus-visible {
+    outline: 2px solid var(--aurum-focus-ring);
+    outline-offset: 2px;
+}
+.btn-aurum-outline {
+    border: 1px solid var(--aurum-gold);
+    color: #fff !important;
+    background: transparent;
+    border-radius: 4px;
+    padding: .75rem 1.9rem;
+    transition-property: background-color, color, transform, box-shadow;
+    transition-duration: .25s;
+    transition-timing-function: ease;
+    cursor: pointer;
+}
+.btn-aurum-outline:hover {
+    background: var(--aurum-gold);
+    color: var(--aurum-navy) !important;
+}
+.btn-aurum-outline:active {
+    transform: scale(0.97);
+    transition-duration: 80ms;
+}
+
+// ---------------------------------------------------------------- section
+.aurum-section { padding: 6.5rem 0; }
+@media (max-width: 768px) { .aurum-section { padding: 4rem 0; } }
+.aurum-section h2 {
+    font-size: clamp(1.9rem, 3.4vw, 2.8rem);
+    font-weight: 700;
+    color: var(--aurum-navy);
+}
+.aurum-section .aurum-sub {
+    color: var(--aurum-navy);
+    opacity: .8;
+    max-width: 620px;
+    margin: 0 auto;
+}
+.aurum-cream-bg p,
+.aurum-cream-bg .text-muted,
+.aurum-cream-bg .lead,
+.aurum-section p,
+.aurum-section li {
+    color: rgba(11, 31, 63, .82) !important;
+}
+.aurum-navy-bg.aurum-section,
+.aurum-navy-bg.aurum-section h2,
+.aurum-navy-bg .aurum-section h2,
+.aurum-navy-bg h2 {
+    color: #fff !important;
+}
+.aurum-navy-bg.aurum-section .aurum-sub,
+.aurum-navy-bg .aurum-section .aurum-sub {
+    color: rgba(255, 255, 255, .8) !important;
+}
+.aurum-navy-bg.aurum-section p,
+.aurum-navy-bg.aurum-section li,
+.aurum-navy-bg.aurum-section .text-muted {
+    color: rgba(255, 255, 255, .78) !important;
+}
+
+// ---------------------------------------------------------------- founders
+.aurum-founder-card {
+    background: linear-gradient(145deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    border: 1px solid rgba(201, 162, 39, .25);
+    box-shadow: 0 4px 20px rgba(11, 31, 63, .15);
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: .35s;
+    transition-timing-function: ease;
+}
+.aurum-founder-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 44px rgba(11, 31, 63, .35);
+    border-color: rgba(201, 162, 39, .5);
+}
+.aurum-founder-avatar {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    margin: 0 auto 1.25rem;
+    background: linear-gradient(135deg, var(--aurum-gold) 0%, var(--aurum-gold-light) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    color: var(--aurum-navy);
+    box-shadow: 0 4px 14px rgba(201, 162, 39, .3);
+}
+.aurum-founder-card .aurum-role { color: var(--aurum-gold-light); font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+
+// ---------------------------------------------------------------- overlay card (image bg + gradient overlay)
+.aurum-overlay-card {
+    position: relative;
+    background-size: cover !important;
+    background-position: center !important;
+    overflow: hidden;
+    isolation: isolate;
+}
+.aurum-overlay-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11,31,63,.4) 0%, rgba(11,31,63,.88) 100%);
+    border-radius: inherit;
+    z-index: 0;
+    pointer-events: none;
+}
+.aurum-overlay-card > * { position: relative; z-index: 1; }
+.aurum-card-title {
+    text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.aurum-card-desc {
+    text-shadow: 0 1px 6px rgba(0,0,0,.4);
+}
+
+// ---------------------------------------------------------------- pillars
+/* Premium glass-sheen sweep: cheap, transform/opacity-only shine on hover */
+.aurum-sheen {
+    position: relative;
+    overflow: hidden;
+}
+.aurum-sheen::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.35) 50%, transparent 100%);
+    transform: skewX(-15deg);
+    opacity: 0;
+    transition: transform .7s ease, opacity .3s ease;
+    pointer-events: none;
+}
+.aurum-sheen:hover::after {
+    transform: translateX(260%) skewX(-15deg);
+    opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+    .aurum-sheen::after { display: none; }
+}
+
+.aurum-pillar {
+    background: #fff;
+    border: 1px solid #ede6d4;
+    border-radius: 12px;
+    padding: 2rem 1.6rem;
+    height: 100%;
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: .35s;
+    transition-timing-function: ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(11, 31, 63, .04);
+}
+.aurum-pillar-bg {
+    position: relative;
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover !important;
+    background-position: center !important;
+    border: none;
+}
+.aurum-pillar-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(11,31,63,.78) 0%, rgba(20,43,82,.4) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+.aurum-pillar-bg > * { position: relative; z-index: 1; }
+.aurum-pillar-bg .aurum-pillar-num {
+    color: #fff !important;
+    text-shadow: 0 2px 16px rgba(0,0,0,.35);
+    opacity: 0.2 !important;
+}
+.aurum-pillar::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--aurum-gold), var(--aurum-gold-light));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s ease;
+}
+.aurum-pillar:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 34px rgba(11, 31, 63, .10);
+    border-color: var(--aurum-gold);
+}
+.aurum-pillar:hover::before { transform: scaleX(1); }
+.aurum-pillar .aurum-pillar-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--aurum-gold-text);
+    font-weight: 700;
+}
+
+// ---------------------------------------------------------------- industries
+.aurum-industry {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--aurum-navy);
+    color: #fff;
+    aspect-ratio: 4/3;
+    display: flex; align-items: flex-end;
+    padding: 1.4rem;
+    isolation: isolate;
+    transition: transform .35s ease;
+}
+.aurum-industry::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(11,31,63,.15) 0%, rgba(11,31,63,.92) 100%);
+    z-index: 0;
+}
+.aurum-industry span { position: relative; z-index: 1; font-weight: 600; letter-spacing: .04em; }
+.aurum-industry:hover { transform: scale(1.03); }
+
+// Homepage industry card background images
+.aurum-industry-list .aurum-industry:nth-child(1) {
+    background-image: url(https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=600&q=80);
+}
+.aurum-industry-list .aurum-industry:nth-child(2) {
+    background-image: url(https://images.unsplash.com/photo-1541888946425-d81bb0025e8f?auto=format&fit=crop&w=600&q=80);
+}
+.aurum-industry-list .aurum-industry:nth-child(3) {
+    background-image: url(https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=600&q=80);
+}
+.aurum-industry-list .aurum-industry:nth-child(4) {
+    background-image: url(https://images.unsplash.com/photo-1565538421755-d98c6c41a224?auto=format&fit=crop&w=600&q=80);
+}
+.aurum-industry-list .aurum-industry:nth-child(5) {
+    background-image: url(https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=600&q=80);
+}
+.aurum-industry-list .aurum-industry:nth-child(6) {
+    background-image: url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80);
+}
+
+// ---------------------------------------------------------------- roadmap
+.aurum-roadmap { position: relative; }
+.aurum-roadmap-line {
+    position: absolute;
+    top: 44px; left: 0; right: 0;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--aurum-gold) 0 8px, transparent 8px 16px);
+    display: none;
+}
+@media (min-width: 992px) { .aurum-roadmap-line { display: block; } }
+.aurum-roadmap-step {
+    text-align: center;
+    position: relative;
+}
+.aurum-roadmap-badge {
+    width: 88px; height: 88px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    border: 2px solid var(--aurum-gold);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: var(--aurum-gold-light);
+    position: relative;
+    z-index: 1;
+    transition-property: transform, box-shadow;
+    transition-duration: .3s;
+    transition-timing-function: ease;
+    box-shadow: 0 4px 16px rgba(11, 31, 63, .15);
+}
+.aurum-roadmap-step:hover .aurum-roadmap-badge { transform: scale(1.08) rotate(-4deg); box-shadow: 0 8px 24px rgba(11, 31, 63, .3); }
+
+// ---------------------------------------------------------------- pricing
+.aurum-tier {
+    background: #fff;
+    border: 1px solid #ede6d4;
+    border-radius: 12px;
+    padding: 2.4rem 1.8rem;
+    text-align: center;
+    height: 100%;
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: .35s;
+    transition-timing-function: ease;
+    box-shadow: 0 2px 8px rgba(11, 31, 63, .04);
+}
+.aurum-tier:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(11,31,63,.12); border-color: var(--aurum-gold); }
+.aurum-tier.aurum-tier-featured {
+    background: linear-gradient(145deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    color: #fff;
+    border-color: var(--aurum-gold);
+    box-shadow: 0 8px 28px rgba(11,31,63,.25);
+    position: relative;
+}
+.aurum-tier.aurum-tier-featured::after {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20%; right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--aurum-gold-light), transparent);
+    border-radius: 0 0 2px 2px;
+}
+.aurum-tier .aurum-tier-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--aurum-gold-text);
+    margin: .5rem 0 1rem;
+}
+.aurum-tier-featured .aurum-tier-price { color: var(--aurum-gold); }
+
+// ---------------------------------------------------------------- stats / counters
+.aurum-stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--aurum-gold);
+}
+
+// ---------------------------------------------------------------- CTA
+.aurum-cta {
+    background: linear-gradient(135deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 4rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(11, 31, 63, .25);
+}
+.aurum-cta h2 { color: #fff !important; }
+.aurum-cta .aurum-eyebrow { position: relative; z-index: 1; }
+.aurum-cta .btn { position: relative; z-index: 1; }
+.aurum-cta::before {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(201,162,39,.25), transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+}
+.aurum-cta > :not(.aurum-cta-glow) {
+    position: relative;
+    z-index: 1;
+}
+
+// ---------------------------------------------------------------- industry card (standalone page)
+.aurum-industry-card {
+    background: linear-gradient(145deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1.8rem 1.5rem;
+    height: 100%;
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: .35s;
+    transition-timing-function: ease;
+    border: 1px solid rgba(201, 162, 39, .15);
+    box-shadow: 0 4px 16px rgba(11, 31, 63, .12);
+}
+.aurum-industry-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(11, 31, 63, .35);
+    border-color: rgba(201, 162, 39, .4);
+}
+.aurum-industry-card .aurum-industry-icon {
+    font-size: 2.4rem;
+    margin-bottom: .75rem;
+}
+
+// ---------------------------------------------------------------- timeline (standalone page)
+.aurum-timeline {
+    position: relative;
+}
+.aurum-timeline-phase {
+    padding: 1.5rem;
+    height: 100%;
+}
+.aurum-timeline-phase .phase-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--aurum-gold);
+    line-height: 1;
+    margin-bottom: .5rem;
+}
+.aurum-timeline-phase .phase-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: .25rem;
+}
+.aurum-timeline-phase .phase-timeline {
+    font-size: .8rem;
+    color: var(--aurum-gold-light);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: .75rem;
+}
+.aurum-timeline-phase .phase-desc {
+    font-size: .9rem;
+    color: rgba(255,255,255,.8);
+    margin-bottom: .75rem;
+}
+.aurum-timeline-phase .phase-deliverables {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: .85rem;
+    color: rgba(255,255,255,.7);
+}
+.aurum-timeline-phase .phase-deliverables li {
+    padding: .25rem 0;
+    padding-left: 1.2rem;
+    position: relative;
+}
+.aurum-timeline-phase .phase-deliverables li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--aurum-gold);
+    font-weight: 700;
+}
+
+// ---------------------------------------------------------------- form wrapper
+.aurum-form-wrapper {
+    background: #fff;
+    border: 1px solid var(--aurum-cream);
+    border-radius: 8px;
+    padding: 2rem;
+}
+.aurum-form-wrapper .form-label {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--aurum-navy);
+    margin-bottom: .35rem;
+}
+.aurum-form-wrapper .form-control {
+    border: 1px solid #d4cfc0;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: .9rem;
+    padding: .6rem .85rem;
+    transition: border-color .25s ease, box-shadow .25s ease;
+}
+.aurum-form-wrapper .form-control:focus {
+    border-color: var(--aurum-gold);
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, .15);
+    outline: none;
+}
+.aurum-form-wrapper textarea.form-control {
+    resize: vertical;
+    min-height: 120px;
+}
+
+// ---------------------------------------------------------------- comparison table
+.aurum-comparison-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: 'Inter', sans-serif;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(11, 31, 63, .08);
+}
+.aurum-comparison-table thead {
+    background: var(--aurum-navy);
+    color: #fff;
+}
+.aurum-comparison-table th {
+    padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--aurum-gold);
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+}
+.aurum-comparison-table th:first-child {
+    text-align: left;
+}
+.aurum-comparison-table th.aurum-featured-col {
+    background: var(--aurum-gold);
+    color: var(--aurum-navy);
+}
+.aurum-comparison-table td {
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid #ede6d4;
+    text-align: center;
+}
+.aurum-comparison-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+}
+.aurum-comparison-table tbody tr:nth-child(even) {
+    background: rgba(247, 240, 223, .35);
+}
+.aurum-comparison-table tbody tr:hover {
+    background: rgba(201, 162, 39, .06);
+}
+
+// ---------------------------------------------------------------- contact info panel
+.aurum-contact-info {
+    background: linear-gradient(145deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    height: 100%;
+    border: 1px solid rgba(201, 162, 39, .2);
+    box-shadow: 0 4px 20px rgba(11, 31, 63, .15);
+}
+.aurum-contact-info h3 {
+    font-family: 'Playfair Display', serif;
+    color: var(--aurum-gold);
+    margin-bottom: 1.25rem;
+}
+.aurum-contact-info .contact-item {
+    margin-bottom: 1rem;
+}
+.aurum-contact-info .contact-item a {
+    color: rgba(255,255,255,.85);
+    text-decoration: none;
+    transition: color .25s ease;
+}
+.aurum-contact-info .contact-item a:hover {
+    color: var(--aurum-gold-light);
+}
+.aurum-contact-info .contact-label {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--aurum-gold-light);
+    margin-bottom: .15rem;
+}
+.aurum-contact-info .social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.1);
+    color: #fff;
+    text-decoration: none;
+    transition: background .25s ease, transform .25s ease;
+    margin-right: .5rem;
+}
+.aurum-contact-info .social-link:hover {
+    background: var(--aurum-gold);
+    color: var(--aurum-navy);
+    transform: scale(1.1);
+}
+
+// ---------------------------------------------------------------- trust badges
+.aurum-trust-badge {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #ede6d4;
+    height: 100%;
+    transition-property: transform, box-shadow, border-color;
+    transition-duration: .3s;
+    transition-timing-function: ease;
+    box-shadow: 0 2px 8px rgba(11,31,63,.04);
+}
+.aurum-trust-badge:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(11,31,63,.12);
+    border-color: var(--aurum-gold);
+}
+.aurum-trust-badge .trust-icon {
+    font-size: 2rem;
+    margin-bottom: .5rem;
+}
+.aurum-trust-badge .trust-name {
+    font-weight: 700;
+    color: var(--aurum-navy);
+    font-size: .9rem;
+    margin-bottom: .25rem;
+}
+
+// ---------------------------------------------------------------- pillar deep-dive (services page)
+.aurum-pillar-deep {
+    padding: 3rem 0;
+}
+.aurum-pillar-deep .pillar-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--aurum-gold-text);
+    line-height: 1;
+    margin-bottom: .5rem;
+}
+.aurum-pillar-deep h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    color: var(--aurum-navy);
+    margin-bottom: 1rem;
+}
+.aurum-pillar-deep ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.aurum-pillar-deep ul li {
+    padding: .45rem 0;
+    padding-left: 1.6rem;
+    position: relative;
+    font-size: .95rem;
+    color: #4a5568;
+}
+.aurum-pillar-deep ul li::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--aurum-gold);
+    font-size: .65rem;
+    top: .6rem;
+}
+
+// ---------------------------------------------------------------- WCAG contrast fixes on navy
+.aurum-navy-bg .text-white-50,
+.aurum-navy-bg .text-muted {
+    color: rgba(255, 255, 255, .78) !important;
+}
+.aurum-navy-bg [style*="rgba(255,255,255,.6)"] {
+    color: rgba(255, 255, 255, .78) !important;
+}
+.aurum-founder-card .text-muted {
+    color: rgba(255, 255, 255, .72) !important;
+}
+
+// ---------------------------------------------------------------- footer
+.aurum-footer,
+footer.o_footer {
+    background: var(--aurum-navy) !important;
+    color: rgba(255, 255, 255, .85) !important;
+    padding: 3rem 0 1.5rem;
+}
+.aurum-footer a,
+footer.o_footer a {
+    color: rgba(255, 255, 255, .78) !important;
+    font-weight: 500;
+}
+.aurum-footer a:hover,
+footer.o_footer a:hover {
+    color: var(--aurum-gold-light) !important;
+}
+footer.o_footer h4,
+footer.o_footer .h4,
+footer.o_footer h5,
+footer.o_footer .h5 {
+    color: var(--aurum-gold-light) !important;
+    font-family: 'Playfair Display', serif;
+}
+footer.o_footer .text-muted {
+    color: rgba(255, 255, 255, .7) !important;
+}
+footer.o_footer .o_footer_copyright {
+    border-top-color: rgba(255, 255, 255, .1) !important;
+    color: rgba(255, 255, 255, .65) !important;
+}
+footer.o_footer .o_footer_copyright a {
+    color: var(--aurum-gold-light) !important;
+}
+
+// ---------------------------------------------------------------- hero slideshow
+.aurum-hero-slideshow {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+.aurum-hero-slideshow .slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    animation: aurumKenBurns 24s ease-in-out infinite;
+    transform: scale(1);
+}
+.aurum-hero-slideshow .slide:nth-child(1) { animation-delay: 0s; }
+.aurum-hero-slideshow .slide:nth-child(2) { animation-delay: 8s; }
+.aurum-hero-slideshow .slide:nth-child(3) { animation-delay: 16s; }
+@keyframes aurumKenBurns {
+    0%   { opacity: 0; transform: scale(1); }
+    6%   { opacity: .5; transform: scale(1.05); }
+    12%  { opacity: .6; transform: scale(1.1); }
+    30%  { opacity: .55; transform: scale(1.1); }
+    36%  { opacity: 0; transform: scale(1.15); }
+    100% { opacity: 0; transform: scale(1); }
+}
+.aurum-hero.has-slideshow::before { opacity: .15; }
+.aurum-hero.has-slideshow .aurum-hero-inner { z-index: 2; }
+.aurum-hero.has-slideshow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(11,31,63,.82) 0%, rgba(11,31,63,.6) 50%, rgba(11,31,63,.82) 100%);
+    z-index: 1;
+}
+
+// ---------------------------------------------------------------- floating gold particles
+.aurum-hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+.aurum-hero-particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--aurum-gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: aurumFloatParticle 8s ease-in-out infinite;
+}
+.aurum-hero-particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 7s; }
+.aurum-hero-particle:nth-child(2) { left: 25%; top: 60%; animation-delay: 1.2s; animation-duration: 9s; width: 3px; height: 3px; }
+.aurum-hero-particle:nth-child(3) { left: 45%; top: 15%; animation-delay: 2.5s; animation-duration: 8s; width: 5px; height: 5px; }
+.aurum-hero-particle:nth-child(4) { left: 60%; top: 70%; animation-delay: 0.8s; animation-duration: 10s; }
+.aurum-hero-particle:nth-child(5) { left: 75%; top: 30%; animation-delay: 3.2s; animation-duration: 7.5s; width: 3px; height: 3px; }
+.aurum-hero-particle:nth-child(6) { left: 85%; top: 55%; animation-delay: 1.8s; animation-duration: 8.5s; }
+.aurum-hero-particle:nth-child(7) { left: 35%; top: 80%; animation-delay: 4s; animation-duration: 9.5s; width: 5px; height: 5px; }
+.aurum-hero-particle:nth-child(8) { left: 90%; top: 10%; animation-delay: 2.2s; animation-duration: 7.2s; }
+@keyframes aurumFloatParticle {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    20%  { opacity: .7; transform: translateY(-20px) scale(1.2); }
+    60%  { opacity: .5; transform: translateY(-60px) scale(.8); }
+    100% { opacity: 0; transform: translateY(-120px) scale(0); }
+}
+
+// ---------------------------------------------------------------- gold shimmer text
+.aurum-shimmer {
+    background: linear-gradient(90deg,
+        #fff 0%, #fff 20%,
+        var(--aurum-gold-light) 40%,
+        #fff 60%, #fff 80%
+    );
+    background-size: 300% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: aurumShimmer 6s ease-in-out infinite;
+}
+@keyframes aurumShimmer {
+    0%   { background-position: 0% center; }
+    50%  { background-position: 100% center; }
+    100% { background-position: 0% center; }
+}
+
+// ---------------------------------------------------------------- glow pulse for CTAs
+.aurum-glow-pulse {
+    animation: aurumGlowPulse 2.5s ease-in-out infinite;
+}
+@keyframes aurumGlowPulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(201, 162, 39, .28); }
+    50%      { box-shadow: 0 8px 36px rgba(201, 162, 39, .55); }
+}
+
+// ---------------------------------------------------------------- image card premium hover
+.aurum-overlay-card {
+    transition-property: transform, box-shadow;
+    transition-duration: .5s;
+    transition-timing-function: cubic-bezier(.22,.61,.36,1);
+    border-radius: 12px;
+    outline: 1px solid rgba(255,255,255,.06);
+    outline-offset: -1px;
+}
+.aurum-overlay-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 48px rgba(11,31,63,.35);
+}
+.aurum-overlay-card::before {
+    transition-property: background;
+    transition-duration: .5s;
+    transition-timing-function: ease;
+    border-radius: 12px;
+}
+.aurum-overlay-card:hover::before {
+    background: linear-gradient(180deg, rgba(11,31,63,.25) 0%, rgba(11,31,63,.78) 100%);
+}
+
+// ---------------------------------------------------------------- border glow on focus/hover
+.aurum-gold-border-hover {
+    transition: border-color .3s ease, box-shadow .3s ease;
+}
+.aurum-gold-border-hover:hover {
+    border-color: var(--aurum-gold) !important;
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, .15);
+}
+
+// ---------------------------------------------------------------- stat counter entrance
+.aurum-stat-num {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .6s ease, transform .6s ease;
+}
+.aurum-stat-num.aurum-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+// ---------------------------------------------------------------- staggered card entrance
+.aurum-stagger > .aurum-stagger-item {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1);
+}
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: .1s; }
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: .2s; }
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: .3s; }
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: .4s; }
+.aurum-stagger.aurum-in > .aurum-stagger-item:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: .5s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .aurum-hero-slideshow, .aurum-hero-particles,
+    .aurum-shimmer, .aurum-glow-pulse,
+    .aurum-overlay-card, .aurum-stat-num,
+    .aurum-stagger > .aurum-stagger-item {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+
+// ---------------------------------------------------------------- skip link
+.aurum-skip-link {
+    position: absolute;
+    top: -40px;
+    left: 1rem;
+    z-index: 1080;
+    background: var(--aurum-gold);
+    color: var(--aurum-navy) !important;
+    padding: .5rem 1rem;
+    font-weight: 600;
+    border-radius: 0 0 4px 4px;
+    text-decoration: none;
+    transition: top .2s ease;
+}
+.aurum-skip-link:focus {
+    top: 0;
+    outline: 2px solid var(--aurum-navy);
+    outline-offset: 2px;
+}
+
+// ---------------------------------------------------------------- premium auth
+.aurum-auth-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, var(--aurum-navy) 0%, #0e2a4e 100%);
+    position: relative;
+    overflow: hidden;
+}
+.aurum-auth-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(201, 162, 39, .35) 1px, transparent 1px);
+    background-size: 26px 26px;
+    opacity: .18;
+    pointer-events: none;
+}
+.aurum-auth-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 480px;
+    gap: 3rem;
+    width: 100%;
+    align-items: center;
+}
+@media (max-width: 1100px) {
+    .aurum-auth-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    .aurum-auth-brand-panel {
+        display: none;
+    }
+}
+.aurum-auth-brand-panel {
+    color: #fff;
+    padding: 2rem;
+}
+.aurum-auth-brand-content {
+    max-width: 600px;
+}
+.aurum-auth-kicker {
+    display: block;
+    font-size: .8rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--aurum-gold-light);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+.aurum-auth-brand-panel h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.12;
+    margin-bottom: 1.25rem;
+}
+.aurum-auth-brand-panel h1 span {
+    color: var(--aurum-gold-light);
+}
+.aurum-auth-brand-panel p {
+    color: rgba(255, 255, 255, .82);
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin-bottom: 2rem;
+}
+.aurum-auth-stat-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+.aurum-auth-stat-card {
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(201, 162, 39, .25);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    min-width: 130px;
+    backdrop-filter: blur(6px);
+}
+.aurum-auth-stat-card strong {
+    display: block;
+    color: var(--aurum-gold-light);
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: .25rem;
+}
+.aurum-auth-stat-card span {
+    display: block;
+    color: rgba(255, 255, 255, .72);
+    font-size: .78rem;
+    line-height: 1.3;
+}
+.aurum-auth-trust-list {
+    display: flex;
+    flex-direction: column;
+    gap: .7rem;
+}
+.aurum-auth-trust-list > div {
+    position: relative;
+    padding-left: 1.6rem;
+    color: rgba(255, 255, 255, .78);
+    font-size: .92rem;
+}
+.aurum-auth-trust-list > div::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--aurum-gold-light);
+    font-weight: 700;
+}
+.aurum-auth-form-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.aurum-auth-card {
+    width: 100%;
+    background: rgba(255, 255, 255, .97);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+    border: 1px solid rgba(201, 162, 39, .25);
+}
+.aurum-auth-card .card-body {
+    padding: 2.25rem;
+}
+.aurum-auth-logo p {
+    color: rgba(11, 31, 63, .72);
+    font-size: .88rem;
+    line-height: 1.5;
+}
+.aurum-auth-logo img {
+    outline: none;
+}
+.aurum-auth-card .form-label {
+    font-weight: 600;
+    font-size: .85rem;
+    color: var(--aurum-navy);
+    margin-bottom: .35rem;
+}
+.aurum-auth-card .form-control {
+    border: 1px solid #d4cfc0;
+    border-radius: 6px;
+    padding: .75rem 1rem;
+    font-size: .95rem;
+    transition: border-color .25s ease, box-shadow .25s ease;
+}
+.aurum-auth-card .form-control:focus {
+    border-color: var(--aurum-gold);
+    box-shadow: 0 0 0 3px rgba(201, 162, 39, .18);
+    outline: none;
+}
+.aurum-auth-card .form-check-input:checked {
+    background-color: var(--aurum-gold);
+    border-color: var(--aurum-gold);
+}
+.aurum-auth-submit {
+    width: 100%;
+    background: linear-gradient(90deg, var(--aurum-gold) 0%, var(--aurum-gold-light) 100%);
+    background-size: 200% auto;
+    border: none;
+    border-radius: 6px;
+    color: var(--aurum-navy);
+    font-weight: 700;
+    padding: .85rem 1rem;
+    margin-top: .5rem;
+    transition: background-position .5s ease, transform .25s ease, box-shadow .25s ease;
+    box-shadow: 0 8px 22px rgba(201, 162, 39, .28);
+}
+.aurum-auth-submit:hover {
+    background-position: right center;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(201, 162, 39, .4);
+    color: var(--aurum-navy);
+}
+.aurum-auth-submit:active {
+    transform: translateY(0) scale(0.98);
+}
+.aurum-auth-submit:focus-visible {
+    outline: 2px solid var(--aurum-focus-ring);
+    outline-offset: 3px;
+}
+.aurum-auth-card a {
+    color: var(--aurum-gold-text);
+    font-weight: 500;
+}
+.aurum-auth-card a:hover {
+    color: var(--aurum-gold);
+}
+.aurum-auth-card .alert-danger {
+    background: rgba(239, 68, 68, .08);
+    border-color: rgba(239, 68, 68, .2);
+    color: #991b1b;
+}
+.aurum-auth-card .small a span {
+    color: var(--aurum-gold-text);
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+    .aurum-auth-card .card-body {
+        padding: 1.5rem;
+    }
+    .aurum-auth-shell {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+        min-height: auto;
+    }
+}

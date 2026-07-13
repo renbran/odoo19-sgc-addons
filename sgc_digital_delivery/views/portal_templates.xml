@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Add "My Downloads" entry to the customer portal sidebar menu -->
+  <template id="portal_my_home_digital_products"
+            inherit_id="portal.portal_my_home"
+            name="My Downloads — Portal Menu Entry"
+            customize_show="False"
+            priority="30">
+    <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+      <t t-call="portal.portal_docs_entry">
+        <t t-set="icon">/web/static/img/icons/contract.svg</t>
+        <t t-set="title">Downloads</t>
+        <t t-set="url">/my/downloads</t>
+        <t t-set="text">Access your purchased digital files</t>
+        <t t-set="placeholder_count" t-value="0"/>
+      </t>
+    </xpath>
+  </template>
+
+</odoo>

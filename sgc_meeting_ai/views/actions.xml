@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sgc_meeting_recording_action" model="ir.actions.act_window">
+        <field name="name">Recordings</field>
+        <field name="res_model">sgc.meeting.recording</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="sgc_meeting_transcript_action" model="ir.actions.act_window">
+        <field name="name">Transcripts</field>
+        <field name="res_model">sgc.meeting.transcript</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    <record id="sgc_meeting_session_action" model="ir.actions.act_window">
+        <field name="name">Meeting Sessions</field>
+        <field name="res_model">sgc.meeting.session</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No meeting sessions yet.
+            </p>
+            <p>Sessions are created automatically when a recording is uploaded via webhook, or manually from a calendar event.</p>
+        </field>
+    </record>
+    <record id="sgc_meeting_notes_action" model="ir.actions.act_window">
+        <field name="name">AI Meeting Notes</field>
+        <field name="res_model">sgc.meeting.notes</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No AI notes yet.
+            </p>
+            <p>Notes are generated automatically when a recording finishes its AI pipeline (Whisper + LLM).</p>
+        </field>
+    </record>
+    <record id="sgc_meeting_provider_action" model="ir.actions.act_window">
+        <field name="name">Meeting Providers</field>
+        <field name="res_model">sgc.meeting.provider</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure meeting providers (Google Meet, Zoom, Teams, In Person).
+            </p>
+            <p>Each provider exposes a webhook URL for bot services to upload recordings to.</p>
+        </field>
+    </record>
+</odoo>

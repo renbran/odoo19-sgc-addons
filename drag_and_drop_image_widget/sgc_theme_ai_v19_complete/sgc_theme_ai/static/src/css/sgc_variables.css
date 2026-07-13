@@ -1,0 +1,136 @@
+/* ============================================================
+   SGC TECH AI — Design Token System
+   Version: 19.0.1.0.0
+   Brand: Intelligent Infrastructure. Instant Impact.
+   ============================================================ */
+
+:root {
+  /* ─── PRIMARY PALETTE ───────────────────────────────── */
+  --sgc-deep-navy:       #0c1e34;
+  --sgc-ocean-blue:      #1e3a8a;
+  --sgc-sky-blue:        #4fc3f7;
+
+  /* ─── ACCENT PALETTE ────────────────────────────────── */
+  --sgc-electric-cyan:   #00FFF0;
+  --sgc-neon-green:      #00FF88;
+  --sgc-carbon-black:    #0A0A0A;
+
+  /* ─── EXTENDED PALETTE ──────────────────────────────── */
+  --sgc-navy-90:         #0c1e34e6;
+  --sgc-navy-80:         #0c1e34cc;
+  --sgc-navy-60:         #0c1e3499;
+  --sgc-navy-40:         #0c1e3466;
+  --sgc-cyan-20:         #00FFF033;
+  --sgc-cyan-10:         #00FFF01a;
+  --sgc-green-20:        #00FF8833;
+  --sgc-white:           #ffffff;
+  --sgc-white-90:        #ffffffe6;
+  --sgc-white-60:        #ffffff99;
+  --sgc-white-20:        #ffffff33;
+  --sgc-white-10:        #ffffff1a;
+  --sgc-gray-100:        #f0f4f8;
+  --sgc-gray-200:        #d9e2ec;
+  --sgc-gray-500:        #627d98;
+  --sgc-gray-700:        #334e68;
+  --sgc-gray-900:        #102a43;
+
+  /* ─── GRADIENTS ─────────────────────────────────────── */
+  --sgc-gradient-hero:   linear-gradient(135deg, #0c1e34 0%, #1e3a8a 50%, #0c1e34 100%);
+  --sgc-gradient-card:   linear-gradient(135deg, rgba(0,255,240,0.08) 0%, rgba(30,58,138,0.15) 100%);
+  --sgc-gradient-cta:    linear-gradient(135deg, #00FFF0 0%, #00FF88 100%);
+  --sgc-gradient-accent: linear-gradient(135deg, #00FF88 0%, #00FFF0 100%);
+  --sgc-gradient-dark:   linear-gradient(180deg, #0c1e34 0%, #080f1c 100%);
+  --sgc-gradient-radial: radial-gradient(ellipse at 50% 0%, #1e3a8a55 0%, transparent 70%);
+  --sgc-gradient-mesh:   
+    radial-gradient(at 0% 0%, #00FFF015 0px, transparent 50%),
+    radial-gradient(at 100% 0%, #00FF8815 0px, transparent 50%),
+    radial-gradient(at 50% 100%, #1e3a8a30 0px, transparent 50%),
+    #0c1e34;
+  --sgc-gradient-circuit:
+    linear-gradient(180deg, rgba(3, 15, 28, 0.88) 0%, rgba(5, 22, 38, 0.92) 100%),
+    radial-gradient(circle at 18% 14%, rgba(148, 191, 214, 0.22) 0%, transparent 18%),
+    radial-gradient(circle at 55% 42%, rgba(0, 255, 240, 0.12) 0%, transparent 14%),
+    radial-gradient(circle at 88% 80%, rgba(0, 255, 240, 0.08) 0%, transparent 16%),
+    #071826;
+  --sgc-circuit-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1200' preserveAspectRatio='none'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg stroke='%2311273f' stroke-width='4'%3E%3Cpath d='M0 210h180l70 70h210l80 80h180v95h140l85-85h250'/%3E%3Cpath d='M150 690h260v-90h210v130h310v-60h285'/%3E%3Cpath d='M980 110v210l-95 95v150l120 120h330'/%3E%3Cpath d='M1340 260h150v200h-220v120h-180'/%3E%3Cpath d='M310 100v110h140v120h-100v120'/%3E%3Cpath d='M1180 780h170v170h-220v140'/%3E%3C/g%3E%3Cg stroke='%2300d8d2' stroke-width='8'%3E%3Cpath d='M520 366v118h78v-58h82v126h126'/%3E%3Cpath d='M976 510h182v62h92'/%3E%3Cpath d='M736 824v94l84 84h148'/%3E%3C/g%3E%3Cg fill='%23cfe8f1' opacity='.48'%3E%3Crect x='308' y='118' width='54' height='92' rx='5'/%3E%3Crect x='704' y='96' width='18' height='150' rx='4'/%3E%3Crect x='742' y='96' width='18' height='150' rx='4'/%3E%3Crect x='986' y='858' width='18' height='126' rx='4'/%3E%3Crect x='1030' y='858' width='18' height='126' rx='4'/%3E%3C/g%3E%3Cg fill='%237ea8bb' opacity='.35'%3E%3Crect x='108' y='326' width='84' height='38' rx='4'/%3E%3Crect x='1214' y='222' width='136' height='36' rx='4'/%3E%3Crect x='1228' y='744' width='124' height='44' rx='4'/%3E%3Crect x='534' y='706' width='68' height='58' rx='5'/%3E%3C/g%3E%3Cg fill='%2300fff0' opacity='.8'%3E%3Ccircle cx='890' cy='254' r='4'/%3E%3Ccircle cx='1126' cy='612' r='4'/%3E%3Ccircle cx='835' cy='936' r='4'/%3E%3Ccircle cx='1280' cy='966' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  --sgc-circuit-overlay: linear-gradient(180deg, rgba(7, 24, 38, 0.28) 0%, rgba(7, 24, 38, 0.64) 100%);
+
+  /* ─── GLASSMORPHISM ─────────────────────────────────── */
+  --sgc-glass-bg:        rgba(12, 30, 52, 0.7);
+  --sgc-glass-bg-light:  rgba(255, 255, 255, 0.05);
+  --sgc-glass-border:    rgba(0, 255, 240, 0.2);
+  --sgc-glass-border-hover: rgba(0, 255, 240, 0.5);
+  --sgc-glass-blur:      blur(20px);
+  --sgc-glass-blur-sm:   blur(10px);
+
+  /* ─── TYPOGRAPHY ────────────────────────────────────── */
+  --sgc-font-display:    'Syne', sans-serif;
+  --sgc-font-body:       'Space Grotesk', sans-serif;
+  --sgc-font-mono:       'JetBrains Mono', monospace;
+
+  --sgc-text-xs:         0.75rem;    /* 12px */
+  --sgc-text-sm:         0.875rem;   /* 14px */
+  --sgc-text-base:       1rem;       /* 16px */
+  --sgc-text-lg:         1.125rem;   /* 18px */
+  --sgc-text-xl:         1.25rem;    /* 20px */
+  --sgc-text-2xl:        1.5rem;     /* 24px */
+  --sgc-text-3xl:        1.875rem;   /* 30px */
+  --sgc-text-4xl:        2.25rem;    /* 36px */
+  --sgc-text-5xl:        3rem;       /* 48px */
+  --sgc-text-6xl:        3.75rem;    /* 60px */
+  --sgc-text-7xl:        4.5rem;     /* 72px */
+  --sgc-text-8xl:        6rem;       /* 96px */
+
+  /* ─── SPACING ───────────────────────────────────────── */
+  --sgc-space-1:         0.25rem;
+  --sgc-space-2:         0.5rem;
+  --sgc-space-3:         0.75rem;
+  --sgc-space-4:         1rem;
+  --sgc-space-6:         1.5rem;
+  --sgc-space-8:         2rem;
+  --sgc-space-10:        2.5rem;
+  --sgc-space-12:        3rem;
+  --sgc-space-16:        4rem;
+  --sgc-space-20:        5rem;
+  --sgc-space-24:        6rem;
+  --sgc-space-32:        8rem;
+
+  /* ─── BORDERS & RADIUS ──────────────────────────────── */
+  --sgc-radius-sm:       0.375rem;
+  --sgc-radius-md:       0.75rem;
+  --sgc-radius-lg:       1rem;
+  --sgc-radius-xl:       1.5rem;
+  --sgc-radius-2xl:      2rem;
+  --sgc-radius-full:     9999px;
+
+  /* ─── SHADOWS ───────────────────────────────────────── */
+  --sgc-shadow-sm:       0 1px 3px rgba(0,0,0,0.4);
+  --sgc-shadow-md:       0 4px 20px rgba(0,0,0,0.5);
+  --sgc-shadow-lg:       0 10px 40px rgba(0,0,0,0.6);
+  --sgc-shadow-xl:       0 20px 60px rgba(0,0,0,0.7);
+  --sgc-shadow-cyan:     0 0 30px rgba(0,255,240,0.3);
+  --sgc-shadow-cyan-lg:  0 0 60px rgba(0,255,240,0.4);
+  --sgc-shadow-green:    0 0 30px rgba(0,255,136,0.3);
+  --sgc-shadow-glow:     0 0 0 1px rgba(0,255,240,0.2), 0 0 30px rgba(0,255,240,0.15);
+
+  /* ─── TRANSITIONS ───────────────────────────────────── */
+  --sgc-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sgc-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sgc-transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  --sgc-transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ─── Z-INDEX SCALE ─────────────────────────────────── */
+  --sgc-z-base:         1;
+  --sgc-z-raised:       10;
+  --sgc-z-overlay:      100;
+  --sgc-z-modal:        1000;
+  --sgc-z-toast:        2000;
+  --sgc-z-copilot:      9999;
+}
+
+/* ─── DARK MODE OVERRIDES ──────────────────────────── */
+[data-bs-theme="dark"],
+.o_dark_theme {
+  --bs-body-bg: var(--sgc-deep-navy);
+  --bs-body-color: var(--sgc-white);
+}

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Portal Home: My Construction Projects entry -->
+    <template id="portal_my_home_construction" name="Portal My Home: Construction Projects"
+              inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Construction Projects</t>
+                <t t-set="url">/my/construction-projects</t>
+                <t t-set="placeholder_count">construction_project_count</t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Project List Page -->
+    <template id="portal_my_construction_projects" name="My Construction Projects">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Construction Projects</t>
+            </t>
+            <t t-if="not projects">
+                <div class="alert alert-warning mt-3">
+                    No construction projects found.
+                </div>
+            </t>
+            <t t-if="projects">
+                <div class="row mt-4">
+                    <t t-foreach="projects" t-as="project">
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card h-100 shadow-sm border-0"
+                                 style="border-left: 4px solid #C9A961 !important;">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2 gap-2">
+                                        <t t-if="project.image_128">
+                                            <img t-att-src="'/web/image/construction.project/%s/image_128' % project.id"
+                                                 class="rounded-circle"
+                                                 style="width:48px;height:48px;object-fit:cover;"
+                                                 t-att-alt="project.name"/>
+                                        </t>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold" style="color:#1B3A57;">
+                                                <a t-attf-href="/my/construction-projects/#{project.id}"
+                                                   class="text-decoration-none" style="color:#1B3A57;">
+                                                    <t t-out="project.name"/>
+                                                </a>
+                                            </h6>
+                                            <small class="text-muted"><t t-out="project.ref"/></small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span t-attf-class="badge rounded-pill #{
+                                                  'bg-success' if project.state == 'active' else
+                                                  'bg-warning text-dark' if project.state == 'on_hold' else
+                                                  'bg-info text-dark' if project.state == 'completed' else
+                                                  'bg-secondary'}">
+                                            <t t-out="dict(project.fields_get(['state'])['state']['selection'])[project.state]"/>
+                                        </span>
+                                    </div>
+                                    <div class="mb-1 small">
+                                        <span class="text-muted">Progress: </span>
+                                        <div class="progress mt-1" style="height:6px;">
+                                            <div class="progress-bar" role="progressbar"
+                                                 t-att-style="'width:' + str(int(project.progress)) + '%;background-color:#1B3A57;'"
+                                                 t-att-aria-valuenow="int(project.progress)"
+                                                 aria-valuemin="0" aria-valuemax="100"/>
+                                        </div>
+                                        <small class="text-muted mt-1 d-block">
+                                            <t t-out="int(project.progress)"/>%
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <a t-attf-href="/my/construction-projects/#{project.id}"
+                                       class="btn btn-sm w-100"
+                                       style="background-color:#1B3A57;color:#fff;">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                <div class="o_portal_pager text-center mt-3">
+                    <t t-call="portal.pager"/>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Project Detail Page -->
+    <template id="portal_construction_project_detail" name="Construction Project Detail">
+        <t t-call="portal.portal_layout">
+
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/my/home">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/my/construction-projects">Projects</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <t t-out="project.name"/>
+                    </li>
+                </ol>
+            </nav>
+
+            <div class="container-fluid px-0">
+
+                <!-- Header card -->
+                <div class="card mb-4 border-0 shadow-sm"
+                     style="border-left: 5px solid #C9A961 !important;">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                            <t t-if="project.image_128">
+                                <img t-att-src="'/web/image/construction.project/%s/image_128' % project.id"
+                                     class="rounded-circle"
+                                     style="width:72px;height:72px;object-fit:cover;"
+                                     t-att-alt="project.name"/>
+                            </t>
+                            <div class="flex-grow-1">
+                                <h3 class="mb-0 fw-bold" style="color:#1B3A57;">
+                                    <t t-out="project.name"/>
+                                </h3>
+                                <div class="text-muted small">
+                                    <t t-out="project.ref"/>
+                                    <t t-if="project.client_id">
+                                        &#160;·&#160;<t t-out="project.client_id.name"/>
+                                    </t>
+                                </div>
+                                <div class="mt-1">
+                                    <span t-attf-class="badge rounded-pill #{
+                                              'bg-success' if project.state == 'active' else
+                                              'bg-warning text-dark' if project.state == 'on_hold' else
+                                              'bg-info text-dark' if project.state == 'completed' else
+                                              'bg-secondary'}">
+                                        <t t-out="dict(project.fields_get(['state'])['state']['selection'])[project.state]"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="text-end text-muted small">
+                                <t t-if="project.start_date">
+                                    <div>Start: <t t-out="project.start_date"/></div>
+                                </t>
+                                <t t-if="project.end_date">
+                                    <div>End: <t t-out="project.end_date"/></div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress bars -->
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-3" style="color:#1B3A57;">Progress</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Actual Progress</span>
+                                <span class="fw-bold">
+                                    <t t-out="round(project.progress, 1)"/>%
+                                </span>
+                            </div>
+                            <div class="progress" style="height:12px;">
+                                <div class="progress-bar" role="progressbar"
+                                     t-att-style="'width:' + str(int(project.progress)) + '%;background-color:#1B3A57;'"
+                                     t-att-aria-valuenow="int(project.progress)"
+                                     aria-valuemin="0" aria-valuemax="100"/>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Planned Progress</span>
+                                <span class="fw-bold">
+                                    <t t-out="round(project.planned_progress, 1)"/>%
+                                </span>
+                            </div>
+                            <div class="progress" style="height:12px;">
+                                <div class="progress-bar" role="progressbar"
+                                     t-att-style="'width:' + str(int(project.planned_progress)) + '%;background-color:#C9A961;'"
+                                     t-att-aria-valuenow="int(project.planned_progress)"
+                                     aria-valuemin="0" aria-valuemax="100"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI cards -->
+                <div class="row mb-4 g-3">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body">
+                                <div class="small text-muted mb-1">Contract Value</div>
+                                <div class="fs-5 fw-bold" style="color:#1B3A57;">
+                                    <t t-out="project.currency_id.symbol"/>&#160;<t t-out="'{:,.0f}'.format(project.contract_value)"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body">
+                                <div class="small text-muted mb-1">Total Billed</div>
+                                <div class="fs-5 fw-bold" style="color:#C9A961;">
+                                    <t t-out="project.currency_id.symbol"/>&#160;<t t-out="'{:,.0f}'.format(project.total_billed)"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm text-center">
+                            <div class="card-body">
+                                <div class="small text-muted mb-1">Budget Consumed</div>
+                                <div class="fs-5 fw-bold"
+                                     t-att-style="'color:' + ('#dc3545' if project.budget_consumed > 100 else '#fd7e14' if project.budget_consumed > 90 else '#1B3A57') + ';'">
+                                    <t t-out="round(project.budget_consumed, 1)"/>%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WBS Phases -->
+                <t t-if="wbs_phases">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-header fw-bold" style="background-color:#1B3A57;color:#fff;">
+                            Work Breakdown Structure
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Progress</th>
+                                            <th class="text-end">Planned Start</th>
+                                            <th class="text-end">Planned End</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="wbs_phases" t-as="phase">
+                                            <tr>
+                                                <td>
+                                                    <span class="fw-semibold"><t t-out="phase.name"/></span>
+                                                    <t t-if="phase.code">
+                                                        <br/><small class="text-muted"><t t-out="phase.code"/></small>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <span t-attf-class="badge rounded-pill #{
+                                                              'bg-success' if phase.state == 'completed' else
+                                                              'bg-primary' if phase.state == 'in_progress' else
+                                                              'bg-danger' if phase.state == 'delayed' else
+                                                              'bg-secondary'}">
+                                                        <t t-out="dict(phase.fields_get(['state'])['state']['selection'])[phase.state]"/>
+                                                    </span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-out="int(phase.progress or 0)"/>%
+                                                </td>
+                                                <td class="text-end small text-muted">
+                                                    <t t-out="phase.planned_start or '—'"/>
+                                                </td>
+                                                <td class="text-end small text-muted">
+                                                    <t t-out="phase.planned_end or '—'"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- RA Billing History -->
+                <t t-if="billings">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-header fw-bold" style="background-color:#1B3A57;color:#fff;">
+                            Billing History
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Reference</th>
+                                            <th>Date</th>
+                                            <th class="text-end">Amount</th>
+                                            <th class="text-end">Net Payable</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="billings" t-as="bill">
+                                            <tr>
+                                                <td class="fw-semibold"><t t-out="bill.name"/></td>
+                                                <td class="small text-muted"><t t-out="bill.billing_date or '—'"/></td>
+                                                <td class="text-end">
+                                                    <t t-out="'{:,.0f}'.format(bill.total_amount or 0)"/>
+                                                </td>
+                                                <td class="text-end fw-semibold" style="color:#1B3A57;">
+                                                    <t t-out="'{:,.0f}'.format(bill.net_payable or 0)"/>
+                                                </td>
+                                                <td>
+                                                    <span t-attf-class="badge rounded-pill #{
+                                                              'bg-success' if bill.state in ('posted', 'paid') else
+                                                              'bg-primary' if bill.state == 'approved' else
+                                                              'bg-warning text-dark' if bill.state == 'submitted' else
+                                                              'bg-secondary'}">
+                                                        <t t-out="dict(bill.fields_get(['state'])['state']['selection'])[bill.state]"/>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Site Photos -->
+                <t t-if="photos">
+                    <div class="card mb-4 border-0 shadow-sm">
+                        <div class="card-header fw-bold" style="background-color:#1B3A57;color:#fff;">
+                            Site Photos
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <t t-foreach="photos" t-as="photo">
+                                    <div class="col-6 col-md-4 col-lg-3">
+                                        <div class="position-relative">
+                                            <img t-att-src="'/web/image/construction.project.photo/%s/image_1920' % photo.id"
+                                                 class="img-fluid rounded w-100"
+                                                 style="height:160px;object-fit:cover;"
+                                                 t-att-alt="photo.name"/>
+                                            <div class="position-absolute bottom-0 start-0 end-0 p-1"
+                                                 style="background:rgba(27,58,87,0.7);border-radius:0 0 4px 4px;">
+                                                <div class="text-white small text-truncate">
+                                                    <t t-out="photo.name"/>
+                                                </div>
+                                                <div class="text-white-50" style="font-size:0.7rem;">
+                                                    <t t-out="photo.date or ''"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+            </div>
+        </t>
+    </template>
+
+</odoo>

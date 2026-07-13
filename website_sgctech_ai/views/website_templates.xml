@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inject .sgc-theme class on #wrapwrap without overriding core classes -->
+    <template id="sgctech_body_class" inherit_id="website.layout" name="SGC Theme Body Class">
+        <xpath expr="//div[@id='wrapwrap']" position="attributes">
+            <attribute name="t-attf-class" add="sgc-theme" separator=" "/>
+        </xpath>
+    </template>
+
+    <!-- Skip-to-content link for accessibility (first focusable element) -->
+    <template id="sgctech_skip_link" inherit_id="website.layout" name="SGC Tech Skip Link">
+        <xpath expr="//div[@id='wrapwrap']/header[@id='top']" position="before">
+            <a href="#wrap" class="sgc-skip-link">Skip to main content</a>
+        </xpath>
+    </template>
+
+    <!-- Global animated background paths for non-home website pages.
+         Homepage keeps its existing dedicated hero canvas unchanged. -->
+    <template id="sgctech_global_background_paths" inherit_id="website.layout" name="SGC Global Background Paths">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <t t-if="request and request.httprequest and not (request.httprequest.path == '/' or request.httprequest.path.startswith('/sgctech-home'))">
+                <canvas id="sgc-bg-paths-global" class="sgc-bp-canvas sgc-bp-canvas-global" aria-hidden="true"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Aura Core shader effect for non-home pages (WebGL). -->
+    <template id="sgctech_global_aura_core" inherit_id="website.layout" name="SGC Global Aura Core">
+        <xpath expr="//div[@id='wrapwrap']" position="inside">
+            <t t-if="request and request.httprequest and not (request.httprequest.path == '/' or request.httprequest.path.startswith('/sgctech-home'))">
+                <canvas id="sgc-aura-core-global"
+                        class="sgc-aura-canvas-global"
+                        data-hue="210"
+                        data-power="1.5"
+                        data-focus="30"
+                        data-distortion="1.0"
+                        aria-hidden="true"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- OG / Social meta tags + Google Fonts (must be in <head> not CSS bundle) -->
+    <template id="sgctech_meta" inherit_id="website.layout" name="SGC Tech Meta Tags">
+        <xpath expr="//head" position="inside">
+            <!-- Google Fonts: preconnect for performance -->
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600;700;800&amp;family=Share+Tech+Mono&amp;family=Pacifico&amp;family=Playfair+Display:wght@400;700;900&amp;display=swap"/>
+            
+            <!-- Privacy-friendly analytics by Plausible -->
+            <script async="async" src="https://plausible.io/js/pa-QIo8en7jO1Vgh0hnPm9D9.js"/>
+            <script>
+                window.plausible = window.plausible || function () {
+                    (plausible.q = plausible.q || []).push(arguments);
+                };
+                plausible.init = plausible.init || function (i) {
+                    plausible.o = i || {};
+                };
+                plausible.init();
+            </script>
+            <!-- Google tag (gtag.js) -->
+            <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-576YTHFZ8W"/>
+            <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag() {
+                    dataLayer.push(arguments);
+                }
+                gtag('consent', 'default', {
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied',
+                    'ad_storage': 'denied',
+                    'analytics_storage': 'denied',
+                    'wait_for_update': 500,
+                });
+                gtag('js', new Date());
+                gtag('config', 'G-576YTHFZ8W');
+            </script>
+            <!-- OG / Twitter Card -->
+            <meta property="og:image" content="https://sgctech.ai/website_sgctech_ai/static/src/img/og_image.jpg"/>
+            <meta property="og:image:width" content="1536"/>
+            <meta property="og:image:height" content="1024"/>
+            <meta name="twitter:image" content="https://sgctech.ai/website_sgctech_ai/static/src/img/og_image.jpg"/>
+        </xpath>
+    </template>
+
+    <!-- Page-aware title and meta description.
+         Each page can set <t t-set="title"> and <t t-set="meta_description">
+         before calling website.layout. Falls back to site defaults. -->
+    <template id="sgctech_title_replace" inherit_id="website.layout" name="SGC Tech Title Replace">
+        <xpath expr="//head/title" position="replace">
+            <title t-esc="title or (request and request.website and request.website.name) or 'SGC TECH AI'"/>
+        </xpath>
+    </template>
+
+    <template id="sgctech_meta_replace" inherit_id="website.layout" name="SGC Tech Meta Description Replace">
+        <xpath expr="//head/meta[@name='description']" position="replace">
+            <t t-set="_default_meta" t-value="'SGC Tech AI delivers end-to-end Odoo + AI operating systems for UAE mid-market operators. Fixed-price, fixed-timeline implementations with VAT, Corporate Tax, and RERA compliance built in.'"/>
+            <meta name="description" t-att-content="meta_description or _default_meta"/>
+        </xpath>
+    </template>
+
+    <!-- Add/override OG and Twitter tags. Use page variables where available. -->
+    <template id="sgctech_og_replace" inherit_id="website.layout" name="SGC Tech OG Tags">
+        <xpath expr="//head" position="inside">
+            <t t-set="_default_meta" t-value="'SGC Tech AI delivers end-to-end Odoo + AI operating systems for UAE mid-market operators. Fixed-price, fixed-timeline implementations with VAT, Corporate Tax, and RERA compliance built in.'"/>
+            <meta property="og:title" t-att-content="title or 'SGC TECH AI'"/>
+            <meta property="og:description" t-att-content="meta_description or _default_meta"/>
+            <meta property="og:type" content="website"/>
+            <meta property="og:site_name" content="SGC TECH AI"/>
+            <meta property="og:locale" content="en_AE"/>
+        </xpath>
+    </template>
+    <template id="sgctech_twitter_replace" inherit_id="website.layout" name="SGC Tech Twitter Tags">
+        <xpath expr="//head" position="inside">
+            <t t-set="_default_meta" t-value="'SGC Tech AI delivers end-to-end Odoo + AI operating systems for UAE mid-market operators. Fixed-price, fixed-timeline implementations with VAT, Corporate Tax, and RERA compliance built in.'"/>
+            <meta name="twitter:card" content="summary_large_image"/>
+            <meta name="twitter:title" t-att-content="title or 'SGC TECH AI'"/>
+            <meta name="twitter:description" t-att-content="meta_description or _default_meta"/>
+        </xpath>
+    </template>
+
+    <!-- JSON-LD structured data: Organization + WebSite -->
+    <template id="sgctech_jsonld" inherit_id="website.layout" name="SGC Tech JSON-LD">
+        <xpath expr="//head" position="inside">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@graph": [
+                    {
+                        "@type": "Organization",
+                        "@id": "https://sgctech.ai/#organization",
+                        "name": "SGC TECH AI",
+                        "alternateName": "Scholarix Global Consultant FZE",
+                        "url": "https://sgctech.ai",
+                        "logo": {
+                            "@type": "ImageObject",
+                            "url": "https://sgctech.ai/website_sgctech_ai/static/src/img/sgc_logo.png"
+                        },
+                        "sameAs": [
+                            "https://twitter.com/SGCTECHAI",
+                            "https://www.linkedin.com/company/sgctechai"
+                        ],
+                        "contactPoint": {
+                            "@type": "ContactPoint",
+                            "telephone": "+971-52-198-5231",
+                            "contactType": "sales",
+                            "areaServed": "AE",
+                            "availableLanguage": ["English", "Arabic"]
+                        },
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": "302, 4th Floor — Al Maktoum Rd, near Union Metro Station, Al Rigga, Deira",
+                            "addressLocality": "Dubai",
+                            "addressCountry": "AE"
+                        }
+                    },
+                    {
+                        "@type": "WebSite",
+                        "@id": "https://sgctech.ai/#website",
+                        "url": "https://sgctech.ai",
+                        "name": "SGC TECH AI",
+                        "publisher": {
+                            "@id": "https://sgctech.ai/#organization"
+                        },
+                        "potentialAction": {
+                            "@type": "SearchAction",
+                            "target": {
+                                "@type": "EntryPoint",
+                                "urlTemplate": "https://sgctech.ai/shop?search={search_term_string}"
+                            },
+                            "query-input": "required name=search_term_string"
+                        }
+                    }
+                ]
+            }
+            </script>
+        </xpath>
+    </template>
+
+    <!-- Replace website DB logo with branded SGC TECH AI PNG -->
+    <template id="sgctech_logo_override" inherit_id="website.option_header_brand_logo" name="SGC Tech AI Logo">
+        <xpath expr="//a[@data-name='Navbar Logo']" position="replace">
+            <a href="/" class="navbar-brand logo sgc-navbar-brand" aria-label="SGC TECH AI">
+                <img src="/website_sgctech_ai/static/src/img/sgc_logo.png"
+                     alt="SGC TECH AI"
+                     class="sgc-nav-logo"
+                     style="height:44px;width:auto;filter:drop-shadow(0 0 6px rgba(0,212,255,0.30));"/>
+            </a>
+        </xpath>
+    </template>
+
+    <!-- Replace default CTA content through the native Odoo 19 placeholder -->
+    <template id="sgctech_navbar" inherit_id="website.placeholder_header_call_to_action" name="SGC Tech Navbar CTA">
+        <xpath expr="." position="inside">
+            <a href="/shop" class="oe_unremovable sgc-btn sgc-btn-primary nav-cta">
+                Browse Packages
+                <i class="fa fa-arrow-right ms-1"/>
+            </a>
+        </xpath>
+    </template>
+
+    <!-- Custom Footer -->
+    <template id="sgctech_footer" inherit_id="website.layout" name="SGC Tech Footer">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div id="footer" class="oe_structure oe_structure_solo sgc-footer sgc-grid-bg" t-ignore="true" t-if="not no_footer">
+                <div class="container">
+                    <div class="row g-4">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="sgc-footer-brand">
+                                <div class="sgc-brand-name">
+                                    <span class="sgc-gradient-text">SGC TECH AI</span>
+                                    <span class="sgc-logo-dot"/>
+                                </div>
+                                <p>End-to-end Odoo + AI operating systems for UAE mid-market operators. Fixed-price, fixed-timeline implementations. UAE-based, compliance-first.</p>
+                                <div class="sgc-social-links mt-3">
+                                    <a href="https://twitter.com/SGCTECHAI" target="_blank" rel="noopener" aria-label="Twitter"><i class="fa fa-twitter"/></a>
+                                    <a href="https://www.linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa fa-linkedin"/></a>
+                                    <a href="mailto:hello@sgctech.ai" aria-label="Email"><i class="fa fa-envelope"/></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <div class="sgc-footer-col">
+                                <h5>Industries</h5>
+                                <ul>
+                                    <li><a href="/industries#ind-realestate">Real Estate</a></li>
+                                    <li><a href="/industries#ind-construction">Construction</a></li>
+                                    <li><a href="/industries#ind-trading">Trading</a></li>
+                                    <li><a href="/industries#ind-retail">Retail</a></li>
+                                    <li><a href="/industries#ind-hospitality">Hospitality</a></li>
+                                    <li><a href="/industries#ind-manufacturing">Manufacturing</a></li>
+                                    <li><a href="/industries#ind-healthcare">Healthcare</a></li>
+                                    <li><a href="/industries#ind-education">Education</a></li>
+                                    <li><a href="/industries#ind-services">Professional Services</a></li>
+                                    <li><a href="/industries#ind-logistics">Logistics</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <div class="sgc-footer-col">
+                                <h5>Company</h5>
+                                <ul>
+                                    <li><a href="/">Home</a></li>
+                                    <li><a href="/about">About Us</a></li>
+                                    <li><a href="/industries">Industries</a></li>
+                                    <li><a href="/services">Services</a></li>
+                                    <li><a href="/pricing">Pricing</a></li>
+                                    <li><a href="/shop">Packages</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <div class="sgc-footer-col">
+                                <h5>Support</h5>
+                                <ul>
+                                    <li><a href="/sgctech-contact">Contact Us</a></li>
+                                    <li><a href="https://app.cal.com/sgctech" target="_blank" rel="noopener">Book a Demo</a></li>
+                                    <li><a href="/shop">Browse Packages</a></li>
+                                    <li><a href="mailto:hello@sgctech.ai?subject=Privacy%20Policy">Privacy Policy</a></li>
+                                    <li><a href="mailto:hello@sgctech.ai?subject=Terms%20of%20Service">Terms of Service</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <div class="sgc-footer-col">
+                                <h5>Contact</h5>
+                                <ul>
+                                    <li><a href="mailto:hello@sgctech.ai"><i class="fa fa-envelope-o me-1"/>hello@sgctech.ai</a></li>
+                                    <li><a href="https://app.cal.com/sgctech" target="_blank" rel="noopener"><i class="fa fa-calendar me-1"/>Book a Call</a></li>
+                                    <li><a href="https://maps.google.com/?q=IFZA%20Dubai%2C%20UAE" target="_blank" rel="noopener"><i class="fa fa-map-marker me-1"/>IFZA Dubai, UAE</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sgc-footer-bottom">
+                        <p>&#169; <span t-esc="request.website.sudo().name or 'SGC TECH AI'"/> &#8212; Scholarix Global Consultants. All rights reserved. UAE VAT registered.</p>
+                        <p class="d-none d-md-block" style="font-family:var(--font-mono);font-size:0.72rem;color:var(--sgc-text-3)">
+                            Powered by <span class="sgc-gradient-text fw-bold">Odoo</span> + <span class="sgc-gradient-text fw-bold">AI</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

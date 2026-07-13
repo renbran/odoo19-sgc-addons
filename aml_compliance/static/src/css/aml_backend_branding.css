@@ -1,0 +1,36 @@
+/* AML backend brand alignment for KYC and compliance views */
+.o_form_view .aml_kyc_button_box .oe_stat_button {
+    border-radius: 10px;
+    border: 1px solid #c6d8ee;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.o_form_view .aml_kyc_button_box .oe_stat_button .o_stat_value {
+    color: #123b61;
+    font-weight: 700;
+}
+
+.o_form_view .aml_kyc_button_box .oe_stat_button .o_stat_text {
+    color: #4b617a;
+}
+
+.o_form_view .aml_kyc_risk_banner {
+    border-radius: 10px;
+    border: 1px solid #fecaca;
+    background: linear-gradient(180deg, #fff7f7 0%, #ffe9e9 100%);
+    color: #991b1b;
+    font-weight: 600;
+}
+
+.o_form_view .o_form_statusbar .btn-primary,
+.o_form_view .o_cp_buttons .btn-primary {
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(120deg, #6f4a69 0%, #5a3b59 100%);
+    box-shadow: 0 8px 16px rgba(90, 59, 89, 0.25);
+}
+
+.o_form_view .o_form_statusbar .btn-primary:hover,
+.o_form_view .o_cp_buttons .btn-primary:hover {
+    background: linear-gradient(120deg, #7d5577 0%, #654264 100%);
+}

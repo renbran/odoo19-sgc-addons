@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_leadership" name="SGC Leadership">
+        <section class="s_sgc_leadership sgc-watermark--none sgc-geo--none sgc-palette--navy-cream"
+                 data-name="SGC Leadership" data-snippet="s_sgc_leadership">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container-fluid p-0">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-lg-8 s_sgc_leadership_content sgc-reveal">
+                        <div class="s_sgc_leadership_inner">
+                            <h2 class="s_sgc_leadership_title">Leadership You <span class="sgc-accent-word">Can Trust</span></h2>
+                            <p class="s_sgc_leadership_kicker">Proven expertise. Global impact. Lasting value.</p>
+                            <div class="row s_sgc_leadership_creds">
+                                <div class="col-6 col-lg s_sgc_leadership_cred">
+                                    <span class="s_sgc_leadership_cred_icon"><i class="fa fa-university"/></span>
+                                    <h6>Finance Expertise</h6>
+                                    <p>CPA Charterholder, CPA, CIA, CMA</p>
+                                </div>
+                                <div class="col-6 col-lg s_sgc_leadership_cred">
+                                    <span class="s_sgc_leadership_cred_icon"><i class="fa fa-shield"/></span>
+                                    <h6>Governance Excellence</h6>
+                                    <p>Strategic finance, governance &amp; compliance, UAE GCC international</p>
+                                </div>
+                                <div class="col-6 col-lg s_sgc_leadership_cred">
+                                    <span class="s_sgc_leadership_cred_icon"><i class="fa fa-microchip"/></span>
+                                    <h6>Technology Leadership</h6>
+                                    <p>AI/ML automation, web app, mobile app, ERP integration</p>
+                                </div>
+                                <div class="col-6 col-lg s_sgc_leadership_cred">
+                                    <span class="s_sgc_leadership_cred_icon"><i class="fa fa-line-chart"/></span>
+                                    <h6>Business Transformation</h6>
+                                    <p>Business performance, head analyst, systems architecture, end-to-end solutions</p>
+                                </div>
+                                <div class="col-6 col-lg s_sgc_leadership_cred">
+                                    <span class="s_sgc_leadership_cred_icon"><i class="fa fa-globe"/></span>
+                                    <h6>Global Recognition</h6>
+                                    <p>International leadership, multi-industry experience</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 s_sgc_leadership_portrait">
+                        <img class="img-fluid" src="/website/static/src/img/library/team.jpg" alt="SGC leadership"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center g-0 s_sgc_leadership_stats">
+                <div class="col-md-4">
+                    <i class="fa fa-line-chart"/>
+                    <strong>100M+</strong>
+                    <span>Funding &amp; transformation experience</span>
+                </div>
+                <div class="col-md-4">
+                    <i class="fa fa-globe"/>
+                    <strong>UAE GCC</strong>
+                    <span>International coverage</span>
+                </div>
+                <div class="col-md-4">
+                    <i class="fa fa-certificate"/>
+                    <strong>Proven</strong>
+                    <span>Track record</span>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

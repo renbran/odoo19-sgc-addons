@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_ipc_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <h2 class="text-center">INTERIM PAYMENT CERTIFICATE</h2>
+                        <h4 class="text-center">Certificate No: <span t-field="o.ra_number"/></h4>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Client:</strong> <span t-field="o.project_id.client_id.name"/><br/>
+                                <strong>Contractor:</strong> <span t-field="o.company_id.name"/><br/>
+                                <strong>Project:</strong> <span t-field="o.project_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Date:</strong> <span t-field="o.billing_date"/><br/>
+                                <strong>Ref:</strong> <span t-field="o.ref"/><br/>
+                                <strong>Period:</strong> <span t-field="o.billing_period_start"/> to <span t-field="o.billing_period_end"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Description</th>
+                                    <th class="text-end">Amount (<span t-field="o.currency_id.symbol"/>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Gross Amount to Date</td>
+                                    <td class="text-end"><span t-field="o.total_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Less: Previous Certified Amount</td>
+                                    <td class="text-end"><span t-field="o.previous_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td>Net Amount this Period</td>
+                                    <td class="text-end"><span t-field="o.net_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Less: Retention (<span t-field="o.retention_percent"/>%)</td>
+                                    <td class="text-end"><span t-field="o.retention_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="h4">
+                                    <td><strong>NET PAYABLE THIS PERIOD</strong></td>
+                                    <td class="text-end"><strong><span t-field="o.net_payable" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="mt-4">
+                            <strong>Amount in Words:</strong> <span t-esc="o.currency_id.amount_to_text(o.net_payable)"/>
+                        </div>
+
+                        <div class="mt-5 row">
+                            <div class="col-6">
+                                <p><strong>Verified by Site Manager</strong></p>
+                                <br/><br/>
+                                _______________________
+                            </div>
+                            <div class="col-6 text-end">
+                                <p><strong>Approved by Project Manager</strong></p>
+                                <br/><br/>
+                                _______________________
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_soa_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <h2 class="text-center">STATEMENT OF ACCOUNT</h2>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Partner:</strong> <span t-field="o.name"/><br/>
+                                <span t-field="o.street"/><br/>
+                                <span t-field="o.city"/>, <span t-field="o.country_id.name"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm mt-4">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Date</th>
+                                    <th>Reference</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Amount</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="balance" t-value="0"/>
+                                <t t-set="soa_invoices" t-value="o.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type in ('out_invoice', 'out_refund')).sorted(lambda i: (i.invoice_date or i.create_date))"/>
+                                <t t-foreach="soa_invoices" t-as="inv">
+                                    <t t-set="signed_amount" t-value="inv.amount_total if inv.move_type == 'out_invoice' else -inv.amount_total"/>
+                                    <t t-set="balance" t-value="balance + signed_amount"/>
+                                    <tr>
+                                        <td><span t-field="inv.invoice_date"/></td>
+                                        <td><span t-field="inv.name"/></td>
+                                        <td><span t-field="inv.ref"/></td>
+                                        <td class="text-end"><t t-esc="signed_amount" t-options='{"widget": "monetary", "display_currency": inv.currency_id}'/></td>
+                                        <td class="text-end"><t t-esc="balance" t-options='{"widget": "monetary", "display_currency": inv.currency_id}'/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_wip_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">WORK IN PROGRESS (WIP) REPORT</h2>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Project:</strong> <span t-field="o.name"/><br/>
+                                <strong>Client:</strong> <span t-field="o.client_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Date:</strong> <span t-esc="datetime.date.today().strftime('%Y-%m-%d')"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr style="background-color:#e9ecef !important; color:#212529 !important; font-weight:bold; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
+                                    <th>Metric</th>
+                                    <th class="text-end">Value (<span t-field="o.currency_id.symbol"/>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Contract Value</td>
+                                    <td class="text-end"><span t-field="o.contract_value"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Actual Progress %</td>
+                                    <td class="text-end"><span t-field="o.progress"/>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Earned Revenue (Contract Value x Progress %)</td>
+                                    <td class="text-end"><t t-esc="o.contract_value * (o.progress / 100)" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Billed to Date</td>
+                                    <td class="text-end"><span t-field="o.total_billed"/></td>
+                                </tr>
+                                <tr class="table-info font-weight-bold">
+                                    <td>Over / (Under) Billing</td>
+                                    <td class="text-end">
+                                        <t t-set="over_under" t-value="(o.contract_value * (o.progress / 100)) - o.total_billed"/>
+                                        <t t-esc="over_under" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Total Expenses Incurred</td>
+                                    <td class="text-end"><span t-field="o.total_expenses"/></td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td>Current Margin %</td>
+                                    <td class="text-end"><span t-field="o.margin_percent"/>%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_vo_register_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">VARIATION ORDER REGISTER</h2>
+                                <h4 class="mb-4"><span t-field="o.name"/></h4>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>VO Number</th>
+                                    <th>Description</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_vo" t-value="0"/>
+                                <t t-set="vos" t-value="request.env['construction.document'].search([('project_id','=',o.id),('category','=','VO')])"/>
+                                <t t-foreach="vos" t-as="vo">
+                                    <t t-set="total_vo" t-value="total_vo + (vo.amount or 0)"/>
+                                    <tr>
+                                        <td><span t-field="vo.number"/></td>
+                                        <td><span t-field="vo.name"/></td>
+                                        <td><span t-field="vo.issue_date"/></td>
+                                        <td><span t-field="vo.status"/></td>
+                                        <td class="text-end"><span t-field="vo.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                    </tr>
+                                </t>
+                                <tr class="font-weight-bold">
+                                    <td colspan="4">TOTAL VARIATIONS</td>
+                                    <td class="text-end"><t t-esc="total_vo" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_profitability_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">PROJECT PROFITABILITY REPORT</h2>
+                                <h4 class="mb-4"><span t-field="o.name"/></h4>
+                            </div>
+                        </div>
+
+                        <div class="row mt-5">
+                            <div class="col-4">
+                                <div class="card p-3 bg-light">
+                                    <div class="card-label small">TOTAL BILLED</div>
+                                    <div class="h4 text-success"><span t-field="o.total_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card p-3 bg-light">
+                                    <div class="card-label small">TOTAL EXPENSES</div>
+                                    <div class="h4 text-danger"><span t-field="o.total_expenses" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="card p-3 bg-light">
+                                    <div class="card-label small">NET MARGIN</div>
+                                    <div class="h4 text-primary"><span t-esc="o.total_billed - o.total_expenses" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <h4>Project Financial Summary</h4>
+                            <table class="table table-bordered">
+                                <tr>
+                                    <td>Contract Value</td>
+                                    <td class="text-end"><span t-field="o.contract_value"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Actual Billed</td>
+                                    <td class="text-end"><span t-field="o.total_billed"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Direct Costs</td>
+                                    <td class="text-end"><span t-field="o.total_expenses"/></td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td>Profit %</td>
+                                    <td class="text-end"><span t-field="o.margin_percent"/>%</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_cost_to_complete_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">COST-TO-COMPLETE REPORT</h2>
+                                <h4 class="mb-4"><span t-field="o.name"/></h4>
+                            </div>
+                        </div>
+
+                        <t t-set="pct_complete" t-value="(o.progress or 0) / 100.0"/>
+                        <t t-set="eac" t-value="(o.total_expenses / pct_complete) if pct_complete else o.total_expenses"/>
+                        <t t-set="etc" t-value="eac - o.total_expenses"/>
+                        <t t-set="projected_margin" t-value="o.contract_value - eac"/>
+                        <t t-set="projected_margin_pct" t-value="(projected_margin / o.contract_value * 100) if o.contract_value else 0"/>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr style="background-color:#e9ecef !important; color:#212529 !important; font-weight:bold; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
+                                    <th>Metric</th>
+                                    <th class="text-end">Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Contract Value (Budget at Completion)</td>
+                                    <td class="text-end"><span t-field="o.contract_value" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Actual Progress %</td>
+                                    <td class="text-end"><span t-field="o.progress"/>%</td>
+                                </tr>
+                                <tr>
+                                    <td>Costs Incurred to Date</td>
+                                    <td class="text-end"><span t-field="o.total_expenses" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="table-warning">
+                                    <td>Estimate to Complete (ETC)</td>
+                                    <td class="text-end"><t t-esc="etc" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td>Estimate at Completion (EAC = Costs Incurred / % Complete)</td>
+                                    <td class="text-end"><t t-esc="eac" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="table-info font-weight-bold">
+                                    <td>Projected Final Margin (Contract Value - EAC)</td>
+                                    <td class="text-end"><t t-esc="projected_margin" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Projected Margin %</td>
+                                    <td class="text-end"><t t-esc="round(projected_margin_pct, 2)"/>%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_cash_flow_forecast_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">CASH FLOW FORECAST</h2>
+                                <h4 class="mb-4"><span t-field="o.name"/></h4>
+                            </div>
+                        </div>
+
+                        <t t-set="pct_complete" t-value="(o.progress or 0) / 100.0"/>
+                        <t t-set="remaining_inflow" t-value="o.contract_value - o.total_billed"/>
+                        <t t-set="eac" t-value="(o.total_expenses / pct_complete) if pct_complete else o.total_expenses"/>
+                        <t t-set="remaining_outflow" t-value="eac - o.total_expenses"/>
+                        <t t-set="net_forecast" t-value="remaining_inflow - remaining_outflow"/>
+
+                        <h5 class="mt-4">To Date</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Item</th>
+                                    <th class="text-end">Inflow (Billed)</th>
+                                    <th class="text-end">Outflow (Expenses)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Actual to Date</td>
+                                    <td class="text-end"><span t-field="o.total_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                    <td class="text-end"><span t-field="o.total_expenses" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h5 class="mt-4">Forecast to Completion</h5>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Item</th>
+                                    <th class="text-end">Inflow (Remaining Billing)</th>
+                                    <th class="text-end">Outflow (Remaining Cost)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Remaining to Complete</td>
+                                    <td class="text-end"><t t-esc="remaining_inflow" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                    <td class="text-end"><t t-esc="remaining_outflow" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="font-weight-bold table-info">
+                                    <td>Net Cash Flow Forecast (Remaining Inflow - Remaining Outflow)</td>
+                                    <td class="text-end" colspan="2"><t t-esc="net_forecast" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_progress_report_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <h2 class="mb-3" style="color: #212529; font-weight: bold;">PROJECT MONTHLY PROGRESS REPORT</h2>
+                                <h4 class="mb-4"><span t-field="o.name"/></h4>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Client:</strong> <span t-field="o.client_id.name"/><br/>
+                                <strong>Project Manager:</strong> <span t-field="o.project_manager_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Report Date:</strong> <span t-esc="datetime.date.today().strftime('%Y-%m-%d')"/><br/>
+                                <strong>RAG Status:</strong> <span t-field="o.rag_status"/>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4">Physical Progress</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>Planned Progress %</td>
+                                <td class="text-end"><span t-field="o.planned_progress"/>%</td>
+                            </tr>
+                            <tr>
+                                <td>Actual Progress %</td>
+                                <td class="text-end"><span t-field="o.progress"/>%</td>
+                            </tr>
+                            <tr class="font-weight-bold">
+                                <td>Progress Variance</td>
+                                <td class="text-end"><t t-esc="round((o.progress or 0) - (o.planned_progress or 0), 2)"/>%</td>
+                            </tr>
+                            <tr>
+                                <td>Site Weather</td>
+                                <td class="text-end"><span t-field="o.weather_status"/></td>
+                            </tr>
+                            <tr>
+                                <td>Last Site Diary</td>
+                                <td class="text-end"><span t-field="o.last_site_diary"/></td>
+                            </tr>
+                        </table>
+
+                        <h5 class="mt-4">Financial Progress</h5>
+                        <table class="table table-bordered">
+                            <tr>
+                                <td>Contract Value</td>
+                                <td class="text-end"><span t-field="o.contract_value" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Total Billed to Date</td>
+                                <td class="text-end"><span t-field="o.total_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Total Expenses Incurred</td>
+                                <td class="text-end"><span t-field="o.total_expenses" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                            </tr>
+                            <tr>
+                                <td>Budget Consumed %</td>
+                                <td class="text-end"><span t-field="o.budget_consumed"/>%</td>
+                            </tr>
+                            <tr class="font-weight-bold">
+                                <td>Current Margin %</td>
+                                <td class="text-end"><span t-field="o.margin_percent"/>%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_executive_portfolio_template">
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <div class="page">
+                    <div class="text-center mb-4">
+                        <h2 class="mb-3" style="color: #212529; font-weight: bold;">EXECUTIVE PORTFOLIO REPORT</h2>
+                        <h5 class="text-center">As of <span t-esc="datetime.date.today().strftime('%Y-%m-%d')"/></h5>
+                    </div>
+
+                    <t t-set="total_contract" t-value="sum(docs.mapped('contract_value'))"/>
+                    <t t-set="total_billed" t-value="sum(docs.mapped('total_billed'))"/>
+                    <t t-set="total_expenses" t-value="sum(docs.mapped('total_expenses'))"/>
+
+                    <div class="row mt-4">
+                        <div class="col-4">
+                            <div class="card p-3 bg-light">
+                                <div class="card-label small">TOTAL CONTRACT VALUE</div>
+                                <div class="h4"><t t-esc="total_contract" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id if docs else None}'/></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card p-3 bg-light">
+                                <div class="card-label small">TOTAL BILLED</div>
+                                <div class="h4 text-success"><t t-esc="total_billed" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id if docs else None}'/></div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card p-3 bg-light">
+                                <div class="card-label small">TOTAL EXPENSES</div>
+                                <div class="h4 text-danger"><t t-esc="total_expenses" t-options='{"widget": "monetary", "display_currency": docs[0].currency_id if docs else None}'/></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm table-bordered mt-4">
+                        <thead>
+                            <tr style="background-color:#e9ecef !important; color:#212529 !important; font-weight:bold; -webkit-print-color-adjust:exact; print-color-adjust:exact;">
+                                <th>Project</th>
+                                <th>Client</th>
+                                <th>RAG</th>
+                                <th class="text-end">Contract Value</th>
+                                <th class="text-end">Billed</th>
+                                <th class="text-end">Progress %</th>
+                                <th class="text-end">Margin %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="p">
+                                <tr>
+                                    <td><span t-field="p.name"/></td>
+                                    <td><span t-field="p.client_id.name"/></td>
+                                    <td><span t-field="p.rag_status"/></td>
+                                    <td class="text-end"><span t-field="p.contract_value" t-options='{"widget": "monetary", "display_currency": p.currency_id}'/></td>
+                                    <td class="text-end"><span t-field="p.total_billed" t-options='{"widget": "monetary", "display_currency": p.currency_id}'/></td>
+                                    <td class="text-end"><span t-field="p.progress"/>%</td>
+                                    <td class="text-end"><span t-field="p.margin_percent"/>%</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_ra_billing_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <h2 class="text-center">RA BILLING CERTIFICATE</h2>
+                        <h4 class="text-center">RA No: <span t-field="o.ra_number"/> — <span t-field="o.ref"/></h4>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Project:</strong> <span t-field="o.project_id.name"/><br/>
+                                <strong>Client:</strong> <span t-field="o.project_id.client_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Billing Date:</strong> <span t-field="o.billing_date"/><br/>
+                                <strong>Period:</strong> <span t-field="o.billing_period_start"/> to <span t-field="o.billing_period_end"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm table-bordered mt-4">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Description</th>
+                                    <th>UOM</th>
+                                    <th class="text-end">BOQ Qty</th>
+                                    <th class="text-end">Rate</th>
+                                    <th class="text-end">Prev. Qty</th>
+                                    <th class="text-end">Curr. Qty</th>
+                                    <th class="text-end">Cum. Qty</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.boq_line_description"/></td>
+                                        <td><span t-field="line.uom_id.name"/></td>
+                                        <td class="text-end"><span t-field="line.boq_qty"/></td>
+                                        <td class="text-end"><span t-field="line.unit_rate" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                        <td class="text-end"><span t-field="line.qty_previous"/></td>
+                                        <td class="text-end"><span t-field="line.qty_current"/></td>
+                                        <td class="text-end"><span t-field="line.qty_cumulative"/></td>
+                                        <td class="text-end"><span t-field="line.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                    </tr>
+                                </t>
+                                <tr class="font-weight-bold">
+                                    <td colspan="7">GROSS AMOUNT TO DATE</td>
+                                    <td class="text-end"><span t-field="o.total_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">Less: Previous Certified Amount</td>
+                                    <td class="text-end"><span t-field="o.previous_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td colspan="7">NET AMOUNT THIS PERIOD</td>
+                                    <td class="text-end"><span t-field="o.net_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">Less: Retention (<span t-field="o.retention_percent"/>%)</td>
+                                    <td class="text-end"><span t-field="o.retention_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="h5">
+                                    <td colspan="7"><strong>NET PAYABLE THIS PERIOD</strong></td>
+                                    <td class="text-end"><strong><span t-field="o.net_payable" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_progress_billing_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <h2 class="text-center">PROGRESS BILLING CERTIFICATE</h2>
+                        <h4 class="text-center"><span t-field="o.ref"/></h4>
+
+                        <div class="row mt-4">
+                            <div class="col-6">
+                                <strong>Project:</strong> <span t-field="o.project_id.name"/><br/>
+                                <strong>Client:</strong> <span t-field="o.project_id.client_id.name"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Billing Date:</strong> <span t-field="o.billing_date"/>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered mt-4">
+                            <thead>
+                                <tr class="bg-light">
+                                    <th>Description</th>
+                                    <th class="text-end">Amount (<span t-field="o.currency_id.symbol"/>)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Contract Value</td>
+                                    <td class="text-end"><span t-field="o.contract_value"/></td>
+                                </tr>
+                                <tr>
+                                    <td>% Complete</td>
+                                    <td class="text-end"><span t-field="o.percent_complete"/>%</td>
+                                </tr>
+                                <tr class="font-weight-bold">
+                                    <td>Amount Earned to Date</td>
+                                    <td class="text-end"><span t-field="o.amount_earned" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr>
+                                    <td>Less: Previously Billed</td>
+                                    <td class="text-end"><span t-field="o.amount_previously_billed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></td>
+                                </tr>
+                                <tr class="h4">
+                                    <td><strong>AMOUNT DUE THIS PERIOD</strong></td>
+                                    <td class="text-end"><strong><span t-field="o.amount_this_period" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/></strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

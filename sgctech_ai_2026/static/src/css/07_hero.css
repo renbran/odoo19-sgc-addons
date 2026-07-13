@@ -1,0 +1,197 @@
+/* ── 07_hero.css ──────────────────────────────────────────── */
+
+.sgc26-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: calc(var(--nav-h) + var(--sp-16)) 0 var(--sp-20);
+}
+
+/* Particle canvas sits above mesh, below content */
+.sgc26-hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-particles);
+  pointer-events: none;
+}
+
+/* Radial vignette fades edges of canvas */
+.sgc26-hero__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, var(--bg-1) 100%);
+}
+
+.sgc26-hero__inner {
+  position: relative;
+  z-index: var(--z-content);
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--sp-8);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-16);
+  align-items: center;
+}
+
+/* Hero left: text content */
+.sgc26-hero__left { display: flex; flex-direction: column; gap: var(--sp-6); }
+
+/* Eyebrow badge */
+.sgc26-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-5);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-full);
+  font-size: 0.8rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--cyan);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  width: fit-content;
+}
+.sgc26-hero__badge-dot {
+  width: 8px; height: 8px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan);
+  animation: sgc26Pulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* Hero heading */
+.sgc26-hero__h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2.6rem, 6.5vw, 5rem);
+  font-weight: var(--fw-xbold);
+  line-height: 1.08;
+  letter-spacing: var(--ls-tight);
+  color: var(--t1);
+}
+.sgc26-hero__h1 .line-accent { display: block; color: var(--cyan); }
+.sgc26-hero__h1 .line-grad {
+  display: block;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hero sub */
+.sgc26-hero__sub {
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  color: var(--t2);
+  line-height: 1.7;
+  max-width: 520px;
+}
+
+/* Hero right: visual panel */
+.sgc26-hero__right {
+  position: relative;
+}
+.sgc26-hero__visual {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-2xl);
+  overflow: hidden;
+  box-shadow: var(--glass-shadow-h);
+  aspect-ratio: 4/3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sgc26-hero__visual-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--grad-glass);
+  border-radius: var(--r-2xl);
+}
+
+/* Floating data chips on hero image */
+.sgc26-hero__chip {
+  position: absolute;
+  background: var(--glass-bg-h);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-5);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--cyan);
+  white-space: nowrap;
+  box-shadow: var(--glass-shadow);
+}
+.sgc26-hero__chip--tl {
+  top: -1rem; left: -1.5rem;
+  animation: sgc26Float 4s ease-in-out infinite;
+}
+.sgc26-hero__chip--br {
+  bottom: -1rem; right: -1.5rem;
+  animation: sgc26Float 4s 1.5s ease-in-out infinite;
+}
+.sgc26-hero__chip--ml {
+  top: 50%; left: -2rem;
+  transform: translateY(-50%);
+  animation: sgc26Float 5s 0.8s ease-in-out infinite;
+}
+
+/* Inner-page hero (shorter) */
+.sgc26-page-hero {
+  padding: calc(var(--nav-h) + var(--sp-16)) 0 var(--sp-16);
+  text-align: center;
+}
+.sgc26-page-hero__inner {
+  position: relative;
+  z-index: var(--z-content);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+}
+
+/* Scroll indicator */
+.sgc26-scroll-indicator {
+  position: absolute;
+  bottom: var(--sp-8);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--t3);
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  letter-spacing: var(--ls-wide);
+  animation: sgc26FadeIn 1s 1.2s ease both;
+}
+.sgc26-scroll-mouse {
+  width: 22px; height: 36px;
+  border: 2px solid rgba(0,212,255,0.25);
+  border-radius: 11px;
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+}
+.sgc26-scroll-wheel {
+  width: 3px; height: 8px;
+  background: var(--cyan);
+  border-radius: var(--r-full);
+  animation: sgc26ScrollWheel 1.8s ease-in-out infinite;
+}

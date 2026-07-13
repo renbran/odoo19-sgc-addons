@@ -1,0 +1,72 @@
+# SGC Construction Management - local Docker test environment.
+#
+# Brings up Odoo 19 + PostgreSQL 15 in Docker, mounts this module directory into
+# the Odoo container under the Odoo-canonical name `sgc_construction_management`,
+# and auto-installs the module on first run.
+#
+# Usage (from this directory, PowerShell or bash):
+#   docker compose up -d
+#   docker compose logs -f odoo
+#   Open http://localhost:8069 (admin / admin)
+#
+# Stop and wipe data:
+#   docker compose down        # keep volumes
+#   docker compose down -v     # wipe postgres + filestore
+
+name: sgc-construction-management
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-sgc-construction-management}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  odoo:
+    image: odoo:19.0
+    container_name: ${COMPOSE_PROJECT_NAME:-sgc-construction-management}-odoo
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"   # Odoo HTTP
+      - "8072:8072"   # Odoo longpolling (for OWL dashboard WebSocket)
+    volumes:
+      # Mount this module into Odoo's standard addons path so that
+      # odoo.addons.__path__ (Python namespace package) finds it. Mounting to a
+      # custom path like /opt/extra-addons makes odoo.addons.__path__ exclude it,
+      # and tools.file_path() then fails to resolve any file in our module,
+      # which silently breaks the asset bundle, JS action registry, etc.
+      # Solution: mount at /usr/lib/python3/dist-packages/odoo/addons/sgc_construction_management
+      # so the standard _NamespacePath picks it up automatically.
+      - ./:/usr/lib/python3/dist-packages/odoo/addons/sgc_construction_management:ro
+      # Custom Odoo config
+      - ./odoo.conf:/etc/odoo/odoo.conf:ro
+      # Persistent filestore (uploaded attachments, sessions)
+      - odoo-data:/var/lib/odoo
+    # First-run install via -i; subsequent runs are no-ops since module is already installed.
+    # NOTE: do NOT use --stop-after-init here; that would cause an infinite restart loop
+    # because the container exits cleanly and Docker (restart: unless-stopped) keeps
+    # relaunching it. Use `docker compose exec odoo odoo -d sgc_test -u sgc_construction_management --stop-after-init`
+    # for a one-shot upgrade test.
+    command: >
+      odoo
+      --config=/etc/odoo/odoo.conf
+      --db-filter=^sgc_test$
+      -d sgc_test
+      -i sgc_construction_management
+
+volumes:
+  pgdata:
+  odoo-data:

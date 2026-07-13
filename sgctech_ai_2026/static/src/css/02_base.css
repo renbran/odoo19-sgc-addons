@@ -1,0 +1,55 @@
+/* ── 02_base.css ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+body.sgc-v26 {
+  background: var(--bg-1);
+  color: var(--t1);
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#wrapwrap.sgc-v26 { background: var(--bg-1); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb {
+  background: var(--grad-brand);
+  border-radius: var(--r-full);
+}
+
+/* Text selection */
+::selection { background: var(--cyan-a35); color: var(--t1); }
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* Section wrapper */
+.sgc26-section {
+  position: relative;
+  padding: var(--section-y) 0;
+  overflow: hidden;
+}
+.sgc26-container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 0 var(--sp-8);
+}
+.sgc26-container-wide {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--sp-8);
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }

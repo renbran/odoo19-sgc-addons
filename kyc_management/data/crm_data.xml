@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- CRM Lead Source for KYC Portal -->
+        <record id="crm_source_kyc_portal" model="utm.source">
+            <field name="name">KYC Portal Form</field>
+        </record>
+
+        <!-- CRM Campaign for KYC Portal -->
+        <record id="campaign_kyc_portal" model="utm.campaign">
+            <field name="name">KYC Portal Submissions</field>
+        </record>
+
+    </data>
+</odoo>

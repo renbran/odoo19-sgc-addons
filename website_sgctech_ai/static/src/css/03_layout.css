@@ -1,0 +1,257 @@
+/* ============================================================
+   SGC TECH AI — Navigation & Layout
+   ============================================================ */
+
+/* ── Override Odoo navbar ──────────────────────────────── */
+#wrapwrap {
+    background: var(--sgc-bg-1);
+    min-height: 100vh;
+}
+
+#wrapwrap #oe_main_menu_navbar,
+#wrapwrap .o_main_navbar {
+    background: var(--glass-bg) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.40) !important;
+}
+
+/* ── Force Odoo header wrapper to sticky so it never overlaps content ── */
+header#top,
+.o_top_fixed_element {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: var(--z-nav) !important;
+    width: 100%;
+}
+
+/* ── Custom Website Navbar ─────────────────────────────── */
+#wrapwrap .navbar,
+#wrapwrap nav.navbar {
+    background: var(--glass-bg) !important;
+    -webkit-backdrop-filter: blur(24px) !important;
+    backdrop-filter: blur(24px) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.40) !important;
+    transition: padding 0.3s ease, background 0.3s ease, border-color 0.3s ease,
+                transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.28s ease;
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-nav);
+    will-change: transform, opacity;
+}
+
+#wrapwrap .navbar.scrolled {
+    padding: 0.6rem 0;
+    background: rgba(6, 14, 26, 0.85) !important;
+    border-bottom-color: rgba(0,212,255,0.25) !important;
+}
+
+/* Nav brand / logo */
+#wrapwrap .navbar-brand {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: var(--sgc-text-1) !important;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+#wrapwrap .navbar-brand .sgc-logo-dot {
+    width: 8px; height: 8px;
+    background: var(--sgc-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--sgc-cyan), 0 0 24px var(--sgc-cyan-glow);
+    animation: sgc-pulse 2s ease-in-out infinite;
+}
+#wrapwrap .navbar-brand img {
+    height: 36px;
+    width: auto;
+}
+
+/* Nav links */
+#wrapwrap .nav-link {
+    color: var(--sgc-text-2) !important;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.9rem !important;
+    border-radius: var(--r-sm);
+    transition: var(--t-base);
+    position: relative;
+}
+#wrapwrap .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; right: 50%;
+    height: 2px;
+    background: var(--grad-brand);
+    border-radius: var(--r-full);
+    transition: var(--t-base);
+}
+#wrapwrap .nav-link:hover,
+#wrapwrap .nav-link.active {
+    color: var(--sgc-cyan) !important;
+    background: rgba(0,212,255,0.08);
+}
+#wrapwrap .nav-link:hover::after,
+#wrapwrap .nav-link.active::after {
+    left: 10%; right: 10%;
+}
+
+/* Nav CTA */
+#wrapwrap .nav-cta {
+    background: linear-gradient(135deg, var(--sgc-gold), #A68B4B) !important;
+    color: #07111d !important;
+    font-weight: 600;
+    font-size: 0.88rem;
+    border-radius: var(--r-full) !important;
+    padding: 0.45rem 1.2rem !important;
+    border: none !important;
+    box-shadow: 0 0 20px var(--sgc-gold-glow);
+    transition: var(--t-spring);
+}
+#wrapwrap .nav-cta:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 30px var(--sgc-gold-glow), 0 0 60px rgba(184,155,94,0.15);
+}
+#wrapwrap .nav-cta::after { display: none; }
+
+/* Navbar toggler */
+#wrapwrap .navbar-toggler {
+    border-color: var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    position: relative;
+    z-index: calc(var(--z-nav) + 1);
+}
+#wrapwrap .navbar-toggler-icon {
+    filter: brightness(5);
+}
+
+/* Mobile dropdown — sits above hero canvas and page content */
+@media (max-width: 991px) {
+    #wrapwrap .navbar-collapse {
+        position: fixed;
+        top: var(--sgc-nav-height);
+        left: 0;
+        right: 0;
+        max-height: calc(100vh - var(--sgc-nav-height));
+        overflow-y: auto;
+        background: rgba(6, 14, 26, 0.97) !important;
+        -webkit-backdrop-filter: blur(24px);
+        backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--glass-border);
+        z-index: var(--z-overlay);
+        padding: 1rem 1.5rem 2rem;
+    }
+    #wrapwrap .navbar-collapse .nav-link {
+        padding: 0.75rem 0 !important;
+        border-bottom: 1px solid rgba(0,212,255,0.08);
+        font-size: 1rem !important;
+    }
+    #wrapwrap .navbar-collapse .nav-cta {
+        margin-top: 1rem;
+        display: inline-block;
+    }
+}
+
+/* ── Custom Footer ─────────────────────────────────────── */
+#wrapwrap .sgc-footer {
+    background: var(--sgc-bg-0);
+    border-top: 1px solid var(--glass-border);
+    padding: var(--sp-4xl) 0 var(--sp-xl);
+    position: relative;
+    overflow: hidden;
+}
+#wrapwrap .sgc-footer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: var(--grad-brand);
+    opacity: 0.6;
+}
+
+.sgc-footer-brand .sgc-brand-name {
+    font-family: var(--font-head);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--sgc-text-1);
+    letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 0.5rem;
+    margin-bottom: var(--sp-md);
+}
+.sgc-footer-brand p {
+    color: var(--sgc-text-3);
+    font-size: 0.9rem;
+    max-width: 260px;
+    line-height: 1.6;
+}
+
+.sgc-footer-col h5 {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sgc-cyan);
+    margin-bottom: var(--sp-lg);
+}
+.sgc-footer-col ul { list-style: none; padding: 0; margin: 0; }
+.sgc-footer-col ul li { margin-bottom: var(--sp-sm); }
+.sgc-footer-col ul li a {
+    color: var(--sgc-text-3);
+    font-size: 0.88rem;
+    transition: var(--t-base);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.4rem;
+}
+.sgc-footer-col ul li a:hover { color: var(--sgc-cyan); padding-left: 4px; }
+
+.sgc-footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: var(--sp-2xl);
+    padding-top: var(--sp-lg);
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: var(--sp-md);
+}
+.sgc-footer-bottom p {
+    color: var(--sgc-text-3);
+    font-size: 0.80rem;
+    margin: 0;
+}
+.sgc-social-links { display: flex; gap: var(--sp-sm); }
+.sgc-social-links a {
+    width: 36px; height: 36px;
+    border-radius: var(--r-sm);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sgc-text-3);
+    font-size: 0.9rem;
+    transition: var(--t-base);
+}
+.sgc-social-links a:hover {
+    background: rgba(0,212,255,0.12);
+    border-color: var(--sgc-cyan);
+    color: var(--sgc-cyan);
+    transform: translateY(-2px);
+}
+
+/* ── Override Odoo footer ──────────────────────────────── */
+#wrapwrap footer.o_footer,
+#wrapwrap #footer {
+    background: var(--sgc-bg-0) !important;
+    color: var(--sgc-text-3) !important;
+    border-top: 1px solid var(--glass-border) !important;
+}
+
+/* ── Container width ───────────────────────────────────── */
+#wrapwrap .container {
+    max-width: 1200px;
+    padding-left: var(--sp-lg);
+    padding-right: var(--sp-lg);
+}

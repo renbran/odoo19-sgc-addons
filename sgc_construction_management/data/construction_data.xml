@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Analytic Plan -->
+        <record id="analytic_plan_construction" model="account.analytic.plan">
+            <field name="name">Construction Projects</field>
+        </record>
+
+        <!-- Products -->
+        <record id="product_construction_progress_billing" model="product.product">
+            <field name="name">Construction Progress Billing</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_services"/>
+        </record>
+
+        <record id="product_retention_deduction" model="product.product">
+            <field name="name">Retention Deduction</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_services"/>
+        </record>
+
+        <!-- Expense Categories -->
+        <record id="expense_category_material" model="construction.expense.category">
+            <field name="name">Materials</field>
+        </record>
+        <record id="expense_category_labour" model="construction.expense.category">
+            <field name="name">Labour</field>
+        </record>
+        <record id="expense_category_equipment" model="construction.expense.category">
+            <field name="name">Equipment</field>
+        </record>
+        <record id="expense_category_subcontract" model="construction.expense.category">
+            <field name="name">Subcontract</field>
+        </record>
+        <record id="expense_category_overhead" model="construction.expense.category">
+            <field name="name">Overhead</field>
+        </record>
+        <record id="expense_category_other" model="construction.expense.category">
+            <field name="name">Other</field>
+        </record>
+
+        <!-- Percentage UOM Category and UOM -->
+        <record id="uom_category_percentage" model="uom.category">
+            <field name="name">Percentage</field>
+            <field name="measure_type">reference</field>
+        </record>
+
+        <record id="uom_percentage" model="uom.uom">
+            <field name="name">Percent (%)</field>
+            <field name="category_id" ref="uom_category_percentage"/>
+            <field name="factor">1</field>
+            <field name="factor_inv">1</field>
+            <field name="uom_type">reference</field>
+            <field name="rounding">0.01</field>
+        </record>
+    </data>
+</odoo>

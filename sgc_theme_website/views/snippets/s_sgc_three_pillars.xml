@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_three_pillars" name="SGC Three Pillars">
+        <section class="s_sgc_three_pillars sgc-watermark--mosque sgc-geo--arabesque sgc-palette--navy-cream"
+                 data-name="SGC Three Pillars" data-snippet="s_sgc_three_pillars">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container text-center sgc-reveal">
+                <h2 class="s_sgc_three_pillars_title">Integrated <span class="sgc-accent-word">Advisory Solutions</span></h2>
+                <p class="s_sgc_three_pillars_kicker">Three Pillars. One Integrated Approach. Measurable Impact.</p>
+                <div class="row s_sgc_three_pillars_row justify-content-center">
+                    <div class="col-md-4 s_sgc_pillar">
+                        <div class="s_sgc_pillar_column">
+                            <span class="s_sgc_pillar_capital"/>
+                            <span class="s_sgc_pillar_shaft"/>
+                            <span class="s_sgc_pillar_base"/>
+                        </div>
+                        <span class="s_sgc_pillar_number">01</span>
+                        <h5>CFO Advisory</h5>
+                        <p>Strategic financial leadership that drives performance, value and sustainable growth.</p>
+                    </div>
+                    <div class="col-md-4 s_sgc_pillar">
+                        <div class="s_sgc_pillar_column">
+                            <span class="s_sgc_pillar_capital"/>
+                            <span class="s_sgc_pillar_shaft"/>
+                            <span class="s_sgc_pillar_base"/>
+                        </div>
+                        <span class="s_sgc_pillar_number">02</span>
+                        <h5>Compliance</h5>
+                        <p>Strengthening trust through robust governance, risk management and regulatory excellence.</p>
+                    </div>
+                    <div class="col-md-4 s_sgc_pillar">
+                        <div class="s_sgc_pillar_column">
+                            <span class="s_sgc_pillar_capital"/>
+                            <span class="s_sgc_pillar_shaft"/>
+                            <span class="s_sgc_pillar_base"/>
+                        </div>
+                        <span class="s_sgc_pillar_number">03</span>
+                        <h5>Technology</h5>
+                        <p>Intelligent solutions that automate, integrate and transform for a digital future.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="s_sgc_three_pillars_bar text-center">
+                <span>Integrated insight. Strategic advice. Measurable impact.</span>
+            </div>
+        </section>
+    </template>
+</odoo>

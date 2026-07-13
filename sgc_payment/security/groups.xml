@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="group_payment_user" model="res.groups">
+            <field name="name">Payment User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+        <record id="group_payment_verifier" model="res.groups">
+            <field name="name">Payment Verifier</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_user'))]"/>
+        </record>
+        <record id="group_payment_reviewer" model="res.groups">
+            <field name="name">Payment Reviewer</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_verifier'))]"/>
+        </record>
+        <record id="group_payment_approver" model="res.groups">
+            <field name="name">Payment Approver</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_reviewer'))]"/>
+        </record>
+        <record id="group_payment_authorizer" model="res.groups">
+            <field name="name">Payment Authorizer</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_approver'))]"/>
+        </record>
+        <record id="group_payment_poster" model="res.groups">
+            <field name="name">Payment Poster</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_authorizer'))]"/>
+        </record>
+        <record id="group_payment_manager" model="res.groups">
+            <field name="name">Payment Manager</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_payment.group_payment_poster'))]"/>
+        </record>
+
+
+    </data>
+</odoo>

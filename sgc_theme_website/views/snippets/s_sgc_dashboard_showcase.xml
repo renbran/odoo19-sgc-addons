@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_dashboard_showcase" name="SGC Dashboard Showcase">
+        <section class="s_sgc_dashboard_showcase sgc-watermark--burj-khalifa sgc-geo--circuit sgc-palette--cream-navy"
+                 data-name="SGC Dashboard Showcase" data-snippet="s_sgc_dashboard_showcase">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <div class="row align-items-start s_sgc_dashboard_showcase_head">
+                    <div class="col-lg-8">
+                        <h2 class="s_sgc_dashboard_showcase_title">From Data to <span class="sgc-accent-word">Decisions</span></h2>
+                        <p class="s_sgc_dashboard_showcase_kicker">AI-powered insights. Strategic impact.</p>
+                    </div>
+                    <div class="col-lg-4 s_sgc_dashboard_showcase_note">
+                        <i class="fa fa-microchip"/>
+                        <p>Transform raw data into actionable intelligence. Drive performance. Create value.</p>
+                    </div>
+                </div>
+                <div class="s_sgc_dashboard_showcase_frame">
+                    <div class="s_sgc_dashboard_showcase_titlebar">
+                        <span/><span/><span/>
+                    </div>
+                    <div class="s_sgc_dashboard_showcase_body">
+                        <div class="row g-3 s_sgc_dashboard_showcase_kpis">
+                            <div class="col-6 col-lg-3 s_sgc_kpi_card">
+                                <span class="s_sgc_kpi_label">Total Cash Flow</span>
+                                <span class="s_sgc_kpi_value">$28.4M</span>
+                                <span class="s_sgc_kpi_delta">▲ 12.6% vs last period</span>
+                            </div>
+                            <div class="col-6 col-lg-3 s_sgc_kpi_card">
+                                <span class="s_sgc_kpi_label">Net Profit Margin</span>
+                                <span class="s_sgc_kpi_value">24.7%</span>
+                                <span class="s_sgc_kpi_delta">▲ 3.2% vs last period</span>
+                            </div>
+                            <div class="col-6 col-lg-3 s_sgc_kpi_card">
+                                <span class="s_sgc_kpi_label">Revenue</span>
+                                <span class="s_sgc_kpi_value">$172.6M</span>
+                                <span class="s_sgc_kpi_delta">▲ 14.3% vs last period</span>
+                            </div>
+                            <div class="col-6 col-lg-3 s_sgc_kpi_card">
+                                <span class="s_sgc_kpi_label">Forecast Accuracy</span>
+                                <span class="s_sgc_kpi_value">91.8%</span>
+                                <span class="s_sgc_kpi_delta">▲ 4.6% vs last period</span>
+                            </div>
+                        </div>
+                        <div class="row g-3 s_sgc_dashboard_showcase_charts">
+                            <div class="col-lg-4 s_sgc_chart_card">
+                                <span class="s_sgc_chart_title">Cash Flow Overview</span>
+                                <div class="s_sgc_chart_bars">
+                                    <span style="height:40%"/><span style="height:65%"/><span style="height:50%"/>
+                                    <span style="height:80%"/><span style="height:60%"/><span style="height:90%"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 s_sgc_chart_card">
+                                <span class="s_sgc_chart_title">Profitability Trend</span>
+                                <div class="s_sgc_chart_bars">
+                                    <span style="height:55%"/><span style="height:45%"/><span style="height:70%"/>
+                                    <span style="height:60%"/><span style="height:85%"/><span style="height:75%"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-4 s_sgc_chart_card">
+                                <span class="s_sgc_chart_title">Revenue Forecast</span>
+                                <div class="s_sgc_chart_bars">
+                                    <span style="height:30%"/><span style="height:50%"/><span style="height:65%"/>
+                                    <span style="height:75%"/><span style="height:88%"/><span style="height:95%"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

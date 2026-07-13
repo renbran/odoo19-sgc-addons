@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="sgc_contact_content" name="SGC Contact Page">
+<t t-set="title">Contact SGC Tech | Book a Strategy Consultation UAE</t>
+<t t-set="meta_description">Book a strategy call with SGC Tech. Email, phone or send a message. We typically respond within 24 business hours. UAE-based advisory firm.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Contact", "item": "https://sgctech.ai/contact-us"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero">
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">GET IN TOUCH</span>
+                    <h1 class="aurum-reveal" data-aurum-delay="1">Let's Build Something Great Together</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        Ready to transform your finance, compliance, or technology operations? We're here to help.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2-COLUMN CONTACT LAYOUT -->
+    <section class="aurum-section aurum-cream-bg">
+        <div class="container">
+            <div class="row g-5">
+                <!-- LEFT COLUMN: Contact Form -->
+                <div class="col-lg-7">
+                    <div class="p-4" style="background:#fff;border:1px solid #f7f0df;border-radius:8px;color:#0b1f3f;">
+                        <h2 class="mb-4" style="font-family:'Playfair Display',serif;font-weight:700;color:#0b1f3f;">Send Us a Message</h2>
+                        <form id="contact-form" action="/contact-us" method="post">
+                            <div class="mb-3">
+                                <label for="cf_name" class="form-label" style="color:#0b1f3f;">Full Name <span style="color:#c9a227;">*</span></label>
+                                <input type="text" class="form-control" id="cf_name" name="name" required="required" aria-required="true" aria-label="Full Name" placeholder="Your full name"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cf_email" class="form-label" style="color:#0b1f3f;">Email <span style="color:#c9a227;">*</span></label>
+                                <input type="email" class="form-control" id="cf_email" name="email" required="required" aria-required="true" aria-label="Email address" placeholder="you@example.com"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cf_org" class="form-label" style="color:#0b1f3f;">Organization</label>
+                                <input type="text" class="form-control" id="cf_org" name="organization" aria-label="Organization name" placeholder="Company or organization"/>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cf_service" class="form-label" style="color:#0b1f3f;">Service Interest</label>
+                                <select class="form-control" id="cf_service" name="service_interest" aria-label="Service interest">
+                                    <option value="">Select a Service</option>
+                                    <option value="cfo">CFO Advisory</option>
+                                    <option value="compliance">Compliance &amp; Governance</option>
+                                    <option value="technology">Technology Enablement</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cf_message" class="form-label" style="color:#0b1f3f;">Message <span style="color:#c9a227;">*</span></label>
+                                <textarea class="form-control" id="cf_message" name="message" rows="5" required="required" aria-required="true" aria-label="Message" placeholder="How can we help you?"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cf_phone" class="form-label" style="color:#0b1f3f;">Phone <span class="text-muted small">(optional)</span></label>
+                                <input type="tel" class="form-control" id="cf_phone" name="phone" aria-label="Phone number" placeholder="+971 5X XXX XXXX"/>
+                            </div>
+                            <button type="submit" class="btn btn-aurum-gold" aria-label="Submit contact form">Send Message</button>
+                            <div class="mt-3 small text-muted">
+                                By submitting, you agree to our <a href="/privacy" aria-label="View our privacy policy">privacy policy</a>.
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: Contact Info -->
+                <div class="col-lg-5">
+                    <div class="p-4 h-100" style="background:#0b1f3f;border:1px solid #c9a227;border-radius:8px;color:#fff;">
+                        <h3 class="mb-4" style="font-family:'Playfair Display',serif;font-weight:700;color:#c9a227;">Direct Line</h3>
+
+                        <div class="mb-4">
+                            <div class="small text-uppercase mb-1" style="color:#c9a227;letter-spacing:.06em;">Email</div>
+                            <a t-attf-href="mailto:{{ res_company.email or '' }}" class="d-block" style="color:#fff;" aria-label="Send email to SGC Tech"><t t-out="res_company.email or ''"/></a>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="small text-uppercase mb-1" style="color:#c9a227;letter-spacing:.06em;">Phone</div>
+                            <a t-attf-href="tel:{{ res_company.phone or '' }}" class="d-block" style="color:#fff;" aria-label="Call SGC Tech"><t t-out="res_company.phone or ''"/></a>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="small text-uppercase mb-1" style="color:#c9a227;letter-spacing:.06em;">Office</div>
+                            <div style="color:#fff;">
+                                <t t-out="res_company.partner_id.street or ''"/>, <t t-out="res_company.partner_id.street2 or ''"/><br/>
+                                <t t-out="res_company.partner_id.city or ''"/>, <t t-out="res_company.partner_id.country_id.name or ''"/>
+                            </div>
+                        </div>
+
+                        <hr style="border-color:rgba(201,162,39,.3);"/>
+
+                        <div class="mb-4">
+                            <div class="small text-uppercase mb-2" style="color:#c9a227;letter-spacing:.06em;">Follow Us</div>
+                            <div class="d-flex gap-3">
+                                <a href="https://www.linkedin.com/company/sgctech" target="_blank" aria-label="Visit our LinkedIn page" style="color:#fff;" rel="noopener">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                                </a>
+                                <a href="https://twitter.com/sgctech" target="_blank" aria-label="Follow us on Twitter" style="color:#fff;" rel="noopener">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                </a>
+                                <a href="https://www.facebook.com/sgctech" target="_blank" aria-label="Follow us on Facebook" style="color:#fff;" rel="noopener">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="small" style="color:rgba(255,255,255,.78);">
+                            We typically respond within 24 business hours.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUST BADGES -->
+    <section class="aurum-section aurum-cream-bg" style="padding-top:0;">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4 aurum-reveal">
+                    <div class="p-4 text-center" style="background:#fff;border:1px solid #f7f0df;border-radius:8px;color:#0b1f3f;">
+                        <h5 class="mb-2" style="font-family:'Playfair Display',serif;font-weight:700;">MENA Certified</h5>
+                        <p class="small mb-0" style="color:#4a5568;">Deep regional expertise with certified professionals across the Middle East and North Africa.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="1">
+                    <div class="p-4 text-center" style="background:#fff;border:1px solid #f7f0df;border-radius:8px;color:#0b1f3f;">
+                        <h5 class="mb-2" style="font-family:'Playfair Display',serif;font-weight:700;">SEC Compliant</h5>
+                        <p class="small mb-0" style="color:#4a5568;">Rigorous governance and regulatory compliance frameworks aligned with international standards.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="2">
+                    <div class="p-4 text-center" style="background:#fff;border:1px solid #f7f0df;border-radius:8px;color:#0b1f3f;">
+                        <h5 class="mb-2" style="font-family:'Playfair Display',serif;font-weight:700;">ISO Certified</h5>
+                        <p class="small mb-0" style="color:#4a5568;">Quality management systems certified to ISO standards for consistent, reliable delivery.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="sgc_provider_google_meet" model="sgc.meeting.provider">
+        <field name="name">Google Meet</field>
+        <field name="code">google_meet</field>
+        <field name="active">True</field>
+        <field name="link_pattern">https://meet.google.com/new</field>
+        <field name="icon">fa-google</field>
+        <field name="description">Auto-generate Google Meet links via Odoo's google_calendar module sync. Each user must link their Google account in Settings.</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="sgc_provider_zoom" model="sgc.meeting.provider">
+        <field name="name">Zoom</field>
+        <field name="code">zoom</field>
+        <field name="active">True</field>
+        <field name="link_pattern">https://zoom.us/j/{meeting_id}</field>
+        <field name="icon">fa-video-camera</field>
+        <field name="description">Zoom meeting links. Requires Zoom S2S OAuth (configured in Settings → Companies). For SGC Tech AI bot integration, use the sgc_meeting_ai webhook.</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="sgc_provider_teams" model="sgc.meeting.provider">
+        <field name="name">Microsoft Teams</field>
+        <field name="code">teams</field>
+        <field name="active">True</field>
+        <field name="link_pattern">https://teams.microsoft.com/l/meetup-join/{meeting_id}</field>
+        <field name="icon">fa-windows</field>
+        <field name="description">Microsoft Teams meeting links. Requires microsoft_calendar module install (not currently active in production).</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="sgc_provider_in_person" model="sgc.meeting.provider">
+        <field name="name">In Person</field>
+        <field name="code">in_person</field>
+        <field name="active">True</field>
+        <field name="icon">fa-map-marker</field>
+        <field name="description">No meeting link. Use location field for physical address.</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="sgc_provider_none" model="sgc.meeting.provider">
+        <field name="name">None / Manual</field>
+        <field name="code">none</field>
+        <field name="active">True</field>
+        <field name="icon">fa-times</field>
+        <field name="description">No provider. The user enters meeting link manually.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <!-- Attendee meeting-bot service (free, self-hostable Recall.ai alternative).
+         Set sgc_meeting_ai.attendee_api_key to enable bot auto-join. -->
+    <record id="attendee_base_url_param" model="ir.config_parameter">
+        <field name="key">sgc_meeting_ai.attendee_base_url</field>
+        <field name="value">https://app.attendee.dev</field>
+    </record>
+
+    <record id="cron_poll_attendee_bots" model="ir.cron">
+        <field name="name">SGC Meeting AI: Poll Attendee bots</field>
+        <field name="model_id" ref="model_sgc_meeting_session" />
+        <field name="state">code</field>
+        <field name="code">model._cron_poll_attendee_bots()</field>
+        <field name="interval_number">2</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

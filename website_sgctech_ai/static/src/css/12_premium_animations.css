@@ -1,0 +1,492 @@
+/* ============================================================
+   SGC TECH AI — Premium Cursor, Icon & Scroll Animations
+   ============================================================ */
+
+/* ═══════════════════════════════════════════════════════════════
+   §1  PREMIUM CUSTOM CURSOR
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Cursor wrapper ────────────────────────────────────────── */
+.sgc-cursor-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 99999;
+    mix-blend-mode: difference;
+}
+
+/* ── Inner dot (precise pointer) ────────────────────────────── */
+.sgc-cursor-dot {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 99999;
+    transition: width 0.25s cubic-bezier(.23,1,.32,1),
+                height 0.25s cubic-bezier(.23,1,.32,1),
+                background 0.25s ease,
+                opacity 0.25s ease;
+    will-change: transform;
+}
+
+/* ── Outer ring (follows with delay) ───────────────────────── */
+.sgc-cursor-ring {
+    position: fixed;
+    width: 40px; height: 40px;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 99998;
+    transition: width 0.4s cubic-bezier(.23,1,.32,1),
+                height 0.4s cubic-bezier(.23,1,.32,1),
+                border-color 0.3s ease,
+                background 0.3s ease,
+                opacity 0.3s ease;
+    will-change: transform;
+}
+
+/* ── Glow trail canvas ─────────────────────────────────────── */
+.sgc-cursor-glow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 99997;
+}
+
+/* ── Click ripple effect ────────────────────────────────────── */
+.sgc-cursor-ripple {
+    position: fixed;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0,212,255,0.6);
+    pointer-events: none;
+    z-index: 99996;
+    animation: sgc-ripple-expand 0.7s cubic-bezier(0,.5,.3,1) forwards;
+}
+@keyframes sgc-ripple-expand {
+    0%   { width: 0; height: 0; opacity: 1; transform: translate(-50%,-50%) scale(0); }
+    100% { width: 80px; height: 80px; opacity: 0; transform: translate(-50%,-50%) scale(1); }
+}
+
+/* ── Hover states — interactive elements
+   Only hide the system cursor when the premium custom cursor has been
+   initialised by JS (sgc-cursor-active class on #wrapwrap). */
+.sgc-cursor-active .sgc-theme a:not(.sgc-ind-tab),
+.sgc-cursor-active .sgc-theme button,
+.sgc-cursor-active .sgc-theme .sgc-btn,
+.sgc-cursor-active .sgc-theme .sgc-industry-card,
+.sgc-cursor-active .sgc-theme .sgc-casebook-card,
+.sgc-cursor-active .sgc-theme .sgc-pricing-card,
+.sgc-cursor-active .sgc-theme .sgc-why-card,
+.sgc-cursor-active .sgc-theme .sgc-testi-card,
+.sgc-cursor-active .sgc-theme .sgc-mvv-card,
+.sgc-cursor-active .sgc-theme .sgc-competency-card,
+.sgc-cursor-active .sgc-theme .sgc-trust-badge,
+.sgc-cursor-active .sgc-theme .sgc-timeline-content,
+.sgc-cursor-active .sgc-theme [data-tilt="true"] {
+    cursor: none;
+}
+
+/* Cursor grows on hoverable elements */
+.sgc-cursor-dot.is-hovering {
+    width: 16px; height: 16px;
+    background: rgba(0,212,255,0.8);
+    mix-blend-mode: normal;
+}
+.sgc-cursor-ring.is-hovering {
+    width: 60px; height: 60px;
+    border-color: rgba(0,212,255,0.4);
+    background: rgba(0,212,255,0.06);
+}
+
+/* Cursor shrinks on click */
+.sgc-cursor-dot.is-clicking {
+    width: 4px; height: 4px;
+}
+.sgc-cursor-ring.is-clicking {
+    width: 30px; height: 30px;
+    border-color: rgba(123,47,190,0.6);
+}
+
+/* ── Text blend mode on headings ────────────────────────────── */
+.sgc-cursor-dot.is-text {
+    width: 80px; height: 80px;
+    background: rgba(0,212,255,0.12);
+    mix-blend-mode: difference;
+}
+.sgc-cursor-ring.is-text {
+    width: 100px; height: 100px;
+    border-color: rgba(0,212,255,0.15);
+    background: transparent;
+}
+
+/* ── Hide on touch devices ──────────────────────────────────── */
+@media (hover: none) and (pointer: coarse) {
+    .sgc-cursor-dot, .sgc-cursor-ring, .sgc-cursor-glow, .sgc-cursor-ripple {
+        display: none !important;
+    }
+    .sgc-cursor-active .sgc-theme a, .sgc-cursor-active .sgc-theme button, .sgc-cursor-active .sgc-theme .sgc-btn,
+    .sgc-cursor-active .sgc-theme .sgc-industry-card, .sgc-cursor-active .sgc-theme .sgc-casebook-card {
+        cursor: auto;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   §2  PREMIUM ANIMATED ICONS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Icon morph container ───────────────────────────────────── */
+.sgc-icon-box,
+.sgc-industry-icon,
+.sgc-why-icon,
+.sgc-competency-icon {
+    transition: transform 0.45s cubic-bezier(.23,1,.32,1),
+                background 0.35s ease,
+                border-color 0.35s ease,
+                box-shadow 0.35s ease;
+}
+
+/* ── Icon bounce on scroll reveal ───────────────────────────── */
+.sgc-icon-box.visible,
+.sgc-why-icon.visible,
+.sgc-competency-icon.visible {
+    animation: sgc-icon-bounce-in 0.7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes sgc-icon-bounce-in {
+    0%   { transform: scale(0) rotate(-15deg); opacity: 0; }
+    50%  { transform: scale(1.15) rotate(5deg); opacity: 1; }
+    70%  { transform: scale(0.95) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Icon hover morph ───────────────────────────────────────── */
+.sgc-why-card:hover .sgc-why-icon,
+.sgc-competency-card:hover .sgc-competency-icon {
+    animation: sgc-icon-morph 0.6s cubic-bezier(.23,1,.32,1) both;
+}
+@keyframes sgc-icon-morph {
+    0%   { transform: scale(1) rotate(0deg); }
+    30%  { transform: scale(1.2) rotate(10deg); }
+    60%  { transform: scale(0.9) rotate(-5deg); }
+    100% { transform: scale(1.08) rotate(0deg); }
+}
+
+/* ── Continuous glow pulse on visible icons ─────────────────── */
+.sgc-why-icon.visible::after,
+.sgc-competency-icon.visible::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: inherit;
+    opacity: 0;
+    z-index: -1;
+    animation: sgc-icon-glow-pulse 3s ease-in-out infinite;
+}
+@keyframes sgc-icon-glow-pulse {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50%      { opacity: 0.3; transform: scale(1.2); filter: blur(8px); }
+}
+
+/* ── SVG path draw animation ────────────────────────────────── */
+.sgc-industry-icon svg path,
+.sgc-industry-icon svg rect,
+.sgc-industry-icon svg circle,
+.sgc-industry-icon svg line,
+.sgc-industry-icon svg polygon {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1);
+}
+.sgc-industry-card:hover .sgc-industry-icon svg path,
+.sgc-industry-card:hover .sgc-industry-icon svg rect,
+.sgc-industry-card:hover .sgc-industry-icon svg circle,
+.sgc-industry-card:hover .sgc-industry-icon svg line,
+.sgc-industry-card:hover .sgc-industry-icon svg polygon {
+    stroke-dashoffset: 0;
+}
+
+/* ── Emoji icon float animation ─────────────────────────────── */
+.sgc-why-icon.visible,
+.sgc-competency-icon.visible {
+    animation: sgc-icon-bounce-in 0.7s cubic-bezier(.34,1.56,.64,1) both,
+               sgc-icon-idle-float 4s ease-in-out 1s infinite;
+}
+@keyframes sgc-icon-idle-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+}
+
+/* ── Trust badge icon spin ──────────────────────────────────── */
+.sgc-trust-badge:hover .badge-icon {
+    animation: sgc-badge-icon-pop 0.4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes sgc-badge-icon-pop {
+    0%   { transform: scale(1) rotate(0deg); }
+    50%  { transform: scale(1.3) rotate(15deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+/* ── Pricing card icon pulse ────────────────────────────────── */
+.sgc-pricing-card:hover .sgc-pricing-tier {
+    animation: sgc-tier-glow 0.8s ease both;
+}
+@keyframes sgc-tier-glow {
+    0%   { text-shadow: none; }
+    50%  { text-shadow: 0 0 12px var(--sgc-cyan), 0 0 24px var(--sgc-cyan-glow); }
+    100% { text-shadow: 0 0 4px var(--sgc-cyan-glow2); }
+}
+
+/* ── Footer social icon dance ───────────────────────────────── */
+.sgc-footer-col a:hover i {
+    animation: sgc-social-bounce 0.5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes sgc-social-bounce {
+    0%   { transform: scale(1) translateY(0); }
+    40%  { transform: scale(1.3) translateY(-6px); }
+    70%  { transform: scale(0.9) translateY(2px); }
+    100% { transform: scale(1) translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   §3  PREMIUM SCROLL ANIMATIONS
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Scroll progress indicator ──────────────────────────────── */
+.sgc-scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    width: 0%;
+    height: 3px;
+    background: var(--grad-brand);
+    z-index: 9999;
+    pointer-events: none;
+    transition: width 0.05s linear;
+    box-shadow: 0 0 8px var(--sgc-cyan-glow);
+}
+
+/* ── Enhanced reveal with clip-path ─────────────────────────── */
+.sgc-reveal-clip {
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.8s cubic-bezier(.23,1,.32,1);
+}
+.sgc-reveal-clip.visible {
+    clip-path: inset(0 0 0 0);
+}
+
+/* ── Reveal from left with clip ─────────────────────────────── */
+.sgc-reveal-clip-left {
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 0.8s cubic-bezier(.23,1,.32,1);
+}
+.sgc-reveal-clip-left.visible {
+    clip-path: inset(0 0 0 0);
+}
+
+/* ── Reveal from right with clip ────────────────────────────── */
+.sgc-reveal-clip-right {
+    clip-path: inset(0 0 0 100%);
+    transition: clip-path 0.8s cubic-bezier(.23,1,.32,1);
+}
+.sgc-reveal-clip-right.visible {
+    clip-path: inset(0 0 0 0);
+}
+
+/* ── Reveal with blur ───────────────────────────────────────── */
+.sgc-reveal-blur {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(20px);
+    transition: opacity 0.7s ease,
+                filter 0.8s ease,
+                transform 0.7s cubic-bezier(.4,0,.2,1);
+}
+.sgc-reveal-blur.visible {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+}
+
+/* ── Reveal with rotation ───────────────────────────────────── */
+.sgc-reveal-rotate {
+    opacity: 0;
+    transform: perspective(800px) rotateY(-8deg) translateX(-30px);
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(.23,1,.32,1);
+}
+.sgc-reveal-rotate.visible {
+    opacity: 1;
+    transform: perspective(800px) rotateY(0) translateX(0);
+}
+
+/* ── Section divider wave ───────────────────────────────────── */
+.sgc-section-wave {
+    position: relative;
+}
+.sgc-section-wave::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 60px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%230A1628' d='M0,32L60,37.3C120,43,240,53,360,53.3C480,53,600,43,720,37.3C840,32,960,32,1080,34.7C1200,37,1320,43,1380,45.3L1440,48L1440,60L1380,60C1320,60,1200,60,1080,60C960,60,840,60,720,60C600,60,480,60,360,60C240,60,120,60,60,60L0,60Z'/%3E%3C/svg%3E") no-repeat bottom center;
+    background-size: cover;
+    z-index: 2;
+    pointer-events: none;
+    animation: sgc-wave-in 1.2s cubic-bezier(.23,1,.32,1) both;
+}
+@keyframes sgc-wave-in {
+    from { clip-path: inset(0 0 100% 0); }
+    to   { clip-path: inset(0 0 0 0); }
+}
+
+/* ── Enhanced stagger (up to 12 children) ───────────────────── */
+.sgc-stagger > *:nth-child(7)  { transition-delay: 600ms !important; }
+.sgc-stagger > *:nth-child(8)  { transition-delay: 700ms !important; }
+.sgc-stagger > *:nth-child(9)  { transition-delay: 800ms !important; }
+.sgc-stagger > *:nth-child(10) { transition-delay: 900ms !important; }
+.sgc-stagger > *:nth-child(11) { transition-delay: 1000ms !important; }
+.sgc-stagger > *:nth-child(12) { transition-delay: 1100ms !important; }
+
+/* ── Parallax depth on scroll ───────────────────────────────── */
+.sgc-parallax-slow { will-change: transform; }
+.sgc-parallax-fast { will-change: transform; }
+
+/* ── Horizontal slide-in for stats ──────────────────────────── */
+.sgc-counter-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(.4,0,.2,1);
+}
+.sgc-counter-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Card stack 3D entrance ─────────────────────────────────── */
+.sgc-card-stack-enter {
+    opacity: 0;
+    transform: perspective(1200px) rotateX(12deg) translateY(60px) scale(0.92);
+    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(.23,1,.32,1);
+}
+.sgc-card-stack-enter.visible {
+    opacity: 1;
+    transform: perspective(1200px) rotateX(0) translateY(0) scale(1);
+}
+
+/* ── Gradient text shimmer on scroll reveal ─────────────────── */
+.sgc-gradient-text.visible {
+    background-size: 200% auto;
+    animation: sgc-text-shimmer 3s linear infinite;
+}
+@keyframes sgc-text-shimmer {
+    0%   { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ── CTA section entrance ───────────────────────────────────── */
+.sgc-cta-inner.visible .sgc-cta-buttons {
+    animation: sgc-cta-entrance 0.8s cubic-bezier(.34,1.56,.64,1) 0.3s both;
+}
+@keyframes sgc-cta-entrance {
+    from { opacity: 0; transform: translateY(30px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Navbar link underline animation ────────────────────────── */
+.sgc-theme .nav-link {
+    position: relative;
+}
+.sgc-theme .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    width: 0; height: 2px;
+    background: var(--grad-brand);
+    transition: width 0.35s cubic-bezier(.23,1,.32,1), left 0.35s cubic-bezier(.23,1,.32,1);
+    border-radius: 2px;
+}
+.sgc-theme .nav-link:hover::after,
+.sgc-theme .nav-link.active::after {
+    width: 100%; left: 0;
+}
+
+/* ── Pricing card featured shimmer ──────────────────────────── */
+.sgc-pricing-card.featured::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: -100%;
+    width: 60%; height: calc(100% - 6px);
+    background: linear-gradient(90deg, transparent, rgba(0,212,255,0.06), transparent);
+    animation: sgc-featured-shimmer 4s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes sgc-featured-shimmer {
+    0%   { left: -100%; }
+    100% { left: 200%; }
+}
+
+/* ── Timeline dot pulse chain ───────────────────────────────── */
+.sgc-timeline-dot {
+    position: relative;
+}
+.sgc-timeline-dot::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--sgc-cyan);
+    opacity: 0;
+    animation: sgc-dot-sonar 2.5s ease-out infinite;
+}
+@keyframes sgc-dot-sonar {
+    0%   { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* ── Smooth scroll behavior ──────────────────────────────────── */
+html.sgc-theme {
+    scroll-behavior: smooth;
+}
+
+/* ── Page load entrance ─────────────────────────────────────── */
+.sgc-main-wrap {
+    animation: sgc-page-enter 0.8s cubic-bezier(.23,1,.32,1) both;
+}
+@keyframes sgc-page-enter {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section header entrance ────────────────────────────────── */
+.sgc-section-header.visible .sgc-label {
+    animation: sgc-label-entrance 0.6s cubic-bezier(.34,1.56,.64,1) 0.1s both;
+}
+.sgc-section-header.visible h2 {
+    animation: sgc-heading-entrance 0.7s cubic-bezier(.23,1,.32,1) 0.2s both;
+}
+.sgc-section-header.visible p {
+    animation: sgc-para-entrance 0.6s ease 0.35s both;
+}
+@keyframes sgc-label-entrance {
+    from { opacity: 0; transform: translateY(-10px) scale(0.9); letter-spacing: 0.3em; }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sgc-heading-entrance {
+    from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes sgc-para-entrance {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Float card parallax hover ──────────────────────────────── */
+.sgc-float-card {
+    transition: transform 0.4s cubic-bezier(.23,1,.32,1);
+}
+.sgc-float-card.parallax-active {
+    transition: none;
+}

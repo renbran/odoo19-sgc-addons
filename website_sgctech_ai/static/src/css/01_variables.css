@@ -1,0 +1,105 @@
+/* ============================================================
+   SGC TECH AI — Design Tokens
+   (Google Fonts loaded via <link> in website_templates.xml)
+   ============================================================ */
+
+:root {
+    /* ── Background Palette ──────────────────────────────── */
+    --sgc-bg-0:        #0D223D;   /* deepest */
+    --sgc-bg-1:        #FAF7F2;   /* primary page bg */
+    --sgc-bg-2:        #0D1F38;   /* card bg */
+    --sgc-bg-3:        #112244;   /* elevated surface */
+    --sgc-bg-4:        #1A2E50;   /* highlight surface */
+
+    /* ── Brand Colours ───────────────────────────────────── */
+    --sgc-gold:        #B89B5E;
+    --sgc-cyan-light:  #66E5FF;
+    --sgc-cyan-dark:   #0098C8;
+    --sgc-violet:      #7B2FBE;
+    --sgc-violet-light:#A855F7;
+    --sgc-violet-dark: #5B1F9E;
+    --sgc-orange:      #FF6B35;
+    --sgc-green:       #00E5A0;
+
+    /* ── Glow / Alpha variants ───────────────────────────── */
+    --sgc-cyan-glow:   rgba(0,  212, 255, 0.35);
+    --sgc-cyan-glow2:  rgba(0,  212, 255, 0.12);
+    --sgc-violet-glow: rgba(123, 47, 190, 0.35);
+    --sgc-orange-glow: rgba(255, 107,  53, 0.35);
+    --sgc-green-glow:  rgba(  0, 229, 160, 0.25);
+    --sgc-gold-glow:   rgba(184, 155,  94, 0.30);
+    --sgc-gold-glow2:  rgba(184, 155,  94, 0.12);
+
+    /* ── Text ────────────────────────────────────────────── */
+    --sgc-text-1:      #E8F4FD;   /* headings */
+    --sgc-text-2:      #8FB3D9;   /* body */
+    --sgc-text-3:      #4A7FA5;   /* muted */
+    --sgc-text-inv:    #0A1628;   /* on light */
+
+    /* ── Glassmorphism primitives ────────────────────────── */
+    --glass-bg:        rgba(13,  31,  56, 0.55);
+    --glass-bg-hover:  rgba(17,  34,  68, 0.70);
+    --glass-border:    rgba(0,  212, 255, 0.18);
+    --glass-border-h:  rgba(0,  212, 255, 0.45);
+    --glass-blur:      20px;
+    --glass-shadow:    0 8px 32px rgba(0, 0, 0, 0.45),
+                       0 0 0 1px rgba(0, 212, 255, 0.08);
+    --glass-shadow-h:  0 16px 48px rgba(0, 0, 0, 0.60),
+                       0 0 40px rgba(0, 212, 255, 0.15);
+
+    /* ── Gradients ───────────────────────────────────────── */
+    --grad-brand:      linear-gradient(135deg, #00D4FF 0%, #7B2FBE 100%);
+    --grad-brand-rev:  linear-gradient(135deg, #7B2FBE 0%, #00D4FF 100%);
+    --grad-bg:         linear-gradient(145deg, #0A1628 0%, #0D1F38 40%, #112244 70%, #0A1628 100%);
+    --grad-glow-top:   radial-gradient(ellipse 80% 40% at 50% 0%,
+                           rgba(0, 212, 255, 0.12) 0%, transparent 100%);
+    --grad-glow-bot:   radial-gradient(ellipse 80% 40% at 50% 100%,
+                           rgba(123, 47, 190, 0.12) 0%, transparent 100%);
+    --grad-hero-orb1:  radial-gradient(ellipse 60% 60% at 10% 20%,
+                           rgba(0, 212, 255, 0.20) 0%, transparent 70%);
+    --grad-hero-orb2:  radial-gradient(ellipse 50% 50% at 90% 80%,
+                           rgba(123, 47, 190, 0.20) 0%, transparent 70%);
+
+    /* ── Typography ──────────────────────────────────────── */
+    --font-head:       'Orbitron', 'Segoe UI', sans-serif;
+    --font-display:    var(--font-head);
+    --font-body:       'Inter',    'Segoe UI', sans-serif;
+    --font-mono:       'Share Tech Mono', 'Courier New', monospace;
+
+    /* ── Spacing scale ───────────────────────────────────── */
+    --sp-xs:   0.25rem;
+    --sp-sm:   0.5rem;
+    --sp-md:   1rem;
+    --sp-lg:   1.5rem;
+    --sp-xl:   2rem;
+    --sp-2xl:  3rem;
+    --sp-3xl:  4rem;
+    --sp-4xl:  6rem;
+    --sp-5xl:  8rem;
+    --section-y: 7rem;
+    --sgc-nav-height: 84px;
+
+    /* ── Border Radius ───────────────────────────────────── */
+    --r-xs:  4px;
+    --r-sm:  8px;
+    --r-md:  12px;
+    --r-lg:  16px;
+    --r-xl:  24px;
+    --r-2xl: 32px;
+    --r-full: 9999px;
+
+    /* ── Transitions ─────────────────────────────────────── */
+    --t-fast:   all 0.15s ease;
+    --t-base:   all 0.30s cubic-bezier(0.4, 0, 0.2, 1);
+    --t-slow:   all 0.60s cubic-bezier(0.4, 0, 0.2, 1);
+    --t-spring: all 0.40s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* ── Z-Index layers ──────────────────────────────────── */
+    --z-particles: 2;   /* must be > --z-orbs so canvas renders above ::before overlay */
+    --z-orbs:      1;
+    --z-content:   10;
+    --z-sticky:    850;
+    --z-nav:       900;
+    --z-overlay:   950;
+    --z-modal:     1000;
+}

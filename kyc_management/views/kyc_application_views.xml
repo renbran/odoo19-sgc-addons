@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- ==================== KYC APPLICATION SEARCH VIEW ==================== -->
+        
+        <record id="view_kyc_application_search" model="ir.ui.view">
+            <field name="name">kyc.application.search</field>
+            <field name="model">kyc.application</field>
+            <field name="arch" type="xml">
+                <search>
+                    <!-- Search by basic fields -->
+                    <field name="kyc_id"/>
+                    <field name="partner_id"/>
+                    <field name="first_name"/>
+                    <field name="last_name"/>
+                    <field name="email"/>
+                    <field name="passport_number"/>
+                    <field name="nationality_id"/>
+                    
+                    <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                    <filter name="filter_pending" string="Pending Review" domain="[('state', '=', 'pending_review')]"/>
+                    <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                    <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
+                    
+                    <!-- Risk Filters -->
+                    <!-- <filter name="filter_pep_yes" string="Politically Exposed" domain="[('politically_exposed_person', '=', 'yes')]"/> -->
+                    <!-- Note: is_passport_valid and is_kyc_complete are computed fields, not searchable in filters -->
+                    <!-- <filter name="filter_passport_invalid" string="Passport Expired" domain="[('is_passport_valid', '=', False)]"/> -->
+                    <!-- <filter name="filter_incomplete" string="Incomplete KYC" domain="[('is_kyc_complete', '=', False)]"/> -->
+                    
+                    <!-- Grouping -->
+                    <filter name="group_by_state" string="Group By Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_nationality" string="Group By Nationality" context="{'group_by': 'nationality_id'}"/>
+                    <filter name="group_by_submitter" string="Group By Submitter" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_by_approver" string="Group By Approver" context="{'group_by': 'approver_id'}"/>
+                    <filter name="group_by_date" string="Group By Submission Date" context="{'group_by': 'submitted_date'}"/>
+                </search>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPLICATION TREE VIEW ==================== -->
+        
+        <record id="view_kyc_application_tree" model="ir.ui.view">
+            <field name="name">kyc.application.tree</field>
+            <field name="model">kyc.application</field>
+            <field name="arch" type="xml">
+                <list decoration-muted="state == 'rejected'" decoration-success="state == 'approved'" decoration-info="state == 'pending_review'" decoration-warning="state == 'draft'">
+                    <field name="kyc_id"/>
+                    <field name="partner_id"/>
+                    <field name="email"/>
+                    <field name="state" decoration-success="state == 'approved'" decoration-danger="state == 'rejected'"/>
+                    <field name="submitted_date"/>
+                    <field name="approver_id" optional="hide"/>
+                    <field name="approval_date" optional="hide"/>
+                    <field name="is_kyc_complete" optional="hide"/>
+                    <field name="politically_exposed_person" optional="hide"/>
+                </list>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPLICATION FORM VIEW ==================== -->
+        
+        <record id="view_kyc_application_form" model="ir.ui.view">
+            <field name="name">kyc.application.form</field>
+            <field name="model">kyc.application</field>
+            <field name="arch" type="xml">
+                <form class="o_kyc_form o_kyc_application_form">
+                    <!-- Status Bar -->
+                    <header>
+                        <button name="action_submit" string="Submit for Review" type="object" class="btn-primary"
+                                invisible="state != 'draft'"/>
+                        <button name="action_mark_pending_review" string="Mark Pending" type="object" class="btn-primary"
+                                invisible="state != 'submitted'"/>
+                        <button name="action_approve" string="Approve" type="object" class="btn-success"
+                                invisible="state not in ('submitted', 'pending_review')"
+                                groups="kyc_management.group_kyc_approver"/>
+                        <button name="action_reject" string="Reject" type="object" class="btn-danger"
+                                invisible="state not in ('submitted', 'pending_review')"
+                                groups="kyc_management.group_kyc_approver"/>
+                        <button name="action_reset_to_draft" string="Reset to Draft" type="object"
+                                class="btn-warning"
+                                invisible="state not in ('approved', 'rejected')"
+                                groups="kyc_management.group_kyc_admin"
+                                confirm="This will reset the application to Draft and clear all approval/rejection data. The applicant will need to re-submit. Continue?"/>
+                        <button name="%(kyc_management.kyc_application_report_template)d" string="Print KYC" type="action" class="btn-secondary"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,pending_review,approved,rejected"/>
+                    </header>
+
+                    <!-- Sheet -->
+                    <sheet class="o_kyc_sheet">
+                        
+                        <!-- Note: Conditional alerts disabled for Odoo 17 compatibility -->
+                        <!-- Incomplete KYC Alert -->
+                        <!-- <div class="alert alert-warning" role="alert"> Please complete all required fields. </div> -->
+                        
+                        <!-- Passport Warning Alert -->
+                        <!-- <div class="alert alert-danger" role="alert"> Applicant's passport has expired. </div> -->
+                        
+                        <!-- PEP Alert -->
+                        <!-- <div class="alert alert-danger" role="alert"> This applicant is flagged as a Politically Exposed Person. </div> -->
+                        
+                        <!-- Header Section -->
+                        <div class="oe_title o_kyc_title_block">
+                            <h1>
+                                <field name="kyc_id" readonly="1"/>
+                            </h1>
+                            <div class="row o_kyc_summary_row">
+                                <div class="col-md-4 o_kyc_summary_item">
+                                    <strong>Status:</strong>
+                                    <field name="state" readonly="1"/>
+                                </div>
+                                <div class="col-md-4 o_kyc_summary_item">
+                                    <strong>KYC Complete:</strong>
+                                    <field name="is_kyc_complete" readonly="1" widget="boolean"/>
+                                </div>
+                                <div class="col-md-4 o_kyc_summary_item">
+                                    <strong>Submitted:</strong>
+                                    <field name="submitted_date" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabs -->
+                        <notebook>
+                            <!-- PERSONAL INFORMATION TAB -->
+                            <page string="Personal Information" name="personal_info">
+                                <group>
+                                    <group string="Contact Information">
+                                        <field name="partner_id"/>
+                                        <field name="first_name" required="1"/>
+                                        <field name="last_name" required="1"/>
+                                        <field name="email" required="1"/>
+                                        <field name="phone" required="1"/>
+                                    </group>
+                                    <group string="Demographics">
+                                        <field name="date_of_birth" required="1"/>
+                                        <field name="age" readonly="1"/>
+                                        <field name="gender"/>
+                                        <field name="nationality_id" required="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- IDENTIFICATION TAB -->
+                            <page string="Identification" name="identification">
+                                <group string="Passport Information">
+                                    <field name="passport_number" required="1"/>
+                                    <field name="passport_country_id" required="1"/>
+                                    <field name="passport_issue_date" required="1"/>
+                                    <field name="passport_expiry_date" required="1"/>
+                                    <field name="is_passport_valid" readonly="1" widget="boolean"/>
+                                    <field name="passport_document" widget="image" class="oe_inline"/>
+                                </group>
+                                
+                                <group string="Other Identification Documents">
+                                    <field name="emirates_id"/>
+                                    <field name="emirates_id_document" widget="image" class="oe_inline"/>
+                                </group>
+                                
+                                <group string="Address Proof">
+                                    <field name="proof_of_address_document" widget="image" class="oe_inline"/>
+                                </group>
+                            </page>
+                            
+                            <!-- ADDRESS TAB -->
+                            <page string="Address" name="address">
+                                <group string="Residential Address">
+                                    <field name="residential_address" required="1" colspan="2"/>
+                                    <field name="residential_city" required="1"/>
+                                    <field name="residential_state" required="1"/>
+                                    <field name="residential_country_id" required="1"/>
+                                    <field name="residential_postal_code"/>
+                                </group>
+                            </page>
+                            
+                            <!-- EMPLOYMENT TAB -->
+                            <page string="Employment" name="employment">
+                                <group>
+                                    <group string="Employment Details">
+                                        <field name="employment_status" required="1"/>
+                                        <field name="occupation"/>
+                                        <field name="years_in_role"/>
+                                    </group>
+                                    <group string="Employer Information">
+                                        <field name="employer_name"/>
+                                        <field name="employer_address"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- FINANCIAL INFORMATION TAB -->
+                            <page string="Financial Information" name="financial">
+                                <group string="Income Information">
+                                    <field name="annual_income" colspan="1"/>
+                                    <field name="currency_id" colspan="1"/>
+                                </group>
+                                
+                                <group string="Source of Funds" colspan="2">
+                                    <field name="source_of_funds_ids" widget="many2many_tags" colspan="2" nolabel="1"/>
+                                </group>
+                                
+                                <group string="Source of Wealth" colspan="2">
+                                    <field name="source_of_wealth_ids" widget="many2many_tags" colspan="2" nolabel="1"/>
+                                </group>
+                                
+                                <group string="Transaction Information">
+                                    <field name="purpose_of_transaction" required="1" colspan="1"/>
+                                    <field name="payment_method" colspan="1"/>
+                                </group>
+                            </page>
+                            
+                            <!-- RISK ASSESSMENT TAB -->
+                            <page string="Risk Assessment" name="risk_assessment">
+                                <group>
+                                    <group string="PEP Status">
+                                        <field name="politically_exposed_person" required="1"/>
+                                        <field name="pep_details"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- SIGNATURES & CONSENT TAB -->
+                            <page string="Signature &amp; Consent" name="signature">
+                                <group string="Digital Signature">
+                                    <field name="signature_image" widget="image" class="oe_inline"/>
+                                    <field name="signature_timestamp" readonly="1"/>
+                                    <field name="signature_location"/>
+                                </group>
+                                
+                                <group string="Consents &amp; Agreements">
+                                    <field name="consent_terms_conditions" required="1"/>
+                                    <field name="consent_privacy_policy" required="1"/>
+                                    <field name="consent_data_processing" required="1"/>
+                                    <field name="consent_aml_kyc" required="1"/>
+                                </group>
+                            </page>
+                            
+                            <!-- APPROVAL TAB -->
+                            <page string="Approval" name="approval">
+                                <group>
+                                    <group string="Approval Information">
+                                        <field name="approver_id" readonly="1"/>
+                                        <field name="approval_date" readonly="1"/>
+                                    </group>
+                                    <group string="Rejection Information">
+                                        <field name="rejection_reason" readonly="1"/>
+                                        <field name="rejection_suggestions" readonly="1"/>
+                                    </group>
+                                    <group string="Submission Info">
+                                        <field name="submitted_date" readonly="1"/>
+                                        <field name="user_id" readonly="1"/>
+                                    </group>
+                                    <group string="Migration Info">
+                                        <field name="is_migrated_to_contact" readonly="1" widget="boolean"/>
+                                        <field name="migration_date" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <chatter reload_on_post="True">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </chatter>
+                </form>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPLICATION KANBAN VIEW ==================== -->
+        
+        <record id="view_kyc_application_kanban" model="ir.ui.view">
+            <field name="name">kyc.application.kanban</field>
+            <field name="model">kyc.application</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kyc_kanban" default_group_by="state" quick_create="false">
+                    <field name="state"/>
+                    <field name="kyc_id"/>
+                    <field name="partner_id"/>
+                    <field name="email"/>
+                    <field name="submitted_date"/>
+                    <field name="politically_exposed_person"/>
+                    <field name="is_passport_valid"/>
+                    <field name="is_kyc_complete"/>
+                    
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_card o_kyc_kanban_card">
+                                <div class="oe_kanban_content o_kyc_kanban_content">
+                                    <div class="oe_kanban_title o_kyc_kanban_title">
+                                        <strong><field name="kyc_id"/></strong>
+                                    </div>
+                                    <div class="oe_kanban_subtitle o_kyc_kanban_subtitle">
+                                        <field name="partner_id"/>
+                                    </div>
+                                    <div class="oe_kanban_text o_kyc_kanban_text">
+                                        <small><field name="email"/></small>
+                                    </div>
+                                    <div class="oe_kanban_footer_left o_kyc_kanban_footer_left">
+                                        <small>
+                                            <t t-if="record.submitted_date.value">
+                                                Submitted: <field name="submitted_date" widget="relative_time"/>
+                                            </t>
+                                            <t t-else="">
+                                                Draft
+                                            </t>
+                                        </small>
+                                    </div>
+                                    <div class="oe_kanban_footer_right o_kyc_kanban_footer_right">
+                                        <span t-if="record.politically_exposed_person.raw_value == 'yes'" class="badge badge-danger">PEP</span>
+                                        <span t-if="!record.is_passport_valid.value" class="badge badge-warning">Expired</span>
+                                        <span t-if="!record.is_kyc_complete.value" class="badge badge-info">Incomplete</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="oe_kanban_card_bottom o_kyc_kanban_card_bottom">
+                                    <button name="action_submit" string="Submit" type="object" 
+                                            class="btn btn-sm btn-primary"
+                                            invisible="state != 'draft'"/>
+                                    <button name="action_approve" string="Approve" type="object" 
+                                            class="btn btn-sm btn-success"
+                                            invisible="state not in ('submitted', 'pending_review')"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- ==================== ACTION WINDOWS ==================== -->
+        
+        <record id="action_kyc_application" model="ir.actions.act_window">
+            <field name="name">KYC Applications</field>
+            <field name="res_model">kyc.application</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="search_view_id" ref="view_kyc_application_search"/>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Click to start a new KYC application.
+                </p>
+            </field>
+        </record>
+        
+        <record id="action_kyc_application_draft" model="ir.actions.act_window">
+            <field name="name">Draft KYC Applications</field>
+            <field name="res_model">kyc.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'draft')]</field>
+            <field name="context">{'search_default_filter_draft': 1}</field>
+        </record>
+        
+        <record id="action_kyc_application_pending" model="ir.actions.act_window">
+            <field name="name">Pending KYC Applications</field>
+            <field name="res_model">kyc.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', 'in', ('submitted', 'pending_review'))]</field>
+            <field name="context">{'search_default_filter_pending': 1}</field>
+        </record>
+        
+        <record id="action_kyc_application_approved" model="ir.actions.act_window">
+            <field name="name">Approved KYC Applications</field>
+            <field name="res_model">kyc.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'approved')]</field>
+            <field name="context">{'search_default_filter_approved': 1}</field>
+        </record>
+        
+    </data>
+</odoo>
+

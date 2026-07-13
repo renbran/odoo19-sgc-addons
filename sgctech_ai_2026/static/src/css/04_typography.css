@@ -1,0 +1,89 @@
+/* ── 04_typography.css ────────────────────────────────────── */
+
+/* Gradient text utility */
+.sgc26-gradient-text {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Eyebrow label */
+.sgc26-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.75rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: var(--sp-4);
+}
+.sgc26-label::before {
+  content: '';
+  display: block;
+  width: 20px; height: 2px;
+  background: var(--grad-brand);
+  border-radius: var(--r-full);
+}
+
+/* Heading scale */
+.sgc26-h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: var(--fw-xbold);
+  line-height: 1.1;
+  letter-spacing: var(--ls-tight);
+  color: var(--t1);
+}
+.sgc26-h2 {
+  font-family: var(--font-head);
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: var(--fw-bold);
+  line-height: 1.15;
+  letter-spacing: var(--ls-tight);
+  color: var(--t1);
+}
+.sgc26-h3 {
+  font-family: var(--font-head);
+  font-size: clamp(1.3rem, 2.5vw, 1.75rem);
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  color: var(--t1);
+}
+.sgc26-h4 {
+  font-family: var(--font-head);
+  font-size: 1.125rem;
+  font-weight: var(--fw-semibold);
+  color: var(--t1);
+}
+.sgc26-body-lg { font-size: 1.125rem; line-height: 1.7; color: var(--t2); }
+.sgc26-body    { font-size: 1rem;     line-height: 1.65; color: var(--t2); }
+.sgc26-body-sm { font-size: 0.875rem; line-height: 1.6;  color: var(--t3); }
+.sgc26-mono    { font-family: var(--font-mono); font-size: 0.875rem; color: var(--cyan); }
+
+/* Section title block */
+.sgc26-section-title {
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto var(--sp-12);
+}
+.sgc26-section-title p {
+  margin-top: var(--sp-4);
+  font-size: 1.1rem;
+  color: var(--t2);
+}
+
+/* KPI number */
+.sgc26-kpi-number {
+  font-family: var(--font-head);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: var(--fw-xbold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

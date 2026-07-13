@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_cta" name="SGC CTA Band">
+        <section class="s_sgc_cta" data-name="SGC CTA Band" data-snippet="s_sgc_cta">
+            <div class="container sgc-reveal">
+                <h2>Ready to run a cleaner operation?</h2>
+                <p class="lead mb-4">Book a walkthrough and see your workflows on SGC.</p>
+                <a href="#" class="btn btn-gold btn-lg">Request a demo</a>
+            </div>
+        </section>
+    </template>
+</odoo>

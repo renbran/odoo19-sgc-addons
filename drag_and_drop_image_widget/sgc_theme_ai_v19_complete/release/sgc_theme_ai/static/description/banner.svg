@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 420">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1e34"/>
+      <stop offset="100%" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="cta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00FFF0"/>
+      <stop offset="100%" stop-color="#00FF88"/>
+    </linearGradient>
+  </defs>
+  <rect width="760" height="420" fill="url(#bg)"/>
+  <!-- Grid lines -->
+  <g stroke="rgba(0,255,240,0.06)" stroke-width="1">
+    <line x1="0" y1="60" x2="760" y2="60"/>
+    <line x1="0" y1="120" x2="760" y2="120"/>
+    <line x1="0" y1="180" x2="760" y2="180"/>
+    <line x1="0" y1="240" x2="760" y2="240"/>
+    <line x1="0" y1="300" x2="760" y2="300"/>
+    <line x1="0" y1="360" x2="760" y2="360"/>
+    <line x1="120" y1="0" x2="120" y2="420"/>
+    <line x1="240" y1="0" x2="240" y2="420"/>
+    <line x1="380" y1="0" x2="380" y2="420"/>
+    <line x1="520" y1="0" x2="520" y2="420"/>
+    <line x1="640" y1="0" x2="640" y2="420"/>
+  </g>
+  <!-- Glow orb -->
+  <circle cx="680" cy="100" r="160" fill="rgba(0,255,240,0.05)"/>
+  <circle cx="100" cy="340" r="120" fill="rgba(0,255,136,0.04)"/>
+  <!-- Brand mark -->
+  <rect x="60" y="60" width="56" height="56" rx="12" fill="url(#cta)"/>
+  <text x="88" y="96" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="900" fill="#0c1e34">SGC</text>
+  <!-- Headline -->
+  <text x="60" y="170" font-family="sans-serif" font-size="36" font-weight="900" fill="white">SGC TECH AI</text>
+  <text x="60" y="210" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.6)">Premium Odoo 19 Theme for UAE Enterprises</text>
+  <!-- Features -->
+  <text x="60" y="270" font-family="sans-serif" font-size="14" fill="rgba(0,255,240,0.9)">✦ AI Copilot  ✦ ROI Calculator  ✦ Glass Design  ✦ Store + Site</text>
+  <text x="60" y="300" font-family="sans-serif" font-size="14" fill="rgba(255,255,255,0.5)">14-Day ERP · 150% ROI Guarantee · sgctech.ai</text>
+  <!-- Bottom gradient line -->
+  <rect x="0" y="416" width="760" height="4" fill="url(#cta)"/>
+</svg>

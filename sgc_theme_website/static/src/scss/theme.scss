@@ -1,0 +1,112 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — base frontend styles (web.assets_frontend)
+// -----------------------------------------------------------------------------
+// Reads SGC tokens ($sgc-*) from sgc_theme_common (primary variables) and the
+// runtime CSS custom properties (--sgc-*). Frontend ONLY.
+// All motion is gated on prefers-reduced-motion.
+// =============================================================================
+
+// ---- Reusable tier-a micro-interaction --------------------------------------
+@mixin sgc-micro($props...) {
+    @media (prefers-reduced-motion: no-preference) {
+        transition-property: $props;
+        transition-duration: $sgc-dur-base;
+        transition-timing-function: $sgc-ease-out;
+    }
+}
+
+// ---- Base typography --------------------------------------------------------
+body {
+    font-family: $sgc-font-body;
+    color: $sgc-ink;
+}
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: $sgc-font-heading;
+    color: $sgc-navy;
+    line-height: $sgc-lh-tight;
+}
+
+// ---- Buttons (brand) --------------------------------------------------------
+.btn-primary {
+    background-color: $sgc-navy;
+    border-color: $sgc-navy;
+    color: $sgc-white;
+    @include sgc-micro(background-color, border-color, transform, box-shadow);
+
+    &:hover, &:focus-visible {
+        background-color: $sgc-navy-800;
+        border-color: $sgc-navy-800;
+        transform: translateY(-1px);
+        box-shadow: $sgc-shadow-md;
+    }
+}
+.btn-gold,
+.btn-secondary.sgc-gold {
+    background-color: $sgc-gold;
+    border-color: $sgc-gold;
+    color: $sgc-navy;
+    font-weight: $sgc-fw-semibold;
+    @include sgc-micro(background-color, transform, box-shadow);
+
+    &:hover, &:focus-visible {
+        background-color: $sgc-gold-400;
+        transform: translateY(-1px);
+        box-shadow: $sgc-shadow-gold;
+    }
+}
+
+// ---- Signature gold hexagon utility ----------------------------------------
+.sgc-hex {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    clip-path: $sgc-hex-clip;
+    background: linear-gradient(135deg, $sgc-gold-300, $sgc-gold);
+    color: $sgc-navy;
+    font-size: $sgc-fs-xl;
+
+    &--navy {
+        background: linear-gradient(135deg, $sgc-navy-500, $sgc-navy);
+        color: $sgc-cream;
+    }
+}
+
+// ---- Scroll-reveal base (tier b) -------------------------------------------
+// Elements start hidden; the IntersectionObserver interaction adds .sgc-in.
+// Under reduced-motion we show the final state immediately (no transform).
+.sgc-reveal {
+    opacity: 1;
+    transform: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .sgc-reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity $sgc-dur-slow $sgc-ease-out,
+                    transform $sgc-dur-slow $sgc-ease-out;
+        will-change: opacity, transform;
+    }
+    .sgc-reveal.sgc-in {
+        opacity: 1;
+        transform: none;
+    }
+    .sgc-reveal--left  { transform: translateX(-24px); }
+    .sgc-reveal--right { transform: translateX(24px); }
+    .sgc-reveal--left.sgc-in,
+    .sgc-reveal--right.sgc-in { transform: none; }
+}
+
+// ---- Section rhythm ---------------------------------------------------------
+.s_sgc_hero,
+.s_sgc_feature_hex,
+.s_sgc_stats,
+.s_sgc_testimonial,
+.s_sgc_cta,
+.s_sgc_showcase,
+.s_sgc_footer {
+    --sgc-section-pad: #{$sgc-space-8};
+}

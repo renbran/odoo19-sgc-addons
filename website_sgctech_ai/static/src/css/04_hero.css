@@ -1,0 +1,478 @@
+/* ============================================================
+    SGC TECH AI — Hero Section
+    ============================================================ */
+
+/* ── Z-Index Scale ─────────────────────────────────────── */
+:root {
+    --z-base: 0;
+    --z-orbs: 0;
+    --z-particles: 1;
+    --z-neon: 1;
+    --z-content: 10;
+    --z-overlay: 20;
+}
+
+/* ── Hero wrapper ──────────────────────────────────────── */
+.sgc-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 8rem 0 6rem;
+    background: var(--sgc-bg-1);
+}
+
+/* Hero background image (image 2) */
+.sgc-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/website_sgctech_ai/static/src/img/hero_bg.jpg');
+    background-size: cover;
+    background-position: center center;
+    opacity: 0.18;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Animated gradient orbs */
+.sgc-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        var(--grad-hero-orb1),
+        var(--grad-hero-orb2),
+        var(--sgc-bg-1);
+    z-index: var(--z-orbs);
+    pointer-events: none;
+}
+
+/* Particle canvas */
+.sgc-particles-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-particles);
+    pointer-events: none;
+}
+
+/* ── Hero inner layout ─────────────────────────────────── */
+.sgc-hero .container { position: relative; z-index: var(--z-content); }
+.sgc-hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* ── Hero badge ────────────────────────────────────────── */
+.sgc-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--sgc-cyan);
+    border: 1px solid rgba(0,212,255,0.30);
+    border-radius: var(--r-full);
+    padding: 0.4rem 1.1rem;
+    background: rgba(0,212,255,0.06);
+    margin-bottom: var(--sp-xl);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    animation: sgc-fade-in-down 0.8s ease forwards;
+}
+.sgc-badge-dot {
+    width: 7px; height: 7px;
+    background: var(--sgc-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--sgc-cyan);
+    animation: sgc-pulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+/* ── Hero title ────────────────────────────────────────── */
+.sgc-hero-title {
+    font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    margin-bottom: var(--sp-xl);
+    color: var(--sgc-text-1);
+    animation: sgc-fade-in-up 0.8s 0.15s ease both;
+}
+.sgc-hero-title .line-cyan  { display: block; color: var(--sgc-cyan); }
+.sgc-hero-title .line-grad  { display: block; background: var(--grad-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* Typewriter cursor */
+.sgc-cursor {
+    display: inline-block;
+    width: 3px; height: 1em;
+    background: var(--sgc-cyan);
+    vertical-align: text-bottom;
+    margin-left: 4px;
+    animation: sgc-blink 1s step-end infinite;
+}
+
+/* ── Hero subtitle ─────────────────────────────────────── */
+.sgc-hero-subtitle {
+    font-size: clamp(1rem, 1.8vw, 1.15rem);
+    color: var(--sgc-text-2);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: var(--sp-2xl);
+    animation: sgc-fade-in-up 0.8s 0.30s ease both;
+}
+
+/* ── Hero CTA group ────────────────────────────────────── */
+.sgc-hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-md);
+    margin-bottom: var(--sp-3xl);
+    animation: sgc-fade-in-up 0.8s 0.45s ease both;
+}
+
+/* ── Hero stats row ────────────────────────────────────── */
+.sgc-hero-stats {
+    display: flex;
+    gap: var(--sp-md);
+    flex-wrap: wrap;
+    animation: sgc-fade-in-up 0.8s 0.60s ease both;
+}
+.sgc-stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    transition: var(--t-base);
+}
+.sgc-stat-pill:hover {
+    border-color: var(--sgc-cyan);
+    background: var(--glass-bg-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px var(--sgc-cyan-glow2);
+}
+.sgc-stat-number {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--sgc-cyan);
+    line-height: 1;
+}
+.sgc-stat-suffix {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    color: var(--sgc-cyan);
+    line-height: 1;
+}
+.sgc-stat-label {
+    font-size: 0.78rem;
+    color: var(--sgc-text-3);
+    font-family: var(--font-mono);
+    letter-spacing: 0.05em;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+/* ── Hero right panel (visual) ─────────────────────────── */
+.sgc-hero-visual {
+    position: relative;
+    animation: sgc-fade-in-right 0.9s 0.3s ease both;
+}
+.sgc-hero-img-wrapper {
+    position: relative;
+    border-radius: var(--r-xl);
+    overflow: hidden;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow-h);
+}
+.sgc-hero-img-wrapper img {
+    width: 100%;
+    height: 480px;
+    object-fit: cover;
+    display: block;
+    border-radius: var(--r-xl);
+}
+.sgc-hero-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(0,212,255,0.08) 0%,
+        rgba(123,47,190,0.12) 100%);
+    border-radius: var(--r-xl);
+}
+
+/* Floating badge cards on hero image */
+.sgc-float-card {
+    position: absolute;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    padding: 0.8rem 1.1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+    box-shadow: var(--glass-shadow);
+    white-space: nowrap;
+}
+.sgc-float-card-icon {
+    width: 32px; height: 32px;
+    background: var(--grad-brand);
+    border-radius: var(--r-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.sgc-float-card-text strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--sgc-text-1);
+    font-family: var(--font-head);
+}
+.sgc-float-card-text span {
+    font-size: 0.72rem;
+    color: var(--sgc-text-3);
+    font-family: var(--font-mono);
+}
+.sgc-float-card-1 {
+    top: 1.5rem; left: -2rem;
+    animation: sgc-float 4s ease-in-out infinite;
+}
+.sgc-float-card-2 {
+    bottom: 2rem; right: -2rem;
+    animation: sgc-float 4s 1.5s ease-in-out infinite;
+}
+.sgc-float-card-3 {
+    top: 50%; left: -2.5rem;
+    transform: translateY(-50%);
+    animation: sgc-float 5s 0.8s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════
+   SIMPLIFIED HERO: Brush Calligraphy + Neon Cursor
+   ══════════════════════════════════════════════════════ */
+
+.sgc-hero-simple {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--sgc-bg-1);
+}
+
+/* Canvas elements removed - neon cursor discontinued */
+
+/* Centered Brush Calligraphy Brand */
+.sgc-brush-center {
+    position: relative;
+    z-index: var(--z-content);
+    text-align: center;
+    pointer-events: none;
+}
+
+.sgc-brush-title {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(3rem, 8vw, 6rem);
+    font-weight: 400;
+    color: #FAF7F2;
+    background: linear-gradient(135deg, #FAF7F2 0%, #B89B5E 55%, #D1B075 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 
+        0 0 20px rgba(184, 155, 94, 0.55),
+        0 0 40px rgba(184, 155, 94, 0.35),
+        0 0 80px rgba(184, 155, 94, 0.18);
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+    animation: sgc-fade-in-up 0.8s ease both;
+}
+
+.sgc-brush-subtitle {
+    font-family: var(--font-mono);
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    color: var(--sgc-text-2);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    animation: sgc-fade-in-up 0.8s 0.15s ease both;
+}
+
+/* Interaction hint */
+.sgc-neon-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--z-content);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--sgc-text-3);
+    letter-spacing: 0.1em;
+    animation: sgc-fade-in 1s 0.5s ease both;
+    pointer-events: none;
+}
+
+/* ── Simple inner-page hero (about page) ─────────────── */
+.sgc-page-hero {
+    padding: 7rem 0 5rem;
+    background: var(--sgc-bg-0);
+    min-height: 65vh;
+    display: flex;
+    align-items: center;
+}
+
+.sgc-page-hero-content {
+    position: relative;
+    z-index: var(--z-content);
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.sgc-page-hero-title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    color: var(--sgc-text-1);
+    margin: 0;
+    letter-spacing: 0.03em;
+    animation: sgc-fade-in-up 0.8s ease both;
+}
+
+/* ── Scroll indicator ──────────────────────────────────── */
+.sgc-scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--z-content);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sgc-text-3);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    letter-spacing: 0.1em;
+    animation: sgc-fade-in 1s 1.2s ease both;
+}
+.sgc-scroll-mouse {
+    width: 24px; height: 38px;
+    border: 2px solid var(--glass-border-h);
+    border-radius: 12px;
+    display: flex; justify-content: center; padding-top: 6px;
+}
+.sgc-scroll-wheel {
+    width: 4px; height: 8px;
+    background: var(--sgc-cyan);
+    border-radius: var(--r-full);
+    animation: sgc-scroll-wheel 1.8s ease-in-out infinite;
+}
+
+/* ── Keyframes ───────────────────────────────────────── */
+@keyframes sgc-fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sgc-fade-in-down {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sgc-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes sgc-fade-in-right {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes sgc-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes sgc-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+@keyframes sgc-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes sgc-scroll-wheel {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(8px); opacity: 0.5; }
+}
+
+/* Globe hero section */
+.sgc-hero-globe {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: block;
+    overflow: hidden;
+    background: var(--sgc-bg-1);
+}
+
+/* Globe canvas — fills the entire hero section */
+.sgc-globe-canvas {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+/* Globe overlay text — centered over the canvas */
+.sgc-globe-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    text-align: center;
+    pointer-events: none;
+    width: max-content;
+    max-width: 90vw;
+}
+
+/* Globe interaction hint */
+.sgc-globe-hint {
+    display: block;
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: rgba(184, 155, 94, 0.75);
+    letter-spacing: 0.12em;
+    pointer-events: none;
+}

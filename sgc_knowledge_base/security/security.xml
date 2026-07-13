@@ -1,0 +1,8 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Define a dedicated security group for knowledge‑base admins (optional) -->
+        <record id="group_sgc_knowledge_admin" model="res.groups">
+            <field name="name">SGC Knowledge Base Admin</field>
+        </record>
+    </data>
+</odoo>

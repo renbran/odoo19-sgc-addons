@@ -1,0 +1,193 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — snippet styles (web.assets_frontend)
+// All motion gated on prefers-reduced-motion. AA-contrast colour pairings.
+// =============================================================================
+
+@mixin sgc-card-lift {
+    @media (prefers-reduced-motion: no-preference) {
+        transition: transform $sgc-dur-base $sgc-ease-out,
+                    box-shadow $sgc-dur-base $sgc-ease-out;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 1. Hero
+// -----------------------------------------------------------------------------
+.s_sgc_hero {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    &.sgc-hero--navy {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        h1, h2 { color: $sgc-white; }
+    }
+
+    .s_sgc_hero_logo { max-height: 72px; margin-bottom: $sgc-space-4; }
+    .s_sgc_hero_title {
+        font-size: $sgc-fs-4xl;
+        font-weight: $sgc-fw-bold;
+        margin-bottom: $sgc-space-3;
+    }
+    .s_sgc_hero_tagline {
+        font-size: $sgc-fs-lg;
+        color: $sgc-gold-700;
+        margin-bottom: $sgc-space-5;
+    }
+    &.sgc-hero--navy .s_sgc_hero_tagline { color: $sgc-gold-300; }
+}
+
+// -----------------------------------------------------------------------------
+// 2. Gold-hexagon feature grid
+// -----------------------------------------------------------------------------
+.s_sgc_feature_hex {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+
+    .s_sgc_feature {
+        text-align: center;
+        padding: $sgc-space-4;
+    }
+    .sgc-hex {
+        margin: 0 auto $sgc-space-3;
+        box-shadow: $sgc-shadow-gold;
+        @include sgc-card-lift;
+    }
+    .s_sgc_feature:hover .sgc-hex {
+        @media (prefers-reduced-motion: no-preference) {
+            transform: translateY(-6px) scale(1.04);
+        }
+    }
+    .s_sgc_feature h4 { margin-bottom: $sgc-space-2; }
+    .s_sgc_feature p { color: $sgc-ink-soft; }
+}
+
+// -----------------------------------------------------------------------------
+// 3. KPI / stat counters
+// -----------------------------------------------------------------------------
+.s_sgc_stats {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-navy;
+    color: $sgc-cream;
+
+    .s_sgc_stat { text-align: center; padding: $sgc-space-4; }
+    .s_sgc_stat_value {
+        font-family: $sgc-font-heading;
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        color: $sgc-gold;
+        display: block;
+    }
+    .s_sgc_stat_label {
+        font-size: $sgc-fs-sm;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: $sgc-cream-300;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Testimonial
+// -----------------------------------------------------------------------------
+.s_sgc_testimonial {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+
+    .s_sgc_quote {
+        background-color: $sgc-white;
+        border: 1px solid $sgc-border;
+        border-top: 4px solid $sgc-gold;
+        border-radius: $sgc-radius-lg;
+        box-shadow: $sgc-shadow-sm;
+        padding: $sgc-space-6;
+        @include sgc-card-lift;
+
+        &:hover {
+            @media (prefers-reduced-motion: no-preference) {
+                transform: translateY(-4px);
+                box-shadow: $sgc-shadow-md;
+            }
+        }
+    }
+    .s_sgc_quote_text {
+        font-family: $sgc-font-heading;
+        font-size: $sgc-fs-lg;
+        color: $sgc-navy;
+        font-style: italic;
+    }
+    .s_sgc_avatar {
+        width: 56px; height: 56px; border-radius: $sgc-radius-pill;
+        object-fit: cover; border: 2px solid $sgc-gold;
+    }
+    .s_sgc_author { font-weight: $sgc-fw-semibold; color: $sgc-navy; }
+    .s_sgc_role { color: $sgc-ink-soft; font-size: $sgc-fs-sm; }
+}
+
+// -----------------------------------------------------------------------------
+// 5. CTA band
+// -----------------------------------------------------------------------------
+.s_sgc_cta {
+    padding: $sgc-space-7 $sgc-space-5;
+    background: linear-gradient(135deg, $sgc-navy, $sgc-navy-600);
+    color: $sgc-cream;
+    text-align: center;
+
+    &.sgc-cta--gold {
+        background: linear-gradient(135deg, $sgc-gold, $sgc-gold-600);
+        color: $sgc-navy;
+        h2 { color: $sgc-navy; }
+    }
+    h2 { color: $sgc-white; margin-bottom: $sgc-space-4; }
+}
+
+// -----------------------------------------------------------------------------
+// 6. Showcase (3D tilt — tier c)
+// -----------------------------------------------------------------------------
+.s_sgc_showcase {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    overflow: hidden;
+
+    .s_sgc_showcase_media {
+        border-radius: $sgc-radius-lg;
+        box-shadow: $sgc-shadow-lg;
+        max-width: 100%;
+    }
+    // The tilt itself is applied inline by sgc_tilt.js via CSS custom props and
+    // is fully disabled under reduced-motion (guarded in JS + here).
+    .s_sgc_tilt {
+        transform-style: preserve-3d;
+        will-change: transform;
+        @media (prefers-reduced-motion: no-preference) {
+            transition: transform $sgc-dur-fast $sgc-ease-standard;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .s_sgc_tilt { transform: none !important; }
+    }
+    .s_sgc_showcase_copy h2 { margin-bottom: $sgc-space-3; }
+    .s_sgc_showcase_copy p { color: $sgc-ink-soft; }
+}
+
+// -----------------------------------------------------------------------------
+// 7. Footer
+// -----------------------------------------------------------------------------
+.s_sgc_footer {
+    padding: $sgc-space-7 $sgc-space-5 $sgc-space-5;
+    background-color: $sgc-navy-900;
+    color: $sgc-cream-300;
+
+    h5 { color: $sgc-cream; font-family: $sgc-font-heading; }
+    a { color: $sgc-cream-300; text-decoration: none; }
+    a:hover, a:focus-visible { color: $sgc-gold; text-decoration: underline; }
+
+    .s_sgc_footer_brand { color: $sgc-gold; }
+    .s_sgc_footer_tagline { color: $sgc-cream-400; font-size: $sgc-fs-sm; }
+    .s_sgc_footer_about { color: $sgc-cream-400; font-size: $sgc-fs-sm; }
+    .s_sgc_footer_bottom {
+        border-top: 1px solid rgba(245, 239, 224, 0.15);
+        margin-top: $sgc-space-5;
+        padding-top: $sgc-space-4;
+        font-size: $sgc-fs-xs;
+        color: $sgc-cream-400;
+    }
+}

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mailcow_mailbox_system,mailcow.mailbox.system,model_mailcow_mailbox,base.group_system,1,1,1,1
+access_mailcow_mailbox_hr_manager,mailcow.mailbox.hr.manager,model_mailcow_mailbox,hr.group_hr_manager,1,0,0,0

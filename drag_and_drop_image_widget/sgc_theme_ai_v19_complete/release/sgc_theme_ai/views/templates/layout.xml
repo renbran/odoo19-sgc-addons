@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+  <template id="sgc_layout" name="SGC Layout" inherit_id="website.layout">
+    <xpath expr="//body" position="inside">
+      <a class="sgc-skip-link" href="#main-content">Skip to main content</a>
+    </xpath>
+    <xpath expr="//header" position="before">
+      <div class="sgc-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"/>
+    </xpath>
+    <xpath expr="//main" position="attributes">
+      <attribute name="id">main-content</attribute>
+    </xpath>
+  </template>
+
+  <template id="sgc_head_meta" inherit_id="website.layout" name="SGC Head Meta">
+    <xpath expr="//head" position="inside">
+      <link rel="canonical" t-att-href="request.httprequest.base_url + request.httprequest.path"/>
+      <link rel="icon" type="image/svg+xml" href="/sgc_theme_ai/static/src/img/favicon.svg"/>
+      <link rel="preconnect" href="https://fonts.googleapis.com"/>
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap"/>
+      <meta name="theme-color" content="#0c1e34"/>
+      <meta name="color-scheme" content="dark"/>
+      <meta property="og:type" content="website"/>
+      <meta property="og:site_name" content="SGC TECH AI"/>
+      <meta name="twitter:card" content="summary_large_image"/>
+      <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "SGC TECH AI",
+          "url": "https://sgctech.ai",
+          "email": "hello@sgctech.ai",
+          "telephone": "+971 52 198 5231",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dubai",
+            "addressCountry": "AE"
+          },
+          "sameAs": [
+            "https://linkedin.com/company/sgctech-ai",
+            "https://instagram.com/sgctech.ai"
+          ]
+        }
+      </script>
+    </xpath>
+  </template>
+</odoo>

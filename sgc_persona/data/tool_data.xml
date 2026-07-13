@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="0">
+    <!--
+        Tool records for @llm_tool(xml_managed=True) methods in sgc.persona.tool.
+        noupdate="0" so upgrades can refresh tool metadata automatically.
+    -->
+
+    <record id="tool_sgc_fetch_finance_data" model="llm.tool">
+        <field name="name">sgc_fetch_finance_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_finance_data</field>
+        <field name="description">Fetch finance data including cash position, outstanding receivables/payables, P&amp;L snapshot, and VAT summary for the current period.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_aml_data" model="llm.tool">
+        <field name="name">sgc_fetch_aml_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_aml_data</field>
+        <field name="description">Fetch AML compliance data including risk alerts, KYC application summary, transaction monitoring alerts, and sanctions screening results.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_hr_data" model="llm.tool">
+        <field name="name">sgc_fetch_hr_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_hr_data</field>
+        <field name="description">Fetch HR data including headcount by department, leave requests (if hr_holidays installed), and payroll summary (if hr_payroll installed). Degrades gracefully when optional modules are absent.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_sales_data" model="llm.tool">
+        <field name="name">sgc_fetch_sales_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_sales_data</field>
+        <field name="description">Fetch sales and CRM data including pipeline by stage, sales performance by salesperson, and recent orders.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_operations_data" model="llm.tool">
+        <field name="name">sgc_fetch_operations_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_operations_data</field>
+        <field name="description">Fetch operations data including stock moves, inventory status, and manufacturing orders (if mrp installed).</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_inventory_data" model="llm.tool">
+        <field name="name">sgc_fetch_inventory_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_inventory_data</field>
+        <field name="description">Fetch detailed inventory data including stock quants by location, inventory valuation, and stock moves.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_customer_data" model="llm.tool">
+        <field name="name">sgc_fetch_customer_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_customer_data</field>
+        <field name="description">Fetch customer/partner data including recent interactions, top customers by revenue, and partner balances.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_marketing_data" model="llm.tool">
+        <field name="name">sgc_fetch_marketing_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_marketing_data</field>
+        <field name="description">Fetch marketing data including campaigns (if marketing module installed) and leads by source.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_project_data" model="llm.tool">
+        <field name="name">sgc_fetch_project_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_project_data</field>
+        <field name="description">Fetch project data (if project module installed). Includes project list, task counts, and status breakdown.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_procurement_data" model="llm.tool">
+        <field name="name">sgc_fetch_procurement_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_procurement_data</field>
+        <field name="description">Fetch procurement data including purchase orders, RFQs, and vendor performance.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_compliance_data" model="llm.tool">
+        <field name="name">sgc_fetch_compliance_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_compliance_data</field>
+        <field name="description">Fetch compliance and audit data including model change tracking, recent mail activities, and user access logs.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_executive_summary" model="llm.tool">
+        <field name="name">sgc_fetch_executive_summary</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_executive_summary</field>
+        <field name="description">Fetch an executive cross-domain snapshot across finance, HR, sales, and operations for a high-level dashboard view.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_it_data" model="llm.tool">
+        <field name="name">sgc_fetch_it_data</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_it_data</field>
+        <field name="description">Fetch IT support data including active users, recent login activity, and system module status.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+
+    <record id="tool_sgc_fetch_generic_report" model="llm.tool">
+        <field name="name">sgc_fetch_generic_report</field>
+        <field name="implementation">function</field>
+        <field name="decorator_model">sgc.persona.tool</field>
+        <field name="decorator_method">sgc_fetch_generic_report</field>
+        <field name="description">Generic data access tool that performs read_group aggregations on any model. Only accessible to the data_analyst persona.</field>
+        <field name="active" eval="True"/>
+        <field name="read_only_hint" eval="True"/>
+        <field name="idempotent_hint" eval="True"/>
+    </record>
+</odoo>

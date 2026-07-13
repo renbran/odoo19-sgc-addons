@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+    <!-- SGC shared geometry overlay: tileable gold circuit-board trace pattern -->
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M0 20 H40 V0" />
+        <path d="M40 20 V50 H90" />
+        <path d="M90 50 V0" />
+        <path d="M0 80 H30" />
+        <path d="M30 80 V120" />
+        <path d="M60 120 V90 H120" />
+        <path d="M90 90 V60 H120" />
+        <circle cx="40" cy="20" r="3" fill="currentColor" stroke="none" />
+        <circle cx="90" cy="50" r="3" fill="currentColor" stroke="none" />
+        <circle cx="30" cy="80" r="3" fill="currentColor" stroke="none" />
+        <circle cx="60" cy="90" r="3" fill="currentColor" stroke="none" />
+        <circle cx="90" cy="60" r="3" fill="currentColor" stroke="none" />
+    </g>
+</svg>

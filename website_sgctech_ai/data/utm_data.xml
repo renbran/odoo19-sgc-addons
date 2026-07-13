@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="crm_source_roi_calculator" model="utm.source">
+            <field name="name">ROI Calculator</field>
+        </record>
+
+        <record id="campaign_roi_calculator" model="utm.campaign">
+            <field name="name">Odoo ROI Campaign</field>
+        </record>
+
+    </data>
+
+    <!-- Default hero particle phrases — noupdate=1 so reinstalls don't hit the unique constraint -->
+    <data noupdate="1">
+
+        <record id="param_particle_words" model="ir.config_parameter">
+            <field name="key">website_sgctech_ai.particle_words</field>
+            <field name="value">The Middle East doesn't wait for the weak.::0,212,255:255,50,50:0:4500|Markets collapse. Empires crumble. But yours doesn't have to.::123,47,190:0,212,255:180:6000|Every dirham slips away. Every second costs millions.::0,212,255:0,229,160:45:5500|The pressure isn't coming. It's already here.::255,107,53:0,212,255:315:4500|One choice separates survival from extinction.::168,85,247:0,212,255:135:5000|SGC Tech AI. Built for those who refuse to fail.::0,229,160:0,212,255:270:6000</field>
+        </record>
+
+    </data>
+</odoo>

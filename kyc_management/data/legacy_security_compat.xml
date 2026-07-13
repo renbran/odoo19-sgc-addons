@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        This file is intentionally empty.
+        Legacy group definitions are now managed by security/groups.xml.
+        The file is retained in the manifest to avoid altering the data load
+        position of subsequent files.
+    -->
+</odoo>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_testimonial" name="SGC Testimonial">
+        <section class="s_sgc_testimonial" data-name="SGC Testimonial" data-snippet="s_sgc_testimonial">
+            <div class="container">
+                <div class="text-center mb-5 sgc-reveal">
+                    <h2>Trusted by operators</h2>
+                </div>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-lg-6">
+                        <figure class="s_sgc_quote sgc-reveal m-0">
+                            <blockquote class="s_sgc_quote_text">
+                                "SGC rebuilt our order-to-cash flow in weeks. The clarity alone paid for itself."
+                            </blockquote>
+                            <figcaption class="d-flex align-items-center mt-4">
+                                <img class="s_sgc_avatar me-3" src="/website/static/src/img/library/library_image_08.jpg" alt="Portrait"/>
+                                <div>
+                                    <div class="s_sgc_author">Amara Okoye</div>
+                                    <div class="s_sgc_role">COO, Northwind Services</div>
+                                </div>
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <div class="col-lg-6">
+                        <figure class="s_sgc_quote sgc-reveal m-0">
+                            <blockquote class="s_sgc_quote_text">
+                                "Onboarding was painless and the reporting is finally something our board reads."
+                            </blockquote>
+                            <figcaption class="d-flex align-items-center mt-4">
+                                <img class="s_sgc_avatar me-3" src="/website/static/src/img/library/library_image_10.webp" alt="Portrait"/>
+                                <div>
+                                    <div class="s_sgc_author">Daniel Reyes</div>
+                                    <div class="s_sgc_role">Founder, Lumen SaaS</div>
+                                </div>
+                            </figcaption>
+                        </figure>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

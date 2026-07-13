@@ -1,0 +1,125 @@
+/* ── 09_industries.css ────────────────────────────────────── */
+
+.sgc26-industry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sp-8);
+}
+
+.sgc26-industry-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-2xl);
+  overflow: hidden;
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease-spring);
+  position: relative;
+}
+.sgc26-industry-card:hover {
+  border-color: var(--glass-border-h);
+  box-shadow: var(--glass-shadow-h);
+  transform: translateY(-6px);
+}
+
+/* Colour accent per industry via data attributes */
+.sgc26-industry-card[data-accent="cyan"]   { --ic-accent: var(--cyan); }
+.sgc26-industry-card[data-accent="violet"] { --ic-accent: var(--violet-light); }
+.sgc26-industry-card[data-accent="emerald"]{ --ic-accent: var(--emerald); }
+.sgc26-industry-card[data-accent="amber"]  { --ic-accent: var(--amber); }
+
+.sgc26-industry-card__header {
+  padding: var(--sp-8);
+  background: linear-gradient(135deg,
+    rgba(var(--ic-accent, 0,212,255), 0.08) 0%,
+    transparent 100%);
+  border-bottom: 1px solid var(--glass-border);
+}
+.sgc26-industry-card__icon {
+  width: 56px; height: 56px;
+  border-radius: var(--r-lg);
+  background: var(--glass-bg-h);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-5);
+  color: var(--cyan);
+  font-size: 1.5rem;
+}
+.sgc26-industry-card__title {
+  font-family: var(--font-head);
+  font-weight: var(--fw-bold);
+  font-size: 1.2rem;
+  color: var(--t1);
+  margin-bottom: var(--sp-2);
+}
+.sgc26-industry-card__tagline {
+  font-size: 0.875rem;
+  color: var(--t2);
+}
+
+.sgc26-industry-card__body {
+  padding: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.sgc26-industry-card__modules {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.sgc26-industry-card__modules li {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-size: 0.875rem;
+  color: var(--t2);
+}
+.sgc26-industry-card__modules li::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--grad-brand);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Industry tier badges */
+.sgc26-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-4);
+  border-radius: var(--r-full);
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.sgc26-tier-badge--core     { background: var(--cyan-a10); color: var(--cyan); border: 1px solid var(--cyan-a18); }
+.sgc26-tier-badge--growth   { background: var(--violet-a10); color: var(--violet-light); border: 1px solid var(--violet-a18); }
+.sgc26-tier-badge--enterprise{ background: rgba(255,176,32,0.10); color: var(--amber); border: 1px solid rgba(255,176,32,0.20); }
+
+/* Featured industry (full-width hero card) */
+.sgc26-industry-featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-12);
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-12);
+  margin-bottom: var(--sp-8);
+  position: relative;
+  overflow: hidden;
+}
+.sgc26-industry-featured::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background: var(--grad-brand);
+}

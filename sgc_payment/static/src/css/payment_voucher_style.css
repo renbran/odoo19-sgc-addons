@@ -1,0 +1,211 @@
+/* OSUS Style Payment Voucher CSS - Odoo 17 Modernized */
+:root {
+  --osus-voucher-bg: #f8f9fa;
+  --osus-voucher-header-bg: linear-gradient(135deg, #8b1538, #a41e3a);
+  --osus-voucher-header-color: #fff;
+  --osus-voucher-radius: 8px;
+  --osus-voucher-shadow: 0 2px 10px rgba(139, 21, 56, 0.3);
+  --osus-voucher-title-color: #8b1538;
+  --osus-voucher-title-bg: #fff;
+  --osus-voucher-content-bg: #fff;
+  --osus-voucher-remarks-bg: #f8f9fa;
+  --osus-voucher-remarks-border: #8b1538;
+  --osus-voucher-total-bg: linear-gradient(135deg, #d4af37, #b8960c);
+  --osus-voucher-total-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+  --osus-voucher-footer-border: #ddd;
+  --osus-voucher-footer-color: #666;
+}
+/* OSUS Style Payment Voucher CSS */
+
+.o_payment_account_enhanced_voucher_container {
+  font-family: "Arial", sans-serif;
+  background-color: var(--osus-voucher-bg);
+  padding: 0;
+  margin: 0;
+}
+
+.o_payment_account_enhanced_voucher_header {
+  background: var(--osus-voucher-header-bg);
+  color: var(--osus-voucher-header-color);
+  padding: 20px;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(139, 21, 56, 0.3);
+}
+
+.o_payment_account_enhanced_voucher_header h3 {
+  color: var(--osus-voucher-header-color) !important;
+  font-weight: bold;
+  margin: 0;
+  font-size: 18px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.o_payment_account_enhanced_voucher_header .company-details {
+  font-size: 11px;
+  margin-top: 5px;
+  opacity: 0.9;
+}
+
+.o_payment_account_enhanced_voucher_header img {
+  filter: brightness(0) invert(1);
+  max-height: 50px;
+  max-width: 120px;
+}
+
+.o_payment_account_enhanced_voucher_title {
+  text-align: center;
+  padding: 25px 20px 20px 20px;
+  background-color: var(--osus-voucher-title-bg);
+}
+
+.o_payment_account_enhanced_voucher_title h2 {
+  color: var(--osus-voucher-title-color);
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.o_payment_account_enhanced_voucher_content {
+  padding: 0 30px 30px 30px;
+  background-color: var(--osus-voucher-content-bg);
+}
+
+.o_payment_account_enhanced_voucher_details_table {
+  width: 100%;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.o_payment_account_enhanced_voucher_details_table td {
+  padding: 3px 0;
+  vertical-align: top;
+}
+
+.o_payment_account_enhanced_voucher_details_table .label {
+  font-weight: bold;
+  width: 35%;
+}
+
+.o_payment_account_enhanced_remarks_section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: var(--osus-voucher-remarks-bg);
+  border-left: 4px solid var(--osus-voucher-remarks-border);
+  border-radius: 0 5px 5px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.o_payment_account_enhanced_remarks_section h5 {
+  color: #8b1538;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.o_payment_account_enhanced_remarks_section .content {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #333;
+}
+
+.o_payment_account_enhanced_total_amount_section {
+  background: var(--osus-voucher-total-bg);
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+}
+
+.o_payment_account_enhanced_total_amount_section h3 {
+  color: white !important;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 1px;
+}
+
+.o_payment_account_enhanced_signature_section {
+  margin-top: 50px;
+  padding-top: 30px;
+}
+
+.o_payment_account_enhanced_signature_box {
+  text-align: center;
+}
+
+.o_payment_account_enhanced_signature_line {
+  border-bottom: 1px solid #333;
+  width: 200px;
+  margin: 0 auto 5px auto;
+  height: 40px;
+}
+
+.o_payment_account_enhanced_signature_label {
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.o_payment_account_enhanced_signature_sublabel {
+  font-size: 10px;
+  color: #666;
+  margin: 0;
+}
+
+.o_payment_account_enhanced_signature_field {
+  font-size: 10px;
+  margin: 5px 0 0 0;
+  color: #333;
+}
+
+.o_payment_account_enhanced_voucher_footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid var(--osus-voucher-footer-border);
+}
+
+.o_payment_account_enhanced_voucher_footer small {
+  color: var(--osus-voucher-footer-color);
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+/* Print styles */
+@media print {
+  /* Print color adjustment properties removed for Chrome/Edge compatibility */
+
+  body {
+    background: white !important;
+  }
+
+  .page {
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .o_payment_account_enhanced_voucher_content {
+    padding: 0 15px 15px 15px;
+  }
+
+  .o_payment_account_enhanced_voucher_title h2 {
+    font-size: 24px;
+  }
+
+  .o_payment_account_enhanced_total_amount_section h3 {
+    font-size: 20px;
+  }
+
+  .o_payment_account_enhanced_signature_line {
+    width: 150px;
+  }
+}

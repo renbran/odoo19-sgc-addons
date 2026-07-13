@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="sgc_about" name="SGC About Page">
+    <t t-call="website.layout">
+      <t t-set="additional_title">About SGC TECH AI | Intelligent Infrastructure. Instant Impact.</t>
+      <t t-set="meta_description">SGC TECH AI is a Dubai-based AI-native consultancy delivering 14-day Odoo ERP implementations for UAE enterprises. A Scholarix Global Consultants brand.</t>
+
+      <div id="wrap">
+
+        <section class="sgc-section sgc-bg-hero sgc-bg-grid" style="padding-top:140px;padding-bottom:80px;">
+          <div class="sgc-container">
+            <div style="max-width:760px;">
+              <span class="sgc-label">A Scholarix Global Consultants Brand</span>
+              <h1 style="font-size:clamp(2.2rem,5vw,4.5rem);margin-bottom:1.5rem;">
+                We Build the Infrastructure <span class="sgc-highlight">That Runs UAE Business</span>
+              </h1>
+              <p style="font-size:1.15rem;color:rgba(255,255,255,0.65);line-height:1.8;max-width:620px;">
+                SGC TECH AI was founded on one conviction: enterprise software transformation should take weeks, not years. We combine AI-accelerated delivery with deep UAE market knowledge to give growing businesses the infrastructure of an enterprise, fast.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;">
+              <div class="sgc-reveal">
+                <span class="sgc-label">Our Story</span>
+                <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:1.5rem;">
+                  Built for the <span class="sgc-highlight">UAE Market</span>
+                </h2>
+                <p style="color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:1.25rem;">
+                  SGC TECH AI was born out of Scholarix Global Consultants after seeing the same pattern repeat across Dubai, Abu Dhabi, and Sharjah: capable businesses held back by broken processes, scattered data, and ERP projects that dragged on for 12+ months and still failed to deliver.
+                </p>
+                <p style="color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:1.25rem;">
+                  We built a proprietary AI-accelerated implementation methodology specifically for the UAE: WPS payroll compliance, RERA regulations, multi-currency AED operations, Arabic-English bilingual setups. Not adapted from a Western playbook, designed here from day one.
+                </p>
+                <p style="color:rgba(255,255,255,0.65);line-height:1.8;">
+                  The result: 14-day deployments that actually go live, with guaranteed 150% ROI, backed by a team that has only ever built for this market.
+                </p>
+              </div>
+              <div class="sgc-reveal-right">
+                <div style="border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.18);box-shadow:0 16px 48px rgba(0,0,0,0.45);margin-bottom:1.75rem;">
+                  <img
+                    src="/sgc_theme_ai/static/src/img/tech_office.png"
+                    alt="SGC TECH AI consulting and delivery workspace"
+                    loading="lazy"
+                    style="width:100%;height:auto;display:block;border-radius:1.5rem;"
+                  />
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                  <t t-foreach="[
+                    ('14', 'Days to go-live'),
+                    ('150%', 'ROI minimum'),
+                    ('98%', 'Client retention'),
+                    ('80hrs', 'Saved per month'),
+                  ]" t-as="stat">
+                    <div class="sgc-card" style="text-align:center;padding:2rem 1.5rem;">
+                      <span style="font-family:var(--sgc-font-display);font-size:2.8rem;font-weight:800;background:var(--sgc-gradient-cta);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;line-height:1;margin-bottom:0.5rem;">
+                        <t t-esc="stat[0]"/>
+                      </span>
+                      <span style="font-size:0.8rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.08em;">
+                        <t t-esc="stat[1]"/>
+                      </span>
+                    </div>
+                  </t>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">How We Work</span>
+              <h2>Four Principles That <span class="sgc-highlight">Never Change</span></h2>
+            </div>
+            <div class="sgc-grid sgc-grid-4 sgc-stagger">
+              <t t-foreach="[
+                ('Speed', 'Industry deploys in 6-12 months. We deploy in 14 days. Not by cutting corners, but by using AI tools, prebuilt modules, and a methodology refined across 50+ UAE deployments.'),
+                ('Intelligence', 'Every solution includes embedded AI from day one. Machine learning for demand forecasting, AI-powered lead scoring, automated document processing. Not add-ons, but core features.'),
+                ('Results', '150-200% ROI guarantee. If your measurable savings do not reach 150% of your investment in 12 months, we refund the difference. No fine print.'),
+                ('Engineering', 'We ship production code, not PowerPoint decks. Every engagement ends with documented, tested, enterprise-grade architecture running in your name.'),
+              ]" t-as="val">
+                <div class="sgc-card-feature">
+                  <div class="feature-icon" aria-hidden="true">
+                    <t t-if="val_index == 0">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </t>
+                    <t t-elif="val_index == 1">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                    </t>
+                    <t t-elif="val_index == 2">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                    </t>
+                    <t t-else="">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </t>
+                  </div>
+                  <h4 style="font-size:1.1rem;margin-bottom:0.75rem;"><t t-esc="val[0]"/></h4>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.7;"><t t-esc="val[1]"/></p>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">The Team</span>
+              <h2>Engineers, Not <span class="sgc-highlight">Consultants</span></h2>
+              <p>Every person on the SGC TECH AI team has shipped production Odoo deployments in the UAE market.</p>
+            </div>
+            <div class="sgc-grid sgc-grid-4 sgc-stagger">
+              <t t-foreach="[
+                ('Bran M.', 'Founder &amp; CEO', 'Strategy, vision, client relationships', 'BM'),
+                ('Solutions Lead', 'Head of Implementation', 'Odoo architecture, 14-day methodology', 'SL'),
+                ('AI Engineer', 'Machine Learning Lead', 'AI modules, dashboards, automation', 'AE'),
+                ('UAE Specialist', 'Compliance Director', 'WPS, RERA, VAT, local regulations', 'US'),
+              ]" t-as="member">
+                <div class="sgc-card" style="text-align:center;padding:2rem 1.5rem;">
+                  <div style="width:72px;height:72px;background:var(--sgc-gradient-cta);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--sgc-font-display);font-weight:800;color:var(--sgc-deep-navy);font-size:1.1rem;margin:0 auto 1.25rem;">
+                    <t t-esc="member[3]"/>
+                  </div>
+                  <h5 style="font-size:1rem;margin-bottom:0.25rem;"><t t-esc="member[0]"/></h5>
+                  <p style="color:var(--sgc-electric-cyan);font-size:0.75rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.75rem;"><t t-esc="member[1]"/></p>
+                  <p style="color:rgba(255,255,255,0.55);font-size:0.8rem;line-height:1.6;"><t t-esc="member[2]"/></p>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <section class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">Credentials</span>
+              <h2>Certified and <span class="sgc-highlight">Verified</span></h2>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:3rem;flex-wrap:wrap;">
+              <t t-foreach="['Odoo Partner', 'UAE VAT Certified', 'RERA Compliant', 'WPS Certified', 'ISO 27001 Aligned']" t-as="cert">
+                <div style="display:flex;align-items:center;gap:0.75rem;background:rgba(0,255,240,0.06);border:1px solid rgba(0,255,240,0.2);border-radius:999px;padding:12px 24px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-electric-cyan)" stroke-width="2.5" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                  <span style="font-weight:600;font-size:0.875rem;color:white;"><t t-esc="cert"/></span>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div class="sgc-cta-section">
+              <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin-bottom:1rem;">
+                Ready to work with us?
+              </h2>
+              <p style="color:rgba(255,255,255,0.6);max-width:480px;margin:0 auto 2.5rem;">
+                Book a free strategy consultation with a senior SGC engineer, not a salesperson.
+              </p>
+              <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">Book Free Consultation</a>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </t>
+  </template>
+
+</odoo>

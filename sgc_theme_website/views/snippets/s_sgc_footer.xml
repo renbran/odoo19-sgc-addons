@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_footer" name="SGC Footer">
+        <section class="s_sgc_footer" data-name="SGC Footer" data-snippet="s_sgc_footer">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <h5 class="s_sgc_footer_brand">SGC TECH</h5>
+                        <p class="s_sgc_footer_tagline">Finance. Systems. Technology.</p>
+                        <p class="s_sgc_footer_about">
+                            SGC TECH also builds paid Odoo business apps. Explore the full
+                            range at
+                            <a href="https://sgctech.ai" target="_blank" rel="noopener noreferrer">sgctech.ai</a>.
+                        </p>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h6 class="text-uppercase">Product</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="#">Overview</a></li>
+                            <li><a href="#">Features</a></li>
+                            <li><a href="#">Pricing</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-6 col-lg-2">
+                        <h6 class="text-uppercase">Company</h6>
+                        <ul class="list-unstyled">
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4 s_sgc_footer_contactcol">
+                        <h6 class="text-uppercase">Get in touch</h6>
+                        <p class="mb-1"><a href="mailto:info@sgctech.ai">info@sgctech.ai</a></p>
+                        <p><a href="https://sgctech.ai" target="_blank" rel="noopener noreferrer">https://sgctech.ai</a></p>
+                    </div>
+                </div>
+                <div class="s_sgc_footer_bottom d-flex flex-wrap justify-content-between">
+                    <span>© <span class="s_sgc_year">2026</span> SGC TECH. All rights reserved.</span>
+                    <span>Built with the Aurum Website Theme.</span>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="homepage_content" name="Aurum Homepage Content">
+<t t-set="title">SGC Tech | CFO Advisory, Compliance &amp; Technology | UAE</t>
+<t t-set="meta_description">SGC Tech helps ambitious UAE businesses transform finance, compliance and technology operations. Operator-led advisory with a 90-day transformation roadmap.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero has-slideshow">
+        <div class="aurum-hero-slideshow">
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_skyscraper_1.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_office_team.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_corporate_abstract.jpg);"/>
+        </div>
+        <div class="aurum-hero-particles">
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/>
+        </div>
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">SGC Tech — Finance. Systems. Technology.</span>
+                    <h1 class="aurum-reveal aurum-shimmer" data-aurum-delay="1">Built by Operators.<br/>Not Consultants.</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        We help ambitious UAE businesses move from disconnected chaos to a
+                        connected, structured, scalable operation — blending strategic finance,
+                        operational excellence and AI-powered technology.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-4 aurum-reveal" data-aurum-delay="3">
+                        <a href="/contact-us" class="btn btn-aurum-gold aurum-glow-pulse">Book a Strategy Call</a>
+                        <a href="#approach" class="btn btn-aurum-outline">Our 90-Day Approach</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STAT STRIP -->
+    <section class="aurum-navy-bg py-5">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3 aurum-reveal">
+                    <div class="aurum-stat-num"><span data-aurum-count="100" data-aurum-suffix="M+">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Funding &amp; Transformation Experience</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-stat-num"><span data-aurum-count="90" data-aurum-suffix="-Day">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Transformation Roadmap</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-stat-num"><span data-aurum-count="6" data-aurum-suffix="">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Industries Served</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-stat-num"><span data-aurum-count="3" data-aurum-suffix="">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Integrated Advisory Pillars</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT / FOUNDERS -->
+    <section class="aurum-section aurum-cream-bg" id="about">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">Leadership</span>
+            <h2 class="aurum-h aurum-reveal">Real-World Experience. Operational Excellence.</h2>
+            <div class="aurum-divider"/>
+            <p class="aurum-sub mx-auto aurum-reveal">Measurable impact — outcomes over opinions.</p>
+
+            <div class="row justify-content-center g-4 mt-4">
+                <div class="col-md-5 aurum-reveal">
+                    <div class="aurum-founder-card aurum-sheen">
+                        <div class="aurum-founder-avatar">MA</div>
+                        <h5 class="mb-1">Mohsin Ali</h5>
+                        <div class="aurum-role">Strategic Finance</div>
+                    </div>
+                </div>
+                <div class="col-md-5 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-founder-card aurum-sheen">
+                        <div class="aurum-founder-avatar">RM</div>
+                        <h5 class="mb-1">Renbran Madelo</h5>
+                        <div class="aurum-role">Systems &amp; Technology</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-4 text-start">
+                <div class="col-6 col-md-3 aurum-reveal">
+                    <strong class="aurum-gold-text">Operator Mindset</strong>
+                    <div class="small text-muted">We've led. We build.</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="1">
+                    <strong class="aurum-gold-text">Focused on Impact</strong>
+                    <div class="small text-muted">Outcomes over opinions.</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="2">
+                    <strong class="aurum-gold-text">Partners in Growth</strong>
+                    <div class="small text-muted">Aligned. Accountable. Invested.</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="3">
+                    <strong class="aurum-gold-text">Built for Scale</strong>
+                    <div class="small text-muted">Systems today. Advantage tomorrow.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES / PILLARS -->
+    <section class="aurum-section" id="services">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">Integrated Advisory Solutions</span>
+            <h2 class="aurum-h aurum-reveal">Three Pillars. One Integrated Approach.</h2>
+            <div class="aurum-divider"/>
+            <p class="aurum-sub mx-auto aurum-reveal">Measurable impact across CFO Advisory, Compliance and Technology.</p>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-4 aurum-reveal">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">01</div>
+                        <h5>CFO Advisory</h5>
+                        <p class="text-muted mb-0">Strategic financial leadership that drives performance, value and sustainable growth.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">02</div>
+                        <h5>Compliance</h5>
+                        <p class="text-muted mb-0">Strengthening governance and managing risk to ensure integrity, resilience and regulatory excellence.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-pillar aurum-sheen">
+                        <div class="aurum-pillar-num">03</div>
+                        <h5>Technology</h5>
+                        <p class="text-muted mb-0">Intelligent solutions that enhance efficiency, enable innovation and drive sustainable value.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-4 text-center">
+                <t t-foreach="['Strategic Advisory','Financial Architecture','Operational Excellence','Talent &amp; Organization','Technology &amp; Transformation']" t-as="pillar">
+                    <div class="col-6 col-md aurum-reveal">
+                        <span class="badge rounded-pill px-3 py-2" style="background:#0b1f3f;color:#e8c766;"><t t-esc="pillar"/></span>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </section>
+
+    <!-- INDUSTRIES -->
+    <section class="aurum-section aurum-cream-bg" id="industries">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">Built for Complex Industries</span>
+            <h2 class="aurum-h aurum-reveal">Industries We Serve</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row g-4 mt-4 aurum-industry-list">
+                <t t-foreach="['Real Estate','Construction','Healthcare','Manufacturing','Retail','Professional Services']" t-as="industry">
+                    <div class="col-6 col-md-4 aurum-reveal">
+                        <div class="aurum-industry">
+                            <span><t t-esc="industry"/></span>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </section>
+
+    <!-- 90-DAY ROADMAP -->
+    <section class="aurum-section" id="approach">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">The 90-Day Transformation Roadmap</span>
+            <h2 class="aurum-h aurum-reveal">From Strategy to Sustainable Impact</h2>
+            <div class="aurum-divider"/>
+
+            <div class="aurum-roadmap mt-5">
+                <div class="aurum-roadmap-line"/>
+                <div class="row g-4">
+                    <div class="col-6 col-lg-3 aurum-roadmap-step aurum-reveal">
+                        <div class="aurum-roadmap-badge">1</div>
+                        <h6>Assess</h6>
+                        <div class="small text-muted">Days 1–22 · Discovery</div>
+                    </div>
+                    <div class="col-6 col-lg-3 aurum-roadmap-step aurum-reveal" data-aurum-delay="1">
+                        <div class="aurum-roadmap-badge">2</div>
+                        <h6>Design</h6>
+                        <div class="small text-muted">Days 23–45 · Planning</div>
+                    </div>
+                    <div class="col-6 col-lg-3 aurum-roadmap-step aurum-reveal" data-aurum-delay="2">
+                        <div class="aurum-roadmap-badge">3</div>
+                        <h6>Implement</h6>
+                        <div class="small text-muted">Days 46–75 · Execution</div>
+                    </div>
+                    <div class="col-6 col-lg-3 aurum-roadmap-step aurum-reveal" data-aurum-delay="3">
+                        <div class="aurum-roadmap-badge">4</div>
+                        <h6>Optimize</h6>
+                        <div class="small text-muted">Days 76–90 · Refinement</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ENGAGEMENT / PRICING -->
+    <section class="aurum-section aurum-cream-bg" id="engagement">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">Flexible Engagement. Scalable Results.</span>
+            <h2 class="aurum-h aurum-reveal">Four Tiers. Endless Possibilities.</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-6 col-lg-3 aurum-reveal">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted" style="letter-spacing:.08em;">Tier 1 · Office</div>
+                        <div class="aurum-tier-price">AED 15,000</div>
+                        <p class="small text-muted">Foundation level — establish clarity.</p>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;">Enquire</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted" style="letter-spacing:.08em;">Tier 2 · Developer Ops</div>
+                        <div class="aurum-tier-price">AED 22,000</div>
+                        <p class="small text-muted">Expansion level — drive momentum.</p>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;">Enquire</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-tier aurum-tier-featured aurum-sheen">
+                        <div class="small text-uppercase" style="letter-spacing:.08em;color:#e8c766;">Tier 3 · Growth</div>
+                        <div class="aurum-tier-price">AED 40,000</div>
+                        <p class="small text-white-50">Strategic level — create lasting impact.</p>
+                        <a href="/contact-us" class="btn btn-aurum-gold btn-sm mt-2">Enquire</a>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-tier">
+                        <div class="small text-uppercase text-muted" style="letter-spacing:.08em;">Tier 4 · Entities</div>
+                        <div class="aurum-tier-price">AED 75,000</div>
+                        <p class="small text-muted">Enterprise level — realise transformation.</p>
+                        <a href="/contact-us" class="btn btn-aurum-outline btn-sm mt-2" style="color:#0b1f3f !important;border-color:#0b1f3f;">Enquire</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="aurum-section">
+        <div class="container">
+            <div class="aurum-cta aurum-reveal">
+                <span class="aurum-eyebrow">Clarity. Control. Confidence.</span>
+                <h2 class="aurum-h mb-3">Build a More Resilient Business</h2>
+                <a href="/contact-us" class="btn btn-aurum-gold">Book a Strategy Call</a>
+                <div class="mt-3 small text-white-50">
+                    <t t-out="res_company.email or ''"/> &#160;·&#160; <t t-out="res_company.phone or ''"/> &#160;·&#160; <t t-out="res_company.partner_id.website or ''"/>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

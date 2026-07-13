@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="sgc_about_content" name="SGC About Us Page">
+<t t-set="title">About SGC Tech | Operator-Led Advisory Firm in UAE</t>
+<t t-set="meta_description">Meet the SGC Tech founders — operators who deliver CFO advisory, compliance and technology enablement for UAE businesses. Built by leaders, trusted by leaders.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "About Us", "item": "https://sgctech.ai/about-us"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero has-slideshow">
+        <div class="aurum-hero-slideshow">
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/about_team_collaboration.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/about_strategy_meeting.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/about_business_planning.jpg);"/>
+        </div>
+        <div class="aurum-hero-particles">
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+        </div>
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">WHO WE ARE</span>
+                    <h1 class="aurum-reveal aurum-shimmer" data-aurum-delay="1">Built by Operators, Trusted by Leaders</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        SGC Tech was founded by operators who have led transformations across industries.
+                        We don't just advise—we build, implement, and deliver measurable outcomes.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-4 aurum-reveal" data-aurum-delay="3">
+                        <a href="/our-approach" class="btn btn-aurum-outline" aria-label="Learn about our approach">Our Approach</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOUNDERS -->
+    <section class="aurum-section aurum-cream-bg" id="founders">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">LEADERSHIP</span>
+            <h2 class="aurum-h aurum-reveal">Meet the Founders</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row justify-content-center g-4 mt-4">
+                <div class="col-md-6 aurum-reveal">
+                    <div class="aurum-founder-card aurum-sheen">
+                        <div class="aurum-founder-avatar" aria-label="Mohsin Ali initials">MA</div>
+                        <h5 class="mb-1">Mohsin Ali</h5>
+                        <div class="aurum-role">Strategic Finance</div>
+                        <p class="small text-muted mt-2 mb-0" style="line-height:1.6;">
+                            Mohsin brings deep expertise in financial strategy, having led multi-million-dollar
+                            finance transformations across the region. His background in CFO advisory,
+                            M&amp;A structuring, and performance management gives clients the financial
+                            clarity needed to scale with confidence.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-founder-card aurum-sheen">
+                        <div class="aurum-founder-avatar" aria-label="Renbran Madelo initials">RM</div>
+                        <h5 class="mb-1">Renbran Madelo</h5>
+                        <div class="aurum-role">Systems &amp; Technology</div>
+                        <p class="small text-muted mt-2 mb-0" style="line-height:1.6;">
+                            Renbran architects the systems that power modern businesses. With deep
+                            experience in ERP implementation, AI-driven automation, and operational
+                            design, he ensures that every engagement delivers technology that works—not
+                            technology that just looks good on paper.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MISSION / VALUES -->
+    <section class="aurum-section aurum-navy-bg" id="values">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">WHAT WE BELIEVE</span>
+            <h2 class="aurum-h aurum-reveal" style="color:#fff;">Our Operating Principles</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-4 aurum-reveal">
+                    <div class="aurum-overlay-card p-4 rounded h-100" style="background-image:url(/sgc_theme_aurum/static/src/img/about_strategy_meeting.jpg);border:1px solid rgba(201,162,39,.2);">
+                        <h5 style="color:#c9a227;">Operator Mindset</h5>
+                        <p class="small mb-0" style="color:rgba(255,255,255,.78);line-height:1.6;">
+                            We've been in your seat. Real experience, real decisions.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-overlay-card p-4 rounded h-100" style="background-image:url(/sgc_theme_aurum/static/src/img/value_data_driven.jpg);border:1px solid rgba(201,162,39,.2);">
+                        <h5 style="color:#c9a227;">Impact First</h5>
+                        <p class="small mb-0" style="color:rgba(255,255,255,.78);line-height:1.6;">
+                            Measurable outcomes over opinions and presentations.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-overlay-card p-4 rounded h-100" style="background-image:url(/sgc_theme_aurum/static/src/img/about_business_planning.jpg);border:1px solid rgba(201,162,39,.2);">
+                        <h5 style="color:#c9a227;">Partnership</h5>
+                        <p class="small mb-0" style="color:rgba(255,255,255,.78);line-height:1.6;">
+                            Aligned, accountable, and invested in your success.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="aurum-navy-bg pb-5">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-6 col-md-3 aurum-reveal">
+                    <div class="aurum-stat-num"><span data-aurum-count="15" data-aurum-suffix="+">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Years Operating</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-stat-num"><span data-aurum-count="200" data-aurum-suffix="+">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Engagements Closed</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-stat-num"><span data-aurum-count="95" data-aurum-suffix="%">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Avg Client Retention</div>
+                </div>
+                <div class="col-6 col-md-3 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-stat-num"><span data-aurum-count="6" data-aurum-suffix="">0</span></div>
+                    <div class="small text-white-50 text-uppercase" style="letter-spacing:.06em;">Industries Served</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="aurum-section">
+        <div class="container">
+            <div class="aurum-cta aurum-reveal">
+                <span class="aurum-eyebrow">Clarity. Control. Confidence.</span>
+                <h2 class="aurum-h mb-3">Ready to transform?</h2>
+                <a href="/contact-us" class="btn btn-aurum-gold" aria-label="Start the conversation">Start the Conversation</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_flow_diagram" name="SGC Flow Diagram">
+        <section class="s_sgc_flow_diagram sgc-watermark--mosque sgc-geo--arabesque sgc-palette--navy-cream"
+                 data-name="SGC Flow Diagram" data-snippet="s_sgc_flow_diagram">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <h2 class="text-center s_sgc_flow_diagram_title">AI-Powered <span class="sgc-accent-word">Business Intelligence</span></h2>
+                <p class="text-center s_sgc_flow_diagram_kicker">Transforming data into strategic advantage.</p>
+                <div class="row s_sgc_flow_diagram_row align-items-center">
+                    <div class="col-lg-3 s_sgc_flow_col">
+                        <span class="s_sgc_flow_col_label">Data Ecosystem</span>
+                        <ul class="list-unstyled">
+                            <li><i class="fa fa-line-chart"/>Financial Data</li>
+                            <li><i class="fa fa-cogs"/>Operational Data</li>
+                            <li><i class="fa fa-user"/>Customer Data</li>
+                            <li><i class="fa fa-globe"/>Market Data</li>
+                            <li><i class="fa fa-database"/>External Data</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-2 text-center s_sgc_flow_engine">
+                        <span class="s_sgc_flow_engine_circle"><i class="fa fa-share-alt"/></span>
+                        <strong>AI Intelligence Engine</strong>
+                    </div>
+                    <div class="col-lg-4 s_sgc_flow_col s_sgc_flow_col--layers">
+                        <span class="s_sgc_flow_col_label">Intelligence Layers</span>
+                        <div class="s_sgc_flow_layer_card">
+                            <strong>Predictive Analytics</strong>
+                            <p>Forecast trends and anticipate outcomes.</p>
+                        </div>
+                        <div class="s_sgc_flow_layer_card">
+                            <strong>Financial Intelligence</strong>
+                            <p>Optimize performance and maximize value.</p>
+                        </div>
+                        <div class="s_sgc_flow_layer_card">
+                            <strong>Operational Insights</strong>
+                            <p>Enhance efficiency and drive productivity.</p>
+                        </div>
+                        <div class="s_sgc_flow_layer_card">
+                            <strong>Strategic Recommendations</strong>
+                            <p>Actionable insights for confident decision-making.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 s_sgc_flow_col">
+                        <span class="s_sgc_flow_col_label">Business Outcomes</span>
+                        <ul class="list-unstyled s_sgc_flow_outcomes">
+                            <li><i class="fa fa-arrow-up"/><strong>Strategic Growth</strong><span>Expand opportunities and create long-term value.</span></li>
+                            <li><i class="fa fa-usd"/><strong>Financial Performance</strong><span>Improve profitability and shareholder value.</span></li>
+                            <li><i class="fa fa-trophy"/><strong>Operational Excellence</strong><span>Streamline operations and elevate execution.</span></li>
+                            <li><i class="fa fa-shield"/><strong>Risk Management</strong><span>Mitigate risk and strengthen resilience.</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row text-center s_sgc_flow_diagram_capabilities">
+                    <div class="col-4 col-lg"><i class="fa fa-brain"/><span>Machine Learning</span></div>
+                    <div class="col-4 col-lg"><i class="fa fa-comments-o"/><span>Natural Language Processing</span></div>
+                    <div class="col-4 col-lg"><i class="fa fa-bar-chart"/><span>Advanced Analytics</span></div>
+                    <div class="col-4 col-lg"><i class="fa fa-random"/><span>Data Orchestration</span></div>
+                    <div class="col-4 col-lg"><i class="fa fa-lock"/><span>Security &amp; Governance</span></div>
+                </div>
+            </div>
+            <div class="s_sgc_flow_diagram_bar text-center">
+                <span>Empowering executives. Transforming businesses.</span>
+            </div>
+        </section>
+    </template>
+</odoo>

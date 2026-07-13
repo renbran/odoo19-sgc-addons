@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="kyc_management.KycDashboard">
+        <div class="o_action kyc-dashboard p-3">
+            <div class="d-flex align-items-center mb-4">
+                <h2 class="mb-0 me-3">
+                    <i class="fa fa-id-card-o me-2"/>KYC Dashboard
+                </h2>
+                <button class="btn btn-sm btn-outline-primary ms-auto"
+                        t-on-click="() => this.fetchData()">
+                    <i class="fa fa-refresh me-1"/>Refresh
+                </button>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-3x text-primary"/>
+                    <p class="mt-2 text-muted">Loading dashboard…</p>
+                </div>
+            </t>
+
+            <t t-else="">
+                <!-- KPI Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #6366f1, #818cf8); color: #fff;"
+                             t-on-click="() => this.openApplications(false)">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.total"/>
+                                <small>Total</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #94a3b8, #cbd5e1); color: #fff;"
+                             t-on-click="() => this.openApplications('draft')">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.draft"/>
+                                <small>Draft</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #3b82f6, #60a5fa); color: #fff;"
+                             t-on-click="() => this.openApplications('submitted')">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.submitted"/>
+                                <small>Submitted</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #fff;"
+                             t-on-click="() => this.openApplications('pending_review')">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.pending_review"/>
+                                <small>Pending Review</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #22c55e, #4ade80); color: #fff;"
+                             t-on-click="() => this.openApplications('approved')">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.approved"/>
+                                <small>Approved</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-2">
+                        <div class="card shadow-sm h-100 border-0 cursor-pointer"
+                             style="background: linear-gradient(135deg, #ef4444, #f87171); color: #fff;"
+                             t-on-click="() => this.openApplications('rejected')">
+                            <div class="card-body text-center">
+                                <h3 class="mb-1" t-esc="state.rejected"/>
+                                <small>Rejected</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Applications Table -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white d-flex align-items-center">
+                        <h5 class="mb-0"><i class="fa fa-clock-o me-2"/>Recent Applications</h5>
+                        <button class="btn btn-sm btn-link ms-auto"
+                                t-on-click="() => this.openApplications(false)">
+                            View All <i class="fa fa-arrow-right ms-1"/>
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <t t-if="state.recent.length === 0">
+                            <div class="text-center text-muted py-4">
+                                <i class="fa fa-inbox fa-2x mb-2 d-block"/>
+                                No KYC applications yet.
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>KYC ID</th>
+                                        <th>Applicant</th>
+                                        <th>Email</th>
+                                        <th>Submitted</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.recent" t-as="app" t-key="app.id">
+                                        <tr class="cursor-pointer"
+                                            t-on-click="() => this.openApplication(app.id)">
+                                            <td>
+                                                <strong t-esc="app.kyc_id"/>
+                                            </td>
+                                            <td t-esc="(app.first_name || '') + ' ' + (app.last_name || '')"/>
+                                            <td t-esc="app.email || '—'"/>
+                                            <td t-esc="this.formatDate(app.submitted_date || app.create_date)"/>
+                                            <td>
+                                                <span class="badge"
+                                                      t-att-class="this.stateBadgeClass(app.state)"
+                                                      t-esc="this.stateLabel(app.state)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

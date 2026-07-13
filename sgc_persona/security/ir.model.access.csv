@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sgc_persona_tool_base,sgc.persona.tool base user,model_sgc_persona_tool,base.group_user,1,0,0,0
+access_sgc_persona_tool_user,sgc.persona.tool admin group,model_sgc_persona_tool,sgc_persona.group_sgc_persona_admin,1,0,0,0
+access_sgc_persona_tool_manager,sgc.persona.tool manager,model_sgc_persona_tool,sgc_persona.group_sgc_persona_tool_manager,1,1,1,1
+access_sgc_persona_tool_admin,sgc.persona.tool system,model_sgc_persona_tool,base.group_system,1,1,1,1

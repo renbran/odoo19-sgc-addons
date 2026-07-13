@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <template id="upload_transcript_form" name="Upload Meeting Transcript">
+        <t t-call="website.layout">
+            <div class="container mt-4">
+                <h2>Upload Meeting Transcript</h2>
+                <p class="text-muted">
+                    Session: <strong t-out="session.name" />
+                </p>
+                <form
+                    method="post"
+                    t-att-action="'/sgc_meeting_ai/transcript/%d' % session.id"
+                    enctype="multipart/form-data"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        t-att-value="csrf_token"
+                    />
+                    <div class="mb-3">
+                        <label class="form-label">Language</label>
+                        <input
+                            type="text"
+                            name="language"
+                            class="form-control"
+                            value="en"
+                            placeholder="ISO 639-1 code (en, es, fr, ...)"
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Transcript Text</label>
+                        <textarea
+                            name="transcript_text"
+                            class="form-control"
+                            rows="12"
+                            placeholder="Paste the meeting transcript here..."
+                        />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Or Upload File (.txt, .vtt, .srt)</label>
+                        <input type="file" name="file" class="form-control" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Submit &amp; Generate AI Notes
+                    </button>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>

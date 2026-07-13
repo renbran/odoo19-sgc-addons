@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+/* Header Section for Reports */
+.osus-report-header {
+    background: linear-gradient(135deg, #8B1538 0%, #A41E3A 100%);
+    color: #fff;
+    padding: 18px 32px 12px 32px;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+.osus-report-header-logo {
+    height: 48px;
+    width: auto;
+    max-width: 140px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.18));
+}
+
+/* Amount Block */
+.osus-report-amount {
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%);
+    color: #fff;
+    padding: 18px 0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 18px 0 24px 0;
+    box-shadow: 0 4px 16px rgba(191,164,111,0.13);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+/* Signature Section */
+.osus-signature-section {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 24px;
+}
+.osus-signature-box {
+    flex: 1;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 16px 10px 12px 10px;
+    min-height: 90px;
+    text-align: center;
+    font-size: 1em;
+}
+.osus-signature-label {
+    font-weight: 700;
+    color: #8B1538;
+    margin-bottom: 6px;
+    font-size: 1.05em;
+}
+.osus-signature-date {
+    color: #666;
+    font-size: 0.95em;
+    margin-top: 2px;
+}
+.osus-signature-pending {
+    color: #dc3545;
+    font-weight: 600;
+    font-style: italic;
+}
+.osus-signature-manual {
+    background: #fff;
+    border: 2px solid #8B1538;
+}
+.osus-signature-line {
+    border-top: 2px solid #333;
+    width: 100%;
+    height: 15px;
+    margin: 8px 0 2px 0;
+}
+.osus-signature-sublabel {
+    font-size: 0.92em;
+    color: #666;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.osus-signature-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+.osus-signature-row > div {
+    flex: 1;
+}
+
+/* Footer Section for Reports */
+.osus-report-footer {
+    background: linear-gradient(135deg, #8B1538 0%, #A41E3A 100%);
+    color: #fff;
+    width: 100%;
+    padding: 14px 32px;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+    font-size: 1em;
+    margin-top: auto;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+.osus-report-footer-note {
+    font-size: 0.95em;
+    color: rgba(255,255,255,0.85);
+    margin-top: 4px;
+}
+
+/* Accessibility & Print Improvements */
+.osus-voucher-container [aria-label], .osus-voucher-container [role] {
+    outline: none !important;
+    box-shadow: none !important;
+}
+/* Import Montserrat Font for Reports */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+/* Report Container Base */
+.o_report_layout_standard .osus-voucher-container {
+    font-family: 'Montserrat', 'DejaVu Sans', Arial, sans-serif;
+    color: #2C2C2C;
+    line-height: 1.5;
+}
+
+/* Typography Scale for Reports */
+.osus-voucher-container h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.osus-voucher-container h2 {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: 3px;
+}
+
+.osus-voucher-container h3 {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* Color Definitions for Print */
+.osus-burgundy { color: #8B1538 !important; }
+.osus-gold { color: #D4AF37 !important; }
+.osus-dark { color: #2C2C2C !important; }
+.osus-grey { color: #666666 !important; }
+
+.osus-bg-burgundy { 
+    background: linear-gradient(135deg, #8B1538 0%, #A41E3A 100%) !important; 
+    print-color-adjust: exact;
+}
+
+.osus-bg-gold { 
+    background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%) !important; 
+    print-color-adjust: exact;
+}
+
+/* Grid System for Reports */
+.osus-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.osus-grid-2 { grid-template-columns: 1fr 1fr; }
+.osus-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.osus-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Spacing Utilities */
+.osus-p-sm { padding: 10px; }
+.osus-p-md { padding: 20px; }
+.osus-p-lg { padding: 30px; }
+.osus-p-xl { padding: 40px; }
+
+.osus-m-sm { margin: 10px; }
+.osus-m-md { margin: 20px; }
+.osus-m-lg { margin: 30px; }
+.osus-m-xl { margin: 40px; }
+
+/* Border Radius Utilities */
+.osus-rounded-sm { border-radius: 5px; }
+.osus-rounded-md { border-radius: 8px; }
+.osus-rounded-lg { border-radius: 12px; }
+.osus-rounded-xl { border-radius: 15px; }
+
+/* Shadow Utilities */
+.osus-shadow-sm { box-shadow: 0 2px 8px rgba(139, 21, 56, 0.1); }
+.osus-shadow-md { box-shadow: 0 4px 15px rgba(139, 21, 56, 0.15); }
+.osus-shadow-lg { box-shadow: 0 8px 25px rgba(139, 21, 56, 0.2); }
+.osus-shadow-xl { box-shadow: 0 15px 40px rgba(139, 21, 56, 0.25); }
+
+/* Print Optimization */
+@media print {
+    .osus-voucher-container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    border-radius: 0;
+    color: #2C2C2C !important;
+    background: #fff !important;
+    font-family: 'Montserrat', 'DejaVu Sans', Arial, sans-serif !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+    .osus-bg-burgundy, .osus-bg-gold {
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .osus-shadow-sm, .osus-shadow-md, .osus-shadow-lg, .osus-shadow-xl {
+        box-shadow: none !important;
+    }
+    .osus-rounded-sm, .osus-rounded-md, .osus-rounded-lg, .osus-rounded-xl {
+        border-radius: 0 !important;
+    }
+    .osus-p-sm, .osus-p-md, .osus-p-lg, .osus-p-xl {
+        padding: 0 !important;
+    }
+    .osus-m-sm, .osus-m-md, .osus-m-lg, .osus-m-xl {
+        margin: 0 !important;
+    }
+    .osus-grid, .osus-grid-2, .osus-grid-3, .osus-grid-4 {
+        gap: 0 !important;
+    }
+}
+
+/* Table Styles for Reports */
+.osus-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+    background: #fff;
+}
+.osus-table th, .osus-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+.osus-table th {
+    background: #fafbfc;
+    color: #8B1538;
+    font-weight: 600;
+}
+.osus-table td {
+    color: #2C2C2C;
+    font-weight: 500;
+}
+
+/* Utility Classes for Alignment */
+.osus-center { text-align: center !important; }
+.osus-right { text-align: right !important; }
+.osus-left { text-align: left !important; }
+
+/* Responsive Design for Reports */
+@media (max-width: 900px) {
+    .osus-voucher-container {
+        padding: 0 4px;
+    }
+    .osus-grid {
+        gap: 8px;
+    }
+    .osus-table th, .osus-table td {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+}

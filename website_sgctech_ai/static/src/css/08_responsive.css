@@ -1,0 +1,139 @@
+/* ============================================================
+   SGC TECH AI — Responsive / Mobile-First
+   ============================================================ */
+
+/* ── Large desktop (> 1400px) ──────────────────────────── */
+@media (min-width: 1400px) {
+    #wrapwrap .container { max-width: 1320px; }
+    .sgc-hero-title { font-size: 4.8rem; }
+}
+
+/* ── Desktop (< 1200px) ────────────────────────────────── */
+@media (max-width: 1199px) {
+    .sgc-why-grid { grid-template-columns: repeat(2, 1fr); }
+    .sgc-hero-inner { gap: 2.5rem; }
+    .sgc-float-card-1 { left: -0.5rem; }
+    .sgc-float-card-2 { right: -0.5rem; }
+    .sgc-float-card-3 { display: none; }
+}
+
+/* ── Tablet (< 992px) ──────────────────────────────────── */
+@media (max-width: 991px) {
+    :root {
+        --section-y: 5rem;
+        --sgc-nav-height: 76px;
+    }
+
+    .sgc-hero { padding: 7rem 0 5rem; min-height: 0; }
+    .sgc-hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+    }
+    .sgc-hero-subtitle { max-width: 100%; margin-left: auto; margin-right: auto; }
+    .sgc-hero-cta { justify-content: center; }
+    .sgc-hero-stats { justify-content: center; }
+    .sgc-hero-visual { order: -1; }
+    .sgc-float-card-1,
+    .sgc-float-card-2,
+    .sgc-float-card-3 { display: none; }
+
+    .sgc-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .sgc-counter-item + .sgc-counter-item::before { display: none; }
+    .sgc-counter-item:nth-child(1),
+    .sgc-counter-item:nth-child(2) {
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .sgc-pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+    .sgc-pricing-card.featured { transform: none; }
+    .sgc-pricing-card.featured:hover { transform: translateY(-8px); }
+
+    .sgc-testi-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .sgc-why-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sgc-industries-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .sgc-footer .row { gap: 2rem 0; }
+}
+
+/* ── Mobile landscape (< 768px) ────────────────────────── */
+@media (max-width: 767px) {
+    :root {
+        --section-y: 4rem;
+        --sgc-nav-height: 68px;
+    }
+
+    #wrapwrap .navbar { padding: 0.8rem 0; }
+    .sgc-hero-title { font-size: 2rem; }
+    .sgc-hero-badge { font-size: 0.66rem; }
+
+    .sgc-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0; }
+    .sgc-counter-number { font-size: 2.2rem; }
+
+    .sgc-testi-grid { grid-template-columns: 1fr; }
+
+    .sgc-why-grid { grid-template-columns: 1fr; }
+
+    .sgc-badge-bar-inner { gap: 0.8rem 1.5rem; }
+    .sgc-trust-divider { display: none; }
+
+    .sgc-cta-buttons { flex-direction: column; align-items: stretch; }
+    .sgc-cta-buttons .sgc-btn { width: 100%; justify-content: center; }
+
+    .sgc-hero-stats { gap: var(--sp-sm); }
+    .sgc-stat-pill { padding: 0.6rem 1rem; }
+
+    .sgc-hero-cta { flex-direction: column; }
+    .sgc-hero-cta .sgc-btn { width: 100%; justify-content: center; }
+
+    .sgc-pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+    }
+
+    .sgc-footer-bottom { flex-direction: column; text-align: center; }
+    .sgc-social-links { justify-content: center; }
+
+    .sgc-industries-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Mobile portrait (< 480px) ─────────────────────────── */
+@media (max-width: 479px) {
+    .sgc-hero-title { font-size: 1.75rem; }
+    .sgc-industries-grid { grid-template-columns: 1fr; }
+    .sgc-stat-number { font-size: 1.2rem; }
+    .sgc-hero-stats { flex-direction: column; align-items: flex-start; }
+    #wrapwrap .container { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ── Reduced motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    .sgc-particles-canvas { display: none; }
+    .sgc-reveal, .sgc-reveal-left, .sgc-reveal-right, .sgc-reveal-scale {
+        opacity: 1; transform: none;
+    }
+}
+
+/* ── Print ──────────────────────────────────────────────── */
+@media print {
+    #wrapwrap { background: white; color: #333; }
+    .sgc-particles-canvas, .sgc-orb { display: none; }
+    .glass { background: #f5f5f5; border-color: #ddd; }
+}

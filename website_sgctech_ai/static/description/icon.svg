@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#060E1A"/>
+      <stop offset="100%" style="stop-color:#0D1F38"/>
+    </linearGradient>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00D4FF"/>
+      <stop offset="100%" style="stop-color:#7B2FBE"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="128" height="128" rx="18" fill="url(#bg)"/>
+  <!-- Grid lines -->
+  <line x1="0" y1="32" x2="128" y2="32" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <line x1="0" y1="64" x2="128" y2="64" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <line x1="0" y1="96" x2="128" y2="96" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <line x1="32" y1="0" x2="32" y2="128" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <line x1="64" y1="0" x2="64" y2="128" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <line x1="96" y1="0" x2="96" y2="128" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <!-- Glow orb -->
+  <circle cx="64" cy="54" r="30" fill="rgba(0,212,255,0.06)" filter="url(#glow)"/>
+  <!-- S -->
+  <text x="64" y="72" font-family="Arial Black,sans-serif" font-size="48" font-weight="900"
+        text-anchor="middle" fill="url(#grad)" filter="url(#glow)">S</text>
+  <!-- Dot accent -->
+  <circle cx="90" cy="38" r="5" fill="#00D4FF" opacity="0.9"/>
+  <!-- Bottom label -->
+  <text x="64" y="106" font-family="Arial,sans-serif" font-size="9" font-weight="600"
+        text-anchor="middle" fill="rgba(0,212,255,0.7)" letter-spacing="3">SGC TECH AI</text>
+  <!-- Border glow -->
+  <rect width="127" height="127" x="0.5" y="0.5" rx="18" fill="none"
+        stroke="rgba(0,212,255,0.25)" stroke-width="1"/>
+</svg>

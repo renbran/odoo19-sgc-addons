@@ -1,0 +1,55 @@
+# -*- coding: utf-8 -*-
+import logging
+import re
+
+from odoo import api, models
+from odoo.exceptions import ValidationError
+
+_logger = logging.getLogger(__name__)
+
+
+def _normalize_login(value):
+    """Return a cleaned login. Strips whitespace, lowercases, drops invalid
+    control chars. Returns the original value if it is falsy."""
+    if not value or not isinstance(value, str):
+        return value
+    cleaned = value.strip()
+    cleaned = re.sub(r"[\x00-\x1f\x7f]", "", cleaned)
+    return cleaned.lower()
+
+
+class ResUsers(models.Model):
+    _inherit = "res.users"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if "login" in vals and vals["login"]:
+                original = vals["login"]
+                normalized = _normalize_login(original)
+                if normalized != original:
+                    _logger.info(
+                        "sgc_user_hygiene: lowercased login on create: %r -> %r",
+                        original, normalized,
+                    )
+                    vals["login"] = normalized
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if "login" in vals and vals["login"]:
+            original = vals["login"]
+            normalized = _normalize_login(original)
+            if normalized != original:
+                conflict = self.sudo().with_context(active_test=False).search_count(
+                    [("login", "=", normalized), ("id", "not in", self.ids)], limit=1
+                )
+                if conflict:
+                    raise ValidationError(
+                        "Another user already has the login %r (case-insensitive duplicate)." % normalized
+                    )
+                _logger.info(
+                    "sgc_user_hygiene: lowercased login on write for users %s: %r -> %r",
+                    self.ids, original, normalized,
+                )
+                vals["login"] = normalized
+        return super().write(vals)

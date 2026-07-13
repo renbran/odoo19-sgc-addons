@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sgc_knowledge_document_user,sgc knowledge document user,model_sgc_knowledge_document,base.group_user,1,0,0,0
+access_sgc_knowledge_document_manager,sgc knowledge document manager,model_sgc_knowledge_document,base.group_system,1,1,1,1
+access_sgc_knowledge_tag_user,sgc knowledge tag user,model_sgc_knowledge_tag,base.group_user,1,0,0,0
+access_sgc_knowledge_tag_manager,sgc knowledge tag manager,model_sgc_knowledge_tag,base.group_system,1,1,1,1

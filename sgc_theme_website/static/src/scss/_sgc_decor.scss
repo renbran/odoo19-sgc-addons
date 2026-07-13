@@ -1,0 +1,191 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — shared decorative layer (web.assets_frontend)
+// -----------------------------------------------------------------------------
+// Landmark watermark + geometry overlay + logo lockup + palette-variant
+// utilities, shared across the v2 "SGC TECH" snippet library (13 new snippets).
+// SVG source assets live in sgc_theme_common (static/src/img/{watermarks,geometry}),
+// loaded here via CSS mask so their visible colour always comes from an
+// $sgc-* token, never a baked-in SVG colour. All layers are purely static
+// (no animation), so there is nothing here that needs a prefers-reduced-motion
+// gate; opacity is capped low (<=0.10) to protect WCAG AA text contrast
+// regardless of which palette variant a snippet uses. Content must sit above
+// these layers: every consuming snippet's direct `.container` child gets
+// `position:relative; z-index:1` from the `> .container` rule below.
+// =============================================================================
+
+$sgc-decor-watermark-path: "/sgc_theme_common/static/src/img/watermarks";
+$sgc-decor-geometry-path: "/sgc_theme_common/static/src/img/geometry";
+
+// ---- Landmark watermark ------------------------------------------------------
+// Edge-anchored, low-opacity, behind content. Dropdown-driven via
+// data-sgc-watermark -> class sgc-watermark--<key> (dataAttributeAction keeps
+// the value on the element for round-tripping; the class does the painting).
+.sgc-watermark {
+    position: relative;
+    overflow: hidden;
+
+    > .container,
+    > .container-fluid { position: relative; z-index: 1; }
+
+    &::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        pointer-events: none;
+        right: 0;
+        bottom: 0;
+        width: 42%;
+        max-width: 300px;
+        height: 100%;
+        background-color: $sgc-navy;
+        opacity: 0.08;
+        mask-repeat: no-repeat;
+        mask-position: bottom right;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: bottom right;
+        -webkit-mask-size: contain;
+    }
+    &--none::after { content: none; }
+    &--burj-khalifa::after {
+        mask-image: url(#{$sgc-decor-watermark-path}/burj-khalifa.svg);
+        -webkit-mask-image: url(#{$sgc-decor-watermark-path}/burj-khalifa.svg);
+    }
+    &--burj-al-arab::after {
+        mask-image: url(#{$sgc-decor-watermark-path}/burj-al-arab.svg);
+        -webkit-mask-image: url(#{$sgc-decor-watermark-path}/burj-al-arab.svg);
+    }
+    &--mosque::after {
+        mask-image: url(#{$sgc-decor-watermark-path}/mosque.svg);
+        -webkit-mask-image: url(#{$sgc-decor-watermark-path}/mosque.svg);
+        width: 56%;
+        max-width: 420px;
+    }
+    &--skyline::after {
+        mask-image: url(#{$sgc-decor-watermark-path}/skyline.svg);
+        -webkit-mask-image: url(#{$sgc-decor-watermark-path}/skyline.svg);
+        width: 100%;
+        max-width: none;
+        left: 0;
+    }
+}
+
+// ---- Geometry overlay ---------------------------------------------------------
+// Dropdown-driven via classAction: sgc-geo--hexagon|circuit|arabesque|hairline|none.
+.sgc-geo {
+    position: relative;
+
+    > .container,
+    > .container-fluid { position: relative; z-index: 1; }
+
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background-color: $sgc-gold;
+        opacity: 0.10;
+        mask-repeat: repeat;
+        -webkit-mask-repeat: repeat;
+    }
+    &--none::before { content: none; }
+    &--hairline {
+        &::before { content: none; }
+        border: 1px solid rgba($sgc-gold, 0.5);
+    }
+    &--hexagon::before {
+        mask-image: url(#{$sgc-decor-geometry-path}/hexagon-lattice.svg);
+        -webkit-mask-image: url(#{$sgc-decor-geometry-path}/hexagon-lattice.svg);
+        mask-size: 84px 72.7px;
+        -webkit-mask-size: 84px 72.7px;
+    }
+    &--circuit::before {
+        mask-image: url(#{$sgc-decor-geometry-path}/circuit.svg);
+        -webkit-mask-image: url(#{$sgc-decor-geometry-path}/circuit.svg);
+        mask-size: 120px 120px;
+        -webkit-mask-size: 120px 120px;
+    }
+    &--arabesque {
+        &::before {
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-position: top left;
+            -webkit-mask-position: top left;
+            mask-image: url(#{$sgc-decor-geometry-path}/arabesque-corner.svg);
+            -webkit-mask-image: url(#{$sgc-decor-geometry-path}/arabesque-corner.svg);
+            mask-size: 140px 140px;
+            -webkit-mask-size: 140px 140px;
+            width: 140px;
+            height: 140px;
+            inset: auto;
+            top: 0;
+            left: 0;
+        }
+        &::after {
+            content: "";
+            position: absolute;
+            z-index: 0;
+            pointer-events: none;
+            bottom: 0;
+            right: 0;
+            width: 140px;
+            height: 140px;
+            transform: rotate(180deg);
+            background-color: $sgc-gold;
+            opacity: 0.10;
+            mask-repeat: no-repeat;
+            -webkit-mask-repeat: no-repeat;
+            mask-position: top left;
+            -webkit-mask-position: top left;
+            mask-image: url(#{$sgc-decor-geometry-path}/arabesque-corner.svg);
+            -webkit-mask-image: url(#{$sgc-decor-geometry-path}/arabesque-corner.svg);
+            mask-size: 140px 140px;
+            -webkit-mask-size: 140px 140px;
+        }
+    }
+}
+
+// ---- Palette variant ----------------------------------------------------------
+// Buttons-driven via classAction: sgc-palette--navy-cream|cream-navy|gold-accent.
+// Default (no class, or --navy-cream): navy headings/text on cream. AA-checked
+// pairings only (reuses the same $sgc-* tokens already used across the theme).
+.sgc-palette {
+    &--cream-navy {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        h1, h2, h3, h4, .h1, .h2, .h3, .h4 { color: $sgc-white; }
+        p, li { color: rgba($sgc-cream, 0.92); }
+        .sgc-accent-word { color: $sgc-gold-300; }
+    }
+    &--navy-cream {
+        background-color: $sgc-cream;
+        color: $sgc-ink;
+        .sgc-accent-word { color: $sgc-gold-700; }
+    }
+    &--gold-accent {
+        background-color: $sgc-cream-100;
+        color: $sgc-ink;
+        border-top: 3px solid $sgc-gold;
+        border-bottom: 3px solid $sgc-gold;
+        .sgc-accent-word { color: $sgc-gold-700; }
+    }
+}
+
+// ---- SGC logo lockup -----------------------------------------------------------
+// Checkbox-driven via classAction: sgc-logo-on. Corner-anchored, small, above decor.
+.sgc-logo-lockup {
+    display: none;
+    position: absolute;
+    z-index: 2;
+    top: $sgc-space-4;
+    left: $sgc-space-4;
+    height: 28px;
+    width: auto;
+    opacity: 0.92;
+}
+// Descendant (not direct-child) combinator: the logo <img> sits at varying
+// nesting depth across the 13 snippets (some inside .container, some as a
+// direct section child) -- this must match either way.
+.sgc-logo-on .sgc-logo-lockup { display: block; }

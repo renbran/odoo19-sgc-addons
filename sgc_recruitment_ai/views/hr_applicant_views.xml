@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_applicant_form_resume_data" model="ir.ui.view">
+        <field name="name">hr.applicant.form.resume.data</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_parse_resume" string="Parse Resume" type="object" class="btn-secondary" icon="fa-file-text-o" help="Manually parse the first resume attachment (PDF, DOCX, TXT) and extract candidate data using AI"/>
+            </xpath>
+            <xpath expr="//page[@name='application_details']" position="after">
+                <page string="AI Resume Data" name="ai_resume_data">
+                    <group>
+                        <group string="Current Position">
+                            <field name="candidate_current_role"/>
+                            <field name="candidate_current_company"/>
+                            <field name="candidate_experience_years"/>
+                            <field name="candidate_availability"/>
+                        </group>
+                        <group string="Contact">
+                            <field name="partner_phone"/>
+                            <field name="linkedin_profile"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="candidate_skills"/>
+                    </group>
+                    <group>
+                        <field name="candidate_experience"/>
+                    </group>
+                    <group>
+                        <field name="candidate_education"/>
+                    </group>
+                    <group>
+                        <field name="candidate_certifications"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

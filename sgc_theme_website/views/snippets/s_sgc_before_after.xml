@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_before_after" name="SGC Before / After">
+        <section class="s_sgc_before_after sgc-watermark--skyline sgc-geo--none sgc-palette--navy-cream"
+                 data-name="SGC Before / After" data-snippet="s_sgc_before_after">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <div class="text-center s_sgc_before_after_head">
+                    <h2 class="s_sgc_before_after_title">Why Businesses <span class="sgc-accent-word">Struggle to Scale</span></h2>
+                    <p class="s_sgc_before_after_kicker">From chaos to clarity. From complexity to scale.</p>
+                </div>
+                <div class="row s_sgc_before_after_panels align-items-stretch">
+                    <div class="col-lg-6 s_sgc_before_after_panel s_sgc_before_after_panel--before">
+                        <span class="s_sgc_before_after_badge">Disconnected &amp; Fragmented</span>
+                        <ul class="list-unstyled s_sgc_before_after_list">
+                            <li><i class="fa fa-times-circle"/>Scattered spreadsheets</li>
+                            <li><i class="fa fa-times-circle"/>Disconnected systems</li>
+                            <li><i class="fa fa-times-circle"/>Fragmented data</li>
+                            <li><i class="fa fa-times-circle"/>Broken reporting chains</li>
+                            <li><i class="fa fa-times-circle"/>Manual hand-offs</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 s_sgc_before_after_panel s_sgc_before_after_panel--after">
+                        <span class="s_sgc_before_after_badge">Connected &amp; Structured</span>
+                        <ul class="list-unstyled s_sgc_before_after_list">
+                            <li><i class="fa fa-check-circle"/>Unified data foundation</li>
+                            <li><i class="fa fa-check-circle"/>Integrated systems layer</li>
+                            <li><i class="fa fa-check-circle"/>Governance &amp; security</li>
+                            <li><i class="fa fa-check-circle"/>Real-time visibility</li>
+                            <li><i class="fa fa-check-circle"/>Strategy &amp; growth</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row text-center s_sgc_before_after_benefits">
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-eye"/>
+                        <h6>Fast, Confident Decisions</h6>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-check"/>
+                        <h6>Trusted, Unified Data</h6>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-rocket"/>
+                        <h6>Operational Leverage</h6>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-line-chart"/>
+                        <h6>Built to Scale</h6>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

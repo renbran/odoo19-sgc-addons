@@ -1,0 +1,9 @@
+/* Construction Management Base Styles */
+
+/* Override theme's white text for form sheets */
+.o_form_sheet {
+    color: #333 !important;
+}
+.o_form_sheet span, .o_form_sheet div, .o_form_sheet p {
+    color: #333 !important;
+}

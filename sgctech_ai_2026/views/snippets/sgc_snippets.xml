@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── Snippet: KPI Tile Block ───────────────────────────── -->
+  <template id="sgc26_snippet_kpi" name="SGC26 KPI Block">
+    <section class="sgc26-section oe_structure">
+      <div class="sgc26-container">
+        <div class="sgc26-grid-4">
+          <div class="sgc26-kpi-tile" data-sgc-reveal="1">
+            <div class="sgc26-kpi-number" data-sgc-count="30" data-sgc-suffix=" days">30 days</div>
+            <div class="sgc26-kpi-tile__label">Fastest Go-Live</div>
+          </div>
+          <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="100">
+            <div class="sgc26-kpi-number" data-sgc-count="90" data-sgc-suffix=" days">90 days</div>
+            <div class="sgc26-kpi-tile__label">Full-Suite Delivery</div>
+          </div>
+          <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="200">
+            <div class="sgc26-kpi-number" data-sgc-count="100" data-sgc-suffix="%">100%</div>
+            <div class="sgc26-kpi-tile__label">UAE VAT Compliant</div>
+          </div>
+          <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="300">
+            <div class="sgc26-kpi-number" data-sgc-count="5" data-sgc-suffix="+">5+</div>
+            <div class="sgc26-kpi-tile__label">Industries Covered</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ── Snippet: CTA Banner ────────────────────────────────── -->
+  <template id="sgc26_snippet_cta" name="SGC26 CTA Banner">
+    <section class="sgc26-section oe_structure" style="background:var(--bg-2)">
+      <div class="sgc26-container" style="text-align:center">
+        <div class="sgc26-card" style="max-width:800px;margin:0 auto;padding:4rem 3rem" data-sgc-reveal="1">
+          <p class="sgc26-label" style="justify-content:center">Ready to Start?</p>
+          <h2 class="sgc26-h2" style="margin-bottom:1rem">Let's Map Your ERP Journey</h2>
+          <p class="sgc26-body-lg" style="max-width:520px;margin:0 auto 2rem">
+            Book a 30-minute discovery call and get a realistic delivery plan for your business.
+          </p>
+          <div class="sgc26-cta-group" style="justify-content:center">
+            <a href="/sgctech/contact" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+              Book Discovery Call
+            </a>
+            <a href="/sgctech/pricing" class="sgc26-btn sgc26-btn-ghost sgc26-btn-lg">
+              View Pricing
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ── Snippet: Feature Grid 3-col ───────────────────────── -->
+  <template id="sgc26_snippet_features" name="SGC26 Feature Grid">
+    <section class="sgc26-section oe_structure">
+      <div class="sgc26-container">
+        <div class="sgc26-section-title" data-sgc-reveal="1">
+          <p class="sgc26-label">Features</p>
+          <h2 class="sgc26-h2">What We Deliver</h2>
+        </div>
+        <div class="sgc26-grid-3">
+          <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="100" data-sgc-tilt="1">
+            <div class="sgc26-feature-card__icon">
+              <svg width="24" height="24"><use href="#i-zap" stroke="url(#sgc26-grad-icon)"/></svg>
+            </div>
+            <h3 class="sgc26-feature-card__title">Fast Delivery</h3>
+            <p class="sgc26-feature-card__body">Go live in 30–90 days with structured phases and clear milestones.</p>
+          </div>
+          <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="200" data-sgc-tilt="1">
+            <div class="sgc26-feature-card__icon">
+              <svg width="24" height="24"><use href="#i-shield" stroke="url(#sgc26-grad-icon)"/></svg>
+            </div>
+            <h3 class="sgc26-feature-card__title">UAE Compliant</h3>
+            <p class="sgc26-feature-card__body">VAT, FTA e-invoicing, IFRS, and ESR — built in from day one.</p>
+          </div>
+          <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="300" data-sgc-tilt="1">
+            <div class="sgc26-feature-card__icon">
+              <svg width="24" height="24"><use href="#i-cpu" stroke="url(#sgc26-grad-icon)"/></svg>
+            </div>
+            <h3 class="sgc26-feature-card__title">AI-Powered</h3>
+            <p class="sgc26-feature-card__body">AI tools accelerate configuration, testing, and report generation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+</odoo>

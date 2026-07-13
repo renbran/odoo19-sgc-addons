@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="sgc_industries_content" name="SGC Industries Page">
+<t t-set="title">Industries We Serve | SGC Tech Sector Expertise UAE</t>
+<t t-set="meta_description">SGC Tech brings deep expertise to Financial Services, Real Estate, Healthcare, Technology, E-commerce and Manufacturing across the UAE and MENA region.</t>
+<t t-call="website.layout">
+<div id="wrap" class="oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Industries", "item": "https://sgctech.ai/our-industries"}
+                ]
+            }
+            </script>
+
+    <!-- HERO -->
+    <section class="aurum-hero has-slideshow">
+        <div class="aurum-hero-slideshow">
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_skyscraper_1.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_office_team.jpg);"/>
+            <div class="slide" style="background-image:url(/sgc_theme_aurum/static/src/img/hero_corporate_abstract.jpg);"/>
+        </div>
+        <div class="aurum-hero-particles">
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+            <div class="aurum-hero-particle"/><div class="aurum-hero-particle"/>
+        </div>
+        <div class="container aurum-hero-inner">
+            <div class="row align-items-center">
+                <div class="col-lg-9">
+                    <span class="aurum-eyebrow aurum-reveal">SECTOR EXPERTISE</span>
+                    <h1 class="aurum-reveal aurum-shimmer" data-aurum-delay="1">Deep Industry Knowledge Across Six Verticals</h1>
+                    <p class="aurum-lead aurum-reveal" data-aurum-delay="2">
+                        We bring deep operational expertise across the sectors that drive the UAE economy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6-INDUSTRY GRID -->
+    <section class="aurum-section aurum-cream-bg">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">INDUSTRIES WE SERVE</span>
+            <h2 class="aurum-h aurum-reveal">Sector-Specific Expertise, Proven Results</h2>
+            <div class="aurum-divider"/>
+
+            <div class="row g-4 mt-4">
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_financial_services.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">Financial Services</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">Comprehensive financial advisory and compliance solutions for banks, asset managers, and fintech firms navigating regulatory complexity and growth.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="1">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_real_estate.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">Real Estate</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">Strategic financial and operational support for developers, asset managers, and hospitality groups across the UAE property landscape.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="2">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_healthcare.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">Healthcare</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">Specialized advisory for healthcare providers, from regulatory compliance to digital transformation and operational efficiency.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="3">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_technology.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">Technology</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">Scaling technology companies from growth-stage to enterprise, with expertise in SaaS metrics, fundraising, and operational excellence.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="4">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_ecommerce.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">E-commerce</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">End-to-end advisory for digital commerce businesses, from financial planning to platform optimization and market expansion.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="5">
+                    <div class="aurum-overlay-card rounded-3 h-100 p-4" style="background-image:url(/sgc_theme_aurum/static/src/img/industry_manufacturing.jpg);">
+                        <h3 class="aurum-card-title" style="font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:.5rem;color:#fff;">Manufacturing</h3>
+                        <p class="aurum-card-desc" style="color:rgba(255,255,255,.78);font-size:.95rem;margin-bottom:0;">Operational and financial transformation for manufacturers, driving efficiency, compliance, and sustainable growth.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUCCESS METRICS -->
+    <section class="aurum-section aurum-navy-bg">
+        <div class="container text-center">
+            <span class="aurum-eyebrow aurum-reveal">PROVEN RESULTS</span>
+            <h2 class="aurum-h aurum-reveal" style="color:#fff;">Impact Across Sectors</h2>
+            <div class="aurum-divider" style="background:rgba(255,255,255,.2);"/>
+
+            <div class="row g-4 mt-4 text-start">
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">🏦 Financial Services</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="40" data-aurum-suffix="%">0</span></span> Improved cash visibility</li>
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="60" data-aurum-suffix="%">0</span></span> Reduced reporting cycles</li>
+                            <li class="mb-0">• <span class="aurum-stat-num"><span data-aurum-count="100" data-aurum-suffix="%">0</span></span> Regulatory compliance</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="1">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">🏗️ Real Estate</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="35" data-aurum-suffix="%">0</span></span> Accelerated project timelines</li>
+                            <li class="mb-2">• Saved <span class="aurum-stat-num"><span data-aurum-count="2" data-aurum-suffix="M+">0</span></span> AED capital optimization</li>
+                            <li class="mb-0">• Integrated ERP across <span class="aurum-stat-num"><span data-aurum-count="12" data-aurum-suffix="">0</span></span> entities</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="2">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">🏥 Healthcare</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="98" data-aurum-suffix="%">0</span></span> Billing accuracy</li>
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="75" data-aurum-suffix="%">0</span></span> Fewer compliance incidents</li>
+                            <li class="mb-0">• Digitized patient financial workflows</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="3">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">💻 Technology</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• Scaled revenue operations <span class="aurum-stat-num"><span data-aurum-count="3" data-aurum-suffix="x">0</span></span></li>
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="45" data-aurum-suffix="%">0</span></span> Reduced churn</li>
+                            <li class="mb-0">• Raised Series A/B with clean books</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="4">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">🛒 E-commerce</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="12" data-aurum-suffix="">0</span></span> point margin improvement</li>
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="80" data-aurum-suffix="%">0</span></span> Automated financial reporting</li>
+                            <li class="mb-0">• Expanded to <span class="aurum-stat-num"><span data-aurum-count="3" data-aurum-suffix="">0</span></span> new markets</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-4 aurum-reveal" data-aurum-delay="5">
+                    <div style="background:rgba(255,255,255,.06);border-radius:12px;padding:1.5rem;">
+                        <h5 style="font-family:'Playfair Display',serif;color:#c9a227;margin-bottom:1rem;">🏭 Manufacturing</h5>
+                        <ul class="list-unstyled mb-0" style="color:rgba(255,255,255,.75);">
+                            <li class="mb-2">• <span class="aurum-stat-num"><span data-aurum-count="22" data-aurum-suffix="%">0</span></span> Lower operational costs</li>
+                            <li class="mb-2">• Achieved ISO <span class="aurum-stat-num"><span data-aurum-count="9001" data-aurum-suffix="">0</span></span> certification</li>
+                            <li class="mb-0">• Real-time cost tracking implemented</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="aurum-section">
+        <div class="container">
+            <div class="aurum-cta aurum-reveal">
+                <span class="aurum-eyebrow">PARTNER WITH US</span>
+                <h2 class="aurum-h mb-3">Ready to transform?</h2>
+                <a href="/contact-us" class="btn btn-aurum-gold" aria-label="Start the conversation with SGC Tech">Start the Conversation</a>
+            </div>
+        </div>
+    </section>
+
+</div>
+</t>
+</template>
+
+</odoo>

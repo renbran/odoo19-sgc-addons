@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Seed data for the public "Book a Session" page.
+        noupdate="1" so admins can tweak hours/duration without module upgrades
+        overwriting their changes.
+    -->
+    <data noupdate="1">
+
+        <!-- Working-hours calendar for online sessions (UAE: Mon-Fri, 09:00-18:00) -->
+        <record id="online_session_calendar" model="resource.calendar">
+            <field name="name">SGC Online Sessions Hours</field>
+            <field name="tz">Asia/Dubai</field>
+            <!--
+                Define attendances inline so Odoo does NOT auto-add its default
+                40h/week set on top. Mon(0)..Fri(4), 09:00-13:00 and 14:00-18:00
+                (lunch 13:00-14:00 excluded). Hours are in the calendar tz.
+            -->
+            <field name="attendance_ids" eval="[
+                (5, 0, 0),
+                (0, 0, {'name': 'Monday Morning',      'dayofweek': '0', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Monday Afternoon',    'dayofweek': '0', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+                (0, 0, {'name': 'Tuesday Morning',     'dayofweek': '1', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Tuesday Afternoon',   'dayofweek': '1', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+                (0, 0, {'name': 'Wednesday Morning',   'dayofweek': '2', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+                (0, 0, {'name': 'Thursday Morning',    'dayofweek': '3', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Thursday Afternoon',  'dayofweek': '3', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+                (0, 0, {'name': 'Friday Morning',      'dayofweek': '4', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Friday Afternoon',    'dayofweek': '4', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+            ]"/>
+        </record>
+
+        <!-- A bookable resource (the consultant pool) on that calendar -->
+        <record id="online_session_resource" model="resource.resource">
+            <field name="name">SGC Online Consultant</field>
+            <field name="resource_type">user</field>
+            <field name="tz">Asia/Dubai</field>
+            <field name="calendar_id" ref="online_session_calendar"/>
+        </record>
+
+        <!-- Combination bundling that resource (must exist or no slots show) -->
+        <record id="online_session_combination" model="resource.booking.combination">
+            <field name="resource_ids" eval="[(6, 0, [ref('online_session_resource')])]"/>
+        </record>
+
+        <!-- The bookable session type used by the public page -->
+        <record id="online_session_type" model="resource.booking.type">
+            <field name="name">Online Session</field>
+            <field name="duration">0.5</field>
+            <field name="slot_duration">0.5</field>
+            <field name="modifications_deadline">1.0</field>
+            <field name="resource_calendar_id" ref="online_session_calendar"/>
+            <field name="combination_assignment">sorted</field>
+            <field name="combination_rel_ids"
+                   eval="[(0, 0, {'combination_id': ref('online_session_combination'), 'sequence': 10})]"/>
+            <field name="sgc_meeting_provider_id" ref="sgc_meeting_ai.sgc_provider_google_meet"/>
+            <field name="requester_advice">Pick a time that works for you. You'll receive a confirmation email with the meeting link and a portal link to reschedule or cancel.</field>
+        </record>
+
+        <!-- Point the public page at this type (admin-overridable in Settings) -->
+        <record id="online_session_type_param" model="ir.config_parameter">
+            <field name="key">sgc_website_booking.type_id</field>
+            <field name="value" eval="ref('online_session_type')"/>
+        </record>
+
+    </data>
+</odoo>

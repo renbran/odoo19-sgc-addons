@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+
+    <!--
+        Register the seven SGC snippets into the Website Builder block menu by
+        inheriting website.snippets (the canonical Odoo 19 mechanism, mirrored
+        from website_sale's snippets inheritance). A dedicated "SGC" category
+        keeps the family together in the Add-block panel.
+    -->
+    <template id="snippets" inherit_id="website.snippets" name="SGC Snippets">
+
+        <!-- New "SGC" category button -->
+        <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+            <t snippet-group="sgc" t-snippet="website.s_snippet_group" string="SGC TECH"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_group.svg"/>
+        </xpath>
+
+        <!-- The seven SGC blocks -->
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="sgc_theme_website.s_sgc_hero" string="SGC Hero" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_hero.svg">
+                <keywords>hero, banner, headline, intro, sgc, logo, tagline, cta</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_feature_hex" string="SGC Feature Grid" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_feature_hex.svg">
+                <keywords>features, hexagon, grid, icons, benefits, services, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_stats" string="SGC Stat Counters" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_stats.svg">
+                <keywords>stats, kpi, numbers, counter, metrics, count-up, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_testimonial" string="SGC Testimonial" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_testimonial.svg">
+                <keywords>testimonial, quote, review, customer, social proof, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_cta" string="SGC CTA Band" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_cta.svg">
+                <keywords>cta, call to action, banner, button, conversion, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_showcase" string="SGC Showcase" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_showcase.svg">
+                <keywords>showcase, mockup, image, product, tilt, feature, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_footer" string="SGC Footer" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_footer.svg">
+                <keywords>footer, contact, links, brand, tagline, sgc</keywords>
+            </t>
+
+            <!-- v2: 13 additional "SGC TECH" snippets, matching a reference-image set -->
+            <t t-snippet="sgc_theme_website.s_sgc_brand_hero" string="SGC Brand Hero" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_brand_hero.svg">
+                <keywords>hero, brand, wordmark, logo, corridor, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_split_feature" string="SGC Split Feature" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_split_feature.svg">
+                <keywords>split, team, people, portrait, feature, points, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_before_after" string="SGC Before / After" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_before_after.svg">
+                <keywords>before, after, comparison, chaos, clarity, transformation, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_three_pillars" string="SGC Three Pillars" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_three_pillars.svg">
+                <keywords>pillars, columns, three, advisory, services, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_comparison_table" string="SGC Comparison Table" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_comparison_table.svg">
+                <keywords>comparison, table, versus, traditional, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_dashboard_showcase" string="SGC Dashboard Showcase" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_dashboard_showcase.svg">
+                <keywords>dashboard, analytics, kpi, charts, data, insights, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_layer_pyramid" string="SGC Layer Pyramid" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_layer_pyramid.svg">
+                <keywords>pyramid, layers, framework, stack, tiers, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_flow_diagram" string="SGC Flow Diagram" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_flow_diagram.svg">
+                <keywords>flow, diagram, ai, process, pipeline, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_roadmap" string="SGC Roadmap" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_roadmap.svg">
+                <keywords>roadmap, timeline, journey, stages, plan, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_hexagon_grid" string="SGC Hexagon Grid" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_hexagon_grid.svg">
+                <keywords>hexagon, grid, industries, gallery, photos, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_leadership" string="SGC Leadership" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_leadership.svg">
+                <keywords>leadership, team, credentials, expertise, about, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_pricing_tiers" string="SGC Pricing Tiers" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_pricing_tiers.svg">
+                <keywords>pricing, tiers, plans, packages, engagement, sgc tech, sgc</keywords>
+            </t>
+            <t t-snippet="sgc_theme_website.s_sgc_contact_cta" string="SGC Contact CTA" group="sgc"
+               t-thumbnail="/sgc_theme_website/static/src/img/snippets_thumbs/s_sgc_contact_cta.svg">
+                <keywords>contact, cta, social, email, phone, sgc tech, sgc</keywords>
+            </t>
+        </xpath>
+
+    </template>
+
+</odoo>

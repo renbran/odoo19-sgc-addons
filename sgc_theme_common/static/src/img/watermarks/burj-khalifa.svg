@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <!-- SGC shared watermark: Burj Khalifa silhouette, single-tone line art -->
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M100 8 L100 40" />
+        <path d="M92 40 L108 40 L104 90 L96 90 Z" />
+        <path d="M84 90 L116 90 L110 150 L90 150 Z" />
+        <path d="M78 150 L122 150 L114 220 L86 220 Z" />
+        <path d="M70 220 L130 220 L120 300 L80 300 Z" />
+        <path d="M58 300 L142 300 L128 392 L72 392 Z" />
+        <path d="M72 392 L128 392" stroke-width="3" />
+    </g>
+</svg>

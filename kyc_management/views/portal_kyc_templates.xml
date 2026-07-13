@@ -1,0 +1,1147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     KYC Application Form — Public Portal
+     URL: /kyc/apply
+     ═══════════════════════════════════════════════════════════════ -->
+<template id="portal_kyc_form" name="KYC Application Form">
+  <t t-call="web.layout">
+    <t t-set="head_kyc">
+      <link rel="stylesheet" href="/kyc_management/static/src/css/kyc_styles.css"/>
+      <style>
+        /* ── Layout ──────────────────────────────────────────── */
+        .o_website_kyc_portal {
+          --brand: #800020;
+          --brand-light: rgba(128,0,32,.08);
+          --brand-mid: rgba(128,0,32,.18);
+          --text: #1a1a2e;
+          --muted: #6b7280;
+          --border: #d1d5db;
+          --bg: #f4f6f9;
+          --card: #ffffff;
+          --ok: #059669;
+          --err: #dc2626;
+        }
+        .o_website_kyc_portal { background: var(--bg); font-family: 'Segoe UI', Arial, sans-serif; color: var(--text); }
+        .o_website_kyc_portal .kyc-hero { background: linear-gradient(135deg,#800020 0%,#500010 60%,#1a0008 100%); color:#fff; padding:40px 0 32px; text-align:center; }
+        .o_website_kyc_portal .kyc-hero h1 { font-size:1.9rem; font-weight:800; margin:0; }
+        .o_website_kyc_portal .kyc-hero p { opacity:.8; margin:6px 0 0; font-size:.95rem; }
+        .o_website_kyc_portal .kyc-wrap { max-width:860px; margin:0 auto; padding:28px 16px 60px; }
+
+        /* ── Stepper ─────────────────────────────────────────── */
+        .kyc-stepper { display:flex; justify-content:space-between; margin-bottom:32px; position:relative; }
+        .kyc-stepper::before { content:''; position:absolute; top:20px; left:0; right:0; height:2px; background:var(--border); z-index:0; }
+        .kyc-step { display:flex; flex-direction:column; align-items:center; flex:1; position:relative; z-index:1; }
+        .kyc-step .num { width:40px; height:40px; border-radius:50%; background:var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.88rem; border:3px solid var(--bg); transition:all .3s; }
+        .kyc-step .lbl { font-size:.73rem; margin-top:6px; color:var(--muted); text-align:center; font-weight:500; }
+        .kyc-step.active .num { background:var(--brand); color:#fff; }
+        .kyc-step.active .lbl { color:var(--brand); font-weight:700; }
+        .kyc-step.done .num { background:var(--ok); color:#fff; }
+        .kyc-step.done .lbl { color:var(--ok); }
+
+        /* ── Card &amp; form ─────────────────────────────────────── */
+        .kyc-card { background:var(--card); border-radius:14px; box-shadow:0 2px 12px rgba(0,0,0,.08); overflow:hidden; margin-bottom:20px; }
+        .kyc-card-head { background:var(--brand); color:#fff; padding:14px 24px; display:flex; align-items:center; gap:10px; font-weight:700; font-size:1rem; }
+        .kyc-card-head .ic { font-size:1.3rem; }
+        .kyc-card-body { padding:24px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+        .form-row.single { grid-template-columns:1fr; }
+        .form-row.triple { grid-template-columns:1fr 1fr 1fr; }
+        @media(max-width:640px){ .form-row,.form-row.triple { grid-template-columns:1fr; } }
+        .form-group { display:flex; flex-direction:column; }
+        .form-group label { font-size:.82rem; font-weight:600; color:var(--text); margin-bottom:5px; }
+        .form-group label .req { color:var(--err); margin-left:2px; }
+        .form-group input, .form-group select, .form-group textarea {
+          border:1px solid var(--border); border-radius:8px; padding:9px 13px; font-size:.9rem;
+          color:var(--text); background:#fff; transition:border-color .2s; width:100%;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+          outline:none; border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-light);
+        }
+        .form-group .err-msg { color:var(--err); font-size:.75rem; margin-top:4px; display:none; }
+        .form-group.has-error input, .form-group.has-error select,
+        .form-group.has-error textarea { border-color:var(--err); }
+        .form-group.has-error .err-msg { display:block; }
+        .form-hint { font-size:.76rem; color:var(--muted); margin-top:4px; }
+
+        /* ── File upload ─────────────────────────────────────── */
+        .file-zone { border:2px dashed var(--border); border-radius:10px; padding:22px; text-align:center; cursor:pointer; transition:all .2s; position:relative; }
+        .file-zone:hover { border-color:var(--brand); background:var(--brand-light); }
+        .file-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+        .file-zone .fz-ic { font-size:2rem; margin-bottom:6px; }
+        .file-zone .fz-label { font-size:.85rem; color:var(--muted); }
+        .file-zone .fz-label strong { color:var(--brand); }
+        .file-zone .fz-name { font-size:.8rem; color:var(--ok); margin-top:5px; font-weight:600; display:none; }
+
+        /* ── Checkbox list ───────────────────────────────────── */
+        .check-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        @media(max-width:480px){ .check-grid { grid-template-columns:1fr; } }
+        .check-item { display:flex; align-items:center; gap:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; cursor:pointer; transition:all .2s; }
+        .check-item:hover { border-color:var(--brand); background:var(--brand-light); }
+        .check-item input[type=checkbox] { width:18px; height:18px; accent-color:var(--brand); cursor:pointer; flex-shrink:0; }
+        .check-item label { font-size:.85rem; cursor:pointer; font-weight:500; margin:0; }
+
+        /* ── Signature ───────────────────────────────────────── */
+        .sig-wrap { border:2px solid var(--border); border-radius:10px; overflow:hidden; }
+        #signature_pad { display:block; width:100%; height:180px; cursor:crosshair; background:#fff; }
+        .sig-toolbar { display:flex; justify-content:flex-end; padding:8px 12px; background:#f9fafb; border-top:1px solid var(--border); gap:10px; }
+        .sig-toolbar button { padding:6px 16px; border-radius:6px; border:1px solid var(--border); font-size:.82rem; cursor:pointer; background:#fff; }
+        .sig-toolbar button:hover { background:var(--brand); color:#fff; border-color:var(--brand); }
+        #signature_error { color:var(--err); font-size:.78rem; margin-top:6px; display:none; }
+
+        /* ── Consent section ─────────────────────────────────── */
+        .consent-item { display:flex; align-items:flex-start; gap:12px; padding:14px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px; background:var(--bg); }
+        .consent-item.has-error { border-color:var(--err); background:#fff5f5; }
+        .consent-item input[type=checkbox] { width:20px; height:20px; accent-color:var(--brand); flex-shrink:0; margin-top:2px; }
+        .consent-item label { font-size:.85rem; line-height:1.5; margin:0; cursor:pointer; }
+        .consent-item label strong { color:var(--brand); }
+        .consent-err { color:var(--err); font-size:.75rem; margin:-6px 0 8px 34px; display:none; }
+        .consent-item.has-error + .consent-err { display:block; }
+
+        /* ── Navigation buttons ──────────────────────────────── */
+        .kyc-nav { display:flex; justify-content:space-between; align-items:center; padding:20px 0 0; }
+        .btn-prev { background:#fff; border:2px solid var(--border); color:var(--text); padding:11px 28px; border-radius:10px; font-size:.9rem; font-weight:600; cursor:pointer; }
+        .btn-prev:hover { border-color:var(--brand); color:var(--brand); }
+        .btn-next { background:var(--brand); border:none; color:#fff; padding:11px 32px; border-radius:10px; font-size:.9rem; font-weight:700; cursor:pointer; }
+        .btn-next:hover { background:#600018; }
+        .btn-submit { background:var(--ok); border:none; color:#fff; padding:13px 40px; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; }
+        .btn-submit:hover { background:#047857; }
+        .btn-submit:disabled { opacity:.6; cursor:not-allowed; }
+        .step-indicator { font-size:.82rem; color:var(--muted); }
+
+        /* ── Section heading ─────────────────────────────────── */
+        .sec-heading { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--muted); border-bottom:1px solid var(--border); padding-bottom:8px; margin:20px 0 16px; }
+
+        /* ── Global error ────────────────────────────────────── */
+        .alert-error { background:#fef2f2; border:1px solid #fca5a5; color:#991b1b; padding:14px 18px; border-radius:10px; margin-bottom:20px; font-size:.88rem; }
+        .alert-success { background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; padding:14px 18px; border-radius:10px; margin-bottom:20px; }
+
+        /* ── Step panels ─────────────────────────────────────── */
+        .kyc-panel { display:none; }
+        .kyc-panel.active { display:block; }
+
+        /* ── PEP details toggle ──────────────────────────────── */
+        #pep_details_wrap { display:none; }
+      </style>
+    </t>
+    <t t-set="title">KYC Application — OSUS Real Estate</t>
+    <t t-set="head"><t t-out="head_kyc"/></t>
+
+    <div class="o_website_kyc_portal">
+    <!-- Hero -->
+    <div class="kyc-hero">
+      <h1>&#128272; Know Your Customer (KYC) Application</h1>
+      <p>OSUS Real Estate Brokerage LLC &#160;|&#160; Secure &amp; Compliant Onboarding</p>
+    </div>
+
+    <div class="kyc-wrap">
+
+      <!-- Global error banner -->
+      <t t-if="error.get('_global')">
+        <div class="alert-error">&#9888;&#65039; <t t-out="error['_global']"/></div>
+      </t>
+
+      <!-- Stepper -->
+      <div class="kyc-stepper">
+        <div class="kyc-step active" id="step-dot-1">
+          <div class="num">1</div><div class="lbl">Personal<br/>Info</div>
+        </div>
+        <div class="kyc-step" id="step-dot-2">
+          <div class="num">2</div><div class="lbl">Identity<br/>Documents</div>
+        </div>
+        <div class="kyc-step" id="step-dot-3">
+          <div class="num">3</div><div class="lbl">Address &amp;<br/>Residency</div>
+        </div>
+        <div class="kyc-step" id="step-dot-4">
+          <div class="num">4</div><div class="lbl">Employment<br/>&amp; Finance</div>
+        </div>
+        <div class="kyc-step" id="step-dot-5">
+          <div class="num">5</div><div class="lbl">Declarations<br/>&amp; Signature</div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form id="kyc_main_form" action="/contact/kyc" method="post"
+            enctype="multipart/form-data" novalidate="novalidate">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+        <input type="hidden" name="signature_data" id="signature_data"/>
+
+        <!-- ═══ STEP 1 — PERSONAL INFORMATION ═══ -->
+        <div class="kyc-panel active" id="panel-1">
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#128100;</span> Personal Information</div>
+            <div class="kyc-card-body">
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('first_name') else ''}">
+                  <label>First Name <span class="req">*</span></label>
+                  <input type="text" name="first_name" required="required" t-att-value="values.get('first_name','')"
+                         placeholder="As shown on passport"/>
+                  <span class="err-msg"><t t-out="error.get('first_name','This field is required.')"/></span>
+                </div>
+                <div t-attf-class="form-group #{'has-error' if error.get('last_name') else ''}">
+                  <label>Last Name <span class="req">*</span></label>
+                  <input type="text" name="last_name" required="required" t-att-value="values.get('last_name','')"
+                         placeholder="As shown on passport"/>
+                  <span class="err-msg"><t t-out="error.get('last_name','This field is required.')"/></span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('email') else ''}">
+                  <label>Email Address <span class="req">*</span></label>
+                  <div style="display:flex;gap:8px;">
+                    <input type="email" name="email" id="kyc_email" required="required"
+                           t-att-value="values.get('email','')"
+                           placeholder="your@email.com"
+                           style="flex:1;" autocomplete="email"
+                           oninput="kycEmailChanged()"/>
+                    <button type="button" id="btn_send_otp" onclick="kycSendOtp()"
+                            style="white-space:nowrap;background:#800020;color:#fff;border:none;padding:0 16px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;">
+                      Send Code
+                    </button>
+                  </div>
+                  <span class="err-msg"><t t-out="error.get('email','Required.')"/></span>
+
+                  <!-- OTP entry row (hidden until code sent) -->
+                  <div id="otp_row" style="display:none;margin-top:10px;">
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <input type="text" id="kyc_otp_input" maxlength="6"
+                             placeholder="Enter 6-digit code"
+                             style="width:160px;letter-spacing:6px;font-size:1.1rem;font-weight:700;text-align:center;border:2px solid #d1d5db;border-radius:8px;padding:8px 12px;"
+                             oninput="this.value=this.value.replace(/\D/g,'')"/>
+                      <button type="button" onclick="kycVerifyOtp()"
+                              style="background:#059669;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:.85rem;font-weight:700;cursor:pointer;">
+                        Verify &#10003;
+                      </button>
+                      <button type="button" onclick="kycSendOtp(true)"
+                              style="background:#fff;color:#800020;border:1px solid #800020;padding:9px 14px;border-radius:8px;font-size:.82rem;cursor:pointer;">
+                        Resend
+                      </button>
+                    </div>
+                    <div id="otp_msg" style="font-size:.8rem;margin-top:6px;"></div>
+                  </div>
+
+                  <!-- Verified badge (hidden until verified) -->
+                  <div id="email_verified_badge" style="display:none;margin-top:8px;color:#059669;font-size:.83rem;font-weight:700;">
+                    &#9989; Email verified
+                  </div>
+                </div>
+                <div t-attf-class="form-group #{'has-error' if error.get('phone') else ''}">
+                  <label>Phone / Mobile <span class="req">*</span></label>
+                  <input type="tel" name="phone" required="required" t-att-value="values.get('phone','')"
+                         placeholder="+971 50 000 0000"/>
+                  <span class="err-msg"><t t-out="error.get('phone','Required.')"/></span>
+                </div>
+              </div>
+
+              <div class="form-row triple">
+                <div t-attf-class="form-group #{'has-error' if error.get('date_of_birth') else ''}">
+                  <label>Date of Birth <span class="req">*</span></label>
+                  <input type="date" name="date_of_birth" required="required" t-att-value="values.get('date_of_birth','')"/>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div t-attf-class="form-group #{'has-error' if error.get('gender') else ''}">
+                  <label>Gender <span class="req">*</span></label>
+                  <select name="gender" required="required">
+                    <option value="">— Select —</option>
+                    <option value="male"   t-att-selected="'selected' if values.get('gender')=='male' else None">Male</option>
+                    <option value="female" t-att-selected="'selected' if values.get('gender')=='female' else None">Female</option>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label>Place of Birth</label>
+                  <input type="text" name="place_of_birth" t-att-value="values.get('place_of_birth','')"
+                         placeholder="City, Country"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('nationality_id') else ''}">
+                  <label>Nationality <span class="req">*</span></label>
+                  <select name="nationality_id" required="required">
+                    <option value="">— Select Country —</option>
+                    <t t-foreach="countries" t-as="c">
+                      <option t-att-value="c.id"
+                              t-att-selected="'selected' if str(values.get('nationality_id',''))==str(c.id) else None">
+                        <t t-out="c.name"/>
+                      </option>
+                    </t>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label>Known Aliases / Other Names</label>
+                  <input type="text" name="aliases" t-att-value="values.get('aliases','')"
+                         placeholder="Maiden name, nickname, etc."/>
+                  <p class="form-hint">Leave blank if not applicable</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div class="kyc-nav">
+            <div/>
+            <div><span class="step-indicator">Step 1 of 5</span>&#160;&#160;<button type="button" class="btn-next" onclick="kycNext(1)">Continue &#8594;</button></div>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 2 — IDENTITY DOCUMENTS ═══ -->
+        <div class="kyc-panel" id="panel-2">
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#128210;</span> Passport Details</div>
+            <div class="kyc-card-body">
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('passport_number') else ''}">
+                  <label>Passport Number <span class="req">*</span></label>
+                  <input type="text" name="passport_number" required="required" t-att-value="values.get('passport_number','')"
+                         placeholder="e.g. A12345678"/>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label>Passport Issuing Country</label>
+                  <select name="passport_country_id">
+                    <option value="">— Select Country —</option>
+                    <t t-foreach="countries" t-as="c">
+                      <option t-att-value="c.id"
+                              t-att-selected="'selected' if str(values.get('passport_country_id',''))==str(c.id) else None">
+                        <t t-out="c.name"/>
+                      </option>
+                    </t>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Issue Date</label>
+                  <input type="date" name="passport_issue_date" t-att-value="values.get('passport_issue_date','')"/>
+                </div>
+                <div t-attf-class="form-group #{'has-error' if error.get('passport_expiry_date') else ''}">
+                  <label>Expiry Date <span class="req">*</span></label>
+                  <input type="date" name="passport_expiry_date" required="required" t-att-value="values.get('passport_expiry_date','')"/>
+                  <span class="err-msg">Required.</span>
+                </div>
+              </div>
+
+              <div class="form-row single">
+                <div t-attf-class="form-group #{'has-error' if error.get('id_document') else ''}">
+                  <label>Upload Passport Copy <span class="req">*</span> <span style="font-weight:400;color:var(--muted);font-size:.8rem;">(at least one ID document required)</span></label>
+                  <div class="file-zone" id="fz_passport">
+                    <div class="fz-ic">&#128210;</div>
+                    <div class="fz-label"><strong>Click to upload</strong> or drag &amp; drop</div>
+                    <div class="fz-label">PDF, JPG, PNG — max 5MB</div>
+                    <div class="fz-name" id="fz_passport_name"></div>
+                    <input type="file" name="passport_document" accept=".pdf,.jpg,.jpeg,.png"
+                           id="file_passport" onchange="showFileName(this,'fz_passport_name');kycUpdateDocBadge()"/>
+                  </div>
+                  <span class="err-msg" id="id_doc_err"><t t-out="error.get('id_document','Please upload a Passport or Emirates ID copy.')"/></span>
+                  <t t-if="error.get('id_document')">
+                    <script>document.getElementById('id_doc_err').style.display='block';</script>
+                  </t>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#127482;&#127462;</span> UAE Identity &amp; Residency</div>
+            <div class="kyc-card-body">
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Emirates ID Number</label>
+                  <input type="text" name="emirates_id" t-att-value="values.get('emirates_id','')"
+                         placeholder="784-XXXX-XXXXXXX-X"/>
+                </div>
+                <div class="form-group">
+                  <label>Residency Visa Number</label>
+                  <input type="text" name="residency_visa_no" t-att-value="values.get('residency_visa_no','')"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Visa Expiry Date</label>
+                  <input type="date" name="residency_expiry_date" t-att-value="values.get('residency_expiry_date','')"/>
+                </div>
+                <div/>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Upload Emirates ID Copy <span class="req">*</span></label>
+                  <div class="file-zone">
+                    <div class="fz-ic">&#127482;&#127462;</div>
+                    <div class="fz-label"><strong>Click to upload</strong> (front &amp; back)</div>
+                    <div class="fz-label">PDF, JPG, PNG — max 5MB</div>
+                    <div class="fz-name" id="fz_eid_name"></div>
+                    <input type="file" name="emirates_id_document" accept=".pdf,.jpg,.jpeg,.png"
+                           id="file_eid" onchange="showFileName(this,'fz_eid_name');kycUpdateDocBadge()"/>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Upload Proof of Address</label>
+                  <div class="file-zone">
+                    <div class="fz-ic">&#127968;</div>
+                    <div class="fz-label"><strong>Click to upload</strong></div>
+                    <div class="fz-label">Utility bill / bank statement (3 months)</div>
+                    <div class="fz-name" id="fz_addr_name"></div>
+                    <input type="file" name="proof_of_address_document" accept=".pdf,.jpg,.jpeg,.png"
+                           onchange="showFileName(this,'fz_addr_name')"/>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="kyc-nav">
+            <button type="button" class="btn-prev" onclick="kycPrev(2)">&#8592; Back</button>
+            <div><span class="step-indicator">Step 2 of 5</span>&#160;&#160;<button type="button" class="btn-next" onclick="kycNext(2)">Continue &#8594;</button></div>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 3 — ADDRESS ═══ -->
+        <div class="kyc-panel" id="panel-3">
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#127968;</span> Residential Address</div>
+            <div class="kyc-card-body">
+
+              <div class="form-row single">
+                <div t-attf-class="form-group #{'has-error' if error.get('residential_address') else ''}">
+                  <label>Street Address <span class="req">*</span></label>
+                  <textarea name="residential_address" required="required" rows="2"
+                            placeholder="Building name, floor, apartment / villa number, street name">
+                    <t t-out="values.get('residential_address','')"/>
+                  </textarea>
+                  <span class="err-msg">Required.</span>
+                </div>
+              </div>
+
+              <div class="form-row triple">
+                <div t-attf-class="form-group #{'has-error' if error.get('residential_city') else ''}">
+                  <label>City <span class="req">*</span></label>
+                  <input type="text" name="residential_city" required="required" t-att-value="values.get('residential_city','')"
+                         placeholder="e.g. Dubai"/>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label>State / Emirate</label>
+                  <input type="text" name="residential_state" t-att-value="values.get('residential_state','')"
+                         placeholder="e.g. Dubai"/>
+                </div>
+                <div class="form-group">
+                  <label>Postal / P.O. Box</label>
+                  <input type="text" name="residential_postal_code"
+                         t-att-value="values.get('residential_postal_code','')"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('residential_country_id') else ''}">
+                  <label>Country <span class="req">*</span></label>
+                  <select name="residential_country_id" required="required">
+                    <option value="">— Select Country —</option>
+                    <t t-foreach="countries" t-as="c">
+                      <option t-att-value="c.id"
+                              t-att-selected="'selected' if str(values.get('residential_country_id',''))==str(c.id) else None">
+                        <t t-out="c.name"/>
+                      </option>
+                    </t>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div/>
+              </div>
+
+            </div>
+          </div>
+          <div class="kyc-nav">
+            <button type="button" class="btn-prev" onclick="kycPrev(3)">&#8592; Back</button>
+            <div><span class="step-indicator">Step 3 of 5</span>&#160;&#160;<button type="button" class="btn-next" onclick="kycNext(3)">Continue &#8594;</button></div>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 4 — EMPLOYMENT &amp; FINANCIAL ═══ -->
+        <div class="kyc-panel" id="panel-4">
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#128188;</span> Employment Information</div>
+            <div class="kyc-card-body">
+
+              <div class="form-row">
+                <div t-attf-class="form-group #{'has-error' if error.get('employment_status') else ''}">
+                  <label>Employment Status <span class="req">*</span></label>
+                  <select name="employment_status" required="required">
+                    <option value="">— Select —</option>
+                    <option value="employed"    t-att-selected="'selected' if values.get('employment_status')=='employed' else None">Employed</option>
+                    <option value="self_employed" t-att-selected="'selected' if values.get('employment_status')=='self_employed' else None">Self-Employed / Business Owner</option>
+                    <option value="retired"     t-att-selected="'selected' if values.get('employment_status')=='retired' else None">Retired</option>
+                    <option value="student"     t-att-selected="'selected' if values.get('employment_status')=='student' else None">Student</option>
+                    <option value="unemployed"  t-att-selected="'selected' if values.get('employment_status')=='unemployed' else None">Unemployed</option>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div class="form-group">
+                  <label>Occupation / Job Title</label>
+                  <input type="text" name="occupation" t-att-value="values.get('occupation','')"/>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Employer / Company Name</label>
+                  <input type="text" name="employer_name" t-att-value="values.get('employer_name','')"/>
+                </div>
+                <div class="form-group">
+                  <label>Years in Current Role</label>
+                  <input type="number" name="years_in_role" min="0" max="60"
+                         t-att-value="values.get('years_in_role','')"/>
+                </div>
+              </div>
+
+              <div class="form-row single">
+                <div class="form-group">
+                  <label>Employer Address</label>
+                  <textarea name="employer_address" rows="2">
+                    <t t-out="values.get('employer_address','')"/>
+                  </textarea>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#128176;</span> Financial Information</div>
+            <div class="kyc-card-body">
+
+              <div class="sec-heading">Source of Funds <span class="req">*</span></div>
+              <p class="form-hint" style="margin-bottom:12px;">Select all that apply to your transaction funds</p>
+              <div t-attf-class="check-grid #{'has-error' if error.get('source_of_funds_ids') else ''}">
+                <t t-foreach="source_funds" t-as="sf">
+                  <div class="check-item">
+                    <input type="checkbox" name="source_of_funds_ids" t-att-value="sf.id" t-att-id="'sf_'+str(sf.id)"/>
+                    <label t-att-for="'sf_'+str(sf.id)"><t t-out="sf.name"/></label>
+                  </div>
+                </t>
+              </div>
+              <t t-if="error.get('source_of_funds_ids')">
+                <div style="color:var(--err);font-size:.75rem;margin-top:6px;">Please select at least one source of funds.</div>
+              </t>
+
+              <div class="sec-heading" style="margin-top:24px;">Source of Wealth</div>
+              <p class="form-hint" style="margin-bottom:12px;">How was your overall wealth accumulated?</p>
+              <div class="check-grid">
+                <t t-foreach="source_wealth" t-as="sw">
+                  <div class="check-item">
+                    <input type="checkbox" name="source_of_wealth_ids" t-att-value="sw.id" t-att-id="'sw_'+str(sw.id)"/>
+                    <label t-att-for="'sw_'+str(sw.id)"><t t-out="sw.name"/></label>
+                  </div>
+                </t>
+              </div>
+
+              <div class="form-row" style="margin-top:22px;">
+                <div t-attf-class="form-group #{'has-error' if error.get('purpose_of_transaction') else ''}">
+                  <label>Purpose of Transaction <span class="req">*</span></label>
+                  <select name="purpose_of_transaction" required="required">
+                    <option value="">— Select —</option>
+                    <option value="real_estate_investment" t-att-selected="'selected' if values.get('purpose_of_transaction')=='real_estate_investment' else None">Real Estate Investment</option>
+                    <option value="personal_use"          t-att-selected="'selected' if values.get('purpose_of_transaction')=='personal_use' else None">Personal Use / Own Residence</option>
+                    <option value="savings_investment"    t-att-selected="'selected' if values.get('purpose_of_transaction')=='savings_investment' else None">Savings / Investment</option>
+                    <option value="business_purpose"      t-att-selected="'selected' if values.get('purpose_of_transaction')=='business_purpose' else None">Business Purpose</option>
+                    <option value="other"                 t-att-selected="'selected' if values.get('purpose_of_transaction')=='other' else None">Other</option>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+                <div t-attf-class="form-group #{'has-error' if error.get('payment_method') else ''}">
+                  <label>Preferred Payment Method <span class="req">*</span></label>
+                  <select name="payment_method" required="required">
+                    <option value="">— Select —</option>
+                    <option value="bank_transfer"  t-att-selected="'selected' if values.get('payment_method')=='bank_transfer' else None">Bank Transfer</option>
+                    <option value="cash"           t-att-selected="'selected' if values.get('payment_method')=='cash' else None">Cash</option>
+                    <option value="cheque"         t-att-selected="'selected' if values.get('payment_method')=='cheque' else None">Cheque</option>
+                    <option value="credit_card"    t-att-selected="'selected' if values.get('payment_method')=='credit_card' else None">Credit Card</option>
+                    <option value="wire_transfer"  t-att-selected="'selected' if values.get('payment_method')=='wire_transfer' else None">Wire Transfer</option>
+                    <option value="other"          t-att-selected="'selected' if values.get('payment_method')=='other' else None">Other</option>
+                  </select>
+                  <span class="err-msg">Required.</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Annual Estimated Income <span class="req">*</span></label>
+                  <div style="display:flex;align-items:center;gap:0;">
+                    <span style="background:#f3f4f6;border:1px solid #d1d5db;border-right:none;padding:9px 13px;border-radius:8px 0 0 8px;font-size:.88rem;color:#6b7280;white-space:nowrap;">AED</span>
+                    <input type="number" name="annual_income" min="0" step="1000" required="required"
+                           t-att-value="values.get('annual_income','')"
+                           placeholder="e.g. 120000"
+                           style="border-radius:0 8px 8px 0;border-left:none;flex:1;"/>
+                  </div>
+                  <p class="form-hint">Enter your gross annual income in UAE Dirhams</p>
+                </div>
+                <div class="form-group">
+                  <label>Currency</label>
+                  <select name="currency_id">
+                    <option value="">— AED (default) —</option>
+                    <t t-foreach="currencies" t-as="cur">
+                      <option t-att-value="cur.id"
+                              t-att-selected="'selected' if str(values.get('currency_id',''))==str(cur.id) else None">
+                        <t t-esc="cur.name"/> — <t t-esc="cur.currency_unit_label or cur.name"/>
+                      </option>
+                    </t>
+                  </select>
+                  <p class="form-hint">Select currency if income is not in AED</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="kyc-nav">
+            <button type="button" class="btn-prev" onclick="kycPrev(4)">&#8592; Back</button>
+            <div><span class="step-indicator">Step 4 of 5</span>&#160;&#160;<button type="button" class="btn-next" onclick="kycNext(4)">Continue &#8594;</button></div>
+          </div>
+        </div>
+
+        <!-- ═══ STEP 5 — PEP + CONSENTS + SIGNATURE ═══ -->
+        <div class="kyc-panel" id="panel-5">
+
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#127970;</span> Politically Exposed Person (PEP) Declaration</div>
+            <div class="kyc-card-body">
+              <p style="font-size:.88rem;color:var(--muted);margin-bottom:16px;">
+                A Politically Exposed Person is an individual who holds, or has held, a prominent public function.
+                This includes heads of state, senior politicians, senior government/judicial/military officials, senior executives of state-owned companies, and senior political party officials.
+              </p>
+              <div t-attf-class="form-group #{'has-error' if error.get('politically_exposed_person') else ''}">
+                <label>Are you, or have you been, a Politically Exposed Person? <span class="req">*</span></label>
+                <select name="politically_exposed_person" id="pep_select" required="required" onchange="togglePEP(this.value)">
+                  <option value="">— Select —</option>
+                  <option value="no"         t-att-selected="'selected' if values.get('politically_exposed_person')=='no' else None">No</option>
+                  <option value="yes"        t-att-selected="'selected' if values.get('politically_exposed_person')=='yes' else None">Yes — I am / am related to a PEP</option>
+                  <option value="previously" t-att-selected="'selected' if values.get('politically_exposed_person')=='previously' else None">Previously — No longer a PEP</option>
+                </select>
+                <span class="err-msg">Required.</span>
+              </div>
+              <div id="pep_details_wrap" class="form-group" style="margin-top:14px;">
+                <label>PEP Details</label>
+                <textarea name="pep_details" rows="3"
+                          placeholder="Describe the position held, country, and period">
+                  <t t-out="values.get('pep_details','')"/>
+                </textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#128212;</span> Consents &amp; Declarations</div>
+            <div class="kyc-card-body">
+
+              <div t-attf-class="consent-item #{'has-error' if error.get('consent_terms_conditions') else ''}">
+                <input type="checkbox" name="consent_terms_conditions" id="c_terms"
+                       value="1" t-att-checked="'checked' if values.get('consent_terms_conditions') else None"/>
+                <label for="c_terms">
+                  I have read and agree to the <strong>Terms &amp; Conditions</strong> of OSUS Real Estate Brokerage LLC.
+                  I confirm all information provided is true, accurate, and complete.
+                </label>
+              </div>
+              <t t-if="error.get('consent_terms_conditions')">
+                <div class="consent-err" style="display:block;">You must accept this to proceed.</div>
+              </t>
+
+              <div t-attf-class="consent-item #{'has-error' if error.get('consent_privacy_policy') else ''}">
+                <input type="checkbox" name="consent_privacy_policy" id="c_privacy"
+                       value="1" t-att-checked="'checked' if values.get('consent_privacy_policy') else None"/>
+                <label for="c_privacy">
+                  I consent to my personal data being processed in accordance with the <strong>Privacy Policy</strong>
+                  and the UAE Personal Data Protection Law (Federal Decree-Law No. 45 of 2021).
+                </label>
+              </div>
+              <t t-if="error.get('consent_privacy_policy')">
+                <div class="consent-err" style="display:block;">You must accept this to proceed.</div>
+              </t>
+
+              <div t-attf-class="consent-item #{'has-error' if error.get('consent_data_processing') else ''}">
+                <input type="checkbox" name="consent_data_processing" id="c_data"
+                       value="1" t-att-checked="'checked' if values.get('consent_data_processing') else None"/>
+                <label for="c_data">
+                  I consent to the processing and storage of my identity documents and financial information
+                  for compliance and due diligence purposes.
+                </label>
+              </div>
+              <t t-if="error.get('consent_data_processing')">
+                <div class="consent-err" style="display:block;">You must accept this to proceed.</div>
+              </t>
+
+              <div t-attf-class="consent-item #{'has-error' if error.get('consent_aml_kyc') else ''}">
+                <input type="checkbox" name="consent_aml_kyc" id="c_aml"
+                       value="1" t-att-checked="'checked' if values.get('consent_aml_kyc') else None"/>
+                <label for="c_aml">
+                  I acknowledge that OSUS Real Estate Brokerage LLC is required to conduct
+                  <strong>Anti-Money Laundering (AML) / Know Your Customer (KYC)</strong> checks
+                  under UAE Federal Law No. 20 of 2018 and I agree to cooperate fully.
+                </label>
+              </div>
+              <t t-if="error.get('consent_aml_kyc')">
+                <div class="consent-err" style="display:block;">You must accept this to proceed.</div>
+              </t>
+
+            </div>
+          </div>
+
+          <div class="kyc-card">
+            <div class="kyc-card-head"><span class="ic">&#9997;&#65039;</span> Digital Signature</div>
+            <div class="kyc-card-body">
+              <p style="font-size:.88rem;color:var(--muted);margin-bottom:14px;">
+                Please sign below to confirm that all information provided is correct and you consent to this KYC application.
+                Use your mouse or finger (on touch devices).
+              </p>
+              <div t-attf-class="#{'has-error' if error.get('signature_data') else ''}">
+                <div class="sig-wrap">
+                  <canvas id="signature_pad"></canvas>
+                  <div class="sig-toolbar">
+                    <button type="button" id="clear_signature">&#128473; Clear</button>
+                  </div>
+                </div>
+                <div id="signature_error">
+                  <t t-out="error.get('signature_data', 'Please draw your signature.')"/>
+                </div>
+                <t t-if="error.get('signature_data')">
+                  <script>document.getElementById('signature_error').style.display='block';</script>
+                </t>
+              </div>
+              <p class="form-hint" style="margin-top:10px;">
+                By submitting, you confirm this signature represents your legal consent to this application.
+              </p>
+            </div>
+          </div>
+
+          <div class="kyc-nav">
+            <button type="button" class="btn-prev" onclick="kycPrev(5)">&#8592; Back</button>
+            <div>
+              <span class="step-indicator">Step 5 of 5</span>&#160;&#160;
+              <button type="submit" class="btn-submit" id="submit_kyc_form"
+                      onclick="return kycSubmit(event)">
+                &#128272; Submit KYC Application
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Disclaimer footer -->
+      <div style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:28px;line-height:1.8;">
+        &#128274; Your information is encrypted and handled in strict accordance with UAE AML/CFT regulations.<br/>
+        OSUS Real Estate Brokerage LLC &#160;|&#160; RERA Licensed &#160;|&#160; +971 4 336 4500 &#160;|&#160; compliance@osusproperties.com
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/kyc_management/static/src/js/kyc_signature.js"/>
+    <script>
+      // ── Step navigation ────────────────────────────────────────
+      var _currentStep = 1;
+      var _totalSteps = 5;
+
+      function kycGoto(n) {
+        document.getElementById('panel-' + _currentStep).classList.remove('active');
+        document.getElementById('step-dot-' + _currentStep).classList.remove('active');
+        if (n > _currentStep) {
+          document.getElementById('step-dot-' + _currentStep).classList.add('done');
+        } else {
+          document.getElementById('step-dot-' + (_currentStep)).classList.remove('done');
+        }
+        _currentStep = n;
+        document.getElementById('panel-' + n).classList.add('active');
+        document.getElementById('step-dot-' + n).classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Re-initialise the signature canvas when step 5 becomes visible
+        // (the panel starts hidden so getBoundingClientRect was 0×0 at load time)
+        if (n === 5 &amp;&amp; window.SignaturePad) { window.SignaturePad.resizeCanvas(); }
+      }
+
+      function kycNext(step) { if (kycValidateStep(step)) kycGoto(step + 1); }
+      function kycPrev(step) { kycGoto(step - 1); }
+
+      // Per-step JS validation — returns true only if all checks pass
+      function kycValidateStep(step) {
+        var ok = true;
+
+        function showErr(el, msg) {
+          var p = el.closest('.form-group') || el.parentElement;
+          if (p) p.classList.add('has-error');
+          var errEl = p ? p.querySelector('.err-msg') : null;
+          if (errEl) { errEl.textContent = msg || 'This field is required.'; errEl.style.display = 'block'; }
+          ok = false;
+        }
+        function clearErr(el) {
+          var p = el.closest('.form-group') || el.parentElement;
+          if (p) p.classList.remove('has-error');
+          var errEl = p ? p.querySelector('.err-msg') : null;
+          if (errEl) errEl.style.display = '';
+        }
+        function reqField(selector) {
+          var el = document.querySelector('#panel-' + step + ' ' + selector);
+          if (!el) return;
+          var val = el.value ? el.value.trim() : '';
+          if (!val) showErr(el); else clearErr(el);
+        }
+
+        if (step === 1) {
+          reqField('[name="first_name"]');
+          reqField('[name="last_name"]');
+          reqField('[name="date_of_birth"]');
+          reqField('[name="gender"]');
+          reqField('[name="nationality_id"]');
+          reqField('[name="phone"]');
+          // Email must be verified
+          var emailEl = document.getElementById('kyc_email');
+          if (!_emailVerified) {
+            if (emailEl) showErr(emailEl, 'Please verify your email address first.');
+            ok = false;
+          } else {
+            if (emailEl &amp;&amp; emailEl.value.trim()) clearErr(emailEl);
+          }
+        }
+
+        if (step === 2) {
+          reqField('[name="passport_number"]');
+          reqField('[name="passport_expiry_date"]');
+          // At least one ID document must be uploaded
+          var passportFile = document.getElementById('file_passport');
+          var eidFile = document.getElementById('file_eid');
+          var hasPassport = passportFile &amp;&amp; passportFile.files &amp;&amp; passportFile.files.length > 0;
+          var hasEid = eidFile &amp;&amp; eidFile.files &amp;&amp; eidFile.files.length > 0;
+          var docErr = document.getElementById('id_doc_err');
+          if (!hasPassport &amp;&amp; !hasEid) {
+            if (docErr) { docErr.style.display = 'block'; }
+            ok = false;
+          } else {
+            if (docErr) docErr.style.display = 'none';
+          }
+        }
+
+        if (step === 3) {
+          reqField('[name="residential_address"]');
+          reqField('[name="residential_city"]');
+          reqField('[name="residential_country_id"]');
+        }
+
+        if (step === 4) {
+          reqField('[name="employment_status"]');
+          reqField('[name="purpose_of_transaction"]');
+          reqField('[name="payment_method"]');
+          reqField('[name="annual_income"]');
+          // At least one source of funds checkbox
+          var fundsChecked = document.querySelectorAll('#panel-4 [name="source_of_funds_ids"]:checked').length;
+          var fundsGrid = document.querySelector('#panel-4 .check-grid');
+          var fundsErrDiv = document.querySelector('#panel-4 .check-grid + * .consent-err, #panel-4 [class*="check-grid"]');
+          if (fundsChecked === 0) {
+            if (fundsGrid) fundsGrid.classList.add('has-error');
+            var existingErr = document.getElementById('funds_err_msg');
+            if (!existingErr) {
+              var errDiv = document.createElement('div');
+              errDiv.id = 'funds_err_msg';
+              errDiv.style.cssText = 'color:var(--err,#dc2626);font-size:.75rem;margin-top:6px;';
+              errDiv.textContent = 'Please select at least one source of funds.';
+              if (fundsGrid) fundsGrid.parentNode.insertBefore(errDiv, fundsGrid.nextSibling);
+            }
+            ok = false;
+          } else {
+            if (fundsGrid) fundsGrid.classList.remove('has-error');
+            var existingErr2 = document.getElementById('funds_err_msg');
+            if (existingErr2) existingErr2.remove();
+          }
+        }
+
+        if (step === 5) {
+          reqField('[name="politically_exposed_person"]');
+          // Consents
+          ['consent_terms_conditions','consent_privacy_policy','consent_data_processing','consent_aml_kyc'].forEach(function(n) {
+            var cb = document.querySelector('[name="' + n + '"]');
+            if (cb &amp;&amp; !cb.checked) {
+              var item = cb.closest('.consent-item');
+              if (item) item.classList.add('has-error');
+              ok = false;
+            } else if (cb) {
+              var item = cb.closest('.consent-item');
+              if (item) item.classList.remove('has-error');
+            }
+          });
+        }
+
+        if (!ok) window.scrollTo({ top: 0, behavior: 'smooth' });
+        return ok;
+      }
+
+      // Track file uploads and clear ID doc error when a file is chosen
+      function kycUpdateDocBadge() {
+        var passportFile = document.getElementById('file_passport');
+        var eidFile = document.getElementById('file_eid');
+        var hasPassport = passportFile &amp;&amp; passportFile.files &amp;&amp; passportFile.files.length > 0;
+        var hasEid = eidFile &amp;&amp; eidFile.files &amp;&amp; eidFile.files.length > 0;
+        var docErr = document.getElementById('id_doc_err');
+        if ((hasPassport || hasEid) &amp;&amp; docErr) docErr.style.display = 'none';
+      }
+
+      // ── PEP toggle ──────────────────────────────────────────────
+      function togglePEP(val) {
+        var wrap = document.getElementById('pep_details_wrap');
+        wrap.style.display = (val &amp;&amp; val !== 'no') ? 'flex' : 'none';
+        wrap.style.flexDirection = 'column';
+      }
+      // Init on page load if coming back with values
+      (function(){ togglePEP(document.getElementById('pep_select') ? document.getElementById('pep_select').value : ''); })();
+
+      // ── File name display ───────────────────────────────────────
+      function showFileName(input, labelId) {
+        var el = document.getElementById(labelId);
+        if (el &amp;&amp; input.files.length) {
+          el.textContent = '&#10003; ' + input.files[0].name;
+          el.style.display = 'block';
+        }
+      }
+
+      // ── Submit: capture signature then submit ───────────────────
+      function kycSubmit(e) {
+        if (window.SignaturePad) {
+          if (!window.SignaturePad.validate()) {
+            e.preventDefault();
+            return false;
+          }
+        }
+        var btn = document.getElementById('submit_kyc_form');
+        if (btn) { btn.disabled = true; btn.textContent = 'Submitting…'; }
+        return true;
+      }
+
+      // ── OTP email verification ──────────────────────────────────
+      var _emailVerified = false;
+      var _csrfToken = document.querySelector('[name=csrf_token]').value;
+
+      function kycSendOtp(resend) {
+        var email = document.getElementById('kyc_email').value.trim();
+        if (!email || !email.includes('@')) {
+          alert('Please enter a valid email address first.');
+          return;
+        }
+        var btn = document.getElementById('btn_send_otp');
+        btn.disabled = true; btn.textContent = 'Sending…';
+
+        fetch('/contact/kyc/send-otp', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({jsonrpc:'2.0',method:'call',id:1,
+            params:{email: email}})
+        })
+        .then(r => r.json())
+        .then(data => {
+          var res = data.result || {};
+          var msg = document.getElementById('otp_msg');
+          if (res.success) {
+            document.getElementById('otp_row').style.display = 'block';
+            document.getElementById('kyc_email').readOnly = true;
+            msg.style.color = '#059669';
+            msg.textContent = '&#128233; Code sent to ' + email + '. Check your inbox (and spam folder).';
+            btn.textContent = 'Resend';
+            btn.disabled = false;
+          } else {
+            msg.style.color = '#dc2626';
+            msg.textContent = res.error || 'Failed to send code.';
+            btn.textContent = 'Send Code';
+            btn.disabled = false;
+            document.getElementById('otp_row').style.display = 'block';
+          }
+        })
+        .catch(() => {
+          btn.textContent = 'Send Code'; btn.disabled = false;
+          alert('Network error. Please try again.');
+        });
+      }
+
+      function kycVerifyOtp() {
+        var email = document.getElementById('kyc_email').value.trim();
+        var otp   = document.getElementById('kyc_otp_input').value.trim();
+        var msg   = document.getElementById('otp_msg');
+        if (otp.length !== 6) { msg.style.color='#dc2626'; msg.textContent='Enter the 6-digit code.'; return; }
+
+        fetch('/contact/kyc/verify-otp', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({jsonrpc:'2.0',method:'call',id:2,
+            params:{email: email, otp: otp}})
+        })
+        .then(r => r.json())
+        .then(data => {
+          var res = data.result || {};
+          if (res.success) {
+            _emailVerified = true;
+            document.getElementById('otp_row').style.display = 'none';
+            document.getElementById('btn_send_otp').style.display = 'none';
+            document.getElementById('email_verified_badge').style.display = 'block';
+            document.getElementById('kyc_otp_input').value = '';
+          } else {
+            msg.style.color = '#dc2626';
+            msg.textContent = res.error || 'Incorrect code.';
+          }
+        })
+        .catch(() => { msg.style.color='#dc2626'; msg.textContent='Network error.'; });
+      }
+
+      // Block step 1 → 2 until email verified
+      var _origKycNext = kycNext;
+      kycNext = function(step) {
+        if (step === 1 &amp;&amp; !_emailVerified) {
+          var msg = document.getElementById('otp_msg');
+          if (!document.getElementById('otp_row').style.display || document.getElementById('otp_row').style.display === 'none') {
+            alert('Please verify your email address before continuing.');
+          } else {
+            msg.style.color = '#dc2626';
+            msg.textContent = 'Please enter and verify the code sent to your email.';
+          }
+          return;
+        }
+        _origKycNext(step);
+      };
+
+      // ── If validation errors came back, jump to first error step ─
+      (function() {
+        var hasError = document.querySelector('.has-error, .consent-item.has-error');
+        if (!hasError) return;
+        // Find which panel it's in
+        for (var s = 1; s &lt;= 5; s++) {
+          var panel = document.getElementById('panel-' + s);
+          if (panel &amp;&amp; panel.querySelector('.has-error, [style*="display:block"]')) {
+            kycGoto(s);
+            break;
+          }
+        }
+      })();
+    </script>
+    </div>
+
+  </t>
+</template>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     KYC Success Page
+     URL: /kyc/success/<token>
+     ═══════════════════════════════════════════════════════════════ -->
+<template id="portal_kyc_success" name="KYC Submission Success">
+  <t t-call="web.layout">
+    <t t-set="title">KYC Application Submitted</t>
+    <style>
+      .o_website_kyc_success{background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:80vh;}
+      .o_website_kyc_success .scard{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.1);padding:48px 40px;max-width:520px;text-align:center;}
+      .sic{font-size:4rem;margin-bottom:16px;}
+      .scard h1{color:#059669;font-size:1.7rem;font-weight:800;margin-bottom:10px;}
+      .scard p{color:#6b7280;font-size:.93rem;line-height:1.7;}
+      .ref{background:#f3f4f6;border-radius:8px;padding:14px 20px;margin:20px 0;font-family:monospace;font-size:1rem;color:#800020;font-weight:700;}
+      .badge-submitted{display:inline-block;background:#dbeafe;color:#1e40af;padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:600;margin:8px 0;}
+      .steps-list{text-align:left;margin:20px 0;padding:0 10px;}
+      .steps-list li{padding:6px 0;font-size:.87rem;color:#374151;}
+      a.btn-back{display:inline-block;margin-top:20px;background:#800020;color:#fff;padding:11px 28px;border-radius:10px;text-decoration:none;font-weight:700;}
+    </style>
+    <div class="o_website_kyc_success" style="padding:20px;">
+      <div class="scard">
+        <div class="sic">&#9989;</div>
+        <h1>Application Submitted!</h1>
+        <div class="badge-submitted">&#9203; Under Review</div>
+        <div class="ref"><t t-out="application.kyc_id or 'KYC-PENDING'"/></div>
+        <p>Thank you, <strong><t t-out="application.first_name"/> <t t-out="application.last_name"/></strong>.<br/>
+        Your KYC application has been received by our compliance team.</p>
+        <ul class="steps-list">
+          <li>&#128233; A confirmation will be sent to <strong><t t-out="application.email"/></strong></li>
+          <li>&#128269; Our team will review your documents within <strong>2–3 business days</strong></li>
+          <li>&#128222; You may be contacted for additional information if required</li>
+          <li>&#128272; Save your reference number for status enquiries</li>
+        </ul>
+        <p style="font-size:.8rem;color:#9ca3af;">
+          To check your status later, visit:<br/>
+          <code style="color:#800020;">/kyc/status/<t t-out="application.approval_token"/></code>
+        </p>
+        <a href="https://erposus.com" class="btn-back">&#127968; Return to Home</a>
+      </div>
+    </div>
+  </t>
+</template>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     KYC Status Check Page
+     URL: /kyc/status/<token>
+     ═══════════════════════════════════════════════════════════════ -->
+<template id="portal_kyc_status" name="KYC Application Status">
+  <t t-call="web.layout">
+    <t t-set="title">KYC Application Status</t>
+    <style>
+      .o_website_kyc_status{background:#f4f6f9;font-family:'Segoe UI',Arial,sans-serif;}
+      .o_website_kyc_status .wrap{max-width:600px;margin:60px auto;padding:0 16px;}
+      .o_website_kyc_status .scard{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:36px;}
+      .scard h2{font-size:1.4rem;font-weight:800;margin-bottom:18px;color:#1a1a2e;}
+      table{width:100%;border-collapse:collapse;font-size:.9rem;}
+      td{padding:10px 0;border-bottom:1px solid #f3f4f6;vertical-align:top;}
+      td:first-child{color:#6b7280;width:40%;}
+      td:last-child{font-weight:600;}
+      .badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.8rem;font-weight:700;}
+      .b-draft{background:#f3f4f6;color:#374151;}
+      .b-submitted{background:#dbeafe;color:#1e40af;}
+      .b-approved{background:#d1fae5;color:#065f46;}
+      .b-rejected{background:#fee2e2;color:#991b1b;}
+      .rejection-box{background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;padding:14px;margin-top:16px;font-size:.87rem;color:#991b1b;}
+      a.btn-new{display:inline-block;margin-top:24px;background:#800020;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:.9rem;}
+    </style>
+    <div class="o_website_kyc_status"><div class="wrap">
+      <div class="scard">
+        <h2>&#128272; KYC Application Status</h2>
+        <table>
+          <tr><td>Reference</td><td><code style="color:#800020;"><t t-out="application.kyc_id or '—'"/></code></td></tr>
+          <tr><td>Applicant</td><td><t t-out="(application.first_name or '') + ' ' + (application.last_name or '')"/></td></tr>
+          <tr><td>Submitted</td><td><t t-out="application.submitted_date.strftime('%d %b %Y %H:%M') if application.submitted_date else '—'"/></td></tr>
+          <tr><td>Status</td>
+            <td>
+              <t t-if="application.state == 'draft'"><span class="badge b-draft">&#128393; Draft</span></t>
+              <t t-elif="application.state == 'submitted'"><span class="badge b-submitted">&#9203; Under Review</span></t>
+              <t t-elif="application.state == 'approved'"><span class="badge b-approved">&#9989; Approved</span></t>
+              <t t-elif="application.state == 'rejected'"><span class="badge b-rejected">&#10060; Rejected</span></t>
+            </td>
+          </tr>
+          <t t-if="application.state == 'approved' and application.approval_date">
+            <tr><td>Approved On</td><td><t t-out="application.approval_date.strftime('%d %b %Y')"/></td></tr>
+          </t>
+        </table>
+
+        <t t-if="application.state == 'rejected' and application.rejection_reason">
+          <div class="rejection-box">
+            <strong>&#9888;&#65039; Rejection Reason:</strong><br/>
+            <t t-out="application.rejection_reason"/>
+            <t t-if="application.rejection_suggestions">
+              <br/><br/><strong>Suggestions:</strong><br/>
+              <t t-out="application.rejection_suggestions"/>
+            </t>
+          </div>
+          <a href="/kyc/apply" class="btn-new">&#128260; Submit New Application</a>
+        </t>
+
+        <t t-if="application.state == 'submitted'">
+          <p style="margin-top:20px;font-size:.85rem;color:#6b7280;">
+            Your application is being reviewed by our compliance team.<br/>
+            Expected turnaround: <strong>2–3 business days</strong>.<br/>
+            For urgent queries: <a href="mailto:compliance@osusproperties.com">compliance@osusproperties.com</a>
+          </p>
+        </t>
+
+      </div>
+    </div></div>
+  </t>
+</template>
+
+</odoo>

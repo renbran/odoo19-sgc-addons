@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- =============================================================
+             Default alert thresholds (used by the static alert logic
+             in the KPI engine)
+             ============================================================= -->
+        <record id="default_alert_conversion_threshold" model="ir.config_parameter">
+            <field name="key">crm_executive_dashboard.alert_conversion_threshold</field>
+            <field name="value">10.0</field>
+        </record>
+        <record id="default_alert_revenue_threshold" model="ir.config_parameter">
+            <field name="key">crm_executive_dashboard.alert_revenue_threshold</field>
+            <field name="value">1000.0</field>
+        </record>
+        <record id="default_alert_overdue_threshold" model="ir.config_parameter">
+            <field name="key">crm_executive_dashboard.alert_overdue_threshold</field>
+            <field name="value">10</field>
+        </record>
+
+        <!-- =============================================================
+             Default alert rules (active on install, manager can edit)
+             ============================================================= -->
+        <record id="default_alert_rule_stale_opps" model="crm.dashboard.alert.rule">
+            <field name="name">Stale Open Opportunities</field>
+            <field name="rule_type">opp_stale</field>
+            <field name="threshold">5.0</field>
+            <field name="severity">warn</field>
+            <field name="sequence">10</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">Pipeline health: {value} opportunities have been open for more than 30 days (threshold {threshold}).</field>
+        </record>
+
+        <record id="default_alert_rule_overdue" model="crm.dashboard.alert.rule">
+            <field name="name">High Overdue Follow-ups</field>
+            <field name="rule_type">overdue_followups</field>
+            <field name="threshold">10.0</field>
+            <field name="severity">danger</field>
+            <field name="sequence">20</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">{value} opportunities are past their expected close date (threshold {threshold}).</field>
+        </record>
+
+        <record id="default_alert_rule_pipeline_low" model="crm.dashboard.alert.rule">
+            <field name="name">Pipeline Value Low</field>
+            <field name="rule_type">pipeline_low</field>
+            <field name="threshold">10000.0</field>
+            <field name="severity">warn</field>
+            <field name="sequence">30</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">Pipeline value is {value:.0f} which is below the {threshold:.0f} threshold. Review your forecast.</field>
+        </record>
+
+        <record id="default_alert_rule_no_won" model="crm.dashboard.alert.rule">
+            <field name="name">No Won Opportunities</field>
+            <field name="rule_type">won_zero</field>
+            <field name="threshold">30.0</field>
+            <field name="severity">danger</field>
+            <field name="sequence">40</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">{value} days without a single won opportunity. Investigate your sales process.</field>
+        </record>
+
+        <record id="default_alert_rule_lead_stale" model="crm.dashboard.alert.rule">
+            <field name="name">No New Leads</field>
+            <field name="rule_type">lead_stale</field>
+            <field name="threshold">7.0</field>
+            <field name="severity">warn</field>
+            <field name="sequence">50</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">No new leads in {value} days. Check lead capture sources.</field>
+        </record>
+
+        <record id="default_alert_rule_no_activity" model="crm.dashboard.alert.rule">
+            <field name="name">Low Sales Activity</field>
+            <field name="rule_type">no_activity</field>
+            <field name="threshold">10.0</field>
+            <field name="severity">info</field>
+            <field name="sequence">60</field>
+            <field name="active" eval="True"/>
+            <field name="message_template">Only {value:.0f} sales activities recorded this month (threshold {threshold:.0f}).</field>
+        </record>
+
+        <!-- =============================================================
+             Cron: run scheduled reports every hour
+             (Odoo 19: doall and numbercall removed; use priority only)
+             ============================================================= -->
+        <record id="ir_cron_crm_dashboard_scheduled_reports" model="ir.cron">
+            <field name="name">CRM Dashboard: Run scheduled reports</field>
+            <field name="model_id" ref="model_crm_dashboard_report_config"/>
+            <field name="state">code</field>
+            <field name="code">model.action_run_scheduled_reports()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

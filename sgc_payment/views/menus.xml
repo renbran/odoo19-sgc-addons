@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========================================== -->
+    <!-- TOP-LEVEL EXECUTIVE MENU -->
+    <!-- ========================================== -->
+    
+    <!-- Executive Payment Center - High-level menu for C-level quick access -->
+    <menuitem id="menu_payment_executive_center" 
+              name="Payment Center" 
+              sequence="8" 
+              groups="account.group_account_manager,sgc_payment.group_payment_manager"
+              web_icon="sgc_payment,static/description/icon.png"/>
+
+    <!-- Executive Quick Dashboard -->
+    <menuitem id="menu_payment_executive_quick_dash" 
+              name="Executive Dashboard" 
+              parent="menu_payment_executive_center" 
+              sequence="10" 
+              action="sgc_payment.action_payment_executive_quick_dashboard" 
+              groups="account.group_account_manager,sgc_payment.group_payment_manager"/>
+
+
+
+    <!-- Executive Payment View -->
+    <menuitem id="menu_payment_executive_view" 
+              name="All Payments" 
+              parent="menu_payment_executive_center" 
+              sequence="30" 
+              action="sgc_payment.action_account_payment_executive_enhanced" 
+              groups="account.group_account_manager,sgc_payment.group_payment_manager"/>
+
+    <!-- ========================================== -->
+    <!-- STANDARD PAYMENT MANAGEMENT MENU -->
+    <!-- ========================================== -->
+
+    <!-- Top Level Menu: Payment Management -->
+    <menuitem id="menu_payment_management_root" name="Payment Management" sequence="10" groups="account.group_account_user"/>
+
+    <!-- ========================================== -->
+    <!-- EXECUTIVE / C-LEVEL SECTION -->
+    <!-- ========================================== -->
+    
+    <!-- Executive Dashboard - High-level overview for C-level executives -->
+    <menuitem id="menu_payment_executive_dashboard" 
+              name="Executive Overview" 
+              parent="menu_payment_management_root" 
+              sequence="10" 
+              action="sgc_payment.action_payment_dashboard" 
+              groups="account.group_account_manager,sgc_payment.group_payment_manager"/>
+
+    <!-- Executive Payment Summary - Quick access to key payment metrics -->
+    <menuitem id="menu_payment_executive_summary" 
+              name="Payment Summary" 
+              parent="menu_payment_management_root" 
+              sequence="15" 
+              action="sgc_payment.action_account_payment_executive_enhanced" 
+              groups="account.group_account_manager,sgc_payment.group_payment_manager"/>
+
+    <!-- ========================================== -->
+    <!-- OPERATIONAL MANAGEMENT SECTION -->
+    <!-- ========================================== -->
+
+    <!-- Standard Dashboard Menu -->
+    <menuitem id="menu_payment_dashboard" 
+              name="Operations Dashboard" 
+              parent="menu_payment_management_root" 
+              sequence="20" 
+              action="sgc_payment.action_payment_dashboard" 
+              groups="account.group_account_user"/>
+
+
+
+    <!-- ========================================== -->
+    <!-- APPROVAL & WORKFLOW SECTION -->
+    <!-- ========================================== -->
+
+
+
+    <!-- Approval History Submenu -->
+    <menuitem id="menu_payment_management_approval_history" 
+              name="Approval History" 
+              parent="menu_payment_management_root" 
+              sequence="40" 
+              action="sgc_payment.action_payment_approval_history" 
+              groups="account.group_account_user"/>
+
+    <!-- ========================================== -->
+    <!-- VERIFICATION & SECURITY SECTION -->
+    <!-- ========================================== -->
+
+    <!-- QR Verification Submenu -->
+    <menuitem id="menu_payment_management_qr_verification" 
+              name="QR Verification" 
+              parent="menu_payment_management_root" 
+              sequence="50" 
+              action="sgc_payment.action_payment_qr_verification" 
+              groups="account.group_account_user"/>
+
+    <!-- ========================================== -->
+    <!-- REPORTS & ANALYTICS SECTION -->
+    <!-- ========================================== -->
+
+    <!-- Payment Reports Menu -->
+    <menuitem id="menu_payment_reports" 
+              name="Reports &amp; Analytics" 
+              parent="menu_payment_management_root" 
+              sequence="60" 
+              groups="account.group_account_user"/>
+
+
+
+
+
+</odoo>

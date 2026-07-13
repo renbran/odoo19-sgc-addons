@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_project_soa" model="ir.actions.report">
+        <field name="name">Project Statement of Account</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_project_soa</field>
+        <field name="report_file">sgc_construction_management.report_project_soa</field>
+        <field name="print_report_name">'Project SoA - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="sgc_construction_management.paperformat_construction_portrait"/>
+    </record>
+</odoo>

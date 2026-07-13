@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════════
+         SGC TECH AI — Premium Auth Layout (login / signup / reset)
+         ════════════════════════════════════════════════════════════════════════ -->
+    <template id="sgctech_login_layout" inherit_id="web.login_layout" name="SGC Tech Login Layout">
+        <xpath expr="//div[hasclass('container')]" position="replace">
+            <div class="container sgc-auth-shell py-5">
+                <div class="sgc-auth-grid">
+                    <!-- Brand / trust panel -->
+                    <section class="sgc-auth-brand-panel" aria-label="SGC TECH AI brand">
+                        <div class="sgc-auth-brand-backdrop"/>
+                        <div class="sgc-auth-brand-content">
+                            <span class="sgc-auth-kicker">Scholarix Global Consultants</span>
+                            <h1>Premium Odoo + AI delivery for <span>SGC TECH AI</span></h1>
+                            <p>Unified digital experience for corporate brand, eCommerce storefront, client onboarding, and secure account access on Odoo 19.</p>
+
+                            <div class="sgc-auth-stat-row">
+                                <div class="sgc-auth-stat-card">
+                                    <strong>30–90 Days</strong>
+                                    <span>Go-live deployment</span>
+                                </div>
+                                <div class="sgc-auth-stat-card">
+                                    <strong>200+</strong>
+                                    <span>ERP packages delivered</span>
+                                </div>
+                                <div class="sgc-auth-stat-card">
+                                    <strong>UAE Ready</strong>
+                                    <span>AED, VAT, Arabic support</span>
+                                </div>
+                            </div>
+
+                            <div class="sgc-auth-trust-list">
+                                <div>Corporate website and store in one visual system</div>
+                                <div>Advanced glassmorphism UI with premium motion</div>
+                                <div>Security-first access flow for customers and staff</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Form panel -->
+                    <section class="sgc-auth-form-panel">
+                        <div t-attf-class="card border-0 mx-auto sgc-auth-card {{login_card_classes or ''}} o_database_list">
+                            <div class="card-body">
+                                <div class="sgc-auth-logo text-center pb-3 border-bottom mb-4">
+                                    <img t-attf-src="/web/binary/company_logo{{ '?dbname='+db if db else '' }}"
+                                         alt="SGC TECH AI logo"
+                                         style="max-height:120px; max-width: 100%; width:auto"/>
+                                    <p class="mb-0 mt-3">Access your SGC workspace, website operations, orders, and premium support flows.</p>
+                                </div>
+
+                                <t t-out="0"/>
+
+                                <div class="text-center small mt-4 pt-3 border-top" t-if="not disable_footer">
+                                    <t t-if="not disable_database_manager">
+                                        <a class="border-end pe-2 me-1" href="/web/database/manager">Manage Databases</a>
+                                    </t>
+                                    <a href="https://scholarixglobal.com" target="_blank" rel="noopener">Powered by <span>Scholarix</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Login form copy -->
+    <template id="sgctech_login_form" inherit_id="web.login" name="SGC Tech Login Form Copy">
+        <!-- Email label -->
+        <xpath expr="//label[@for='login']" position="replace">
+            <label for="login" class="form-label d-flex justify-content-between">Business Email</label>
+        </xpath>
+        <!-- Email placeholder -->
+        <xpath expr="//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <!-- Password label -->
+        <xpath expr="//label[@for='password']" position="replace">
+            <label for="password" class="form-label">Password</label>
+        </xpath>
+        <!-- Password placeholder -->
+        <xpath expr="//input[@id='password']" position="attributes">
+            <attribute name="placeholder">Enter your password</attribute>
+        </xpath>
+        <!-- Submit button -->
+        <xpath expr="//button[@type='submit' and not(@name)]" position="replace">
+            <button type="submit" class="btn btn-primary sgc-auth-submit">Enter Workspace</button>
+        </xpath>
+    </template>
+
+    <!-- Sign-up form copy -->
+    <template id="sgctech_signup_form" inherit_id="auth_signup.signup" name="SGC Tech Signup Copy">
+        <!-- Name label -->
+        <xpath expr="//label[@for='name']" position="replace">
+            <label for="name" class="form-label">Full Name</label>
+        </xpath>
+        <!-- Name placeholder -->
+        <xpath expr="//input[@id='name']" position="attributes">
+            <attribute name="placeholder">Your full name</attribute>
+        </xpath>
+        <!-- Email label -->
+        <xpath expr="//div[hasclass('field-login')]//label[@for='login']" position="replace">
+            <label for="login" class="form-label">Business Email</label>
+        </xpath>
+        <!-- Email placeholder -->
+        <xpath expr="//div[hasclass('field-login')]//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <!-- Submit button -->
+        <xpath expr="//button[@type='submit']" position="replace">
+            <button type="submit" class="btn btn-primary sgc-auth-submit mb-1">Create Secure Account</button>
+        </xpath>
+    </template>
+
+    <!-- Shared signup/reset password fields -->
+    <template id="sgctech_signup_fields" inherit_id="auth_signup.fields" name="SGC Tech Signup Fields Copy">
+        <!-- Password label -->
+        <xpath expr="//label[@for='password']" position="replace">
+            <label for="password" class="form-label">Create Password</label>
+        </xpath>
+        <!-- Password placeholder -->
+        <xpath expr="//input[@id='password']" position="attributes">
+            <attribute name="placeholder">At least 8 characters</attribute>
+        </xpath>
+        <!-- Confirm password label -->
+        <xpath expr="//label[@for='confirm_password']" position="replace">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+        </xpath>
+        <!-- Confirm password placeholder -->
+        <xpath expr="//input[@id='confirm_password']" position="attributes">
+            <attribute name="placeholder">Re-enter your password</attribute>
+        </xpath>
+    </template>
+
+    <!-- Reset password form copy -->
+    <template id="sgctech_reset_form" inherit_id="auth_signup.reset_password" name="SGC Tech Reset Copy">
+        <!-- Email label (reset request) -->
+        <xpath expr="//div[hasclass('field-login')]//label[@for='login']" position="replace">
+            <label for="login" class="col-form-label">Business Email</label>
+        </xpath>
+        <!-- Email placeholder -->
+        <xpath expr="//div[hasclass('field-login')]//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <!-- Submit button -->
+        <xpath expr="//button[@type='submit']" position="replace">
+            <button type="submit" class="btn btn-primary sgc-auth-submit">Reset Secure Access</button>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_stats" name="SGC Stat Counters">
+        <section class="s_sgc_stats" data-name="SGC Stat Counters" data-snippet="s_sgc_stats" data-sgc-animate="true">
+            <div class="container">
+                <div class="row row-cols-2 row-cols-md-4 g-4 text-center">
+                    <div class="col">
+                        <div class="s_sgc_stat sgc-reveal">
+                            <span class="s_sgc_stat_value" data-sgc-target="98" data-sgc-suffix="%">98%</span>
+                            <span class="s_sgc_stat_label">Client retention</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="s_sgc_stat sgc-reveal">
+                            <span class="s_sgc_stat_value" data-sgc-target="250" data-sgc-suffix="+">250+</span>
+                            <span class="s_sgc_stat_label">Deployments</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="s_sgc_stat sgc-reveal">
+                            <span class="s_sgc_stat_value" data-sgc-target="12" data-sgc-suffix="k">12k</span>
+                            <span class="s_sgc_stat_label">Hours automated</span>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="s_sgc_stat sgc-reveal">
+                            <span class="s_sgc_stat_value" data-sgc-target="24" data-sgc-suffix="/7">24/7</span>
+                            <span class="s_sgc_stat_label">Monitoring</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

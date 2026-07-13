@@ -1,0 +1,239 @@
+/* =====================================================================
+   CRM Executive Dashboard — Core Layout
+   =====================================================================
+   Page-level layout, header, sections, grid containers. Section
+   titles, dividers, and the global error/loading states.
+   ===================================================================== */
+
+.ced-dashboard {
+    background: var(--ced-ivory);
+    color: var(--ced-white);
+    font-family: var(--ced-font-body);
+    min-height: 100vh;
+    padding: var(--ced-space-lg);
+    box-sizing: border-box;
+}
+
+.ced-dashboard *,
+.ced-dashboard *::before,
+.ced-dashboard *::after {
+    box-sizing: border-box;
+}
+
+/* --- Header --- */
+.ced-dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--ced-space-lg);
+    padding-bottom: var(--ced-space-md);
+    border-bottom: 2px solid var(--ced-secondary-soft);
+    flex-wrap: wrap;
+    gap: var(--ced-space-md);
+}
+
+.ced-dashboard__title {
+    font-family: var(--ced-font-display);
+    font-size: 28px;
+    color: var(--ced-secondary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--ced-space-sm);
+}
+
+.ced-dashboard__title .fa {
+    color: var(--ced-secondary);
+    font-size: 24px;
+}
+
+.ced-dashboard__filter {
+    display: flex;
+    gap: var(--ced-space-sm);
+    align-items: center;
+}
+
+.ced-filter__label {
+    color: var(--ced-white);
+    opacity: 0.7;
+    font-size: 13px;
+}
+
+.ced-filter__select {
+    background: var(--ced-primary-light);
+    border: 1px solid var(--ced-secondary-soft);
+    color: var(--ced-white);
+    padding: 8px 14px;
+    border-radius: var(--ced-radius-md);
+    font-family: var(--ced-font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color var(--ced-transition);
+}
+
+.ced-filter__select:hover,
+.ced-filter__select:focus {
+    border-color: var(--ced-secondary);
+    outline: none;
+}
+
+.ced-btn {
+    background: var(--ced-primary);
+    color: var(--ced-secondary);
+    border: 1px solid var(--ced-secondary);
+    padding: 8px 16px;
+    border-radius: var(--ced-radius-md);
+    cursor: pointer;
+    font-family: var(--ced-font-body);
+    font-size: 14px;
+    transition: all var(--ced-transition);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ced-space-xs);
+}
+
+.ced-btn:hover {
+    background: var(--ced-primary-light);
+    transform: translateY(-1px);
+    box-shadow: var(--ced-shadow-md);
+}
+
+.ced-btn--gold {
+    background: var(--ced-secondary);
+    color: var(--ced-primary);
+    border-color: var(--ced-secondary);
+}
+
+.ced-btn--gold:hover {
+    background: #d4a93a;
+    border-color: #d4a93a;
+    color: var(--ced-primary);
+}
+
+.ced-filter__updated {
+    font-size: 11px;
+    color: var(--ced-white);
+    opacity: 0.5;
+    font-family: var(--ced-font-mono);
+}
+
+/* --- Sections --- */
+.ced-section {
+    margin-bottom: var(--ced-space-xl);
+}
+
+.ced-section__title {
+    font-family: var(--ced-font-display);
+    font-size: 18px;
+    color: var(--ced-secondary);
+    margin: 0 0 var(--ced-space-md) 0;
+    padding-bottom: var(--ced-space-xs);
+    border-bottom: 1px solid var(--ced-secondary-soft);
+    display: flex;
+    align-items: center;
+    gap: var(--ced-space-sm);
+}
+
+.ced-section__title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: var(--ced-secondary);
+    border-radius: 2px;
+}
+
+/* --- Error / loading banners --- */
+.ced-error-banner {
+    background: var(--ced-danger);
+    color: var(--ced-white);
+    padding: var(--ced-space-md);
+    border-radius: var(--ced-radius-md);
+    margin-bottom: var(--ced-space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--ced-space-sm);
+    box-shadow: var(--ced-shadow-md);
+}
+
+.ced-error-banner button {
+    background: var(--ced-white);
+    color: var(--ced-danger);
+    border: none;
+    padding: 4px 12px;
+    border-radius: var(--ced-radius-sm);
+    cursor: pointer;
+    margin-left: auto;
+    font-weight: 600;
+}
+
+.ced-loading-state {
+    text-align: center;
+    padding: var(--ced-space-xl);
+    color: var(--ced-white);
+}
+
+.ced-loading-state .fa {
+    color: var(--ced-secondary);
+    margin-bottom: var(--ced-space-md);
+}
+
+.ced-loading-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* --- Empty states --- */
+.ced-empty-state {
+    text-align: center;
+    padding: var(--ced-space-xl);
+    color: var(--ced-white);
+    background: var(--ced-primary-light);
+    border-radius: var(--ced-radius-md);
+    border: 1px dashed var(--ced-secondary-soft);
+}
+
+/* --- Export bar --- */
+.ced-section--actions {
+    margin-top: var(--ced-space-lg);
+}
+
+.ced-export-bar {
+    display: flex;
+    gap: var(--ced-space-sm);
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--ced-primary-light);
+    padding: var(--ced-space-md);
+    border-radius: var(--ced-radius-md);
+    box-shadow: var(--ced-shadow-sm);
+    border-top: 2px solid var(--ced-secondary);
+}
+
+.ced-btn--export {
+    background: var(--ced-primary);
+    color: var(--ced-secondary);
+    border: 1px solid var(--ced-secondary);
+}
+
+.ced-btn--export:hover {
+    background: var(--ced-primary-light);
+    border-color: var(--ced-secondary);
+}
+
+.ced-btn--export:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ced-btn--export .fa {
+    color: var(--ced-secondary);
+}
+
+.ced-export-status {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--ced-white);
+    opacity: 0.7;
+    font-family: var(--ced-font-mono);
+}

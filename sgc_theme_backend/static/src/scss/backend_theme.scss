@@ -1,0 +1,325 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Backend Theme — web client restyle (web.assets_backend ONLY)
+// -----------------------------------------------------------------------------
+// Reads the SGC design tokens ($sgc-*) published by sgc_theme_common into
+// web._assets_primary_variables. This file must NEVER be added to
+// web.assets_frontend.
+//
+// Hard constraints (spec §4):
+//   * WCAG-AA contrast on text, rows, borders, badges, status colours.
+//   * Tier (a) only: hover/focus/active micro-transitions, transform/opacity,
+//     <=150ms, ALWAYS gated on prefers-reduced-motion. No 3D, no scroll anim.
+//   * Pure CSS restyle: no OWL overrides, no core view surgery.
+// =============================================================================
+
+// A single guarded transition mixin — nothing animates under reduced-motion.
+@mixin sgc-micro($props...) {
+    @media (prefers-reduced-motion: no-preference) {
+        transition-property: $props;
+        transition-duration: $sgc-dur-fast;
+        transition-timing-function: $sgc-ease-standard;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 1. Global canvas & typography
+// -----------------------------------------------------------------------------
+.o_web_client {
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    h1, h2, h3, h4, .o_form_view .oe_title h1 {
+        font-family: $sgc-font-heading;
+        color: $sgc-navy;
+    }
+}
+
+.o_action_manager {
+    background-color: $sgc-cream;
+}
+
+// -----------------------------------------------------------------------------
+// 2. Top navbar (navy chrome, gold active accent)
+// -----------------------------------------------------------------------------
+.o_main_navbar {
+    background-color: $sgc-navy;
+    border-bottom: 2px solid $sgc-gold;
+
+    .o_menu_brand,
+    .o_nav_entry,
+    .dropdown-toggle {
+        color: $sgc-cream !important;
+        @include sgc-micro(color, background-color);
+    }
+
+    .o_nav_entry:hover,
+    .dropdown-toggle:hover,
+    .o_nav_entry:focus-visible {
+        background-color: $sgc-navy-600;
+        color: $sgc-white !important;
+    }
+
+    .o_menu_sections .o_nav_entry.o_menu_entry_lvl_1.active,
+    .o_nav_entry.active {
+        box-shadow: inset 0 -3px 0 0 $sgc-gold;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 3. Control panel & breadcrumbs
+// -----------------------------------------------------------------------------
+.o_control_panel {
+    background-color: $sgc-cream-100;
+    border-bottom: 1px solid $sgc-border;
+
+    .breadcrumb-item.active,
+    .o_breadcrumb .active {
+        color: $sgc-navy;
+        font-weight: $sgc-fw-semibold;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Buttons (AA contrast, subtle micro-interaction)
+// -----------------------------------------------------------------------------
+.btn {
+    border-radius: $sgc-radius-sm;
+    @include sgc-micro(background-color, border-color, box-shadow, transform);
+
+    &:active { transform: translateY(1px); }
+}
+
+.btn-primary {
+    background-color: $sgc-navy;
+    border-color: $sgc-navy;
+    color: $sgc-white;
+
+    &:hover, &:focus-visible {
+        background-color: $sgc-navy-800;
+        border-color: $sgc-navy-800;
+        color: $sgc-white;
+    }
+}
+
+.btn-secondary {
+    color: $sgc-navy;
+    border-color: $sgc-border;
+    background-color: $sgc-white;
+
+    &:hover, &:focus-visible {
+        border-color: $sgc-gold;
+        color: $sgc-navy;
+    }
+}
+
+// Accent (link-style / highlight) buttons use gold with dark text for AA.
+.btn-link { color: $sgc-navy-500; }
+
+// -----------------------------------------------------------------------------
+// 5. Form views
+// -----------------------------------------------------------------------------
+.o_form_view {
+    .o_form_sheet {
+        background-color: $sgc-white;
+        border: 1px solid $sgc-border;
+        border-radius: $sgc-radius-md;
+        box-shadow: $sgc-shadow-sm;
+    }
+
+    .o_horizontal_separator,
+    .o_group .o_group_col_6 > .o_horizontal_separator {
+        color: $sgc-navy;
+        font-family: $sgc-font-heading;
+        border-bottom: 1px solid $sgc-cream-300;
+    }
+
+    .o_form_label {
+        color: $sgc-ink-soft;
+        font-weight: $sgc-fw-medium;
+    }
+
+    // Status bar
+    .o_statusbar_status .o_arrow_button.btn-primary {
+        background-color: $sgc-navy;
+        border-color: $sgc-navy;
+    }
+    .o_statusbar_status .o_arrow_button:not(.o_first):not(.disabled):hover {
+        background-color: $sgc-cream-300;
+    }
+
+    // Focused fields
+    .o_field_widget input:focus,
+    .o_field_widget textarea:focus,
+    .o_field_widget .o_input:focus {
+        border-color: $sgc-navy-500;
+        box-shadow: 0 0 0 2px rgba(31, 74, 115, 0.25);
+    }
+}
+
+// Chatter accent
+.o-mail-Chatter,
+.o_form_view .o-mail-Form-chatter {
+    border-left: 3px solid $sgc-cream-300;
+}
+
+// -----------------------------------------------------------------------------
+// 6. List / tree views (stronger separation, AA selection)
+// -----------------------------------------------------------------------------
+.o_list_view {
+    thead th {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        border-bottom: 2px solid $sgc-gold;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    tbody tr.o_data_row {
+        @include sgc-micro(background-color);
+
+        &:nth-child(even) { background-color: $sgc-cream-100; }
+        &:hover { background-color: $sgc-cream-200; }
+
+        &.o_data_row_selected,
+        &.table-info {
+            background-color: rgba(201, 162, 39, 0.16);
+            box-shadow: inset 3px 0 0 0 $sgc-gold;
+        }
+    }
+
+    td, th { border-color: $sgc-cream-300; }
+
+    tfoot {
+        background-color: $sgc-cream-100;
+        color: $sgc-navy;
+        font-weight: $sgc-fw-semibold;
+        border-top: 2px solid $sgc-border;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 7. Kanban
+// -----------------------------------------------------------------------------
+.o_kanban_view {
+    background-color: $sgc-cream;
+
+    .o_kanban_record {
+        background-color: $sgc-white;
+        border: 1px solid $sgc-border;
+        border-top: 3px solid $sgc-gold;
+        border-radius: $sgc-radius-md;
+        box-shadow: $sgc-shadow-xs;
+        @include sgc-micro(box-shadow, transform);
+
+        &:hover {
+            box-shadow: $sgc-shadow-md;
+        }
+    }
+
+    .o_kanban_group .o_kanban_header .o_column_title {
+        color: $sgc-navy;
+        font-weight: $sgc-fw-semibold;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 8. Search view, filters, group-by pills
+// -----------------------------------------------------------------------------
+.o_searchview {
+    background-color: $sgc-white;
+    border: 1px solid $sgc-border;
+    border-radius: $sgc-radius-pill;
+
+    &:focus-within {
+        border-color: $sgc-navy-500;
+        box-shadow: 0 0 0 2px rgba(31, 74, 115, 0.2);
+    }
+
+    .o_searchview_facet {
+        background-color: rgba(15, 44, 76, 0.06);
+        border-radius: $sgc-radius-sm;
+
+        .o_searchview_facet_label {
+            background-color: $sgc-navy;
+            color: $sgc-cream;
+        }
+    }
+}
+
+.o_search_options .dropdown-menu .selected,
+.o_group_by_menu .selected {
+    color: $sgc-navy;
+    font-weight: $sgc-fw-semibold;
+}
+
+// -----------------------------------------------------------------------------
+// 9. Status badges & semantic colours (AA text)
+// -----------------------------------------------------------------------------
+.badge {
+    border-radius: $sgc-radius-pill;
+    font-weight: $sgc-fw-medium;
+}
+.text-success, .badge.text-bg-success { color: $sgc-success !important; }
+.text-danger,  .badge.text-bg-danger  { color: $sgc-danger  !important; }
+.text-warning, .badge.text-bg-warning { color: $sgc-warning !important; }
+.text-info,    .badge.text-bg-info    { color: $sgc-info    !important; }
+
+.o_field_badge .badge,
+.badge.text-bg-primary {
+    background-color: $sgc-navy;
+    color: $sgc-cream;
+}
+
+// -----------------------------------------------------------------------------
+// 10. Dialogs, tooltips, notifications
+// -----------------------------------------------------------------------------
+.modal-content {
+    border-radius: $sgc-radius-lg;
+    border: 1px solid $sgc-border;
+    box-shadow: $sgc-shadow-lg;
+}
+.modal-header {
+    background-color: $sgc-cream-100;
+    border-bottom: 2px solid $sgc-gold;
+
+    .modal-title { color: $sgc-navy; font-family: $sgc-font-heading; }
+}
+
+.tooltip .tooltip-inner {
+    background-color: $sgc-navy;
+    color: $sgc-cream;
+    border-radius: $sgc-radius-sm;
+}
+
+.o_notification {
+    border-left: 4px solid $sgc-gold;
+    border-radius: $sgc-radius-md;
+
+    &.border-success { border-left-color: $sgc-success; }
+    &.border-danger  { border-left-color: $sgc-danger; }
+    &.border-warning { border-left-color: $sgc-warning; }
+    &.border-info    { border-left-color: $sgc-info; }
+}
+
+// -----------------------------------------------------------------------------
+// 11. Density-safe spacing (keep forms compact — do not slow data entry)
+// -----------------------------------------------------------------------------
+.o_form_view .o_group .o_wrap_field {
+    margin-bottom: $sgc-space-2;
+}
+.o_list_view .o_data_cell {
+    padding-top: $sgc-space-2;
+    padding-bottom: $sgc-space-2;
+}
+
+// -----------------------------------------------------------------------------
+// 12. Reduced-motion / high-contrast safety net
+// -----------------------------------------------------------------------------
+@media (prefers-reduced-motion: reduce) {
+    .o_web_client * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

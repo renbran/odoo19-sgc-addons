@@ -1,0 +1,24 @@
+<odoo>
+    <data noupdate="1">
+        <!-- Register the LLM tool that calls the knowledge‑base search -->
+        <record id="tool_search_knowledge_documents" model="llm.tool">
+            <field name="name">search_knowledge_documents</field>
+            <field name="title">Search Knowledge Base</field>
+            <field name="description">Retrieve the most relevant knowledge‑base documents for a user query. Optional `tags` filter (e.g. ["aml", "finance"]).</field>
+            <field name="implementation">function</field>
+            <field name="decorator_model">sgc.knowledge.document</field>
+            <field name="decorator_method">search_knowledge_documents</field>
+            <field name="input_schema">
+                {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "User question"},
+                        "tags": {"type": "array", "items": {"type": "string"}, "description": "Optional list of tag names to filter"},
+                        "limit": {"type": "integer", "description": "Maximum number of documents to return"}
+                    },
+                    "required": ["query"]
+                }
+            </field>
+        </record>
+    </data>
+</odoo>

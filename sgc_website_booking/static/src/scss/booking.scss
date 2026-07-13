@@ -1,0 +1,132 @@
+// SGC Website Online Booking — calendar + form styling.
+// Reuses the theme's glass/token look; falls back gracefully if vars are absent.
+
+.sgc-booking {
+    --bk-primary: var(--sgc-primary, #1B3A6B);
+    --bk-secondary: var(--sgc-secondary, #C4974A);
+    --bk-border: var(--glass-border, rgba(27, 58, 107, 0.10));
+    --bk-text: var(--sgc-text-1, #0D2444);
+    --bk-muted: var(--sgc-text-2, #3B4E6B);
+    --bk-bg: var(--sgc-bg-2, #FFFFFF);
+    --bk-bg-alt: var(--sgc-bg-3, #F5F0E8);
+
+    .sgc-booking-card {
+        padding: 1.75rem;
+        border-radius: var(--r-lg, 18px);
+        border: 1px solid var(--bk-border);
+        background: var(--bk-bg);
+        height: 100%;
+        box-shadow: 0 4px 24px rgba(27, 58, 107, 0.06);
+
+        h3 { margin-bottom: 1rem; color: var(--bk-text); }
+    }
+
+    // ---- Calendar header ----
+    .sgc-booking-calhead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+
+        .sgc-cal-month { margin: 0; font-size: 1.15rem; color: var(--bk-text); }
+
+        .sgc-cal-nav {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--bk-border);
+            background: transparent;
+            color: var(--bk-text);
+            font-size: 1.25rem; line-height: 1;
+            cursor: pointer;
+            transition: all .2s ease;
+
+            &:hover { border-color: var(--bk-primary); color: var(--bk-primary); }
+        }
+    }
+
+    .sgc-cal-loading { padding: 2rem 0; text-align: center; color: var(--bk-muted); }
+
+    // ---- Calendar grid ----
+    .sgc-cal-table {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+    }
+
+    .sgc-cal-dow {
+        text-align: center;
+        font-size: .75rem;
+        font-weight: 600;
+        color: var(--bk-muted);
+        padding-bottom: .25rem;
+    }
+
+    .sgc-cal-cell {
+        aspect-ratio: 1 / 1;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: var(--bk-bg-alt);
+        color: var(--bk-text);
+        font-size: .9rem;
+        cursor: default;
+
+        &.empty { background: transparent; }
+        &.disabled { color: var(--bk-muted); opacity: .35; }
+
+        &.available {
+            cursor: pointer;
+            border-color: var(--bk-border);
+            background: rgba(27, 58, 107, 0.08);
+            font-weight: 600;
+            &:hover { border-color: var(--bk-primary); background: rgba(27, 58, 107, 0.16); }
+        }
+        &.today { box-shadow: inset 0 0 0 1px var(--bk-primary); }
+        &.selected {
+            background: var(--bk-primary);
+            color: #FAF7F2;
+            border-color: var(--bk-primary);
+        }
+    }
+
+    // ---- Slots ----
+    .sgc-slots-wrap { margin-top: 1.5rem; }
+    .sgc-slots-title { font-size: .95rem; color: var(--bk-muted); margin-bottom: .75rem; }
+    .sgc-slots { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+    .sgc-slot {
+        padding: .5rem .9rem;
+        border-radius: 8px;
+        border: 1px solid var(--bk-border);
+        background: transparent;
+        color: var(--bk-text);
+        font-size: .85rem;
+        cursor: pointer;
+        transition: all .2s ease;
+
+        &:hover { border-color: var(--bk-primary); color: var(--bk-primary); }
+        &.selected { background: var(--bk-primary); color: #FAF7F2; border-color: var(--bk-primary); }
+    }
+
+    // ---- Selected summary + messages ----
+    .sgc-selected-slot {
+        padding: .75rem 1rem;
+        border-radius: 10px;
+        border: 1px dashed var(--bk-border);
+        color: var(--bk-muted);
+        margin-bottom: 1.25rem;
+        font-size: .9rem;
+
+        &.has-value { border-style: solid; border-color: var(--bk-primary); color: var(--bk-text); }
+    }
+
+    .sgc-bk-message {
+        font-size: .9rem;
+        &.error { color: #E03E3E; }
+        &.success { color: #2F855A; }
+        a { color: var(--bk-primary); text-decoration: underline; }
+    }
+
+    #sgc-bk-submit.loading { opacity: .6; pointer-events: none; }
+    #sgc-bk-submit:disabled { opacity: .5; cursor: not-allowed; }
+}

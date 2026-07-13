@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Lead Enrichment Wizard Form -->
+    <record id="view_lead_enrichment_wizard_form" model="ir.ui.view">
+        <field name="name">lead.enrichment.wizard.form</field>
+        <field name="model">lead.enrichment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enrich Leads with AI">
+                <group>
+                    <group>
+                        <field name="lead_ids" widget="many2many_tags" readonly="1"/>
+                        <field name="lead_count" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="provider_id"
+                               placeholder="Use default provider..."
+                               context="{'form_view_ref': 'sgc_lead_scoring.view_llm_provider_form'}"/>
+                        <field name="force_research"/>
+                    </group>
+                </group>
+                <div class="alert alert-info" role="alert">
+                    <p><strong>This will:</strong></p>
+                    <ul>
+                        <li>Calculate AI probability scores for selected leads</li>
+                        <li>Analyze lead completeness, requirement clarity, and engagement</li>
+                        <li>Research customer information (if enabled)</li>
+                        <li>Add findings to internal notes</li>
+                    </ul>
+                    <p class="mb-0">
+                        <strong>Note:</strong> This may take some time for multiple leads.
+                    </p>
+                </div>
+                <footer>
+                    <button name="action_enrich_leads"
+                            string="Enrich Leads"
+                            type="object"
+                            class="btn-primary"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Action -->
+    <record id="action_lead_enrichment_wizard" model="ir.actions.act_window">
+        <field name="name">Enrich Leads with AI</field>
+        <field name="res_model">lead.enrichment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

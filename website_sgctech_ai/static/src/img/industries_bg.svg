@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#060E1A"/>
+      <stop offset="100%" style="stop-color:#0D1F38"/>
+    </linearGradient>
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#00D4FF;stop-opacity:0.4"/>
+      <stop offset="100%" style="stop-color:#00D4FF;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1440" height="900" fill="url(#bg)"/>
+  <!-- Grid overlay -->
+  <g opacity="0.04" stroke="#00D4FF" stroke-width="1">
+    <line x1="0" y1="150" x2="1440" y2="150"/>
+    <line x1="0" y1="300" x2="1440" y2="300"/>
+    <line x1="0" y1="450" x2="1440" y2="450"/>
+    <line x1="0" y1="600" x2="1440" y2="600"/>
+    <line x1="0" y1="750" x2="1440" y2="750"/>
+    <line x1="180" y1="0" x2="180" y2="900"/>
+    <line x1="360" y1="0" x2="360" y2="900"/>
+    <line x1="540" y1="0" x2="540" y2="900"/>
+    <line x1="720" y1="0" x2="720" y2="900"/>
+    <line x1="900" y1="0" x2="900" y2="900"/>
+    <line x1="1080" y1="0" x2="1080" y2="900"/>
+    <line x1="1260" y1="0" x2="1260" y2="900"/>
+  </g>
+  <!-- Industry icon nodes - Building (Real Estate) -->
+  <ellipse cx="200" cy="200" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="178" y="175" width="44" height="50" rx="4" fill="none" stroke="#00D4FF" stroke-width="2" opacity="0.6"/>
+  <rect x="188" y="185" width="8" height="8" fill="#00D4FF" opacity="0.4"/>
+  <rect x="204" y="185" width="8" height="8" fill="#00D4FF" opacity="0.4"/>
+  <!-- Factory (Manufacturing) -->
+  <ellipse cx="550" cy="150" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="528" y="165" width="44" height="28" rx="3" fill="none" stroke="#7B2FBE" stroke-width="2" opacity="0.6"/>
+  <rect x="535" y="148" width="8" height="18" fill="none" stroke="#7B2FBE" stroke-width="2" opacity="0.5"/>
+  <rect x="548" y="148" width="8" height="18" fill="none" stroke="#7B2FBE" stroke-width="2" opacity="0.5"/>
+  <!-- Hospital -->
+  <ellipse cx="900" cy="200" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="878" y="178" width="44" height="44" rx="4" fill="none" stroke="#00E5A0" stroke-width="2" opacity="0.6"/>
+  <rect x="898" y="186" width="4" height="28" fill="#00E5A0" opacity="0.4"/>
+  <rect x="884" y="196" width="32" height="4" fill="#00E5A0" opacity="0.4"/>
+  <!-- Shopping (Retail) -->
+  <ellipse cx="1240" cy="160" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <path d="M1220,195 L1228,168 L1252,168 L1260,195 Z" fill="none" stroke="#FF6B35" stroke-width="2" opacity="0.6"/>
+  <path d="M1232,168 Q1240,158 1248,168" fill="none" stroke="#FF6B35" stroke-width="2" opacity="0.5"/>
+  <!-- Hotel (Hospitality) -->
+  <ellipse cx="350" cy="500" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="328" y="480" width="44" height="40" rx="3" fill="none" stroke="#00D4FF" stroke-width="2" opacity="0.6"/>
+  <rect x="343" y="490" width="14" height="14" rx="1" fill="none" stroke="#00D4FF" stroke-width="1.5" opacity="0.5"/>
+  <!-- Education -->
+  <ellipse cx="720" cy="550" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="700" y="535" width="40" height="30" rx="3" fill="none" stroke="#7B2FBE" stroke-width="2" opacity="0.6"/>
+  <polygon points="700,535 720,520 740,535" fill="none" stroke="#7B2FBE" stroke-width="2" opacity="0.5"/>
+  <!-- Trading -->
+  <ellipse cx="1100" cy="480" rx="40" ry="40" fill="url(#nodeGlow)"/>
+  <rect x="1082" y="466" width="36" height="28" rx="3" fill="none" stroke="#FF6B35" stroke-width="2" opacity="0.6"/>
+  <circle cx="1100" cy="510" r="8" fill="none" stroke="#FF6B35" stroke-width="2" opacity="0.4"/>
+  <!-- Connection lines between nodes -->
+  <line x1="240" y1="200" x2="510" y2="150" stroke="#00D4FF" stroke-width="1" opacity="0.15"/>
+  <line x1="590" y1="150" x2="860" y2="200" stroke="#7B2FBE" stroke-width="1" opacity="0.15"/>
+  <line x1="940" y1="200" x2="1200" y2="160" stroke="#00E5A0" stroke-width="1" opacity="0.12"/>
+  <line x1="350" y1="460" x2="200" y2="240" stroke="#00D4FF" stroke-width="1" opacity="0.12"/>
+  <line x1="390" y1="500" x2="680" y2="550" stroke="#00D4FF" stroke-width="1" opacity="0.1"/>
+  <line x1="760" y1="550" x2="1060" y2="480" stroke="#7B2FBE" stroke-width="1" opacity="0.12"/>
+  <line x1="1140" y1="480" x2="1240" y2="200" stroke="#FF6B35" stroke-width="1" opacity="0.1"/>
+  <line x1="720" y1="510" x2="900" y2="240" stroke="#00D4FF" stroke-width="1" opacity="0.08"/>
+</svg>

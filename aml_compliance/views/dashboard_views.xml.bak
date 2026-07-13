@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- AML Compliance Dashboard                                      -->
+    <!-- Professional MLRO Dashboard with KPI Cards                 -->
+    <!-- ============================================================ -->
+
+    <!-- =============================== -->
+    <!-- MLRO Dashboard Form            -->
+    <!-- =============================== -->
+    <record id="view_mlro_dashboard" model="ir.ui.view">
+        <field name="name">mlro.dashboard</field>
+        <field name="model">ir.ui.view</field>
+        <field name="arch" type="xml">
+            <form string="MLRO Dashboard" class="o_mlro_dashboard">
+                <div class="o_mlro_dashboard_container">
+                    <div class="o_mlro_header">
+                        <h2><span class="fa fa-shield"/> AML Compliance Dashboard</h2>
+                        <p class="text-muted">Money Laundering Reporting Officer Overview</p>
+                    </div>
+
+                    <!-- KPI Cards Row -->
+                    <div class="o_dashboard_row">
+                        <div class="o_card o_card_primary">
+                            <div class="o_card_header">
+                                <span class="fa fa-exclamation-triangle o_card_icon"/>
+                                <span class="o_card_title">Pending Alerts</span>
+                            </div>
+                            <div class="o_card_value">
+                                <field name="name" string="alert_count"/>
+                            </div>
+                            <div class="o_card_link">
+                                <button type="action" name="%(aml_compliance.action_pending_alerts)d"
+                                        class="btn-link">View All Alerts</button>
+                            </div>
+                        </div>
+
+                        <div class="o_card o_card_warning">
+                            <div class="o_card_header">
+                                <span class="fa fa-user-times o_card_icon"/>
+                                <span class="o_card_title">High Risk Customers</span>
+                            </div>
+                            <div class="o_card_value">
+                                <field name="name" string="high_risk_count"/>
+                            </div>
+                            <div class="o_card_link">
+                                <button type="action" name="%(aml_compliance.action_high_risk_customers)d"
+                                        class="btn-link">View Customers</button>
+                            </div>
+                        </div>
+
+                        <div class="o_card o_card_info">
+                            <div class="o_card_header">
+                                <span class="fa fa-calendar-check o_card_icon"/>
+                                <span class="o_card_title">Overdue Reviews</span>
+                            </div>
+                            <div class="o_card_value">
+                                <field name="name" string="overdue_count"/>
+                            </div>
+                            <div class="o_card_link">
+                                <button type="action" name="%(aml_compliance.action_overdue_reviews)d"
+                                        class="btn-link">Review Now</button>
+                            </div>
+                        </div>
+
+                        <div class="o_card o_card_success">
+                            <div class="o_card_header">
+                                <span class="fa fa-file-check o_card_icon"/>
+                                <span class="o_card_title">Approved Assessments</span>
+                            </div>
+                            <div class="o_card_value">
+                                <field name="name" string="approved_count"/>
+                            </div>
+                            <div class="o_card_link">
+                                <button type="action" name="%(aml_compliance.action_dashboard_risk_assessments)d"
+                                        class="btn-link">View All</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Row -->
+                    <div class="o_dashboard_row o_quick_actions">
+                        <div class="o_section_header">Quick Actions</div>
+                        <div class="o_action_buttons">
+                            <button type="action" name="%(aml_compliance.action_dashboard_risk_assessments)d"
+                                    class="btn btn-primary btn-lg">
+                                <span class="fa fa-calculator"/> New Risk Assessment
+                            </button>
+                            <button type="action" name="%(aml_compliance.action_dashboard_alerts)d"
+                                    class="btn btn-warning btn-lg">
+                                <span class="fa fa-bell"/> View Alerts
+                            </button>
+                            <button type="action" name="%(aml_compliance.action_dashboard_screening)d"
+                                    class="btn btn-info btn-lg">
+                                <span class="fa fa-search"/> Screening Results
+                            </button>
+                            <button type="action" name="%(aml_compliance.action_dashboard_goaml)d"
+                                    class="btn btn-secondary btn-lg">
+                                <span class="fa fa-file-export"/> goAML Reports
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Section -->
+                    <div class="o_dashboard_row">
+                        <div class="o_section_header">Recent Activity</div>
+                        <div class="o_recent_activity">
+                            <ul class="nav nav-tabs" data-tabs="tabs">
+                                <li class="active"><a href="#tab_recent_alerts">Recent Alerts</a></li>
+                                <li><a href="#tab_recent_assessments">Recent Assessments</a></li>
+                                <li><a href="#tab_recent_screening">Recent Screening</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- MLRO Dashboard Action -->
+    <record id="action_mlro_dashboard" model="ir.actions.act_window">
+        <field name="name">MLRO Dashboard</field>
+        <field name="res_model">ir.ui.view</field>
+        <field name="view_mode">form</field>
+        <field name="target">fullscreen</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Loading MLRO Dashboard...
+            </p>
+        </field>
+    </record>
+
+    <!-- AML Menu: MLRO Dashboard -->
+    <record id="aml_menu_mlro_dashboard" model="ir.ui.menu">
+        <field name="name">MLRO Dashboard</field>
+        <field name="parent" ref="aml_compliance.aml_menu_root"/>
+        <field name="action" ref="aml_compliance.action_mlro_dashboard"/>
+        <field name="sequence">1</field>
+        <field name="groups" eval="[ref('aml_compliance.group_aml_officer')]"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Legacy Dashboard Views (kept for compatibility)            -->
+    <!-- ============================================================ -->
+
+    <!-- =============================== -->
+    <!-- Risk Assessment Pivot View       -->
+    <!-- =============================== -->
+    <record id="view_risk_assessment_pivot" model="ir.ui.view">
+        <field name="name">aml.risk.assessment.pivot</field>
+        <field name="model">aml.risk.assessment</field>
+        <field name="arch" type="xml">
+            <pivot string="Risk Assessment Analysis" sample="1">
+                <field name="final_risk_level" type="row"/>
+                <field name="state" type="col"/>
+                <field name="computed_risk_score" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- =============================== -->
+    <!-- Risk Assessment Graph View       -->
+    <!-- =============================== -->
+    <record id="view_risk_assessment_graph" model="ir.ui.view">
+        <field name="name">aml.risk.assessment.graph</field>
+        <field name="model">aml.risk.assessment</field>
+        <field name="arch" type="xml">
+            <graph string="Risk Assessment Distribution" type="pie" sample="1">
+                <field name="final_risk_level"/>
+                <field name="computed_risk_score" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Dashboard Action: Risk Assessments -->
+    <record id="action_dashboard_risk_assessments" model="ir.actions.act_window">
+        <field name="name">Risk Assessment Overview</field>
+        <field name="res_model">aml.risk.assessment</field>
+        <field name="view_mode">graph,pivot,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Risk assessment dashboard
+            </p>
+        </field>
+    </record>
+
+    <!-- =============================== -->
+    <!-- Transaction Alert Pivot View     -->
+    <!-- =============================== -->
+    <record id="view_transaction_alert_pivot" model="ir.ui.view">
+        <field name="name">aml.transaction.alert.pivot</field>
+        <field name="model">aml.transaction.alert</field>
+        <field name="arch" type="xml">
+            <pivot string="Alert Analysis" sample="1">
+                <field name="severity" type="row"/>
+                <field name="state" type="col"/>
+                <field name="transaction_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_transaction_alert_graph" model="ir.ui.view">
+        <field name="name">aml.transaction.alert.graph</field>
+        <field name="model">aml.transaction.alert</field>
+        <field name="arch" type="xml">
+            <graph string="Alert Distribution" type="bar" sample="1">
+                <field name="rule_id"/>
+                <field name="transaction_amount" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dashboard_alerts" model="ir.actions.act_window">
+        <field name="name">Transaction Alert Analysis</field>
+        <field name="res_model">aml.transaction.alert</field>
+        <field name="view_mode">graph,pivot,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Transaction alert analytics
+            </p>
+        </field>
+    </record>
+
+    <!-- =============================== -->
+    <!-- goAML Report Pivot View          -->
+    <!-- =============================== -->
+    <record id="view_goaml_report_pivot" model="ir.ui.view">
+        <field name="name">aml.goaml.report.pivot</field>
+        <field name="model">aml.goaml.report</field>
+        <field name="arch" type="xml">
+            <pivot string="goAML Report Analysis" sample="1">
+                <field name="report_type" type="row"/>
+                <field name="state" type="col"/>
+                <field name="transaction_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_goaml_report_graph" model="ir.ui.view">
+        <field name="name">aml.goaml.report.graph</field>
+        <field name="model">aml.goaml.report</field>
+        <field name="arch" type="xml">
+            <graph string="goAML Filing Status" type="bar" sample="1">
+                <field name="report_type"/>
+                <field name="state" type="col"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="action_dashboard_goaml" model="ir.actions.act_window">
+        <field name="name">goAML Filing Overview</field>
+        <field name="res_model">aml.goaml.report</field>
+        <field name="view_mode">graph,pivot,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                goAML report filing analytics
+            </p>
+        </field>
+    </record>
+
+    <!-- =============================== -->
+    <!-- Screening Results Pivot          -->
+    <!-- =============================== -->
+    <record id="view_screening_result_pivot" model="ir.ui.view">
+        <field name="name">aml.screening.result.pivot</field>
+        <field name="model">aml.screening.result</field>
+        <field name="arch" type="xml">
+            <pivot string="Screening Analysis" sample="1">
+                <field name="state" type="row"/>
+                <field name="match_source" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_dashboard_screening" model="ir.actions.act_window">
+        <field name="name">Screening Results Overview</field>
+        <field name="res_model">aml.screening.result</field>
+        <field name="view_mode">pivot,tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Sanctions screening analytics
+            </p>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Overdue Reviews: Server Action (quick link from dashboard)    -->
+    <!-- ============================================================ -->
+    <record id="action_overdue_reviews" model="ir.actions.act_window">
+        <field name="name">Overdue Risk Reviews</field>
+        <field name="res_model">aml.risk.assessment</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','=','approved'),('next_review_date','&lt;=', (context_today()).strftime('%Y-%m-%d'))]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No overdue risk reviews
+            </p>
+        </field>
+    </record>
+
+    <!-- High Risk Customers (quick link) -->
+    <record id="action_high_risk_customers" model="ir.actions.act_window">
+        <field name="name">High / Very High Risk Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('aml_risk_level','in',['high','very_high'])]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No high-risk customers
+            </p>
+        </field>
+    </record>
+
+    <!-- Pending Alerts (quick link) -->
+    <record id="action_pending_alerts" model="ir.actions.act_window">
+        <field name="name">Pending Alerts</field>
+        <field name="res_model">aml.transaction.alert</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('state','in',['new','investigating','escalated'])]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                All alerts have been resolved
+            </p>
+        </field>
+    </record>
+
+</odoo>

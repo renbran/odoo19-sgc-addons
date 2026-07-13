@@ -1,0 +1,116 @@
+/* ── 10_compliance.css ────────────────────────────────────── */
+
+/* ── Check / Warning list ────────────────────────────────── */
+.sgc26-check-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+.sgc26-check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  font-size: 0.95rem;
+  color: var(--t2);
+  line-height: 1.6;
+}
+.sgc26-check-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sgc26-check-list--pass li svg { color: var(--emerald); }
+.sgc26-check-list--warn li svg { color: var(--amber); }
+.sgc26-check-list--fail li svg { color: #FF4B4B; }
+
+/* ── Compliance zone card ────────────────────────────────── */
+.sgc26-compliance-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  position: relative;
+}
+.sgc26-compliance-card--pass  { border-left: 3px solid var(--emerald); }
+.sgc26-compliance-card--amber { border-left: 3px solid var(--amber); }
+.sgc26-compliance-card--fail  { border-left: 3px solid #FF4B4B; }
+
+.sgc26-compliance-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+.sgc26-compliance-card__badge {
+  padding: var(--sp-1) var(--sp-4);
+  border-radius: var(--r-full);
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.sgc26-compliance-card--pass  .sgc26-compliance-card__badge { background: rgba(0,229,160,0.12); color: var(--emerald); }
+.sgc26-compliance-card--amber .sgc26-compliance-card__badge { background: rgba(255,176,32,0.12); color: var(--amber); }
+.sgc26-compliance-card--fail  .sgc26-compliance-card__badge { background: rgba(255,75,75,0.12); color: #FF4B4B; }
+
+/* ── Voice-scope grid ────────────────────────────────────── */
+.sgc26-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-6);
+}
+.sgc26-voice-cell {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-6);
+}
+.sgc26-voice-cell__label {
+  font-size: 0.75rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: var(--sp-3);
+}
+.sgc26-voice-cell__text {
+  font-size: 0.9rem;
+  color: var(--t2);
+  line-height: 1.6;
+}
+
+/* ── Comparison table ────────────────────────────────────── */
+.sgc26-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.sgc26-compare-table th {
+  font-family: var(--font-head);
+  font-weight: var(--fw-semibold);
+  padding: var(--sp-4) var(--sp-5);
+  text-align: left;
+  color: var(--t1);
+  border-bottom: 1px solid rgba(0,212,255,0.12);
+}
+.sgc26-compare-table td {
+  padding: var(--sp-4) var(--sp-5);
+  color: var(--t2);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: top;
+}
+.sgc26-compare-table tr:hover td { background: rgba(0,212,255,0.03); }
+
+/* Standard scope badge */
+.sgc26-scope-badge {
+  display: inline-block;
+  padding: 2px var(--sp-3);
+  border-radius: var(--r-full);
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.03em;
+}
+.sgc26-scope-badge--uae      { background: rgba(0,212,255,0.12); color: var(--cyan); }
+.sgc26-scope-badge--vat      { background: rgba(255,176,32,0.12); color: var(--amber); }
+.sgc26-scope-badge--gdpr     { background: rgba(123,47,190,0.12); color: var(--violet-light); }
+.sgc26-scope-badge--ifrs     { background: rgba(0,229,160,0.12); color: var(--emerald); }

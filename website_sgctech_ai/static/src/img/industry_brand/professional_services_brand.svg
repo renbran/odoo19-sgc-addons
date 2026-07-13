@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
+  <title id="title">SGC Professional Services Brand Visual</title>
+  <desc id="desc">Branded consulting and professional services illustration with dashboards, towers, and SGC accent glow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#06111d"/>
+      <stop offset="50%" stop-color="#0c1729"/>
+      <stop offset="100%" stop-color="#160b21"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.14)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.04)"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#7b2fbe"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1600" height="1200" fill="url(#bg)"/>
+  <circle cx="1320" cy="220" r="210" fill="rgba(0,212,255,0.14)" filter="url(#glow)"/>
+  <circle cx="260" cy="980" r="260" fill="rgba(123,47,190,0.16)" filter="url(#glow)"/>
+  <g transform="translate(150 150)">
+    <rect x="0" y="0" rx="38" ry="38" width="1280" height="820" fill="rgba(8,14,26,0.72)" stroke="rgba(255,255,255,0.1)"/>
+    <rect x="64" y="72" rx="24" ry="24" width="522" height="676" fill="rgba(255,255,255,0.04)" stroke="rgba(123,47,190,0.2)"/>
+    <rect x="640" y="72" rx="24" ry="24" width="576" height="290" fill="rgba(255,255,255,0.04)" stroke="rgba(0,212,255,0.2)"/>
+    <rect x="640" y="406" rx="24" ry="24" width="576" height="342" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+  </g>
+  <g transform="translate(265 310)">
+    <rect x="0" y="250" width="86" height="260" rx="12" fill="rgba(255,255,255,0.12)"/>
+    <rect x="120" y="180" width="110" height="330" rx="12" fill="rgba(255,255,255,0.1)"/>
+    <rect x="266" y="90" width="120" height="420" rx="12" fill="rgba(255,255,255,0.08)"/>
+    <rect x="18" y="290" width="50" height="16" rx="8" fill="#00d4ff"/>
+    <rect x="148" y="222" width="54" height="16" rx="8" fill="#7b2fbe"/>
+    <rect x="300" y="130" width="52" height="16" rx="8" fill="#00e5a0"/>
+  </g>
+  <g transform="translate(855 250)">
+    <path d="M40 108 C126 26, 218 34, 312 72 S468 94, 530 18" fill="none" stroke="url(#accent)" stroke-width="10" stroke-linecap="round" filter="url(#glow)"/>
+    <circle cx="40" cy="108" r="12" fill="#00d4ff"/>
+    <circle cx="312" cy="72" r="12" fill="#7b2fbe"/>
+    <circle cx="530" cy="18" r="12" fill="#00e5a0"/>
+    <rect x="0" y="190" rx="18" ry="18" width="532" height="240" fill="rgba(255,255,255,0.05)"/>
+    <rect x="38" y="226" rx="14" ry="14" width="144" height="166" fill="rgba(0,212,255,0.14)"/>
+    <rect x="210" y="256" rx="14" ry="14" width="144" height="136" fill="rgba(123,47,190,0.16)"/>
+    <rect x="382" y="210" rx="14" ry="14" width="112" height="182" fill="rgba(255,107,53,0.14)"/>
+  </g>
+</svg>

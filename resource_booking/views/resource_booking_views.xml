@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2021 Tecnativa - Jairo Llopis
+     Copyright 2025 SGC Tech AI - Modernized views
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Kanban View -->
+    <record id="resource_booking_view_kanban" model="ir.ui.view">
+        <field name="name">Resource booking kanban</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <kanban
+                default_group_by="state"
+                group_create="true"
+                group_delete="true"
+                group_edit="true"
+            >
+                <field name="name" />
+                <field name="state" />
+                <field name="type_id" />
+                <field name="combination_id" />
+                <field name="partner_ids" />
+                <field name="start" />
+                <field name="stop" />
+                <field name="duration" />
+                <field name="priority" />
+                <field name="is_overdue" />
+                <field name="is_modifiable" />
+                <field name="active" />
+                <templates>
+                    <t t-name="card">
+                        <div
+                            t-attf-class="#{record.state.raw_value == 'canceled' ? 'bg-light opacity-50' : ''} oe_kanban_card_width oe_kanban_global_click"
+                        >
+                            <div class="oe_kanban_content">
+                                <div>
+                                    <div class="o_kanban_record_top">
+                                        <div class="o_kanban_record_headings">
+                                            <strong>
+                                                <field name="name" />
+                                            </strong>
+                                            <span
+                                                t-if="record.is_overdue.raw_value"
+                                                class="badge text-bg-danger ms-2"
+                                            >
+                                                Overdue
+                                            </span>
+                                        </div>
+                                        <field
+                                            name="priority"
+                                            widget="priority"
+                                            groups="resource_booking.group_manager"
+                                        />
+                                    </div>
+                                    <div class="o_kanban_record_body">
+                                        <div class="oe_kanban_details">
+                                            <span class="oe_kanban_list_item">
+                                                <field
+                                                    name="type_id"
+                                                    widget="many2one"
+                                                />
+                                            </span>
+                                            <span
+                                                t-if="record.combination_id.raw_value"
+                                                class="oe_kanban_list_item"
+                                            >
+                                                <field
+                                                    name="combination_id"
+                                                    widget="many2one"
+                                                />
+                                            </span>
+                                            <span
+                                                t-if="record.start.raw_value"
+                                                class="oe_kanban_list_item"
+                                            >
+                                                <field name="start" widget="date" />
+                                                <field
+                                                    name="duration"
+                                                    widget="float_time"
+                                                />
+                                                <span>h</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field
+                                                name="partner_ids"
+                                                widget="many2many_avatar"
+                                            />
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <span
+                                                t-attf-class="badge #{record.state.raw_value == 'confirmed' and 'text-bg-success' or record.state.raw_value == 'scheduled' and 'text-bg-info' or record.state.raw_value == 'pending' and 'text-bg-warning' or 'text-bg-secondary'}"
+                                            >
+                                                <field name="state" />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+    <!-- Calendar View -->
+    <record id="resource_booking_view_calendar" model="ir.ui.view">
+        <field name="name">Resource booking calendar</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <calendar
+                string="Bookings"
+                date_start="start"
+                date_stop="stop"
+                date_delay="duration"
+                quick_create="false"
+                color="type_id"
+                event_open_popup="true"
+                mode="week"
+            >
+                <field name="name" invisible="True" />
+                <field name="partner_ids" widget="many2many_tags" />
+                <field name="type_id" />
+                <field name="combination_id" />
+                <field name="description" />
+            </calendar>
+        </field>
+    </record>
+    <!-- List View -->
+    <record id="resource_booking_view_tree" model="ir.ui.view">
+        <field name="name">Resource booking list</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-danger="state == 'canceled'"
+                decoration-success="state == 'confirmed'"
+                decoration-warning="is_overdue"
+                decoration-info="state == 'scheduled'"
+                decoration-muted="not active"
+                default_order="start desc"
+            >
+                <field name="name" />
+                <field name="partner_ids" widget="many2many_tags" optional="hide" />
+                <field name="type_id" />
+                <field name="combination_id" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'confirmed'"
+                    decoration-info="state == 'scheduled'"
+                    decoration-warning="state == 'pending'"
+                    decoration-danger="state == 'canceled'"
+                />
+                <field name="priority" widget="priority" groups="resource_booking.group_manager" />
+                <field name="start" widget="remaining_days" />
+                <field name="duration" widget="float_time" string="Duration" />
+                <field name="stop" optional="hide" />
+                <field
+                    name="ai_confidence"
+                    string="AI Score"
+                    widget="progressbar"
+                    groups="resource_booking.group_manager"
+                    optional="hide"
+                />
+            </list>
+        </field>
+    </record>
+    <!-- Form View -->
+    <record id="resource_booking_view_form" model="ir.ui.view">
+        <field name="name">Resource booking form</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <field name="requester_advice" invisible="1" />
+                    <button
+                        name="%(portal.portal_share_action)d"
+                        class="oe_highlight"
+                        string="Share"
+                        type="action"
+                        context="{'default_partner_ids': partner_ids, 'default_note': requester_advice}"
+                        help="Invite requesting partner to portal."
+                        invisible="state!='pending'"
+                    />
+                    <button
+                        name="%(portal.portal_share_action)d"
+                        string="Share"
+                        type="action"
+                        context="{'default_partner_ids': partner_ids, 'default_note': requester_advice}"
+                        help="Invite requesting partner to portal."
+                        invisible="state not in ('scheduled','confirmed')"
+                    />
+                    <button
+                        name="action_schedule"
+                        class="oe_highlight"
+                        string="Schedule"
+                        type="object"
+                        help="Open a calendar to schedule a meeting for this booking request."
+                        invisible="not is_modifiable or state != 'pending'"
+                    />
+                    <button
+                        name="action_confirm"
+                        string="Confirm"
+                        type="object"
+                        help="Confirm that the requesting partner and yourself will attend the scheduled meeting."
+                        invisible="not is_modifiable or state != 'scheduled'"
+                        context="{'confirm_own_attendance': True}"
+                    />
+                    <button
+                        name="action_unschedule"
+                        string="Unschedule"
+                        type="object"
+                        help="Unschedule this booking."
+                        confirm="This will remove the associated meeting to unschedule the booking. Are you sure?"
+                        invisible="not is_modifiable or not meeting_id"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        help="Unschedule this booking and archive it."
+                        invisible="not is_modifiable or state == 'canceled' or meeting_id"
+                    />
+                    <button
+                        name="action_cancel"
+                        string="Cancel"
+                        type="object"
+                        help="Unschedule this booking and archive it."
+                        confirm="This will remove the associated meeting to unschedule the booking. Are you sure?"
+                        invisible="not is_modifiable or state == 'canceled' or not meeting_id"
+                    />
+                    <button
+                        name="toggle_active"
+                        string="Set pending"
+                        type="object"
+                        help="Set to pending"
+                        invisible="not is_modifiable or state != 'canceled'"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="pending,scheduled,confirmed" />
+                </header>
+                <sheet>
+                    <field name="active" invisible="1" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_portal"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-globe"
+                        >
+                            <span>Preview</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Resource Booking Name" />
+                        </h1>
+                    </div>
+                    <notebook>
+                        <page name="booking_details" string="Booking">
+                            <group name="main">
+                                <group name="booking">
+                                    <field name="partner_ids" widget="many2many_tags" />
+                                    <field name="type_id" />
+                                    <label for="combination_id" />
+                                    <div>
+                                        <field name="combination_auto_assign" />
+                                        <label
+                                            for="combination_auto_assign"
+                                            invisible="not combination_auto_assign"
+                                            string="Auto-assigned:"
+                                        />
+                                        <label
+                                            for="combination_auto_assign"
+                                            invisible="combination_auto_assign"
+                                            string="Manually assigned:"
+                                        />
+                                        <field
+                                            name="combination_id"
+                                            class="oe_inline"
+                                            required="not combination_auto_assign and state in ('scheduled','confirmed')"
+                                            readonly="combination_auto_assign"
+                                        />
+                                    </div>
+                                    <field name="categ_ids" widget="many2many_tags" />
+                                    <field name="priority" widget="priority" groups="resource_booking.group_manager" />
+                                </group>
+                                <group name="meeting" string="Meeting">
+                                    <field name="meeting_id" readonly="1" />
+                                    <field name="user_id" />
+                                    <field name="is_overdue" invisible="1" />
+                                    <field name="is_modifiable" invisible="1" />
+                                    <div
+                                        colspan="2"
+                                        role="alert"
+                                        class="alert alert-warning"
+                                        invisible="not is_overdue"
+                                    >
+                                        This booking exceeded its modifications deadline.
+                                    </div>
+                                    <field name="start" />
+                                    <field
+                                        name="duration"
+                                        widget="float_time"
+                                        class="oe_inline"
+                                    />
+                                    <field name="stop" />
+                                    <field name="location" />
+                                    <field name="videocall_location" />
+                                </group>
+                                <group name="ai_insights" string="AI Insights" groups="resource_booking.group_manager">
+                                    <field name="ai_confidence" widget="progressbar" string="AI Confidence" />
+                                    <field name="ai_suggestion" />
+                                    <field name="ai_narrative" />
+                                </group>
+                            </group>
+                            <group name="description_group" string="Notes">
+                                <field name="description" colspan="2" placeholder="Add internal notes or instructions..." />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+    <!-- Search View -->
+    <record id="resource_booking_view_search" model="ir.ui.view">
+        <field name="name">resource.booking.view.search</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="partner_ids" />
+                <field name="type_id" />
+                <field name="combination_id" />
+                <searchpanel>
+                    <field name="type_id" icon="fa-calendar-check" />
+                    <field name="state" icon="fa-info-circle" />
+                </searchpanel>
+                <filter
+                    name="is_mine"
+                    string="Involving me"
+                    context="{'virtual_id': False}"
+                    domain="['|', '|', ('partner_ids.user_ids', '=', uid), ('meeting_id.attendee_ids.partner_id.user_ids', '=', uid), ('combination_id.resource_ids.user_id', '=', uid)]"
+                />
+                <filter
+                    name="is_pending"
+                    string="Pending"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    name="is_scheduled"
+                    string="Scheduled"
+                    domain="[('state', '=', 'scheduled')]"
+                />
+                <filter
+                    name="is_confirmed"
+                    string="Confirmed"
+                    domain="[('state', '=', 'confirmed')]"
+                />
+                <filter
+                    name="is_canceled"
+                    string="Canceled"
+                    domain="[('state', '=', 'canceled')]"
+                />
+                <separator />
+                <filter
+                    name="is_upcoming"
+                    string="Upcoming"
+                    domain="[('start', '&gt;', context_today().strftime('%Y-%m-%d 00:00:00'))]"
+                />
+                <filter
+                    name="has_meeting"
+                    string="Has Meeting"
+                    domain="[('meeting_id', '!=', False)]"
+                />
+                <filter name="filter_date" string="Start date" date="start" />
+                <group name="groupby">
+                    <filter
+                        string="State"
+                        name="groupby_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Type"
+                        name="groupby_type_id"
+                        context="{'group_by': 'type_id'}"
+                    />
+                    <filter
+                        string="Combination"
+                        name="groupby_combination_id"
+                        context="{'group_by': 'combination_id'}"
+                    />
+                    <filter
+                        string="Start"
+                        name="groupby_start"
+                        context="{'group_by': 'start'}"
+                    />
+                    <filter
+                        string="Priority"
+                        name="groupby_priority"
+                        context="{'group_by': 'priority'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <!-- Pivot View -->
+    <record id="resource_booking_view_pivot" model="ir.ui.view">
+        <field name="name">Resource booking pivot</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <pivot string="Booking Analysis">
+                <field name="type_id" type="row" />
+                <field name="state" type="col" />
+                <field name="duration" type="measure" />
+            </pivot>
+        </field>
+    </record>
+    <!-- Graph View -->
+    <record id="resource_booking_view_graph" model="ir.ui.view">
+        <field name="name">Resource booking graph</field>
+        <field name="model">resource.booking</field>
+        <field name="arch" type="xml">
+            <graph string="Booking Analysis">
+                <field name="type_id" type="row" />
+                <field name="state" type="col" />
+                <field name="duration" type="measure" />
+            </graph>
+        </field>
+    </record>
+    <!-- Action -->
+    <record id="resource_booking_action" model="ir.actions.act_window">
+        <field name="name">Bookings</field>
+        <field name="res_model">resource.booking</field>
+        <field name="view_mode">kanban,calendar,list,form,pivot,graph</field>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_is_mine': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Define resource bookings.
+            </p>
+            <p>
+                Schedule and manage AI-enhanced resource bookings. When scheduled, resources will be blocked. When pending, the requester hasn't placed the booking yet.
+            </p>
+        </field>
+    </record>
+</odoo>

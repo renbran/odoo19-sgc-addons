@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="sgctech_home_2026" name="SGC Home 2026">
+    <t t-call="website.layout">
+      <t t-set="pageName" t-value="'sgctech_home_2026'"/>
+      <t t-set="no_footer" t-value="False"/>
+
+      <!-- ── 1. Hero ─────────────────────────────────────────── -->
+      <section class="sgc26-hero">
+        <canvas id="sgc26-particles" class="sgc26-hero__canvas" aria-hidden="true"/>
+        <div class="sgc26-hero__vignette" aria-hidden="true"/>
+
+        <div class="sgc26-hero__inner">
+          <!-- Left: text content -->
+          <div class="sgc26-hero__left">
+            <div class="sgc26-hero__badge">
+              <span class="sgc26-hero__badge-dot"/>
+              UAE-Built · AI-Native
+            </div>
+
+            <h1 class="sgc26-hero__h1">
+              <span class="line-accent">Enterprise ERP</span>
+              <span>Delivered in</span>
+              <span class="line-grad">30–90 Days</span>
+            </h1>
+
+            <p class="sgc26-hero__sub">
+              AI-powered ERP for real estate, construction, trading and retail businesses in UAE.
+              Structured implementation. Audited data. Expert support from day one.
+            </p>
+
+            <div class="sgc26-cta-group">
+              <a href="/sgctech/contact" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+                Book Discovery Call
+                <svg width="18" height="18"><use href="#i-arrow-right"/></svg>
+              </a>
+              <a href="/sgctech/how-we-work" class="sgc26-btn sgc26-btn-ghost sgc26-btn-lg">
+                See How It Works
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: visual panel with floating chips -->
+          <div class="sgc26-hero__right sgc26-hero__chips">
+            <div class="sgc26-hero__visual">
+              <div class="sgc26-hero__visual-overlay"/>
+              <svg width="220" height="220" viewBox="0 0 220 220" fill="none" aria-hidden="true">
+                <circle cx="110" cy="110" r="80" stroke="url(#sgc26-grad-icon)" stroke-width="1" opacity="0.3"/>
+                <circle cx="110" cy="110" r="50" stroke="url(#sgc26-grad-icon)" stroke-width="1" opacity="0.5"/>
+                <circle cx="110" cy="110" r="20" fill="url(#sgc26-grad-icon)" opacity="0.6"/>
+                <use href="#i-cpu" x="96" y="96" width="28" height="28" stroke="white"/>
+              </svg>
+            </div>
+            <div class="sgc26-hero__chip sgc26-hero__chip--tl">
+              <svg width="14" height="14"><use href="#i-zap"/></svg>
+              Live in 30 days
+            </div>
+            <div class="sgc26-hero__chip sgc26-hero__chip--br">
+              <svg width="14" height="14"><use href="#i-shield"/></svg>
+              UAE VAT Ready
+            </div>
+            <div class="sgc26-hero__chip sgc26-hero__chip--ml">
+              <svg width="14" height="14"><use href="#i-trending-up"/></svg>
+              AI-Powered
+            </div>
+          </div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="sgc26-scroll-indicator">
+          <span>SCROLL</span>
+          <div class="sgc26-scroll-mouse">
+            <span class="sgc26-scroll-wheel"/>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 2. Trust bar ────────────────────────────────────── -->
+      <section class="sgc26-section" style="padding:3rem 0;border-top:1px solid rgba(0,212,255,0.06);border-bottom:1px solid rgba(0,212,255,0.06)">
+        <div class="sgc26-container">
+          <p class="sgc26-body-sm" style="text-align:center;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:0.1em">
+            Trusted by businesses across UAE industries
+          </p>
+          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem">
+            <span class="sgc26-trust-pill">
+              <svg width="16" height="16"><use href="#i-building"/></svg> Real Estate
+            </span>
+            <span class="sgc26-trust-pill">
+              <svg width="16" height="16"><use href="#i-layers"/></svg> Construction
+            </span>
+            <span class="sgc26-trust-pill">
+              <svg width="16" height="16"><use href="#i-truck"/></svg> Trading
+            </span>
+            <span class="sgc26-trust-pill">
+              <svg width="16" height="16"><use href="#i-shopping-cart"/></svg> Retail
+            </span>
+            <span class="sgc26-trust-pill">
+              <svg width="16" height="16"><use href="#i-utensils"/></svg> Hospitality
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 3. KPI tiles ────────────────────────────────────── -->
+      <section class="sgc26-section">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Delivery Track Record</p>
+            <h2 class="sgc26-h2">Numbers We Stand Behind</h2>
+            <p>Every metric below comes from closed project records — no projections, no estimates.</p>
+          </div>
+
+          <div class="sgc26-grid-4">
+            <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="100" data-sgc-tilt="1">
+              <div class="sgc26-kpi-number" data-sgc-count="30" data-sgc-suffix=" days">30 days</div>
+              <div class="sgc26-kpi-tile__label">Fastest Go-Live</div>
+              <div class="sgc26-kpi-tile__sub">Core modules, clean data</div>
+            </div>
+            <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="200" data-sgc-tilt="1">
+              <div class="sgc26-kpi-number" data-sgc-count="90" data-sgc-suffix=" days">90 days</div>
+              <div class="sgc26-kpi-tile__label">Full-Suite Delivery</div>
+              <div class="sgc26-kpi-tile__sub">All modules configured</div>
+            </div>
+            <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="300" data-sgc-tilt="1">
+              <div class="sgc26-kpi-number" data-sgc-count="100" data-sgc-suffix="%">100%</div>
+              <div class="sgc26-kpi-tile__label">UAE VAT Compliant</div>
+              <div class="sgc26-kpi-tile__sub">FTA e-invoicing ready</div>
+            </div>
+            <div class="sgc26-kpi-tile" data-sgc-reveal="1" data-sgc-delay="400" data-sgc-tilt="1">
+              <div class="sgc26-kpi-number" data-sgc-count="5" data-sgc-suffix="+ industries">5+ industries</div>
+              <div class="sgc26-kpi-tile__label">Vertical Coverage</div>
+              <div class="sgc26-kpi-tile__sub">Pre-built configurations</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 4. What we do / Features ───────────────────────── -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">What We Deliver</p>
+            <h2 class="sgc26-h2">ERP That Works on Day One</h2>
+            <p>We configure, train, and hand over a running system — not a sandbox.</p>
+          </div>
+
+          <div class="sgc26-grid-3">
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="100" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-cpu" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">AI-Assisted Configuration</h3>
+              <p class="sgc26-feature-card__body">
+                Automated chart-of-accounts mapping, product categorisation, and workflow rule generation
+                tuned to your industry vertical.
+              </p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="200" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-shield" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">UAE Regulatory Compliance</h3>
+              <p class="sgc26-feature-card__body">
+                FTA e-invoicing, VAT 5%, VAT 0% zero-rated categories, ESR notifications,
+                and IFRS-compliant financial reporting — built in, not bolted on.
+              </p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="300" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-bar-chart" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">Structured Data Migration</h3>
+              <p class="sgc26-feature-card__body">
+                Validated import templates for customers, vendors, products, opening balances,
+                and historical transactions — with reconciliation reports before go-live.
+              </p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="100" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-users" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">Role-Based Training</h3>
+              <p class="sgc26-feature-card__body">
+                Hands-on sessions structured by role — accounts, warehouse, sales, HR.
+                SOP documentation delivered with every engagement.
+              </p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="200" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-zap" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">Post-Go-Live Support</h3>
+              <p class="sgc26-feature-card__body">
+                Hypercare period with dedicated response SLA. Escalation path to senior
+                functional consultants for complex scenarios.
+              </p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="300" data-sgc-tilt="1">
+              <div class="sgc26-feature-card__icon">
+                <svg width="24" height="24"><use href="#i-layers" stroke="url(#sgc26-grad-icon)"/></svg>
+              </div>
+              <h3 class="sgc26-feature-card__title">Modular Scope Control</h3>
+              <p class="sgc26-feature-card__body">
+                Start with accounting and inventory; add CRM, HR, or manufacturing
+                as your business grows — each phase scoped and priced independently.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 5. Industries preview ───────────────────────────── -->
+      <section class="sgc26-section">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Industry Verticals</p>
+            <h2 class="sgc26-h2">Built for Your Sector</h2>
+            <p>Pre-configured modules, UAE-specific workflows, and sector vocabulary — ready on day one.</p>
+          </div>
+
+          <div class="sgc26-grid-3" style="margin-bottom:2.5rem">
+            <div class="sgc26-industry-card" data-accent="cyan" data-sgc-reveal="1" data-sgc-delay="100">
+              <div class="sgc26-industry-card__header">
+                <div class="sgc26-industry-card__icon">
+                  <svg width="26" height="26"><use href="#i-building" stroke="url(#sgc26-grad-icon)"/></svg>
+                </div>
+                <div class="sgc26-industry-card__title">Real Estate</div>
+                <div class="sgc26-industry-card__tagline">Property management, leasing, RERA compliance</div>
+              </div>
+              <div class="sgc26-industry-card__body">
+                <ul class="sgc26-industry-card__modules">
+                  <li>Lease contract management</li>
+                  <li>Maintenance request tracking</li>
+                  <li>Owner &amp; tenant portals</li>
+                  <li>Service charge accounting</li>
+                </ul>
+                <a href="/sgctech/industries" class="sgc26-btn sgc26-btn-ghost sgc26-btn-sm">
+                  Learn more <svg width="12" height="12"><use href="#i-arrow-right"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <div class="sgc26-industry-card" data-accent="violet" data-sgc-reveal="1" data-sgc-delay="200">
+              <div class="sgc26-industry-card__header">
+                <div class="sgc26-industry-card__icon">
+                  <svg width="26" height="26"><use href="#i-layers" stroke="url(#sgc26-grad-icon)"/></svg>
+                </div>
+                <div class="sgc26-industry-card__title">Construction</div>
+                <div class="sgc26-industry-card__tagline">Project costing, BOQ, subcontractor management</div>
+              </div>
+              <div class="sgc26-industry-card__body">
+                <ul class="sgc26-industry-card__modules">
+                  <li>Project budget vs actual</li>
+                  <li>BOQ and cost sheets</li>
+                  <li>Subcontractor invoicing</li>
+                  <li>Progress billing</li>
+                </ul>
+                <a href="/sgctech/industries" class="sgc26-btn sgc26-btn-ghost sgc26-btn-sm">
+                  Learn more <svg width="12" height="12"><use href="#i-arrow-right"/></svg>
+                </a>
+              </div>
+            </div>
+
+            <div class="sgc26-industry-card" data-accent="emerald" data-sgc-reveal="1" data-sgc-delay="300">
+              <div class="sgc26-industry-card__header">
+                <div class="sgc26-industry-card__icon">
+                  <svg width="26" height="26"><use href="#i-truck" stroke="url(#sgc26-grad-icon)"/></svg>
+                </div>
+                <div class="sgc26-industry-card__title">Trading</div>
+                <div class="sgc26-industry-card__tagline">Multi-warehouse, landed costs, import/export</div>
+              </div>
+              <div class="sgc26-industry-card__body">
+                <ul class="sgc26-industry-card__modules">
+                  <li>Multi-currency purchasing</li>
+                  <li>Landed cost allocation</li>
+                  <li>Batch &amp; serial tracking</li>
+                  <li>Customer price lists</li>
+                </ul>
+                <a href="/sgctech/industries" class="sgc26-btn sgc26-btn-ghost sgc26-btn-sm">
+                  Learn more <svg width="12" height="12"><use href="#i-arrow-right"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align:center">
+            <a href="/sgctech/industries" class="sgc26-btn sgc26-btn-outline">
+              View all industries
+              <svg width="16" height="16"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. How we work (condensed) ─────────────────────── -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Delivery Methodology</p>
+            <h2 class="sgc26-h2">A Process You Can Track</h2>
+            <p>Six phases. Fixed scope gates. Nothing moves forward without your sign-off.</p>
+          </div>
+
+          <div class="sgc26-grid-3">
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">01 / Discovery</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">Business Analysis</h4>
+              <p class="sgc26-body-sm">Requirement workshops, current-state audit, gap analysis, and scope document sign-off.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">02 / Design</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">Solution Blueprint</h4>
+              <p class="sgc26-body-sm">Module selection, workflow design, data model, integration architecture.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="300">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">03 / Build</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">Configuration Sprint</h4>
+              <p class="sgc26-body-sm">Configuration, customisation, data migration templates prepared and validated.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">04 / UAT</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">User Acceptance Testing</h4>
+              <p class="sgc26-body-sm">Scripted test scenarios per role. Defect tracking. Sign-off before go-live.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">05 / Go-Live</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">Controlled Launch</h4>
+              <p class="sgc26-body-sm">Data load, cutover execution, hypercare support in the first week.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="300">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">06 / Support</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.5rem">Ongoing Partnership</h4>
+              <p class="sgc26-body-sm">SLA-backed support, quarterly reviews, module extensions as you scale.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 7. Compliance callout ────────────────────────────── -->
+      <section class="sgc26-section">
+        <div class="sgc26-container">
+          <div class="sgc26-card" style="background:linear-gradient(135deg,rgba(0,212,255,0.06) 0%,rgba(123,47,190,0.06) 100%);max-width:900px;margin:0 auto;text-align:center;padding:4rem 3rem" data-sgc-reveal="1">
+            <p class="sgc26-label" style="justify-content:center">Regulatory Readiness</p>
+            <h2 class="sgc26-h2" style="margin-bottom:1.25rem">UAE Compliance is Non-Negotiable</h2>
+            <p class="sgc26-body-lg" style="margin-bottom:2.5rem;max-width:600px;margin-left:auto;margin-right:auto">
+              Every deployment includes FTA e-invoicing configuration, VAT return mapping,
+              IFRS chart of accounts, and ESR disclosure templates.
+            </p>
+            <a href="/sgctech/compliance" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+              View Compliance Coverage
+              <svg width="18" height="18"><use href="#i-shield"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 8. Pricing preview ──────────────────────────────── -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Transparent Pricing</p>
+            <h2 class="sgc26-h2">Fixed-Scope Packages</h2>
+            <p>No hourly billing surprises. Scope defined upfront, price agreed before work begins.</p>
+          </div>
+
+          <div style="text-align:center" data-sgc-reveal="1">
+            <p class="sgc26-body" style="margin-bottom:2rem">
+              Packages from Core (accounting + inventory) to Enterprise (full suite + AI).
+              All include UAE VAT configuration, data migration, and training.
+            </p>
+            <a href="/sgctech/pricing" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+              View All Packages
+              <svg width="18" height="18"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 9. Final CTA ────────────────────────────────────── -->
+      <section class="sgc26-section">
+        <div class="sgc26-container" style="text-align:center">
+          <div data-sgc-reveal="1">
+            <p class="sgc26-label" style="justify-content:center">Ready to Start?</p>
+            <h2 class="sgc26-h2" style="margin-bottom:1.25rem">
+              Let's Map Your <span class="sgc26-gradient-text">ERP Journey</span>
+            </h2>
+            <p class="sgc26-body-lg" style="max-width:540px;margin:0 auto 2.5rem">
+              Book a 30-minute discovery call. We'll assess your current systems,
+              identify quick wins, and outline a realistic delivery plan.
+            </p>
+            <div class="sgc26-cta-group" style="justify-content:center">
+              <a href="/sgctech/contact" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+                Book Discovery Call
+                <svg width="18" height="18"><use href="#i-arrow-right"/></svg>
+              </a>
+              <a href="/sgctech/pricing" class="sgc26-btn sgc26-btn-ghost sgc26-btn-lg">
+                View Pricing
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </t>
+  </template>
+
+</odoo>

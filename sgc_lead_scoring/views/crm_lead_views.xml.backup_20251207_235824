@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend CRM Lead Form View -->
+    <record id="crm_lead_view_form_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.llm.scoring</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add AI Enrich button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_enrich_with_ai" string="AI Enrich" type="object" class="oe_highlight" icon="fa-magic" invisible="not active" help="Enrich this lead with AI-powered analysis"/>
+                <button name="action_regenerate_report" string="⟳ Refresh Report" type="object" class="btn-secondary" invisible="not ai_enrichment_data" help="Regenerate the AI report from existing data (no API call)"/>
+            </xpath>
+
+            <!-- Add AI Score after probability -->
+            <xpath expr="//field[@name='probability']" position="after">
+                <field name="ai_probability_score" widget="progressbar" options="{'current_value': 'ai_probability_score'}" help="AI-calculated probability score based on lead quality"/>
+            </xpath>
+
+            <!-- Add AI Scoring tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="AI Scoring" name="ai_scoring">
+                    <group>
+                        <group string="AI Probability Score">
+                            <field name="ai_probability_score" widget="gauge" options="{'max_field': 100, 'style': 'width:200px; height: 150px;'}"/>
+                            <field name="ai_enrichment_status" readonly="1"/>
+                            <field name="ai_last_enrichment_date" readonly="1"/>
+                            <field name="auto_enrich"/>
+                        </group>
+                        <group string="Score Breakdown">
+                            <field name="ai_completeness_score" widget="progressbar" readonly="1"/>
+                            <field name="ai_clarity_score" widget="progressbar" readonly="1"/>
+                            <field name="ai_engagement_score" widget="progressbar" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="AI Enrichment Report" invisible="not ai_enrichment_report" colspan="2">
+                        <field name="ai_enrichment_report" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+
+                    <group string="AI Analysis Summary" invisible="ai_enrichment_report" colspan="2">
+                        <field name="ai_analysis_summary" readonly="1" nolabel="1" placeholder="Run AI enrichment to see analysis..." colspan="2"/>
+                    </group>
+
+                    <group string="Raw Enrichment Data (JSON)" invisible="not ai_enrichment_data" colspan="2">
+                        <field name="ai_enrichment_data" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend CRM Lead Tree View -->
+    <record id="crm_lead_view_tree_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.tree.inherit.llm.scoring</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='probability']" position="after">
+                <field name="ai_probability_score" optional="show" widget="progressbar"/>
+                <field name="ai_enrichment_status" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extend CRM Lead Kanban View -->
+    <record id="crm_lead_view_kanban_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.inherit.llm.scoring</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <!-- Add AI score indicator -->
+            <xpath expr="//div[hasclass('oe_kanban_bottom_right')]" position="inside">
+                <div class="oe_kanban_bottom_right" invisible="not ai_probability_score">
+                    <field name="ai_score_color" invisible="1"/>
+                    <span class="badge" t-attf-class="badge-{{record.ai_score_color.raw_value &gt;= 10 and 'success' or (record.ai_score_color.raw_value &gt;= 3 and 'warning' or 'danger')}}" title="AI Probability Score">
+                        AI: <field name="ai_probability_score"/>
+%
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Action for batch enrichment -->
+    <record id="action_batch_enrich_leads" model="ir.actions.server">
+        <field name="name">AI Enrich Selected Leads</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Enrich Leads with AI',
+    'res_model': 'lead.enrichment.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {'default_lead_ids': records.ids},
+}
+        </field>
+    </record>
+
+    <!-- Action to regenerate reports for selected leads -->
+    <record id="action_regenerate_reports" model="ir.actions.server">
+        <field name="name">Regenerate AI Reports</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+count = 0
+for lead in records:
+    if lead.ai_enrichment_data:
+        lead.action_regenerate_report()
+        count += 1
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Reports Regenerated',
+        'message': str(count) + ' lead report(s) regenerated successfully.',
+        'type': 'success',
+        'sticky': False,
+    }
+}
+        </field>
+    </record>
+</odoo>

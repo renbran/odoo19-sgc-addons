@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 
+        Legacy file — CSS now embedded directly in each report template.
+        Kept as no-op for backward compatibility with cached manifests.
+    -->
+</odoo>

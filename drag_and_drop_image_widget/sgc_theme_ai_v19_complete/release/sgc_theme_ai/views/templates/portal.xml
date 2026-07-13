@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ─── PORTAL HOMEPAGE OVERRIDE ───────────────────────── -->
+  <template id="sgc_portal_home" name="SGC Portal Home" inherit_id="portal.portal_my_home">
+    <xpath expr="//div[hasclass('o_portal_my_home')]" position="before">
+      <!-- Portal Banner -->
+      <div style="background:var(--sgc-gradient-mesh);padding:80px 0 40px;border-bottom:1px solid rgba(0,255,240,0.15);margin-bottom:2rem;">
+        <div class="sgc-container">
+          <span class="sgc-label">Client Portal</span>
+          <h1 style="font-size:2.5rem;margin-bottom:0.5rem;">
+            Welcome back, <span class="sgc-highlight" t-esc="request.env.user.partner_id.name.split(' ')[0]"/>
+          </h1>
+          <p style="color:rgba(255,255,255,0.6);">Manage your SGC TECH AI services and support tickets.</p>
+        </div>
+      </div>
+    </xpath>
+  </template>
+
+</odoo>

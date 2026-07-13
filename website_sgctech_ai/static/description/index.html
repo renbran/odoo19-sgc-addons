@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SGC TECH AI Theme</title>
+    <style>
+        :root {
+            --bg: #08111e;
+            --panel: rgba(15, 26, 43, 0.82);
+            --line: rgba(255, 255, 255, 0.12);
+            --text: #e8f2ff;
+            --muted: #a9bdd3;
+            --cyan: #00d4ff;
+            --violet: #7b2fbe;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(0, 212, 255, 0.16), transparent 30%),
+                radial-gradient(circle at top right, rgba(123, 47, 190, 0.18), transparent 28%),
+                linear-gradient(180deg, #060e1a 0%, #0a1628 100%);
+        }
+        .wrap {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 40px 24px 64px;
+        }
+        .hero {
+            display: grid;
+            gap: 28px;
+            align-items: center;
+        }
+        .hero img {
+            width: 100%;
+            border-radius: 24px;
+            border: 1px solid var(--line);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+        }
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 24px;
+            backdrop-filter: blur(18px);
+        }
+        h1, h2 {
+            margin: 0 0 12px;
+            line-height: 1.1;
+        }
+        h1 { font-size: 42px; }
+        h2 { font-size: 24px; }
+        p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .accent {
+            color: var(--cyan);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+        .pill {
+            display: inline-block;
+            margin-bottom: 14px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.22);
+            color: var(--cyan);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .shots {
+            display: grid;
+            gap: 18px;
+            margin-top: 28px;
+        }
+        .shots img {
+            width: 100%;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+        }
+        ul {
+            margin: 16px 0 0;
+            padding-left: 18px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="hero">
+            <img src="banner.png" alt="SGC TECH AI theme banner">
+            <div class="card">
+                <span class="pill">Odoo 19 Full Theme</span>
+                <h1>SGC TECH AI <span class="accent">Website Theme</span></h1>
+                <p>Complete premium website theme module for Odoo 19 with a full landing page, bundled imagery, glassmorphism styling, animated hero effects, reveal transitions, counters, CTA interactions, and Website Builder snippets.</p>
+                <div class="grid">
+                    <div class="card">
+                        <h2>Full Homepage</h2>
+                        <p>Hero, trust bar, industries, why-us, stats, pricing, testimonials, ticker, CTA, and footer are included.</p>
+                    </div>
+                    <div class="card">
+                        <h2>Bundled Assets</h2>
+                        <p>Homepage images, preview thumbnails, banner assets, and frontend CSS and JS are all shipped inside the module.</p>
+                    </div>
+                    <div class="card">
+                        <h2>Animations</h2>
+                        <p>Particle canvas, typewriter headline, counters, parallax orbs, reveal transitions, and magnetic buttons are built in.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="shots">
+            <img src="cover.png" alt="SGC TECH AI theme cover">
+            <img src="theme_sgctech_ai_screenshot.png" alt="SGC TECH AI theme screenshot">
+        </div>
+        <div class="card" style="margin-top: 24px;">
+            <h2>Included in the module</h2>
+            <ul>
+                <li>Homepage template with end-to-end section design</li>
+                <li>Theme header and footer styling</li>
+                <li>Five custom Website Builder snippets</li>
+                <li>Frontend animation engine inside the module</li>
+                <li>Theme preview metadata for Odoo 19</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

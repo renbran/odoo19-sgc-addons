@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ==================== REJECTION WIZARD ==================== -->
+
+        <record id="view_kyc_rejection_wizard_form" model="ir.ui.view">
+            <field name="name">kyc.rejection.wizard.form</field>
+            <field name="model">kyc.rejection.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject KYC Application">
+                    <group>
+                        <field name="kyc_id" readonly="1"/>
+                        <field name="approval_id" invisible="1"/>
+                        <field name="rejection_reason" placeholder="Explain why this application is being rejected..." required="1"/>
+                        <field name="rejection_suggestions" placeholder="What should the applicant correct before resubmitting?"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm_rejection" string="Confirm Rejection" type="object" class="btn-danger"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- ==================== CLARIFICATION WIZARD ==================== -->
+
+        <record id="view_kyc_clarification_wizard_form" model="ir.ui.view">
+            <field name="name">kyc.clarification.wizard.form</field>
+            <field name="model">kyc.clarification.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Request Clarification">
+                    <group>
+                        <field name="approval_id" invisible="1"/>
+                        <field name="clarification_details" placeholder="Describe exactly what additional information or documents you need..." required="1"/>
+                        <field name="deadline_days"/>
+                    </group>
+                    <footer>
+                        <button name="action_send_clarification" string="Send Request" type="object" class="btn-warning"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- ==================== ESCALATION WIZARD ==================== -->
+
+        <record id="view_kyc_escalation_wizard_form" model="ir.ui.view">
+            <field name="name">kyc.escalation.wizard.form</field>
+            <field name="model">kyc.escalation.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Escalate to Senior Officer">
+                    <group>
+                        <field name="approval_id" invisible="1"/>
+                        <field name="escalated_to_id" required="1"
+                               domain="[('group_ids', 'in', [%(kyc_management.group_kyc_senior_officer)d])]"/>
+                        <field name="escalation_reason" placeholder="Explain why this case needs senior-level review..." required="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_escalate" string="Escalate" type="object" class="btn-warning"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- ==================== WIZARD ACTIONS ==================== -->
+
+        <record id="action_kyc_rejection_wizard" model="ir.actions.act_window">
+            <field name="name">Reject KYC Application</field>
+            <field name="res_model">kyc.rejection.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="kyc_management.model_kyc_application"/>
+        </record>
+
+        <record id="action_kyc_clarification_wizard" model="ir.actions.act_window">
+            <field name="name">Request Clarification</field>
+            <field name="res_model">kyc.clarification.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="kyc_management.model_kyc_approval"/>
+        </record>
+
+        <record id="action_kyc_escalation_wizard" model="ir.actions.act_window">
+            <field name="name">Escalate to Senior Officer</field>
+            <field name="res_model">kyc.escalation.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="binding_model_id" ref="kyc_management.model_kyc_approval"/>
+        </record>
+
+    </data>
+</odoo>

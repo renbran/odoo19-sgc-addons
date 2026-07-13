@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <!-- CHECKPOINT C4: Generic high-conversion landing page used by /solutions/* routes -->
+  <template id="sgc_solution_generic" name="SGC Solution Landing Page">
+    <t t-call="website.layout">
+      <t t-set="additional_title"><t t-esc="title"/> | SGC TECH AI</t>
+
+      <div id="wrap">
+        <script type="application/ld+json">
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            "name": "SGC TECH AI Odoo ERP Solution",
+            "serviceType": "Odoo ERP Implementation",
+            "provider": {
+              "@type": "Organization",
+              "name": "SGC TECH AI",
+              "url": "https://sgctech.ai"
+            },
+            "areaServed": {
+              "@type": "Country",
+              "name": "United Arab Emirates"
+            }
+          }
+        </script>
+
+        <section class="sgc-section sgc-bg-hero sgc-bg-grid" style="padding-top:130px;">
+          <div class="sgc-container">
+            <div class="sgc-section-head" style="text-align:left;max-width:860px;">
+              <span class="sgc-label">Solution Focus</span>
+              <h1 style="font-size:clamp(2rem,5vw,3.5rem);margin-bottom:1rem;"><t t-esc="title"/></h1>
+              <p style="font-size:1.05rem;color:rgba(255,255,255,0.7);max-width:760px;"><t t-esc="subtitle"/></p>
+            </div>
+
+            <div class="sgc-grid-3" style="margin:2rem 0 2.25rem;">
+              <div class="sgc-card" style="padding:1.25rem;text-align:center;">
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Outcome</p>
+                <p style="font-size:1.25rem;font-weight:800;color:var(--sgc-electric-cyan);margin:0;"><t t-esc="kpi_1"/></p>
+              </div>
+              <div class="sgc-card" style="padding:1.25rem;text-align:center;">
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Operational Impact</p>
+                <p style="font-size:1.25rem;font-weight:800;color:var(--sgc-neon-green);margin:0;"><t t-esc="kpi_2"/></p>
+              </div>
+              <div class="sgc-card" style="padding:1.25rem;text-align:center;">
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem;">Delivery Promise</p>
+                <p style="font-size:1.25rem;font-weight:800;color:#4fc3f7;margin:0;"><t t-esc="kpi_3"/></p>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;gap:0.9rem;">
+              <a t-attf-href="/appointment?solution=#{slug}" class="sgc-btn sgc-btn-primary"><t t-esc="cta_label"/></a>
+              <a href="/pricing" class="sgc-btn sgc-btn-secondary">Compare Packages</a>
+              <a href="/success-stories" class="sgc-btn sgc-btn-secondary">See Client Results</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </t>
+  </template>
+
+</odoo>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_bank_monitor"
+            model="ir.ui.view">
+        <field name="name">res.config.settings.form.bank.email.monitor</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Bank Email Monitor"
+                     string="Bank Email Monitor"
+                     name="bank_email_monitor">
+
+                    <block title="IMAP Mailbox"
+                           name="bank_monitor_imap_settings">
+                        <setting string="IMAP Host"
+                                 help="Mail server hosting bank notifications (e.g. imap.gmail.com)">
+                            <field name="bank_monitor_imap_host"
+                                   placeholder="imap.gmail.com"/>
+                        </setting>
+                        <setting string="IMAP Port"
+                                 help="Usually 993 for SSL">
+                            <field name="bank_monitor_imap_port"/>
+                        </setting>
+                        <setting string="IMAP Username"
+                                 help="Full email address used to log in">
+                            <field name="bank_monitor_imap_user"
+                                   placeholder="bank-alerts@yourcompany.com"/>
+                        </setting>
+                        <setting string="IMAP Password"
+                                 help="App password (Gmail/Yahoo) or account password">
+                            <field name="bank_monitor_imap_pass"
+                                   password="True"/>
+                        </setting>
+                        <setting string="IMAP Folder"
+                                 help="Mailbox folder to monitor">
+                            <field name="bank_monitor_imap_folder"
+                                   placeholder="INBOX"/>
+                        </setting>
+                        <setting string="Lookback Days"
+                                 help="Only process unread emails newer than this number of days (1-90).">
+                            <field name="bank_monitor_lookback_days"/>
+                        </setting>
+                    </block>
+
+                    <block title="Vendor Pattern Rules"
+                           name="bank_monitor_vendor_rule_settings">
+                        <div class="text-muted mb8">
+                            Preferred setup: use Email Transactions -&gt; Vendor Rules for structured rule management.
+                            The text field below is kept for backward compatibility.
+                        </div>
+                        <setting string="Vendor Rules"
+                                 help="Define pattern rules that map vendor emails to transaction metadata.">
+                            <field name="bank_monitor_vendor_rules"
+                                    widget="text"
+                                   placeholder="NETFLIX|netflix|debit|debit_card|Subscriptions|"/>
+                        </setting>
+                        <div class="text-muted mt8">
+                            Format: Vendor Name|regex|transaction_type|payment_method|expense_category|account_name|sender_regex
+                        </div>
+                        <div class="text-muted">
+                            Example: ACME CLIENT|acme corp.*payment|credit|bank_transfer|Sales|Sales Revenue
+                        </div>
+                        <setting string="Default Bank Journal"
+                                 help="Used when parser does not find a journal from rules.">
+                            <field name="bank_monitor_default_bank_journal_id"/>
+                        </setting>
+                    </block>
+
+                    <block title="Automation"
+                           name="bank_monitor_automation_settings">
+                        <setting string="Auto-Confirm Threshold"
+                                 help="Minimum parser confidence (0-100) to auto-confirm. Set 100 to disable.">
+                            <field name="bank_monitor_auto_post_threshold"/>
+                        </setting>
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

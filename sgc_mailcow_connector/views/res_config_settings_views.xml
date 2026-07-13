@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.mailcow</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Mailcow" name="sgc_mailcow_connector">
+                    <block title="Mailcow Server" help="Connection to the Mailcow mail server API.">
+                        <setting string="Server URL" help="Root URL of the Mailcow UI, e.g. https://mail.sgctech.ai">
+                            <field name="mailcow_base_url" placeholder="https://mail.sgctech.ai"/>
+                        </setting>
+                        <setting string="API Key" help="Read-write key from Mailcow admin → Access → API. Stored in system parameters.">
+                            <field name="mailcow_api_key" password="True"/>
+                            <div class="mt8">
+                                <button name="action_mailcow_test_connection" type="object"
+                                        string="Test Connection" class="btn-secondary" icon="fa-plug"/>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Mailbox Defaults">
+                        <setting string="Default Domain" help="Domain new mailboxes are created under.">
+                            <field name="mailcow_default_domain" placeholder="sgctech.ai"/>
+                        </setting>
+                        <setting string="Default Quota (MB)">
+                            <field name="mailcow_default_quota_mb"/>
+                        </setting>
+                        <setting string="SMTP/IMAP Host Override"
+                                 help="Hostname used when provisioning Odoo mail servers; leave empty to reuse the server URL host.">
+                            <field name="mailcow_mail_host" placeholder="mail.sgctech.ai"/>
+                        </setting>
+                        <setting string="Auto-provision Mailboxes"
+                                 help="Create a Mailcow mailbox automatically when a new internal user is created under the default domain.">
+                            <field name="mailcow_auto_provision"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

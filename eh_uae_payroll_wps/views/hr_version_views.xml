@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_eh_hr_version_form_wps" model="ir.ui.view">
+        <field name="name">hr.version.form.wps</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr_payroll_community.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="UAE WPS" name="uae_wps">
+                    <group>
+                        <group string="WPS Codes">
+                            <field name="wps_employee_id"/>
+                            <field name="wps_agent_id"/>
+                            <field name="wps_routing_code"/>
+                        </group>
+                        <group string="Salary Bank">
+                            <field name="wps_iban"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

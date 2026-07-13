@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sgc26_remove_odoo_brand" inherit_id="web.frontend_layout" name="SGC26 Remove Odoo Brand Promotion" priority="99">
+        <xpath expr="//t[@t-call='web.brand_promotion']" position="replace"/>
+    </template>
+</odoo>

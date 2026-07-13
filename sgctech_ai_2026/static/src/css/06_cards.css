@@ -1,0 +1,140 @@
+/* ── 06_cards.css ─────────────────────────────────────────── */
+
+/* ── Base glass card ─────────────────────────────────────── */
+.sgc26-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease-spring);
+}
+.sgc26-card:hover {
+  border-color: var(--glass-border-h);
+  box-shadow: var(--glass-shadow-h);
+  transform: translateY(-4px);
+}
+
+/* ── Tilt card (3D effect via JS) ───────────────────────── */
+.sgc26-tilt-card {
+  transform-style: preserve-3d;
+  transform-origin: center center;
+  transition: transform 0.1s var(--ease-out);
+}
+.sgc26-tilt-card__inner {
+  transform: translateZ(20px);
+}
+
+/* ── Feature card ────────────────────────────────────────── */
+.sgc26-feature-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8);
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+.sgc26-feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-brand);
+  opacity: 0;
+  transition: opacity var(--t-base) var(--ease);
+}
+.sgc26-feature-card:hover::before { opacity: 1; }
+.sgc26-feature-card:hover {
+  border-color: var(--glass-border-h);
+  box-shadow: var(--glass-shadow-h);
+  transform: translateY(-6px);
+}
+.sgc26-feature-card__icon {
+  width: 52px; height: 52px;
+  background: var(--grad-glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--sp-6);
+  color: var(--cyan);
+  font-size: 1.4rem;
+}
+.sgc26-feature-card__title {
+  font-family: var(--font-head);
+  font-weight: var(--fw-bold);
+  font-size: 1.1rem;
+  color: var(--t1);
+  margin-bottom: var(--sp-3);
+}
+.sgc26-feature-card__body {
+  font-size: 0.9rem;
+  color: var(--t2);
+  line-height: 1.65;
+}
+
+/* ── KPI tile ────────────────────────────────────────────── */
+.sgc26-kpi-tile {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-xl);
+  padding: var(--sp-8) var(--sp-6);
+  text-align: center;
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease);
+}
+.sgc26-kpi-tile:hover {
+  border-color: var(--cyan-a35);
+  box-shadow: var(--glow-cyan);
+}
+.sgc26-kpi-tile__suffix {
+  font-family: var(--font-head);
+  font-size: 1.5rem;
+  font-weight: var(--fw-xbold);
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sgc26-kpi-tile__label {
+  font-size: 0.8rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-top: var(--sp-2);
+}
+.sgc26-kpi-tile__sub {
+  font-size: 0.75rem;
+  color: var(--t3);
+  margin-top: var(--sp-1);
+  font-family: var(--font-mono);
+}
+
+/* ── Trust logo pill ─────────────────────────────────────── */
+.sgc26-trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-lg);
+  font-size: 0.875rem;
+  color: var(--t2);
+  transition: border-color var(--t-fast) var(--ease);
+}
+.sgc26-trust-pill:hover { border-color: var(--cyan-a35); }
+
+/* ── Grid helpers ────────────────────────────────────────── */
+.sgc26-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-8); }
+.sgc26-grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--sp-8); }
+.sgc26-grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: var(--sp-6); }
+.sgc26-grid-auto { display: grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap: var(--sp-8); }

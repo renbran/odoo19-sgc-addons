@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="84" height="72.7" viewBox="0 0 84 72.7">
+    <!-- SGC shared geometry overlay: tileable gold hexagon lattice (background-repeat) -->
+    <g fill="none" stroke="currentColor" stroke-width="1.5">
+        <polygon points="21,2 63,2 84,36.35 63,70.7 21,70.7 0,36.35" />
+        <polygon points="63,2 105,2 126,36.35 105,70.7 63,70.7 42,36.35" transform="translate(-42,0)" />
+    </g>
+</svg>

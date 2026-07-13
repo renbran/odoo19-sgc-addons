@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════
+         SGC TECH AI — Website Builder Snippets
+         ══════════════════════════════════════════════════════ -->
+
+    <!-- ── Snippet panel registration (Odoo 19 style) ──── -->
+    <template id="sgctech_snippets" inherit_id="website.snippets" name="SGC TECH AI Snippets">
+        <xpath expr="//snippets[@id='snippet_structure']" position="inside">
+            <t t-snippet="website_sgctech_ai.s_sgc_glass_cards" string="SGC Glass Cards"
+               group="custom"
+               t-thumbnail="/website_sgctech_ai/static/src/img/thumb_glass_cards.svg"/>
+            <t t-snippet="website_sgctech_ai.s_sgc_stats" string="SGC Stats Counter"
+               group="custom"
+               t-thumbnail="/website_sgctech_ai/static/src/img/thumb_stats.svg"/>
+            <t t-snippet="website_sgctech_ai.s_sgc_cta" string="SGC CTA Banner"
+               group="custom"
+               t-thumbnail="/website_sgctech_ai/static/src/img/thumb_cta.svg"/>
+            <t t-snippet="website_sgctech_ai.s_sgc_pricing" string="SGC Pricing Cards"
+               group="custom"
+               t-thumbnail="/website_sgctech_ai/static/src/img/thumb_pricing.svg"/>
+            <t t-snippet="website_sgctech_ai.s_sgc_testimonials" string="SGC Testimonials"
+               group="custom"
+               t-thumbnail="/website_sgctech_ai/static/src/img/thumb_testi.svg"/>
+        </xpath>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Snippet: SGC Glass Card Row
+         ══════════════════════════════════════════════════════ -->
+    <template id="s_sgc_glass_cards" name="SGC Glass Cards">
+        <section class="sgc-section sgc-why-us" data-name="SGC Glass Cards"
+                 data-snippet="website_sgctech_ai.s_sgc_glass_cards">
+            <div class="container">
+                <div class="sgc-section-header">
+                    <span class="sgc-label">SECTION LABEL</span>
+                    <h2>Your Heading <span class="sgc-gradient-text">Here</span></h2>
+                    <p>Supporting description text goes here. Keep it concise and benefit-focused.</p>
+                </div>
+                <div class="sgc-why-grid sgc-stagger">
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon cyan">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <polygon points="16,3 28,17 18,17 16,29 4,15 14,15" fill="#00d4ff">
+                                    <animate attributeName="points" values="16,3 28,17 18,17 16,29 4,15 14,15;16,5 28,19 18,19 16,27 4,13 14,13;16,3 28,17 18,17 16,29 4,15 14,15" dur="1.2s" repeatCount="indefinite"/>
+                                </polygon>
+                            </svg>
+                        </div>
+                        <h3>Feature One</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon violet">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <circle cx="16" cy="16" r="12" fill="#7b2fbe"/>
+                                <circle cx="16" cy="16" r="6" fill="#fff">
+                                    <animate attributeName="r" values="6;8;6" dur="1.2s" repeatCount="indefinite"/>
+                                </circle>
+                                <rect x="15" y="6" width="2" height="10" fill="#fff"/>
+                            </svg>
+                        </div>
+                        <h3>Feature Two</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon green">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <polyline points="8,18 14,24 24,10" fill="none" stroke="#00e676" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <animate attributeName="points" values="8,18 14,24 24,10;8,20 14,26 24,12;8,18 14,24 24,10" dur="1.2s" repeatCount="indefinite"/>
+                                </polyline>
+                            </svg>
+                        </div>
+                        <h3>Feature Three</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon orange">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <path d="M16 26V6" stroke="#ff6b35" stroke-width="3" stroke-linecap="round"/>
+                                <polygon points="16,6 22,14 10,14" fill="#ff6b35">
+                                    <animate attributeName="points" values="16,6 22,14 10,14;16,8 22,16 10,16;16,6 22,14 10,14" dur="1.2s" repeatCount="indefinite"/>
+                                </polygon>
+                            </svg>
+                        </div>
+                        <h3>Feature Four</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon cyan">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <rect x="8" y="12" width="16" height="12" rx="2" fill="#00d4ff"/>
+                                <rect x="14" y="18" width="4" height="6" fill="#fff">
+                                    <animate attributeName="y" values="18;16;18" dur="1.2s" repeatCount="indefinite"/>
+                                </rect>
+                            </svg>
+                        </div>
+                        <h3>Feature Five</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                    <div class="sgc-why-card">
+                        <div class="sgc-why-icon violet">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                                <circle cx="16" cy="16" r="12" fill="#7b2fbe"/>
+                                <rect x="10" y="14" width="12" height="4" fill="#fff">
+                                    <animate attributeName="width" values="12;16;12" dur="1.2s" repeatCount="indefinite"/>
+                                </rect>
+                            </svg>
+                        </div>
+                        <h3>Feature Six</h3>
+                        <p>Brief description of this feature or benefit. Keep to 1–2 sentences.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Snippet: SGC Stats Counter Bar
+         ══════════════════════════════════════════════════════ -->
+    <template id="s_sgc_stats" name="SGC Stats Counter">
+        <section class="sgc-stats-section sgc-dot-bg" data-name="SGC Stats Counter"
+                 data-snippet="website_sgctech_ai.s_sgc_stats">
+            <div class="container">
+                <div class="sgc-stats-grid">
+                    <div class="sgc-counter-item">
+                        <span class="sgc-counter-number" data-count="1.15" data-decimals="2" data-suffix="B+">1.15B+</span>
+                        <span class="sgc-counter-label">AED Sales Volume</span>
+                    </div>
+                    <div class="sgc-counter-item">
+                        <span class="sgc-counter-number" data-count="104" data-suffix="%">104%</span>
+                        <span class="sgc-counter-label">Year-1 ROI</span>
+                    </div>
+                    <div class="sgc-counter-item">
+                        <span class="sgc-counter-number" data-count="580" data-suffix="+">580+</span>
+                        <span class="sgc-counter-label">Deals Managed</span>
+                    </div>
+                    <div class="sgc-counter-item">
+                        <span class="sgc-counter-number" data-count="5.9" data-decimals="1" data-suffix=" mo">5.9 mo</span>
+                        <span class="sgc-counter-label">Payback Period</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Snippet: SGC CTA Banner
+         ══════════════════════════════════════════════════════ -->
+    <template id="s_sgc_cta" name="SGC CTA Banner">
+        <section class="sgc-cta-section" data-name="SGC CTA Banner"
+                 data-snippet="website_sgctech_ai.s_sgc_cta">
+            <div class="sgc-cta-lines">
+                <div class="sgc-cta-line"/><div class="sgc-cta-line"/><div class="sgc-cta-line"/>
+            </div>
+            <div class="container">
+                <div class="sgc-cta-inner">
+                    <span class="sgc-label">CALL TO ACTION</span>
+                    <h2>Your Compelling <span class="sgc-gradient-text">Headline Here</span></h2>
+                    <p>Supporting text that reinforces the value proposition and drives the visitor to act now.</p>
+                    <div class="sgc-cta-buttons">
+                        <a href="#" class="sgc-btn sgc-btn-primary sgc-btn-lg">Primary Action</a>
+                        <a href="#" class="sgc-btn sgc-btn-ghost sgc-btn-lg">Secondary Action</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Snippet: SGC Pricing Cards
+         ══════════════════════════════════════════════════════ -->
+    <template id="s_sgc_pricing" name="SGC Pricing">
+        <section class="sgc-section sgc-pricing" data-name="SGC Pricing"
+                 data-snippet="website_sgctech_ai.s_sgc_pricing">
+            <div class="container">
+                <div class="sgc-section-header">
+                    <span class="sgc-label">PRICING</span>
+                    <h2>Simple, <span class="sgc-gradient-text">transparent</span> pricing</h2>
+                    <p>Implementation + subscription + optional retainer. Three transparent layers.</p>
+                </div>
+                <div class="sgc-pricing-grid">
+                    <!-- Starter -->
+                    <div class="sgc-pricing-card">
+                        <div class="sgc-pricing-tier">Starter</div>
+                        <div class="sgc-pricing-price">
+                            <div class="sgc-price-amount"><span class="sgc-price-currency">AED</span>15,000</div>
+                            <span class="sgc-price-period">one-time + AED 1,500/mo subscription</span>
+                        </div>
+                        <div class="sgc-pricing-divider"/>
+                        <ul class="sgc-pricing-features">
+                            <li><span class="check">✓</span> 5–8 core Odoo modules</li>
+                            <li><span class="check">✓</span> Basic workflows configured</li>
+                            <li><span class="check">✓</span> VAT compliance setup</li>
+                            <li><span class="check">✓</span> 30-day email support</li>
+                        </ul>
+                        <a href="#" class="sgc-btn sgc-btn-ghost sgc-btn-full">Get Started</a>
+                    </div>
+                    <!-- Growth (featured) -->
+                    <div class="sgc-pricing-card featured">
+                        <span class="sgc-pricing-badge">Popular</span>
+                        <div class="sgc-pricing-tier">Growth</div>
+                        <div class="sgc-pricing-price">
+                            <div class="sgc-price-amount grad"><span class="sgc-price-currency">AED</span>22,000</div>
+                            <span class="sgc-price-period">one-time + AED 2,500/mo subscription</span>
+                        </div>
+                        <div class="sgc-pricing-divider"/>
+                        <ul class="sgc-pricing-features">
+                            <li><span class="check">✓</span> 12–18 modules + integrations</li>
+                            <li><span class="check">✓</span> Advanced automations</li>
+                            <li><span class="check">✓</span> Corporate Tax &amp; RERA compliance</li>
+                            <li><span class="check">✓</span> 90-day priority support</li>
+                        </ul>
+                        <a href="#" class="sgc-btn sgc-btn-primary sgc-btn-full">Get Started</a>
+                    </div>
+                    <!-- Professional -->
+                    <div class="sgc-pricing-card">
+                        <div class="sgc-pricing-tier">Professional</div>
+                        <div class="sgc-pricing-price">
+                            <div class="sgc-price-amount"><span class="sgc-price-currency">AED</span>40,000</div>
+                            <span class="sgc-price-period">one-time + AED 4,500/mo subscription</span>
+                        </div>
+                        <div class="sgc-pricing-divider"/>
+                        <ul class="sgc-pricing-features">
+                            <li><span class="check">✓</span> 20+ modules, full stack</li>
+                            <li><span class="check">✓</span> AI analytics &amp; reporting</li>
+                            <li><span class="check">✓</span> Custom dashboards &amp; API integrations</li>
+                            <li><span class="check">✓</span> 180-day dedicated support</li>
+                        </ul>
+                        <a href="#" class="sgc-btn sgc-btn-secondary sgc-btn-full">Get Started</a>
+                    </div>
+                    <!-- Enterprise -->
+                    <div class="sgc-pricing-card">
+                        <div class="sgc-pricing-tier">Enterprise</div>
+                        <div class="sgc-pricing-price">
+                            <span class="sgc-price-from">From</span>
+                            <div class="sgc-price-amount"><span class="sgc-price-currency">AED</span>75,000</div>
+                            <span class="sgc-price-period">+ From AED 7,500/mo subscription</span>
+                        </div>
+                        <div class="sgc-pricing-divider"/>
+                        <ul class="sgc-pricing-features">
+                            <li><span class="check">✓</span> Unlimited modules &amp; custom dev</li>
+                            <li><span class="check">✓</span> Dedicated account manager</li>
+                            <li><span class="check">✓</span> SLA guarantee &amp; on-site support</li>
+                            <li><span class="check">✓</span> Staff training (2 sessions)</li>
+                        </ul>
+                        <a href="#" class="sgc-btn sgc-btn-ghost sgc-btn-full">Contact Us</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Snippet: SGC Testimonials
+         ══════════════════════════════════════════════════════ -->
+    <template id="s_sgc_testimonials" name="SGC Testimonials">
+        <section class="sgc-section sgc-testimonials" data-name="SGC Testimonials"
+                 data-snippet="website_sgctech_ai.s_sgc_testimonials">
+            <div class="container">
+                <div class="sgc-section-header">
+                    <span class="sgc-label">TESTIMONIALS</span>
+                    <h2>What our <span class="sgc-gradient-text">clients say</span></h2>
+                </div>
+                <div class="sgc-testi-grid">
+                    <div class="sgc-testi-card">
+                        <div class="sgc-testi-quote-icon">"</div>
+                        <div class="sgc-testi-stars">★★★★★</div>
+                        <p class="sgc-testi-text">Your client testimonial goes here. Make it specific and results-focused for maximum impact.</p>
+                        <div class="sgc-testi-author">
+                            <div class="sgc-testi-avatar">JD</div>
+                            <div>
+                                <div class="sgc-testi-name">Client Name</div>
+                                <div class="sgc-testi-role">Role · Company Name</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sgc-testi-card">
+                        <div class="sgc-testi-quote-icon">"</div>
+                        <div class="sgc-testi-stars">★★★★★</div>
+                        <p class="sgc-testi-text">Another powerful testimonial from a satisfied client. Specific outcomes make these more credible.</p>
+                        <div class="sgc-testi-author">
+                            <div class="sgc-testi-avatar">AB</div>
+                            <div>
+                                <div class="sgc-testi-name">Client Name</div>
+                                <div class="sgc-testi-role">Role · Company Name</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sgc-testi-card">
+                        <div class="sgc-testi-quote-icon">"</div>
+                        <div class="sgc-testi-stars">★★★★★</div>
+                        <p class="sgc-testi-text">Third testimonial here. Three testimonials creates strong social proof without overwhelming the reader.</p>
+                        <div class="sgc-testi-author">
+                            <div class="sgc-testi-avatar">CD</div>
+                            <div>
+                                <div class="sgc-testi-name">Client Name</div>
+                                <div class="sgc-testi-role">Role · Company Name</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

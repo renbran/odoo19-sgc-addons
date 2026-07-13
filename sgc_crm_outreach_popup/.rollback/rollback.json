@@ -1,0 +1,21 @@
+{
+  "description": "Rollback for sgc_crm_outreach_popup installation and mail cleanup",
+  "created": "2026-06-11",
+  "steps": [
+    {
+      "id": "cleanup_408_failed",
+      "sql": "UPDATE mail_mail SET state='cancel' WHERE id IN (SELECT id FROM mail_mail WHERE state='exception' AND (email_to IS NULL OR email_to = ''))",
+      "count": "SELECT count(*) FROM mail_mail WHERE state='exception'"
+    },
+    {
+      "id": "cleanup_test_creds",
+      "sql": "UPDATE mail_mail SET state='cancel' WHERE id IN (1084,1085,1082,1083,1081) AND email_to IN ('naveens2001@gmail.com','Raj.vin2005@gmail.com')",
+      "count": "SELECT count(*) FROM mail_mail WHERE id IN (1084,1085,1082,1083,1081)"
+    },
+    {
+      "id": "cleanup_lead_credentials",
+      "sql": "DELETE FROM crm_lead WHERE id IN (SELECT id FROM crm_lead WHERE email_from IN ('naveens2001@gmail.com','Raj.vin2005@gmail.com') AND type='lead')",
+      "count": "SELECT count(*) FROM crm_lead WHERE email_from IN ('naveens2001@gmail.com','Raj.vin2005@gmail.com') AND type='lead'"
+    }
+  ]
+}

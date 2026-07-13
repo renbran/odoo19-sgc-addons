@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="AuroraMap">
+        <div class="aurora-map-container w-100 h-100 position-relative bg-slate-900 overflow-hidden rounded-3 shadow-lg">
+
+            <!-- UAE SVG BACKGROUND -->
+            <svg viewBox="0 0 1000 800" class="uae-svg-base w-100 h-100">
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Simplified Emirate Paths (Abstracted for scale) -->
+                <g class="emirates-layer">
+                    <!-- Abu Dhabi -->
+                    <path d="M 100 700 L 400 750 L 500 550 L 300 400 Z" class="emirate-path" t-att-class="{'active': true}"/>
+                    <!-- Dubai -->
+                    <path d="M 550 450 L 650 350 L 700 400 L 600 500 Z" class="emirate-path"/>
+                    <!-- Sharjah + Northern Emirates -->
+                    <path d="M 700 300 L 850 150 L 950 350 L 750 450 Z" class="emirate-path"/>
+                </g>
+
+                <!-- Heatmap Overlay (Mocked via Radial Gradients) -->
+                <g t-if="state.heatmapEnabled" class="heatmap-layer opacity-50">
+                    <t t-foreach="state.projects" t-as="p" t-key="'heat_' + p.id">
+                        <t t-set="pos" t-value="projectToSVG(p.latitude, p.longitude)"/>
+                        <circle t-att-cx="pos.x" t-att-cy="pos.y" r="40" fill="url(#heatGradient)"/>
+                    </t>
+                    <radialGradient id="heatGradient">
+                        <stop offset="0%" stop-color="rgba(59, 130, 246, 0.5)"/>
+                        <stop offset="100%" stop-color="transparent"/>
+                    </radialGradient>
+                </g>
+
+                <!-- Dynamic Project Pins / Clusters -->
+                <g class="pins-layer">
+                    <t t-foreach="state.clusters" t-as="c" t-key="c.id">
+                        <t t-set="pos" t-value="projectToSVG(c.center.lat, c.center.lon)"/>
+
+                        <!-- Single Project Pin -->
+                        <g t-if="c.projects.length === 1" class="map-pin-group" t-on-click="() => this.onPinClick(c.projects[0])">
+                            <circle t-att-cx="pos.x" t-att-cy="pos.y" r="8" t-attf-class="pin-core pin-{{c.worstStatus}}" filter="url(#glow)"/>
+                            <circle t-att-cx="pos.x" t-att-cy="pos.y" r="15" t-attf-class="pin-pulse pin-{{c.worstStatus}}"/>
+                        </g>
+
+                        <!-- Cluster Pin -->
+                        <g t-if="c.projects.length > 1" class="map-cluster-group">
+                            <circle t-att-cx="pos.x" t-att-cy="pos.y" r="18" class="cluster-base" filter="url(#glow)"/>
+                            <text t-att-x="pos.x" t-att-y="pos.y" dy=".3em" text-anchor="middle" class="cluster-text">
+                                <t t-esc="c.projects.length"/>
+                            </text>
+                        </g>
+                    </t>
+                </g>
+            </svg>
+
+            <!-- MAP OVERLAY CONTROLS -->
+            <div class="map-controls position-absolute top-0 end-0 p-3 d-flex flex-column gap-2">
+                <button class="btn btn-dark btn-sm rounded-pill opacity-75" t-on-click="() => state.heatmapEnabled = !state.heatmapEnabled">
+                    <i class="fa fa-fire me-2"/> HEATMAP
+                </button>
+            </div>
+
+            <!-- PIN DETAIL POPUP -->
+            <div t-if="state.selectedProject" class="project-detail-popup position-absolute glass-effect p-4 rounded-4 shadow-2xl animate-fade-in" style="top: 10%; right: 30px; width: 320px; z-index: 1100;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h5 class="fw-900 m-0 text-white"><t t-esc="state.selectedProject.name"/></h5>
+                    <button class="btn-close btn-close-white btn-sm" t-on-click="closePopup"/>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-slate-400 smaller fw-bold">PROGRESS</div>
+                            <div class="fs-5 fw-800 text-white"><t t-esc="state.selectedProject.progress"/>%</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-slate-400 smaller fw-bold">MARGIN</div>
+                            <div class="fs-5 fw-800 text-emerald"><t t-esc="state.selectedProject.margin_percent.toFixed(1)"/>%</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-slate-400 smaller fw-bold">BUDGET CONSUMED</div>
+                            <div t-attf-class="fs-6 fw-800 {{state.selectedProject.budget_consumed > 100 ? 'text-red' : 'text-white'}}">
+                                <t t-esc="state.selectedProject.budget_consumed.toFixed(1)"/>%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-top border-slate-700 pt-3 mt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="smaller text-slate-400">Project Manager</span>
+                            <span class="small fw-bold text-white"><t t-esc="state.selectedProject.project_manager_id[1]"/></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="smaller text-slate-400">Open NCRs</span>
+                            <span t-attf-class="badge rounded-pill {{state.selectedProject.open_ncr_count > 0 ? 'bg-red' : 'bg-slate-700'}}">
+                                <t t-esc="state.selectedProject.open_ncr_count"/>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="smaller text-slate-400">Weather</span>
+                            <span class="small text-white"><i class="fa fa-cloud me-1"/> <t t-esc="state.selectedProject.weather_status"/></span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 mt-4 py-2 fw-900 rounded-3" t-on-click="() => navigateToProject(state.selectedProject.id)">
+                        COMMAND CENTER ENTRY
+                    </button>
+                </div>
+            </div>
+
+            <!-- PIN LEGEND -->
+            <div class="map-legend position-absolute bottom-0 start-0 p-3 m-3 glass-effect rounded-3">
+                <div class="d-flex gap-3 smaller fw-bold text-white">
+                    <div class="d-flex align-items-center gap-1"><div class="bg-green rounded-circle" style="width:10px;height:10px"></div> HEALTHY</div>
+                    <div class="d-flex align-items-center gap-1"><div class="bg-orange rounded-circle" style="width:10px;height:10px"></div> AT RISK</div>
+                    <div class="d-flex align-items-center gap-1"><div class="bg-red rounded-circle" style="width:10px;height:10px"></div> CRITICAL</div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── SHOP PRODUCT CARD — digital badge above action button ─────────── -->
+  <template id="sgc_digital_badge_product_item"
+            inherit_id="website_sale.products_item"
+            name="Digital Product Badge">
+    <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="before">
+      <t t-if="product.is_digital">
+        <span class="sgc-digital-badge">
+          <i class="fa fa-download"/> Digital
+        </span>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- ── PRODUCT DETAIL PAGE — digital notice above CTA section ────────── -->
+  <template id="sgc_digital_notice_product_page"
+            inherit_id="website_sale.product"
+            name="Digital Product Notice">
+    <xpath expr="//div[hasclass('o_wsale_product_details_content_section_cta')]" position="before">
+      <t t-if="product.is_digital">
+        <div class="sgc-digital-notice alert alert-info mb-3">
+          <i class="fa fa-download me-2"/>
+          <strong>Digital Product</strong> &#8212; Your file downloads instantly
+          after payment is confirmed. You can also re-download anytime from
+          <a href="/my/downloads">My Downloads</a>.
+        </div>
+      </t>
+    </xpath>
+  </template>
+
+  <!-- ── PAYMENT CONFIRMATION PAGE — auto-download + download buttons ─── -->
+  <template id="sgc_digital_confirmation_downloads"
+            inherit_id="website_sale.confirmation"
+            name="Digital Product Download on Confirmation">
+    <!-- Inject after the order name heading -->
+    <xpath expr="//div[@id='order_name']" position="after">
+      <t t-set="digital_lines" t-value="order._get_digital_lines()"/>
+      <t t-if="digital_lines and order.state in ('sale', 'done')">
+
+        <div class="sgc-digital-confirm-card mt-3 mb-4 p-4"
+             style="background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.25);border-radius:14px;">
+
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <span style="font-size:1.5rem;">⚡</span>
+            <h5 class="mb-0" style="color:#00D4FF;font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:.04em;">
+              Your Download Is Ready
+            </h5>
+          </div>
+
+          <p class="text-muted mb-3" style="font-size:.875rem;">
+            Click below to download your file(s). Links are also sent to
+            <strong><t t-esc="order.partner_id.email"/></strong>
+            and are always available in
+            <a href="/my/downloads" style="color:#00D4FF;">My Downloads</a>.
+          </p>
+
+          <div class="d-flex flex-wrap gap-2">
+            <t t-foreach="digital_lines" t-as="line">
+              <t t-set="tmpl" t-value="line.product_id.product_tmpl_id"/>
+              <a t-attf-href="/shop/digital/download?order_id=#{order.id}&amp;access_token=#{order.access_token}&amp;product_id=#{line.product_id.id}"
+                 class="sgc-dl-btn btn"
+                 style="background:linear-gradient(135deg,#00D4FF,#7B2FBE);color:#fff;border:none;border-radius:9999px;padding:.6rem 1.4rem;font-weight:700;font-size:.875rem;text-decoration:none;"
+                 t-att-data-filename="tmpl.digital_filename or 'download.zip'">
+                <i class="fa fa-download me-1"/>
+                <t t-esc="tmpl.digital_filename or 'download.zip'"/>
+              </a>
+            </t>
+          </div>
+
+        </div>
+
+        <!-- Auto-download JS: triggers download for each digital file on page load -->
+        <script>
+        (function () {
+            "use strict";
+            var buttons = document.querySelectorAll(".sgc-dl-btn");
+            if (!buttons.length) return;
+            // Trigger the first file immediately, subsequent ones with 1.2s gaps
+            buttons.forEach(function (btn, idx) {
+                setTimeout(function () {
+                    var link = document.createElement("a");
+                    link.href = btn.href;
+                    link.download = btn.dataset.filename || "download";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, idx * 1200);
+            });
+        })();
+        </script>
+
+      </t>
+    </xpath>
+  </template>
+
+  <!-- ── PORTAL MY DOWNLOADS PAGE ───────────────────────────────────────── -->
+  <template id="portal_my_downloads" name="My Downloads">
+    <t t-call="portal.portal_layout">
+      <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+      <t t-call="portal.portal_searchbar">
+        <t t-set="title">My Downloads</t>
+      </t>
+
+      <div class="o_portal_wrap">
+        <div class="container py-5">
+
+          <div class="row">
+            <div class="col-12">
+              <h2 style="font-family:'Orbitron',sans-serif;color:#00D4FF;font-size:1.4rem;margin-bottom:1.5rem;">
+                <i class="fa fa-download me-2"/>My Digital Downloads
+              </h2>
+
+              <t t-if="not digital_orders">
+                <div class="alert alert-info">
+                  No digital products found in your orders yet.
+                  <a href="/shop" class="alert-link">Browse our products</a>.
+                </div>
+              </t>
+
+              <t t-foreach="digital_orders" t-as="entry">
+                <t t-set="order" t-value="entry['order']"/>
+                <div class="card mb-4" style="background:rgba(13,31,56,0.65);border:1px solid rgba(0,212,255,0.18);border-radius:14px;overflow:hidden;">
+
+                  <!-- Order header -->
+                  <div class="card-header d-flex justify-content-between align-items-center"
+                       style="background:rgba(0,212,255,0.07);border-bottom:1px solid rgba(0,212,255,0.15);">
+                    <span style="font-weight:700;color:#E8F4FD;">
+                      <i class="fa fa-shopping-bag me-2" style="color:#00D4FF;"/>
+                      <t t-esc="order.name"/>
+                    </span>
+                    <span class="text-muted" style="font-size:.8rem;">
+                      <t t-esc="order.date_order" t-options='{"widget":"date"}'/>
+                    </span>
+                  </div>
+
+                  <!-- File rows -->
+                  <div class="card-body p-3">
+                    <t t-foreach="entry['items']" t-as="item">
+                      <div class="d-flex justify-content-between align-items-center py-2"
+                           t-att-class="'border-bottom' if not item_last else ''">
+                        <div>
+                          <div style="font-weight:600;color:#E8F4FD;font-size:.9rem;">
+                            <t t-esc="item['product_name']"/>
+                          </div>
+                          <div style="font-size:.78rem;color:#8FB3D9;">
+                            <i class="fa fa-file-zip-o me-1"/>
+                            <t t-esc="item['filename']"/>
+                          </div>
+                        </div>
+                        <a t-att-href="item['download_url']"
+                           class="btn btn-sm"
+                           style="background:linear-gradient(135deg,#00D4FF,#7B2FBE);color:#fff;border:none;border-radius:9999px;padding:.4rem 1.1rem;font-weight:700;font-size:.8rem;white-space:nowrap;">
+                          <i class="fa fa-download me-1"/>Download
+                        </a>
+                      </div>
+                    </t>
+                  </div>
+
+                </div>
+              </t>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </t>
+  </template>
+
+</odoo>
+

@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Learning Quiz Views -->
+    <record id="view_learning_quiz_tree" model="ir.ui.view">
+        <field name="name">learning.quiz.tree</field>
+        <field name="model">learning.quiz</field>
+        <field name="arch" type="xml">
+            <list string="Quizzes">
+                <field name="name"/>
+                <field name="description"/>
+                <field name="question_count"/>
+                <field name="passing_score"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_learning_quiz_form" model="ir.ui.view">
+        <field name="name">learning.quiz.form</field>
+        <field name="model">learning.quiz</field>
+        <field name="arch" type="xml">
+            <form string="Quiz">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="passing_score"/>
+                            <field name="time_limit"/>
+                            <field name="allow_retake"/>
+                        </group>
+                        <group>
+                            <field name="show_result_immediately"/>
+                            <field name="randomize_questions"/>
+                            <field name="randomize_options"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description" placeholder="Enter quiz description..."/>
+                        </page>
+                        <page string="Questions">
+                            <field name="question_ids" nolabel="1">
+                                <list editable="bottom" string="Questions">
+                                    <field name="sequence"/>
+                                    <field name="question_type"/>
+                                    <field name="question_text"/>
+                                    <field name="points"/>
+                                    <field name="position"/>
+                                    <field name="is_required"/>
+                                    <field name="option_ids" invisible="1"/>
+                                </list>
+                                <form string="Question">
+                                    <group>
+                                        <group>
+                                            <field name="question_type"/>
+                                            <field name="points"/>
+                                            <field name="position"/>
+                                            <field name="is_required"/>
+                                        </group>
+                                        <group>
+                                            <field name="sequence"/>
+                                        </group>
+                                    </group>
+                                    <notebook>
+                                        <page string="Question">
+                                            <field name="question_text" placeholder="Enter the question text..."/>
+                                        </page>
+                                        <page string="Explanation" invisible="question_type == 'fill_blank'">
+                                            <field name="explanation" placeholder="Enter explanation..."/>
+                                        </page>
+                                        <page string="Options" invisible="question_type == 'fill_blank'">
+                                            <field name="option_ids" nolabel="1">
+                                                <list editable="bottom" string="Options">
+                                                    <field name="sequence"/>
+                                                    <field name="text"/>
+                                                    <field name="is_correct"/>
+                                                    <field name="explanation"/>
+                                                </list>
+                                                <form string="Option">
+                                                    <group>
+                                                        <field name="text"/>
+                                                        <field name="is_correct"/>
+                                                    </group>
+                                                    <field name="explanation" placeholder="Enter explanation..."/>
+                                                </form>
+                                            </field>
+                                        </page>
+                                        <page string="Answer" invisible="question_type != 'fill_blank'">
+                                            <group>
+                                                <field name="correct_answer"/>
+                                                <field name="fill_blank_count"/>
+                                            </group>
+                                        </page>
+                                    </notebook>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_learning_quiz_question_tree" model="ir.ui.view">
+        <field name="name">learning.quiz.question.tree</field>
+        <field name="model">learning.quiz.question</field>
+        <field name="arch" type="xml">
+            <list string="Questions">
+                <field name="sequence"/>
+                <field name="quiz_id"/>
+                <field name="question_type"/>
+                <field name="question_text"/>
+                <field name="points"/>
+                <field name="position"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_learning_quiz_question_form" model="ir.ui.view">
+        <field name="name">learning.quiz.question.form</field>
+        <field name="model">learning.quiz.question</field>
+        <field name="arch" type="xml">
+            <form string="Question">
+                <group>
+                    <group>
+                        <field name="quiz_id"/>
+                        <field name="question_type"/>
+                        <field name="points"/>
+                        <field name="position"/>
+                    </group>
+                    <group>
+                        <field name="sequence"/>
+                        <field name="is_required"/>
+                    </group>
+                </group>
+                <notebook>
+                    <page string="Question">
+                        <field name="question_text" placeholder="Enter the question text..."/>
+                    </page>
+                    <page string="Explanation" invisible="question_type == 'fill_blank'">
+                        <field name="explanation" placeholder="Enter explanation..."/>
+                    </page>
+                    <page string="Options" invisible="question_type == 'fill_blank'">
+                        <field name="option_ids" nolabel="1">
+                            <list editable="bottom" string="Options">
+                                <field name="sequence"/>
+                                <field name="text"/>
+                                <field name="is_correct"/>
+                                <field name="explanation"/>
+                            </list>
+                            <form string="Option">
+                                <group>
+                                    <field name="text"/>
+                                    <field name="is_correct"/>
+                                </group>
+                                <field name="explanation" placeholder="Enter explanation..."/>
+                            </form>
+                        </field>
+                    </page>
+                    <page string="Answer" invisible="question_type != 'fill_blank'">
+                        <group>
+                            <field name="correct_answer"/>
+                            <field name="fill_blank_count"/>
+                        </group>
+                    </page>
+                </notebook>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_learning_quiz_attempt_tree" model="ir.ui.view">
+        <field name="name">learning.quiz.attempt.tree</field>
+        <field name="model">learning.quiz.attempt</field>
+        <field name="arch" type="xml">
+            <list string="Quiz Attempts" decoration-success="state=='passed'" decoration-warning="state=='failed'">
+                <field name="quiz_id"/>
+                <field name="user_id"/>
+                <field name="state"/>
+                <field name="score"/>
+                <field name="percentage"/>
+                <field name="time_spent"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_learning_quiz_attempt_form" model="ir.ui.view">
+        <field name="name">learning.quiz.attempt.form</field>
+        <field name="model">learning.quiz.attempt</field>
+        <field name="arch" type="xml">
+            <form string="Quiz Attempt">
+                <header>
+                    <button name="action_complete" string="Complete Attempt" type="object" invisible="state != 'in_progress'" class="btn-primary"/>
+                    <button name="action_reset" string="Reset" type="object" invisible="state == 'in_progress'" class="btn-secondary"/>
+                    <field name="state" widget="statusbar" statusbar_visible="in_progress,completed,failed,passed"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="quiz_id"/>
+                            <field name="user_id"/>
+                            <field name="start_time"/>
+                            <field name="end_time"/>
+                        </group>
+                        <group>
+                            <field name="score"/>
+                            <field name="max_score"/>
+                            <field name="percentage"/>
+                            <field name="time_spent"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Answers">
+                            <field name="answer_ids" nolabel="1">
+                                <list editable="bottom" string="Answers">
+                                    <field name="sequence"/>
+                                    <field name="question_id"/>
+                                    <field name="answer_text"/>
+                                    <field name="selected_options"/>
+                                    <field name="is_correct"/>
+                                    <field name="score"/>
+                                </list>
+                                <form string="Answer">
+                                    <group>
+                                        <group>
+                                            <field name="question_id"/>
+                                            <field name="answer_text"/>
+                                            <field name="is_correct"/>
+                                            <field name="score"/>
+                                        </group>
+                                        <group>
+                                            <field name="selected_options"/>
+                                        </group>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Feedback">
+                            <field name="feedback" placeholder="Enter feedback..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_learning_quiz" model="ir.actions.act_window">
+        <field name="name">Quizzes</field>
+        <field name="res_model">learning.quiz</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quizzes found
+            </p>
+            <p>
+                Create a new quiz to start testing knowledge.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_learning_quiz_question" model="ir.actions.act_window">
+        <field name="name">Questions</field>
+        <field name="res_model">learning.quiz.question</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No questions found
+            </p>
+            <p>
+                Create a new question to add to quizzes.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_learning_quiz_attempt" model="ir.actions.act_window">
+        <field name="name">Quiz Attempts</field>
+        <field name="res_model">learning.quiz.attempt</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No quiz attempts found
+            </p>
+            <p>
+                Quiz attempts will appear here when users take quizzes.
+            </p>
+        </field>
+    </record>
+</odoo>

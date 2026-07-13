@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Multi-Company Record Rule for LLM Provider -->
+    <record id="llm_provider_comp_rule" model="ir.rule">
+        <field name="name">LLM Provider: multi-company</field>
+        <field name="model_id" ref="model_llm_provider"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Set /sgctech-home as the website homepage URL.
+         noupdate="0" so every module upgrade re-applies this.
+         Targets the default website created by the website module. -->
+    <data noupdate="0">
+        <record id="website.default_website" model="website">
+            <field name="homepage_url">/sgctech-home</field>
+        </record>
+    </data>
+</odoo>

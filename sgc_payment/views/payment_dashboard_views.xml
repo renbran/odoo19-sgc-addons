@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_payment_dashboard_tree" model="ir.ui.view">
+        <field name="name">payment.dashboard.tree</field>
+        <field name="model">payment.dashboard</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="total_payments"/>
+                <field name="total_approved"/>
+                <field name="total_pending"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_payment_dashboard_form" model="ir.ui.view">
+        <field name="name">payment.dashboard.form</field>
+        <field name="model">payment.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Payment Dashboard">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="total_payments" readonly="1"/>
+                        <field name="total_approved" readonly="1"/>
+                        <field name="total_pending" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="action_payment_dashboard" model="ir.actions.act_window">
+        <field name="name">Payment Dashboard</field>
+        <field name="res_model">payment.dashboard</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help">Overview of payment statistics and workflow status.</field>
+    </record>
+</odoo>

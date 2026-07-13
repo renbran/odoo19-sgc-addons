@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+sgc_meeting_provider_user,Meeting provider user,model_sgc_meeting_provider,base.group_user,1,0,0,0
+sgc_meeting_provider_manager,Meeting provider manager,model_sgc_meeting_provider,base.group_system,1,1,1,1
+sgc_meeting_recording_user,Meeting recording user,model_sgc_meeting_recording,base.group_user,1,0,0,0
+sgc_meeting_recording_manager,Meeting recording manager,model_sgc_meeting_recording,base.group_system,1,1,1,1
+sgc_meeting_transcript_user,Meeting transcript user,model_sgc_meeting_transcript,base.group_user,1,0,0,0
+sgc_meeting_transcript_manager,Meeting transcript manager,model_sgc_meeting_transcript,base.group_system,1,1,1,1
+sgc_meeting_notes_user,Meeting notes user,model_sgc_meeting_notes,base.group_user,1,0,0,0
+sgc_meeting_notes_manager,Meeting notes manager,model_sgc_meeting_notes,base.group_system,1,1,1,1
+sgc_meeting_session_user,Meeting session user,model_sgc_meeting_session,base.group_user,1,0,0,0
+sgc_meeting_session_manager,Meeting session manager,model_sgc_meeting_session,base.group_system,1,1,1,1

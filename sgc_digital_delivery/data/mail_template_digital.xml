@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+
+  <record id="mail_template_digital_delivery" model="mail.template">
+    <field name="name">Digital Product Delivery</field>
+    <field name="model_id" ref="sale.model_sale_order"/>
+    <field name="subject">Your download is ready — {{ object.name }}</field>
+    <field name="email_from">{{ object.company_id.email or user.email }}</field>
+    <field name="email_to">{{ object.partner_id.email }}</field>
+    <field name="reply_to">{{ object.company_id.email or user.email }}</field>
+    <field name="body_html" type="html">
+<div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a14;color:#e0e6f0;border-radius:12px;overflow:hidden;border:1px solid #ffffff1a;">
+
+  <div style="background:linear-gradient(135deg,#00d4ff18,#7b2fbe18);padding:40px 32px;border-bottom:1px solid #00d4ff30;text-align:center;">
+    <h1 style="margin:0 0 8px;font-size:26px;color:#00d4ff;font-weight:800;letter-spacing:-0.5px;">Your Download is Ready!</h1>
+    <p style="margin:0;color:#a0aec0;font-size:14px;">Order <strong style="color:#e0e6f0;">{{ object.name }}</strong></p>
+  </div>
+
+  <div style="padding:32px;">
+    <p style="margin:0 0 16px;font-size:16px;line-height:1.5;">
+      Hi <strong style="color:#00d4ff;">{{ object.partner_id.name }}</strong>,
+    </p>
+    <p style="margin:0 0 24px;color:#a0aec0;line-height:1.6;font-size:14px;">
+      Thank you for your purchase! Your digital product(s) are listed below.
+      Click <strong>Download File</strong> to access your product, or use the attachment(s) in this email.
+    </p>
+
+    {% set base = object.get_base_url() %}
+    {% for line in object.order_line %}
+      {% if line.product_id.is_digital and line.product_id.product_tmpl_id.digital_file %}
+    <div style="background:#ffffff0d;border:1px solid #ffffff1a;border-radius:8px;padding:18px 20px;margin-bottom:12px;">
+      <p style="margin:0 0 4px;font-weight:700;color:#e0e6f0;font-size:15px;">{{ line.product_id.name }}</p>
+      <p style="margin:0 0 12px;color:#a0aec0;font-size:12px;">{{ line.product_id.product_tmpl_id.digital_filename or 'download.zip' }}</p>
+      <a href="{{ base }}/shop/digital/download?order_id={{ object.id }}&amp;access_token={{ object.access_token }}&amp;product_id={{ line.product_id.id }}"
+         style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7b2fbe);color:#fff;text-decoration:none;padding:10px 20px;border-radius:6px;font-weight:700;font-size:13px;">
+        Download File
+      </a>
+    </div>
+      {% endif %}
+    {% endfor %}
+
+    <div style="text-align:center;margin:28px 0 20px;">
+      <a href="{{ base }}{{ object.get_portal_url() }}"
+         style="display:inline-block;background:#ffffff14;border:1px solid #ffffff30;color:#e0e6f0;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:600;font-size:14px;">
+        View Full Order
+      </a>
+    </div>
+
+    <p style="margin:0;color:#718096;font-size:12px;line-height:1.6;text-align:center;">
+      Download links are tied to your order and expire if the order is cancelled.
+      Questions? <a href="https://sgctech.ai/contact" style="color:#00d4ff;">Contact us</a>.
+    </p>
+  </div>
+
+  <div style="padding:18px 32px;border-top:1px solid #ffffff0d;text-align:center;">
+    <p style="margin:0;color:#4a5568;font-size:11px;">SGC TECH AI &#8226; Dubai, UAE &#8226; <a href="https://sgctech.ai" style="color:#00d4ff;">sgctech.ai</a></p>
+  </div>
+
+</div>
+    </field>
+    <field name="auto_delete">True</field>
+  </record>
+
+</data>
+</odoo>
+

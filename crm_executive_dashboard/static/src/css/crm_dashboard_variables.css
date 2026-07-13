@@ -1,0 +1,57 @@
+/* =====================================================================
+   CRM Executive Dashboard — Brand Variables
+   =====================================================================
+   Single source of truth for the colour palette. Every other CSS file
+   references these via var(--ced-*). Change a value here and the
+   whole dashboard updates.
+   ===================================================================== */
+
+:root {
+    /* Brand palette — Navy & Gold Executive Command Center */
+    --ced-primary: #07111F;
+    --ced-primary-light: #0E1B2E;
+    --ced-secondary: #C7A23A;
+    --ced-magenta: #E74C3C;
+    --ced-coral: #c0392b;
+    --ced-amber: #f39c12;
+    --ced-white: #e0e0e0;
+    --ced-ivory: #0E1B2E;
+    --ced-success: #1EC198;
+    --ced-warning: #f39c12;
+    --ced-danger: #E74C3C;
+
+    /* Derived shades */
+    --ced-primary-90: rgba(7, 17, 31, 0.9);
+    --ced-primary-10: rgba(7, 17, 31, 0.1);
+    --ced-secondary-soft: rgba(199, 162, 58, 0.15);
+    --ced-magenta-soft: rgba(231, 76, 60, 0.25);
+    --ced-ivory-warm: #0E1B2E;
+
+    /* Typography */
+    --ced-font-display: "Cinzel Decorative", "Times New Roman", serif;
+    --ced-font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --ced-font-mono: "Share Tech Mono", "Courier New", monospace;
+
+    /* Spacing */
+    --ced-space-xs: 4px;
+    --ced-space-sm: 8px;
+    --ced-space-md: 16px;
+    --ced-space-lg: 24px;
+    --ced-space-xl: 32px;
+
+    /* Radius */
+    --ced-radius-sm: 4px;
+    --ced-radius-md: 8px;
+    --ced-radius-lg: 12px;
+    --ced-radius-xl: 16px;
+
+    /* Shadow */
+    --ced-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --ced-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --ced-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+    /* Animation */
+    --ced-transition-fast: 150ms ease;
+    --ced-transition: 250ms ease;
+    --ced-transition-slow: 400ms ease;
+}

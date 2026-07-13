@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ─── SNIPPET CATEGORIES ──────────────────────────────── -->
+  <!-- Odoo 19: snippet_groups element tag is <snippets> not <div> -->
+  <template id="snippets" inherit_id="website.snippets" name="SGC Snippets">
+    <xpath expr="//snippets[@id='snippet_groups']" position="inside">
+      <div id="o_scroll">
+        <div class="o_panel_header">SGC TECH AI Blocks</div>
+      </div>
+    </xpath>
+  </template>
+
+  <!-- ─── HERO SNIPPET ────────────────────────────────────── -->
+  <template id="s_sgc_hero" name="SGC Hero Section">
+    <section class="sgc-hero sgc-bg-hero sgc-noise sgc-bg-grid" data-sgc-particles='{"count":40}' style="min-height:80vh;">
+      <div class="sgc-container">
+        <div class="sgc-hero-content">
+          <div class="sgc-hero-eyebrow">
+            <span class="sgc-label">Your Label Here</span>
+          </div>
+          <h1 class="sgc-hero-h1">Your Compelling<br/><span class="sgc-highlight">Headline Here</span></h1>
+          <p class="sgc-hero-sub">Your supporting description that reinforces the value proposition and drives action.</p>
+          <div class="sgc-hero-actions">
+            <a href="#" class="sgc-btn sgc-btn-primary sgc-btn-xl">Primary CTA</a>
+            <a href="#" class="sgc-btn sgc-btn-secondary sgc-btn-xl">Secondary Action</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ─── STATS SNIPPET ───────────────────────────────────── -->
+  <template id="s_sgc_stats" name="SGC Stats Strip">
+    <div class="sgc-stats-strip">
+      <div class="sgc-container">
+        <div class="sgc-stats-row">
+          <div class="sgc-stat-item">
+            <span class="num" data-sgc-counter="150" data-suffix="%">150%</span>
+            <span class="lbl">Minimum ROI</span>
+          </div>
+          <div class="sgc-stat-item">
+            <span class="num" data-sgc-counter="14" data-suffix=" Days">14 Days</span>
+            <span class="lbl">Deployment</span>
+          </div>
+          <div class="sgc-stat-item">
+            <span class="num" data-sgc-counter="98" data-suffix="%">98%</span>
+            <span class="lbl">Retention Rate</span>
+          </div>
+          <div class="sgc-stat-item">
+            <span class="num" data-sgc-counter="80" data-suffix="hrs">80hrs</span>
+            <span class="lbl">Saved Monthly</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ─── FEATURE GRID SNIPPET ────────────────────────────── -->
+  <template id="s_sgc_features" name="SGC Feature Grid">
+    <section class="sgc-section sgc-bg-dark">
+      <div class="sgc-container">
+        <div class="sgc-section-head">
+          <span class="sgc-label">Features</span>
+          <h2>What You <span class="sgc-highlight">Get</span></h2>
+          <p>Describe your key features and benefits here.</p>
+        </div>
+        <div class="sgc-grid sgc-grid-3 sgc-stagger">
+          <t t-foreach="[
+            {'icon':'⚡','title':'Feature One','desc':'Description of this powerful feature and what it does for the user.'},
+            {'icon':'🎯','title':'Feature Two','desc':'Description of this powerful feature and what it does for the user.'},
+            {'icon':'📊','title':'Feature Three','desc':'Description of this powerful feature and what it does for the user.'},
+            {'icon':'🔒','title':'Feature Four','desc':'Description of this powerful feature and what it does for the user.'},
+            {'icon':'🚀','title':'Feature Five','desc':'Description of this powerful feature and what it does for the user.'},
+            {'icon':'✦','title':'Feature Six','desc':'Description of this powerful feature and what it does for the user.'}
+          ]" t-as="feat">
+            <div class="sgc-card-feature">
+              <div class="feature-icon" t-esc="feat['icon']"/>
+              <h4 t-esc="feat['title']"/>
+              <p t-esc="feat['desc']"/>
+            </div>
+          </t>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <!-- ─── CTA BANNER SNIPPET ──────────────────────────────── -->
+  <template id="s_sgc_cta" name="SGC CTA Banner">
+    <section class="sgc-section sgc-bg-navy">
+      <div class="sgc-container">
+        <div class="sgc-cta-section">
+          <h2>Ready to <span class="sgc-highlight">Get Started?</span></h2>
+          <p>Book your free consultation today and get a personalized ROI projection.</p>
+          <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:2rem;">
+            <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">Book Free Consultation →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+</odoo>

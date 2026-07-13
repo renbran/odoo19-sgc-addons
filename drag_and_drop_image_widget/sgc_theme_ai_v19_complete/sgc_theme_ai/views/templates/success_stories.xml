@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="sgc_success_stories" name="SGC Success Stories">
+    <t t-call="website.layout">
+      <t t-set="additional_title">Client Success Stories — SGC TECH AI UAE ERP Results</t>
+      <t t-set="meta_description">Real results from UAE businesses: 150-200% ROI, 40-80 hours saved monthly, 14-day deployments. Real estate, trading, manufacturing, professional services case studies.</t>
+
+      <div id="wrap">
+
+        <!-- HERO -->
+        <section class="sgc-section sgc-bg-hero sgc-bg-grid" style="padding-top:140px;padding-bottom:60px;text-align:center;">
+          <div class="sgc-container">
+            <span class="sgc-label">Client Results</span>
+            <h1 style="font-size:clamp(2.2rem,5vw,4rem);margin-bottom:1rem;">
+              Real Businesses. <span class="sgc-highlight">Real Numbers.</span>
+            </h1>
+            <p style="font-size:1.1rem;color:rgba(255,255,255,0.6);max-width:540px;margin:0 auto 2.5rem;">
+              Every metric below comes from a live UAE deployment — measured 6 months post go-live using verifiable operational data.
+            </p>
+            <!-- Aggregate stats -->
+            <div style="display:inline-flex;gap:3rem;flex-wrap:wrap;justify-content:center;">
+              <t t-foreach="[('50+','Deployments'), ('172%','Avg. ROI'), ('14 days','Avg. Go-Live'), ('98%','Retention')]" t-as="s">
+                <div style="text-align:center;">
+                  <span style="font-family:var(--sgc-font-display);font-size:2.5rem;font-weight:800;background:var(--sgc-gradient-cta);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;line-height:1;">
+                    <t t-esc="s[0]"/>
+                  </span>
+                  <span style="font-size:0.8rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;"><t t-esc="s[1]"/></span>
+                </div>
+              </t>
+            </div>
+            <!-- Visual panorama banner -->
+            <div style="margin-top:3rem;border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.15);box-shadow:0 20px 60px rgba(0,0,0,0.45);position:relative;">
+              <img
+                src="/sgc_theme_ai/static/src/img/hero_bg.png"
+                alt="UAE industry transformation panorama — real estate, trading, manufacturing, professional services"
+                loading="eager"
+                style="width:100%;height:auto;max-height:420px;object-fit:cover;display:block;"
+              />
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(3,15,28,0.85) 100%);"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INDUSTRY FILTER -->
+        <div style="padding:2rem 0;background:var(--sgc-carbon-black);border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div class="sgc-container">
+            <div class="sgc-industry-filter" role="tablist" aria-label="Filter by industry">
+              <t t-foreach="[('all','All Industries'), ('real_estate','Real Estate'), ('trading','Trading'), ('manufacturing','Manufacturing'), ('professional_services','Professional Services')]" t-as="filt">
+                <button class="sgc-industry-btn" t-att-class="'sgc-industry-btn' + (' active' if filt[0] == 'all' else '')"
+                        t-att-data-filter="filt[0]" role="tab"
+                        t-att-aria-selected="'true' if filt[0] == 'all' else 'false'">
+                  <t t-esc="filt[1]"/>
+                </button>
+              </t>
+            </div>
+          </div>
+        </div>
+
+        <!-- CASE STUDY CARDS -->
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div class="sgc-grid sgc-grid-3" id="case-study-grid">
+
+              <!-- REAL ESTATE 1 -->
+              <article class="sgc-case-card" data-industry="real_estate">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-cyan">Real Estate</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Dubai</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">AX Capital — Luxury Real Estate</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    Managing 400+ listings across three offices with manual commission tracking. Deal closures taking 3 days for paperwork.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    Deployed Real Estate module with automated commission splits, owner portals, and CEO dashboard. Paperwork reduced to 20 minutes per deal. Team of 28 agents now tracked in real time.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">186%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">68 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- TRADING -->
+              <article class="sgc-case-card" data-industry="trading">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-green">Trading</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Sharjah</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Fresh Market — FMCG Distribution</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    70+ SKUs managed across Excel. Purchase orders sent by WhatsApp. Month-end reconciliation taking 2 weeks.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    Full inventory, procurement, and supplier management deployed. Month-end closes in 2 days. Stockout incidents dropped 84%. VAT filing automated.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">158%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">52 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- MANUFACTURING -->
+              <article class="sgc-case-card" data-industry="manufacturing">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-white">Manufacturing</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Abu Dhabi</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Eiger Marvel — Industrial MFG</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    Production scheduling in spreadsheets. Quality control logs on paper. BOM management causing 15% material waste.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    MRP, BOM, quality control, and production scheduling integrated. Material waste dropped to 4%. Machine utilisation visibility improved. Delivery times reduced 35%.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">165%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">45 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- REAL ESTATE 2 -->
+              <article class="sgc-case-card" data-industry="real_estate">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-cyan">Real Estate</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Dubai</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">LMD — Premium Property Agency</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    Tenancy renewal tracking missing deadlines. Manual cheque management. No visibility into portfolio performance.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    Automated renewal reminders, digital cheque tracking, and real-time portfolio dashboard. Zero missed renewals since go-live. Owner reporting automated.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">174%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">61 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- PROFESSIONAL SERVICES -->
+              <article class="sgc-case-card" data-industry="professional_services">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-cyan">Professional Services</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Dubai</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">AHS Consulting — Management Consultancy</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    Project billing tracked manually. Utilisation rates unknown. Invoicing delayed 3-4 weeks after project close.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    Project management, timesheet-to-invoice automation, and resource planning deployed. Billing cycle reduced from 4 weeks to 3 days. Consultant utilisation up 22%.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">195%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">78 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+              <!-- TRADING 2 -->
+              <article class="sgc-case-card" data-industry="trading">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-green">Trading</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Dubai</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h3 style="font-size:1.15rem;margin-bottom:0.5rem;">Urban Properties Supply Co.</h3>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:1rem;">
+                    B2B supplier with 3 warehouses, no centralised inventory view. Customer credit limits manually managed. Sales orders tracked in WhatsApp.
+                  </p>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.75);line-height:1.6;">
+                    Multi-warehouse inventory, credit management, and sales order automation. Bad debt reduced 67%. Order processing time cut from 4 hours to 15 minutes.
+                  </p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">162%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">48 hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </article>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-cta-section">
+              <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin-bottom:1rem;">
+                Your business could be <span class="sgc-highlight">next.</span>
+              </h2>
+              <p style="color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 2.5rem;">
+                Book a free consultation and we will project your specific ROI based on your industry, team size, and operational costs.
+              </p>
+              <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;">
+                <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">Calculate My ROI</a>
+                <a href="/pricing" class="sgc-btn sgc-btn-secondary sgc-btn-lg">See Pricing</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </t>
+  </template>
+
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_hero" name="SGC Hero">
+        <section class="s_sgc_hero text-center" data-name="SGC Hero" data-snippet="s_sgc_hero">
+            <div class="container sgc-reveal">
+                <img class="s_sgc_hero_logo" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+                <h1 class="s_sgc_hero_title">Finance. Systems. Technology.</h1>
+                <p class="s_sgc_hero_tagline">Premium Odoo solutions, engineered for clarity and built to scale.</p>
+                <div class="s_sgc_hero_actions">
+                    <a href="#" class="btn btn-primary btn-lg me-2">Get started</a>
+                    <a href="#" class="btn btn-gold btn-lg">Talk to us</a>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 400" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <!-- SGC shared watermark: Burj Al Arab silhouette (sail form), single-tone line art -->
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M170 392 L170 60 C170 40 150 20 120 20 C130 60 132 120 128 180 C124 250 118 320 112 392 Z" />
+        <path d="M40 392 L40 150 C40 150 60 150 80 165 C96 178 108 210 112 260 C116 320 116 360 116 392 Z" />
+        <path d="M40 392 L170 392" stroke-width="3" />
+        <path d="M120 20 L120 8" />
+    </g>
+</svg>

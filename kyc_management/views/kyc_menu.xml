@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- ==================== ACTIONS - Must be defined before menus ==================== -->
+        
+        <!-- Configuration Actions -->
+        <record id="action_kyc_source_funds" model="ir.actions.act_window">
+            <field name="name">Sources of Funds</field>
+            <field name="res_model">kyc.source.funds</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+        </record>
+        
+        <record id="action_kyc_source_wealth" model="ir.actions.act_window">
+            <field name="name">Sources of Wealth</field>
+            <field name="res_model">kyc.source.wealth</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+        </record>
+        
+        <record id="action_kyc_notification_type" model="ir.actions.act_window">
+            <field name="name">Notification Type Configuration</field>
+            <field name="res_model">kyc.notification.type</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+        </record>
+        
+        <!-- Dashboard Action -->
+        <record id="action_kyc_dashboard" model="ir.actions.client">
+            <field name="name">KYC Dashboard</field>
+            <field name="tag">kyc.dashboard</field>
+        </record>
+        
+        <!-- Reports -->
+        <record id="report_kyc_application_printable" model="ir.actions.report">
+            <field name="name">KYC Application Printable Document</field>
+            <field name="model">kyc.application</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kyc_management.report_kyc_application</field>
+            <field name="print_report_name">'KYC Application - %s' % object.kyc_id</field>
+        </record>
+        
+        <record id="report_kyc_approvals_summary" model="ir.actions.report">
+            <field name="name">KYC Approvals Summary</field>
+            <field name="model">kyc.approval</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kyc_management.report_kyc_approvals_summary_template</field>
+            <field name="print_report_name">'KYC Approvals Summary'</field>
+        </record>
+        
+        <!-- ==================== MENU STRUCTURE ==================== -->
+        
+        <!-- Main KYC Menu -->
+        <menuitem
+            id="menu_kyc_enhanced_root"
+            name="KYC Enhanced"
+            web_icon="kyc_management,static/description/icon.png"
+            groups="kyc_management.group_kyc_user,kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"
+            sequence="1"/>
+        
+        <!-- KYC Applications Menu -->
+        <menuitem
+            id="menu_kyc_applications"
+            name="KYC Applications"
+            parent="menu_kyc_enhanced_root"
+            sequence="10"/>
+        
+        <menuitem
+            id="menu_kyc_application_all"
+            name="All Applications"
+            parent="menu_kyc_applications"
+            action="action_kyc_application"
+            sequence="1"/>
+        
+        <menuitem
+            id="menu_kyc_application_pending"
+            name="Pending Applications"
+            parent="menu_kyc_applications"
+            action="action_kyc_application_pending"
+            sequence="2"/>
+        
+        <menuitem
+            id="menu_kyc_application_approved"
+            name="Approved Applications"
+            parent="menu_kyc_applications"
+            action="action_kyc_application_approved"
+            sequence="3"/>
+        
+        <!-- KYC Approvals Menu -->
+        <menuitem
+            id="menu_kyc_approvals"
+            name="Approval Workflows"
+            parent="menu_kyc_enhanced_root"
+            sequence="20"
+            groups="kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"/>
+        
+        <menuitem
+            id="menu_kyc_approval_all"
+            name="All Workflows"
+            parent="menu_kyc_approvals"
+            action="action_kyc_approval"
+            sequence="1"/>
+        
+        <menuitem
+            id="menu_kyc_approval_pending"
+            name="Pending Approvals"
+            parent="menu_kyc_approvals"
+            action="action_kyc_approval_pending"
+            sequence="2"/>
+        
+        <menuitem
+            id="menu_kyc_approval_in_progress"
+            name="In Progress"
+            parent="menu_kyc_approvals"
+            action="action_kyc_approval_in_progress"
+            sequence="3"/>
+        
+        <menuitem
+            id="menu_kyc_approval_high_risk"
+            name="High Risk Cases"
+            parent="menu_kyc_approvals"
+            action="action_kyc_approval_high_risk"
+            sequence="4"/>
+        
+        <!-- KYC Notifications Menu -->
+        <menuitem
+            id="menu_kyc_notifications"
+            name="Notifications"
+            parent="menu_kyc_enhanced_root"
+            sequence="30"/>
+        
+        <menuitem
+            id="menu_kyc_notification_all"
+            name="All Notifications"
+            parent="menu_kyc_notifications"
+            action="action_kyc_notification"
+            sequence="1"/>
+        
+        <menuitem
+            id="menu_kyc_notification_pending"
+            name="Pending"
+            parent="menu_kyc_notifications"
+            action="action_kyc_notification_pending"
+            sequence="2"/>
+        
+        <menuitem
+            id="menu_kyc_notification_failed"
+            name="Failed Notifications"
+            parent="menu_kyc_notifications"
+            action="action_kyc_notification_failed"
+            sequence="3"/>
+        
+        <menuitem
+            id="menu_kyc_notification_critical"
+            name="Critical Alerts"
+            parent="menu_kyc_notifications"
+            action="action_kyc_notification_critical"
+            sequence="4"/>
+        
+        <!-- Configuration Menu -->
+        <menuitem
+            id="menu_kyc_configuration"
+            name="Configuration"
+            parent="menu_kyc_enhanced_root"
+            sequence="40"
+            groups="kyc_management.group_kyc_admin"/>
+        
+        <menuitem
+            id="menu_kyc_source_funds"
+            name="Source of Funds"
+            parent="menu_kyc_configuration"
+            action="action_kyc_source_funds"
+            sequence="1"/>
+        
+        <menuitem
+            id="menu_kyc_source_wealth"
+            name="Source of Wealth"
+            parent="menu_kyc_configuration"
+            action="action_kyc_source_wealth"
+            sequence="2"/>
+        
+        <menuitem
+            id="menu_kyc_notification_types"
+            name="Notification Types"
+            parent="menu_kyc_configuration"
+            action="action_kyc_notification_type"
+            sequence="3"/>
+        
+        <!-- Reports Menu -->
+        <menuitem
+            id="menu_kyc_reports"
+            name="Reports"
+            parent="menu_kyc_enhanced_root"
+            sequence="50"
+            groups="kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"/>
+        
+        <menuitem
+            id="menu_kyc_report_applications"
+            name="KYC Applications Report"
+            parent="menu_kyc_reports"
+            action="report_kyc_application_printable"
+            sequence="1"/>
+        
+        <menuitem
+            id="menu_kyc_report_approvals"
+            name="Approvals Summary"
+            parent="menu_kyc_reports"
+            action="report_kyc_approvals_summary"
+            sequence="2"/>
+
+        <!-- ==================== CONTACTS (Phase 3) ==================== -->
+        <!-- Approved Contacts: Only approved KYC partners, for printing  -->
+        <!-- branded KYC documents and managing verified client records    -->
+
+        <record id="action_kyc_approved_contacts" model="ir.actions.act_window">
+            <field name="name">Approved Contacts</field>
+            <field name="res_model">kyc.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'approved')]</field>
+            <field name="context">{'default_state': 'approved'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No approved contacts yet.
+                </p>
+                <p>
+                    Contacts appear here once their KYC application is approved.
+                    Use this section to print branded KYC documents and manage verified client records.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+            id="menu_kyc_contacts"
+            name="Contacts"
+            parent="menu_kyc_enhanced_root"
+            sequence="45"
+            groups="kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"/>
+
+        <menuitem
+            id="menu_kyc_approved_contacts"
+            name="Approved Contacts"
+            parent="menu_kyc_contacts"
+            action="action_kyc_approved_contacts"
+            sequence="1"/>
+
+        <menuitem
+            id="menu_kyc_contacts_print_kyc"
+            name="Print KYC Documents"
+            parent="menu_kyc_contacts"
+            action="report_kyc_application_printable"
+            sequence="2"/>
+        
+        <!-- Dashboard Menu -->
+        <menuitem
+            id="menu_kyc_dashboard"
+            name="Dashboard"
+            parent="menu_kyc_enhanced_root"
+            sequence="5"
+            action="action_kyc_dashboard"
+            groups="kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"/>
+        
+    </data>
+</odoo>

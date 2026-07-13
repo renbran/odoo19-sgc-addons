@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <asset id="aurum_frontend_scss" name="Aurum Frontend SCSS">
+            <bundle directive="append">web.assets_frontend</bundle>
+            <path>sgc_theme_aurum/static/src/scss/aurum_frontend.scss</path>
+            <field name="sequence" eval="50"/>
+        </asset>
+        <asset id="aurum_frontend_js" name="Aurum Frontend JS">
+            <bundle directive="append">web.assets_frontend</bundle>
+            <path>sgc_theme_aurum/static/src/js/aurum_animations.js</path>
+            <field name="sequence" eval="50"/>
+        </asset>
+        <asset id="aurum_backend_scss" name="Aurum Backend SCSS">
+            <bundle directive="append">web.assets_backend</bundle>
+            <path>sgc_theme_aurum/static/src/scss/aurum_backend.scss</path>
+            <field name="sequence" eval="50"/>
+        </asset>
+    </data>
+</odoo>

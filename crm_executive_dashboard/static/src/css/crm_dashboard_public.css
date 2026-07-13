@@ -1,0 +1,18 @@
+/* =====================================================================
+   CRM Executive Dashboard — Public styles
+   =====================================================================
+   Minimal styles used when the dashboard is embedded in a public
+   page (e.g. the website). Most of the styling comes from the main
+   theme files; this is for any host-page integration quirks.
+   ===================================================================== */
+
+.ced-public .ced-dashboard {
+    margin: 0 auto;
+    max-width: 1600px;
+}
+
+.ced-public .ced-shell {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--ced-space-md);
+}

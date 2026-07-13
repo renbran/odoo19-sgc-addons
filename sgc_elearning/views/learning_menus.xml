@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="menu_learning_root" name="Learning" sequence="10"/>
+    <menuitem id="menu_learning_quizzes" name="Quizzes" parent="menu_learning_root" sequence="20"/>
+
+    <menuitem id="menu_learning_quiz" name="Quizzes" parent="menu_learning_quizzes" action="action_learning_quiz" sequence="10"/>
+    <menuitem id="menu_learning_quiz_question" name="Questions" parent="menu_learning_quizzes" action="action_learning_quiz_question" sequence="20"/>
+    <menuitem id="menu_learning_quiz_attempt" name="Attempts" parent="menu_learning_quizzes" action="action_learning_quiz_attempt" sequence="30"/>
+</odoo>

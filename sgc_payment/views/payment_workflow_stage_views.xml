@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+        <!-- Payment Workflow Stage Tree View -->
+        <record id="view_payment_workflow_stage_tree" model="ir.ui.view">
+            <field name="name">payment.workflow.stage.tree</field>
+            <field name="model">payment.workflow.stage</field>
+            <field name="arch" type="xml">
+                <list string="Payment Workflow Stages">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="require_approval"/>
+                    <field name="is_initial_stage"/>
+                    <field name="is_final_stage"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Payment Workflow Stage Form View -->
+        <record id="view_payment_workflow_stage_form" model="ir.ui.view">
+            <field name="name">payment.workflow.stage.form</field>
+            <field name="model">payment.workflow.stage</field>
+            <field name="arch" type="xml">
+                <form string="Payment Workflow Stage">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="sequence"/>
+                                <field name="require_approval"/>
+                            </group>
+                            <group>
+                                <field name="is_initial_stage"/>
+                                <field name="is_final_stage"/>
+                                <field name="allow_edit"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description" placeholder="Enter stage description..."/>
+                            </page>
+                            <page string="Approval Groups">
+                                <field name="approval_group_ids" nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Payment Workflow Stage Action -->
+        <record id="action_payment_workflow_stage" model="ir.actions.act_window">
+            <field name="name">Payment Workflow Stages</field>
+            <field name="res_model">payment.workflow.stage</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Click to create a new payment workflow stage.
+                </p>
+                <p>
+                    Payment workflow stages define the approval process for payments.
+                    Each stage can require specific approvals and permissions.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menu Item -->
+        <menuitem id="menu_payment_workflow_stages" name="Workflow Stages" parent="account.menu_finance_configuration" action="action_payment_workflow_stage" sequence="50" groups="group_payment_manager"/>
+
+
+</odoo>

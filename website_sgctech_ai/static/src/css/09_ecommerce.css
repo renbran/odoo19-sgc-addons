@@ -1,0 +1,956 @@
+/* ============================================================
+   SGC TECH AI — eCommerce / website_sale overrides
+   Covers: shop listing, product detail page, cart, checkout
+   All rules scoped to .sgc-theme to avoid bleeding outside the theme
+   ============================================================ */
+
+/* ──────────────────────────────────────────────────────────────
+   SHOP LISTING PAGE   (/shop)
+   Odoo 19 uses CSS variables (--o-wsale-card-*) for product cards.
+   Override those variables here — no need to fight specificity wars.
+   ────────────────────────────────────────────────────────────── */
+
+/* Main shop container */
+.sgc-theme .oe_website_sale,
+.sgc-theme #products_grid_before,
+.sgc-theme #o_website_sale_asc {
+    background: var(--sgc-bg-1);
+    color: var(--sgc-text-1);
+}
+
+/* Shop hero / breadcrumb bar */
+.sgc-theme .o_website_sale_search {
+    background: var(--sgc-bg-2);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* Sidebar / filter panel */
+.sgc-theme #o_wsale_offcanvas,
+.sgc-theme .o_wsale_sidebar,
+.sgc-theme .searchpane_expanded {
+    background: var(--sgc-bg-2) !important;
+    border-right: 1px solid var(--glass-border);
+}
+
+.sgc-theme .o_wsale_sidebar .nav-link,
+.sgc-theme .o_wsale_sidebar label,
+.sgc-theme .o_wsale_sidebar .form-check-label {
+    color: var(--sgc-text-2) !important;
+}
+
+.sgc-theme .o_wsale_sidebar .nav-link:hover {
+    color: var(--sgc-cyan) !important;
+}
+
+/* ── Odoo 19 product card CSS variable overrides ──
+   These cascade into every .oe_product_cart and its children.
+   Source: /website_sale/static/src/scss/product_tile.scss */
+.sgc-theme .oe_website_sale {
+    /* Image: fill the square crop area instead of letterboxing */
+    --o-wsale-card-thumb-fill-mode: cover;
+    /* Dark bg behind the image (visible while loading or with transparent PNGs) */
+    --o-wsale-card-thumb-background: #0D1F38;
+
+    /* Card background */
+    --o-wsale-card-bg: rgba(13, 31, 56, 0.95);
+
+    /* General card text */
+    --o-wsale-card-color: #E8F4FD;
+    --o-wsale-card-cc-text: #C8D8F0;
+
+    /* Product title link — Odoo default is #714B67 (purple = invisible on dark) */
+    --o-wsale-card-cc-link: #E8F4FD;
+
+    /* Card border */
+    --o-wsale-card-border-color: rgba(0, 212, 255, 0.18);
+    --o-wsale-card-border-width: 1px;
+    --o-wsale-card-border-radius: 12px;
+
+    /* Hover effects */
+    --o-wsale-card-border-color-hover: rgba(0, 212, 255, 0.55);
+    --o-wsale-card-shadow-hover: 0 8px 32px rgba(0, 212, 255, 0.18);
+    --o-wsale-card-transform-hover: translateY(-4px);
+}
+
+/* ── Product title — extra hard override in case variable doesn't cascade ── */
+.sgc-theme .oe_website_sale .oe_product_cart .o_wsale_products_item_title > a,
+.sgc-theme .oe_website_sale .oe_product_cart .o_wsale_products_item_title > a span {
+    color: #E8F4FD !important;
+    font-family: var(--font-head);
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+/* ── Price — cyan accent ── */
+.sgc-theme .oe_website_sale .oe_product_cart .product_price,
+.sgc-theme .oe_website_sale .oe_product_cart .product_price span {
+    color: #00D4FF !important;
+    font-weight: 700;
+}
+
+/* ── Description text — white ── */
+/* Odoo 19 sets .text-muted.small { color: currentColor !important }
+   so we must set color on the wrapper AND the inner div directly */
+.sgc-theme .oe_website_sale .oe_product_cart .oe_subdescription,
+.sgc-theme .oe_website_sale .oe_product_cart .oe_subdescription_wrapper,
+.sgc-theme .oe_website_sale .oe_product_cart .oe_subdescription_wrapper .text-muted,
+.sgc-theme .oe_website_sale .oe_product_cart .oe_subdescription_wrapper .text-muted.small,
+.sgc-theme .oe_website_sale .oe_product_cart .oe_subdescription div,
+.sgc-theme .oe_website_sale .oe_product_cart .text-muted {
+    color: #ffffff !important;
+    font-family: var(--font-body);
+}
+
+/* ── Product info section background ── */
+.sgc-theme .oe_website_sale .oe_product_cart .o_wsale_product_information {
+    background: rgba(13, 31, 56, 0.95);
+    padding: 0.75rem;
+}
+
+/* "Sort by" / search bar area */
+.sgc-theme .o_wsale_products_header {
+    background: var(--sgc-bg-1);
+    color: var(--sgc-text-2);
+    border-bottom: 1px solid var(--glass-border);
+    padding: var(--sp-md) 0;
+}
+
+.sgc-theme .o_wsale_products_header .form-select,
+.sgc-theme .o_wsale_products_header select {
+    background-color: var(--sgc-bg-2) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+}
+
+/* Search input */
+.sgc-theme .oe_website_sale .input-group input.search-query,
+.sgc-theme #search-box-input {
+    background: var(--sgc-bg-2) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+}
+
+.sgc-theme .oe_website_sale .input-group input.search-query::placeholder,
+.sgc-theme #search-box-input::placeholder {
+    color: var(--sgc-text-3) !important;
+}
+
+/* Pricelist / category title */
+.sgc-theme .o_wsale_products_grid_wrapper h4,
+.sgc-theme .o_wsale_products_grid_wrapper .h4 {
+    color: var(--sgc-text-2);
+}
+
+/* Pagination */
+.sgc-theme .o_website_sale_pages_pagination .page-link {
+    background: var(--sgc-bg-2);
+    border-color: var(--glass-border);
+    color: var(--sgc-text-2);
+}
+
+.sgc-theme .o_website_sale_pages_pagination .page-link:hover,
+.sgc-theme .o_website_sale_pages_pagination .page-item.active .page-link {
+    background: var(--grad-brand);
+    border-color: transparent;
+    color: #fff;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   PRODUCT DETAIL PAGE   (/shop/<product>)
+   ────────────────────────────────────────────────────────────── */
+
+/* Full page bg */
+.sgc-theme #product_detail,
+.sgc-theme #product_detail_main {
+    background: var(--sgc-bg-1);
+    color: var(--sgc-text-1);
+}
+
+/* Media / image column */
+.sgc-theme #product_detail .o_carousel_product,
+.sgc-theme #product_detail .o_carousel_product .carousel-inner,
+.sgc-theme #product_detail #o-carousel-product {
+    background: var(--sgc-bg-2) !important;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+}
+
+/* Placeholder image in detail page */
+.sgc-theme #product_detail .product_detail_img,
+.sgc-theme #product_detail .o_product_image_placeholder {
+    background: var(--sgc-bg-3) !important;
+}
+
+.sgc-theme #product_detail .o_product_image_placeholder svg,
+.sgc-theme #product_detail .product_detail_img svg {
+    fill: var(--sgc-text-3);
+    opacity: 0.4;
+}
+
+/* Carousel thumbnails */
+.sgc-theme .o_carousel_product_indicators li {
+    background: var(--sgc-bg-3);
+    border: 1px solid var(--glass-border);
+}
+
+.sgc-theme .o_carousel_product_indicators li.active {
+    border-color: var(--sgc-cyan);
+    background: var(--sgc-bg-4);
+}
+
+/* ── Info panel (right side) ── */
+.sgc-theme .o_wsale_product_information_col,
+.sgc-theme #product_details {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    padding: var(--sp-xl);
+}
+
+/* Product name / title — must be bright/visible */
+.sgc-theme #product_detail h1,
+.sgc-theme #product_detail h1.product_name,
+.sgc-theme #product_detail .product_name {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head) !important;
+    font-weight: 700 !important;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.18);
+}
+
+/* Product description / short desc */
+.sgc-theme #product_detail #product_desc,
+.sgc-theme #product_detail .product_description,
+.sgc-theme #product_detail .product_description_short {
+    color: var(--sgc-text-2) !important;
+    line-height: 1.7;
+}
+
+/* Price — accent color */
+.sgc-theme #product_price,
+.sgc-theme .css_price,
+.sgc-theme #product_price .oe_price,
+.sgc-theme .o_wsale_product_price .oe_price,
+.sgc-theme .o_wsale_product_total_price {
+    color: var(--sgc-cyan) !important;
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    font-family: var(--font-head);
+}
+
+/* Strikethrough original price */
+.sgc-theme .oe_website_sale .oe_price .oe_origin {
+    color: var(--sgc-text-3) !important;
+    text-decoration: line-through;
+    font-size: 1rem;
+}
+
+/* Quantity input */
+.sgc-theme #product_detail .css_quantity input,
+.sgc-theme #product_detail #product_quantity {
+    background: var(--sgc-bg-3) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+    border-radius: var(--r-sm);
+}
+
+.sgc-theme #product_detail .css_quantity .btn {
+    background: var(--sgc-bg-3);
+    border-color: var(--glass-border);
+    color: var(--sgc-text-1);
+}
+
+/* Add to cart button — brand gradient */
+.sgc-theme #product_detail #add_to_cart,
+.sgc-theme #product_detail .o_website_sale_main_add_to_cart_button {
+    background: var(--grad-brand) !important;
+    border: none !important;
+    color: #fff !important;
+    font-family: var(--font-head) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.75rem 2rem !important;
+    border-radius: var(--r-full) !important;
+    box-shadow: 0 0 24px var(--sgc-cyan-glow) !important;
+    transition: var(--t-base) !important;
+}
+
+.sgc-theme #product_detail #add_to_cart:hover,
+.sgc-theme #product_detail .o_website_sale_main_add_to_cart_button:hover {
+    box-shadow: 0 0 40px var(--sgc-cyan-glow), var(--glass-shadow-h) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Buy Now / secondary CTA */
+.sgc-theme #product_detail .o_website_sale_main_buy_now_button {
+    background: transparent !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    border-radius: var(--r-full) !important;
+    font-family: var(--font-body) !important;
+    transition: var(--t-base) !important;
+}
+
+.sgc-theme #product_detail .o_website_sale_main_buy_now_button:hover {
+    border-color: var(--sgc-cyan) !important;
+    color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 1px var(--sgc-cyan) !important;
+}
+
+/* Variant / attribute selectors */
+.sgc-theme #product_detail .css_attribute_color span,
+.sgc-theme #product_detail .variant_attribute .o_variant_pills {
+    border-color: var(--glass-border) !important;
+    background: var(--sgc-bg-3) !important;
+    color: var(--sgc-text-2) !important;
+}
+
+.sgc-theme #product_detail .css_attribute_color span.active,
+.sgc-theme #product_detail .variant_attribute .o_variant_pills.active {
+    border-color: var(--sgc-cyan) !important;
+    color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 2px var(--sgc-cyan) !important;
+}
+
+/* Product extra info (shipping / guarantee badges) */
+.sgc-theme #product_detail_extra {
+    background: var(--sgc-bg-2);
+    border-top: 1px solid var(--glass-border);
+    padding: var(--sp-lg) 0;
+}
+
+.sgc-theme #product_detail_extra p,
+.sgc-theme #product_detail_extra span,
+.sgc-theme #product_detail_extra li {
+    color: var(--sgc-text-2) !important;
+}
+
+.sgc-theme #product_detail_extra .fa,
+.sgc-theme #product_detail_extra .o_website_sale_product_detail_label {
+    color: var(--sgc-cyan) !important;
+}
+
+/* Product tabs (description / reviews) */
+.sgc-theme #product_detail .nav-tabs {
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.sgc-theme #product_detail .nav-tabs .nav-link {
+    color: var(--sgc-text-3) !important;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-head);
+    letter-spacing: 0.04em;
+    transition: var(--t-fast);
+}
+
+.sgc-theme #product_detail .nav-tabs .nav-link:hover {
+    color: var(--sgc-text-1) !important;
+    border-bottom-color: var(--sgc-cyan);
+}
+
+.sgc-theme #product_detail .nav-tabs .nav-link.active {
+    color: var(--sgc-cyan) !important;
+    border-bottom-color: var(--sgc-cyan);
+    background: transparent;
+}
+
+.sgc-theme #product_detail .tab-pane {
+    color: var(--sgc-text-2);
+    padding: var(--sp-lg) 0;
+}
+
+/* Reviews section */
+.sgc-theme .o_product_page_reviews_title,
+.sgc-theme .o_product_page_reviews h2,
+.sgc-theme .o_product_page_reviews h3 {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+}
+
+.sgc-theme .o_product_page_reviews .o_portal_rating_avg {
+    color: var(--sgc-cyan);
+}
+
+.sgc-theme .o_product_page_reviews .card {
+    background: var(--sgc-bg-2) !important;
+    border-color: var(--glass-border) !important;
+    color: var(--sgc-text-2) !important;
+}
+
+/* Related products section */
+.sgc-theme .oe_website_sale .o_products_complementary {
+    background: var(--sgc-bg-1);
+    border-top: 1px solid var(--glass-border);
+    padding: var(--sp-2xl) 0;
+}
+
+.sgc-theme .oe_website_sale .o_products_complementary h2,
+.sgc-theme .oe_website_sale .o_products_complementary .h2 {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   BREADCRUMB
+   ────────────────────────────────────────────────────────────── */
+
+.sgc-theme .breadcrumb {
+    background: transparent;
+    padding: var(--sp-sm) 0;
+}
+
+.sgc-theme .breadcrumb-item a {
+    color: var(--sgc-text-3) !important;
+    text-decoration: none;
+    transition: var(--t-fast);
+}
+
+.sgc-theme .breadcrumb-item a:hover {
+    color: var(--sgc-cyan) !important;
+}
+
+.sgc-theme .breadcrumb-item.active,
+.sgc-theme .breadcrumb-item + .breadcrumb-item::before {
+    color: var(--sgc-text-2) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   CART / CHECKOUT / PAYMENT — All pages in the purchase flow
+   Scoped to #wrapwrap (the real page wrapper, not .sgc-theme)
+   ────────────────────────────────────────────────────────────── */
+
+/* ── Page & container backgrounds ── */
+#wrapwrap .oe_website_sale,
+#wrapwrap .o_website_sale_checkout_container,
+#wrapwrap .oe_cart,
+#wrapwrap #shop_cart,
+#wrapwrap #wrap {
+    background: transparent;
+    color: var(--sgc-text-1);
+}
+
+/* ── Step wizard breadcrumb (Order → Address → Payment) ── */
+#wrapwrap .o_wizard {
+    background: rgba(13, 31, 56, 0.6);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-md);
+    padding: 0.6rem 1rem;
+}
+
+#wrapwrap .o_wizard .d-flex p,
+#wrapwrap .o_wizard .d-flex span,
+#wrapwrap .o_wizard .fw-bold p,
+#wrapwrap .o_wizard .fw-bold span {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+}
+
+#wrapwrap .o_wizard .text-muted,
+#wrapwrap .o_wizard .o_disabled p,
+#wrapwrap .o_wizard .o_disabled span {
+    color: var(--sgc-text-3) !important;
+}
+
+#wrapwrap .o_wizard .fa-angle-right {
+    color: var(--sgc-cyan) !important;
+    opacity: 0.6;
+}
+
+/* ── Cart table (oe_cart / js_cart_lines) ── */
+#wrapwrap .oe_cart h4,
+#wrapwrap #shop_cart h4 {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+    letter-spacing: 0.04em;
+}
+
+#wrapwrap .js_cart_lines table,
+#wrapwrap .oe_cart table {
+    background: transparent !important;
+}
+
+#wrapwrap .js_cart_lines th,
+#wrapwrap .js_cart_lines td,
+#wrapwrap .oe_cart th,
+#wrapwrap .oe_cart td {
+    background: rgba(13, 31, 56, 0.7) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+}
+
+#wrapwrap .js_cart_lines tr:hover td,
+#wrapwrap .oe_cart tr:hover td {
+    background: rgba(17, 34, 68, 0.85) !important;
+}
+
+#wrapwrap .js_cart_lines a,
+#wrapwrap .oe_cart a.product-name,
+#wrapwrap .oe_cart td a {
+    color: var(--sgc-cyan) !important;
+    font-weight: 600;
+}
+
+#wrapwrap .oe_cart td a:hover {
+    color: var(--sgc-cyan-light) !important;
+}
+
+/* Quantity input in cart */
+#wrapwrap .oe_cart .js_quantity,
+#wrapwrap .oe_cart input.js_quantity,
+#wrapwrap .js_cart_lines input[name="product_id"],
+#wrapwrap .js_cart_lines .input-group input {
+    background: var(--sgc-bg-3) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+}
+
+/* Cart unit price / subtotal cells */
+#wrapwrap .oe_cart .oe_currency_value,
+#wrapwrap .js_cart_lines .oe_currency_value,
+#wrapwrap .oe_cart .text-end {
+    color: var(--sgc-cyan) !important;
+    font-weight: 700;
+}
+
+/* Remove / delete button */
+#wrapwrap .oe_cart .btn-danger,
+#wrapwrap .js_cart_lines .js_delete_product {
+    background: transparent !important;
+    border-color: rgba(255, 107, 53, 0.4) !important;
+    color: var(--sgc-orange) !important;
+}
+
+/* ── Order summary / totals panel ── */
+#wrapwrap .o_wsale_shorter_cart_summary,
+#wrapwrap .cart_summary,
+#wrapwrap #cart_total,
+#wrapwrap .o_cart_summary {
+    background: rgba(13, 31, 56, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-lg) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+#wrapwrap #cart_total td,
+#wrapwrap #cart_total th,
+#wrapwrap .cart_summary td,
+#wrapwrap .cart_summary th,
+#wrapwrap .o_wsale_shorter_cart_summary td,
+#wrapwrap .o_wsale_shorter_cart_summary th {
+    background: transparent !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+}
+
+#wrapwrap #cart_total .oe_currency_value,
+#wrapwrap .cart_summary .oe_currency_value {
+    color: var(--sgc-cyan) !important;
+    font-weight: 700;
+}
+
+/* Grand total row */
+#wrapwrap #cart_total tr:last-child td,
+#wrapwrap #cart_total tr:last-child th {
+    color: var(--sgc-text-1) !important;
+    font-weight: 700;
+    font-size: 1.05rem;
+    border-top: 1px solid var(--glass-border-h) !important;
+}
+
+/* ── Cards on checkout/cart pages ── */
+#wrapwrap .oe_website_sale .card,
+#wrapwrap .o_website_sale_checkout_container .card {
+    background: rgba(13, 31, 56, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-lg) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+#wrapwrap .oe_website_sale .card-header,
+#wrapwrap .o_website_sale_checkout_container .card-header {
+    background: rgba(0, 212, 255, 0.07) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+}
+
+#wrapwrap .oe_website_sale .card-body,
+#wrapwrap .o_website_sale_checkout_container .card-body {
+    color: var(--sgc-text-2) !important;
+}
+
+/* ── Primary / CTA buttons ── */
+#wrapwrap .oe_website_sale .btn-primary,
+#wrapwrap .o_website_sale_checkout_container .btn-primary,
+#wrapwrap .oe_cart .btn-primary,
+#wrapwrap a.btn-primary[href*="/shop"],
+#wrapwrap button.btn-primary[type="submit"] {
+    background: var(--grad-brand) !important;
+    border: none !important;
+    color: #fff !important;
+    font-family: var(--font-head) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.04em !important;
+    border-radius: var(--r-full) !important;
+    box-shadow: 0 0 24px var(--sgc-cyan-glow) !important;
+    transition: var(--t-base) !important;
+    padding: 0.65rem 1.75rem !important;
+}
+
+#wrapwrap .oe_website_sale .btn-primary:hover,
+#wrapwrap .o_website_sale_checkout_container .btn-primary:hover,
+#wrapwrap button.btn-primary[type="submit"]:hover {
+    box-shadow: 0 0 40px var(--sgc-cyan-glow), var(--glass-shadow-h) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Secondary / ghost buttons */
+#wrapwrap .oe_website_sale .btn-secondary,
+#wrapwrap .oe_website_sale .btn-light,
+#wrapwrap .o_website_sale_checkout_container .btn-secondary {
+    background: transparent !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    border-radius: var(--r-full) !important;
+}
+
+#wrapwrap .oe_website_sale .btn-secondary:hover {
+    border-color: var(--sgc-cyan) !important;
+    color: var(--sgc-cyan) !important;
+}
+
+/* ── Checkout address form ── */
+#wrapwrap .oe_website_sale label,
+#wrapwrap .oe_website_sale .form-label {
+    color: var(--sgc-text-2) !important;
+    font-weight: 500;
+}
+
+#wrapwrap .oe_website_sale .form-control,
+#wrapwrap .oe_website_sale input[type="text"],
+#wrapwrap .oe_website_sale input[type="email"],
+#wrapwrap .oe_website_sale input[type="tel"],
+#wrapwrap .oe_website_sale input[type="number"],
+#wrapwrap .oe_website_sale textarea,
+#wrapwrap .oe_website_sale select,
+#wrapwrap .oe_website_sale .form-select {
+    background: var(--sgc-bg-3) !important;
+    color: var(--sgc-text-1) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-sm) !important;
+}
+
+#wrapwrap .oe_website_sale .form-control:focus,
+#wrapwrap .oe_website_sale input:focus,
+#wrapwrap .oe_website_sale select:focus,
+#wrapwrap .oe_website_sale textarea:focus {
+    border-color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12) !important;
+    outline: none !important;
+}
+
+#wrapwrap .oe_website_sale .form-control::placeholder,
+#wrapwrap .oe_website_sale input::placeholder {
+    color: var(--sgc-text-3) !important;
+}
+
+/* Select option (dropdown items) */
+#wrapwrap .oe_website_sale select option {
+    background: var(--sgc-bg-2) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+/* Required asterisk */
+#wrapwrap .oe_website_sale .o_field_widget.o_required_modifier label::after,
+#wrapwrap .oe_website_sale span.label_optional_or_required {
+    color: var(--sgc-orange) !important;
+}
+
+/* ── Payment provider cards ── */
+#wrapwrap .o_payment_option_card,
+#wrapwrap .o_payment_form .card,
+#wrapwrap .o_payment_provider_card {
+    background: rgba(13, 31, 56, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-md) !important;
+    color: var(--sgc-text-1) !important;
+    transition: var(--t-base) !important;
+}
+
+#wrapwrap .o_payment_option_card:hover,
+#wrapwrap .o_payment_option_card.o_payment_option_selected {
+    border-color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 1px var(--sgc-cyan), 0 0 16px rgba(0, 212, 255, 0.15) !important;
+}
+
+#wrapwrap .o_payment_option_card .card-title,
+#wrapwrap .o_payment_option_card label,
+#wrapwrap .o_payment_option_card .o_payment_option_name {
+    color: var(--sgc-text-1) !important;
+    font-weight: 600;
+}
+
+/* Payment summary */
+#wrapwrap .o_payment_summary_item,
+#wrapwrap .o_payment_summary {
+    color: var(--sgc-text-2) !important;
+}
+
+#wrapwrap .o_payment_summary_item strong,
+#wrapwrap .o_payment_summary strong {
+    color: var(--sgc-text-1) !important;
+}
+
+/* Pay Now / Confirm button */
+#wrapwrap .o_payment_form .btn-primary,
+#wrapwrap #o_payment_submit_button,
+#wrapwrap button[name="o_payment_submit_button"] {
+    background: var(--grad-brand) !important;
+    border: none !important;
+    color: #fff !important;
+    font-family: var(--font-head) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    border-radius: var(--r-full) !important;
+    padding: 0.75rem 2.5rem !important;
+    box-shadow: 0 0 28px var(--sgc-cyan-glow) !important;
+    transition: var(--t-base) !important;
+    font-size: 1rem !important;
+}
+
+#wrapwrap .o_payment_form .btn-primary:hover,
+#wrapwrap #o_payment_submit_button:hover {
+    box-shadow: 0 0 45px var(--sgc-cyan-glow), var(--glass-shadow-h) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ── Alerts / notices in checkout ── */
+#wrapwrap .oe_website_sale .alert-warning,
+#wrapwrap .oe_website_sale .alert-info {
+    background: rgba(0, 212, 255, 0.07) !important;
+    border-color: var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+#wrapwrap .oe_website_sale .alert-danger {
+    background: rgba(255, 107, 53, 0.10) !important;
+    border-color: rgba(255, 107, 53, 0.35) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+/* ── Offcanvas (Quick reorder, filter sidebar) ── */
+#wrapwrap .offcanvas,
+#wrapwrap .offcanvas-end,
+#wrapwrap #quick_reorder_sidebar {
+    background: var(--sgc-bg-2) !important;
+    color: var(--sgc-text-1) !important;
+    border-left: 1px solid var(--glass-border) !important;
+}
+
+#wrapwrap .offcanvas-header,
+#wrapwrap .offcanvas-title {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+#wrapwrap .btn-close {
+    filter: invert(1) brightness(0.7) !important;
+}
+
+/* ── Modal dialogs ── */
+#wrapwrap .modal-content,
+.modal-content {
+    background: var(--sgc-bg-2) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-lg) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+.modal-header {
+    background: rgba(0, 212, 255, 0.06) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+}
+
+.modal-header .modal-title {
+    color: var(--sgc-text-1) !important;
+    font-family: var(--font-head);
+    font-size: 1rem;
+}
+
+.modal-body {
+    color: var(--sgc-text-2) !important;
+}
+
+.modal-footer {
+    background: rgba(13, 31, 56, 0.5) !important;
+    border-top: 1px solid var(--glass-border) !important;
+}
+
+/* ── Pricelist dropdown in checkout ── */
+#wrapwrap .dropdown-menu {
+    background: var(--sgc-bg-2) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--r-md) !important;
+}
+
+#wrapwrap .dropdown-item {
+    color: var(--sgc-text-2) !important;
+}
+
+#wrapwrap .dropdown-item:hover,
+#wrapwrap .dropdown-item:focus {
+    background: rgba(0, 212, 255, 0.08) !important;
+    color: var(--sgc-cyan) !important;
+}
+
+/* ── Coupon / promo code field ── */
+#wrapwrap #coupon_code,
+#wrapwrap input[name="promo"] {
+    background: var(--sgc-bg-3) !important;
+    color: var(--sgc-text-1) !important;
+    border-color: var(--glass-border) !important;
+    border-radius: var(--r-sm) !important;
+}
+
+/* ── Badges (e.g., "Free", "New") ── */
+#wrapwrap .oe_website_sale .badge {
+    background: var(--grad-brand) !important;
+    color: #fff !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.7rem !important;
+}
+
+/* ── text-muted override throughout shop ── */
+#wrapwrap .oe_website_sale .text-muted,
+#wrapwrap .o_website_sale_checkout_container .text-muted {
+    color: var(--sgc-text-3) !important;
+}
+
+/* ── Horizontal rules ── */
+#wrapwrap .oe_website_sale hr {
+    border-color: var(--glass-border) !important;
+    opacity: 1;
+}
+
+/* ── Sticky summary header on cart page ── */
+#wrapwrap .o_wsale_cart_sticky_header {
+    background: var(--sgc-bg-0) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+}
+
+/* ── Empty cart state ── */
+#wrapwrap .js_cart_lines .text-muted {
+    color: var(--sgc-text-3) !important;
+}
+
+/* ── "Continue shopping" link ── */
+#wrapwrap .oe_cart a[href="/shop"],
+#wrapwrap .o_wsale_cart_btn_continue {
+    color: var(--sgc-cyan) !important;
+    border-color: var(--glass-border) !important;
+}
+
+/* ── Radio button / checkbox in payment/address ── */
+#wrapwrap .oe_website_sale .form-check-input,
+#wrapwrap .o_payment_option_card .form-check-input {
+    background-color: var(--sgc-bg-3) !important;
+    border-color: var(--glass-border) !important;
+}
+
+#wrapwrap .oe_website_sale .form-check-input:checked,
+#wrapwrap .o_payment_option_card .form-check-input:checked {
+    background-color: var(--sgc-cyan) !important;
+    border-color: var(--sgc-cyan) !important;
+}
+
+#wrapwrap .oe_website_sale .form-check-label,
+#wrapwrap .o_payment_option_card .form-check-label {
+    color: var(--sgc-text-2) !important;
+}
+
+/* ── Checkout steps: address selector cards ── */
+#wrapwrap #shipping_and_billing .card,
+#wrapwrap .js_address.card {
+    background: rgba(13, 31, 56, 0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    cursor: pointer;
+    transition: var(--t-base) !important;
+}
+
+#wrapwrap #shipping_and_billing .card:hover,
+#wrapwrap .js_address.card:hover,
+#wrapwrap .js_address.card.o_wsale_address_selected {
+    border-color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 1px var(--sgc-cyan) !important;
+}
+
+/* ── Address card text ── */
+#wrapwrap .js_address .text-600,
+#wrapwrap .js_address strong,
+#wrapwrap .js_address address {
+    color: var(--sgc-text-1) !important;
+}
+
+#wrapwrap .js_address address {
+    color: var(--sgc-text-2) !important;
+    font-style: normal;
+    line-height: 1.6;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   WISHLIST / COMPARE BUTTONS (product cards)
+   ────────────────────────────────────────────────────────────── */
+
+.sgc-theme .o_add_wishlist,
+.sgc-theme .o_add_compare {
+    background: var(--sgc-bg-3) !important;
+    border-color: var(--glass-border) !important;
+    color: var(--sgc-text-2) !important;
+}
+
+.sgc-theme .o_add_wishlist:hover,
+.sgc-theme .o_add_compare:hover {
+    color: var(--sgc-cyan) !important;
+    border-color: var(--sgc-cyan) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   NOTIFICATION TOAST / MODAL
+   ────────────────────────────────────────────────────────────── */
+
+.sgc-theme .o_notification_manager,
+.sgc-theme .o_website_sale_cart_growl {
+    color: var(--sgc-text-1);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   RIBBON / BADGE (New, Sale, etc.)
+   ────────────────────────────────────────────────────────────── */
+
+.sgc-theme .o_ribbon {
+    background: var(--grad-brand) !important;
+    color: #fff !important;
+    font-family: var(--font-head) !important;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   IMAGE ZOOM VIEWER
+   ────────────────────────────────────────────────────────────── */
+
+.sgc-theme .product_detail_main_col .cloud-zoom-wrap,
+.sgc-theme .product_detail_main_col .o_image_viewer {
+    background: var(--sgc-bg-2) !important;
+}

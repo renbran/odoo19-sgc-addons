@@ -1,0 +1,344 @@
+/* ============================================================
+   SGC TECH AI — Animation System
+   Premium motion design for world-class UX
+   ============================================================ */
+
+/* ─── KEYFRAME DEFINITIONS ──────────────────────── */
+
+@keyframes sgc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes sgc-fade-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sgc-fade-down {
+  from { opacity: 0; transform: translateY(-32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sgc-fade-left {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes sgc-fade-right {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes sgc-scale-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sgc-scale-bounce {
+  0%   { opacity: 0; transform: scale(0.8); }
+  60%  { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes sgc-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes sgc-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-16px) rotate(1deg); }
+  66%       { transform: translateY(-8px) rotate(-1deg); }
+}
+
+@keyframes sgc-float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-24px); }
+}
+
+@keyframes sgc-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px var(--sgc-electric-cyan); }
+  50%       { opacity: 0.5; transform: scale(0.8); box-shadow: 0 0 3px var(--sgc-electric-cyan); }
+}
+
+@keyframes sgc-pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes sgc-glow-cyan {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,255,240,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(0,255,240,0.6), 0 0 80px rgba(0,255,240,0.2); }
+}
+
+@keyframes sgc-glow-green {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+  50%       { box-shadow: 0 0 40px rgba(0,255,136,0.6), 0 0 80px rgba(0,255,136,0.2); }
+}
+
+@keyframes sgc-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes sgc-rotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes sgc-rotate-reverse {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+
+@keyframes sgc-counter-up {
+  from { transform: translateY(1em); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes sgc-border-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes sgc-particle-rise {
+  0%   { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-200px) scale(0); opacity: 0; }
+}
+
+@keyframes sgc-wave {
+  0%, 100% { transform: scaleY(1); }
+  50%       { transform: scaleY(0.5); }
+}
+
+@keyframes sgc-scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes sgc-typewriter {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes sgc-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes sgc-morph {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  25%       { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  50%       { border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%; }
+  75%       { border-radius: 70% 30% 60% 40% / 60% 40% 30% 70%; }
+}
+
+@keyframes sgc-hero-orb {
+  0%, 100% {
+    transform: translate(0%, 0%) scale(1);
+    filter: blur(80px);
+  }
+  33% {
+    transform: translate(5%, -5%) scale(1.1);
+    filter: blur(60px);
+  }
+  66% {
+    transform: translate(-3%, 3%) scale(0.95);
+    filter: blur(100px);
+  }
+}
+
+@keyframes sgc-data-stream {
+  0%   { opacity: 0; transform: translateX(-20px); }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(20px); }
+}
+
+/* ─── ENTRANCE ANIMATION CLASSES ────────────────── */
+
+.sgc-anim-fade-in     { animation: sgc-fade-in  var(--sgc-transition-slow) both; }
+.sgc-anim-fade-up     { animation: sgc-fade-up  var(--sgc-transition-slow) both; }
+.sgc-anim-fade-down   { animation: sgc-fade-down var(--sgc-transition-slow) both; }
+.sgc-anim-fade-left   { animation: sgc-fade-left var(--sgc-transition-slow) both; }
+.sgc-anim-fade-right  { animation: sgc-fade-right var(--sgc-transition-slow) both; }
+.sgc-anim-scale-in    { animation: sgc-scale-in  var(--sgc-transition-slow) both; }
+.sgc-anim-scale-bounce{ animation: sgc-scale-bounce 600ms cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+/* Staggered delays */
+.sgc-delay-100 { animation-delay: 100ms; }
+.sgc-delay-200 { animation-delay: 200ms; }
+.sgc-delay-300 { animation-delay: 300ms; }
+.sgc-delay-400 { animation-delay: 400ms; }
+.sgc-delay-500 { animation-delay: 500ms; }
+.sgc-delay-600 { animation-delay: 600ms; }
+.sgc-delay-700 { animation-delay: 700ms; }
+.sgc-delay-800 { animation-delay: 800ms; }
+.sgc-delay-1000{ animation-delay: 1000ms; }
+
+/* ─── SCROLL-TRIGGERED ANIMATIONS ───────────────── */
+
+.sgc-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.sgc-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sgc-reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.sgc-reveal-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sgc-reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.sgc-reveal-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sgc-reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.sgc-reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Stagger children */
+.sgc-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.sgc-stagger.is-visible > *:nth-child(1) { opacity: 1; transform: none; transition-delay: 0ms; }
+.sgc-stagger.is-visible > *:nth-child(2) { opacity: 1; transform: none; transition-delay: 100ms; }
+.sgc-stagger.is-visible > *:nth-child(3) { opacity: 1; transform: none; transition-delay: 200ms; }
+.sgc-stagger.is-visible > *:nth-child(4) { opacity: 1; transform: none; transition-delay: 300ms; }
+.sgc-stagger.is-visible > *:nth-child(5) { opacity: 1; transform: none; transition-delay: 400ms; }
+.sgc-stagger.is-visible > *:nth-child(6) { opacity: 1; transform: none; transition-delay: 500ms; }
+
+/* ─── CONTINUOUS ANIMATIONS ─────────────────────── */
+
+.sgc-float        { animation: sgc-float 6s ease-in-out infinite; }
+.sgc-float-slow   { animation: sgc-float-slow 8s ease-in-out infinite; }
+.sgc-pulse-glow   { animation: sgc-glow-cyan 3s ease-in-out infinite; }
+.sgc-pulse-green  { animation: sgc-glow-green 3s ease-in-out infinite; }
+.sgc-rotate       { animation: sgc-rotate 20s linear infinite; }
+.sgc-rotate-slow  { animation: sgc-rotate 40s linear infinite; }
+.sgc-morph-shape  { animation: sgc-morph 8s ease-in-out infinite; }
+
+/* ─── SHIMMER LOADING STATES ────────────────────── */
+
+.sgc-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--sgc-white-10) 0%,
+    var(--sgc-white-20) 50%,
+    var(--sgc-white-10) 100%
+  );
+  background-size: 200% 100%;
+  animation: sgc-shimmer 2s ease-in-out infinite;
+}
+
+/* ─── PROGRESS BAR ──────────────────────────────── */
+
+.sgc-progress-bar {
+  height: 2px;
+  background: var(--sgc-gradient-cta);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--sgc-z-copilot);
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px var(--sgc-electric-cyan);
+}
+
+/* ─── TYPEWRITER EFFECT ─────────────────────────── */
+
+.sgc-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid var(--sgc-electric-cyan);
+  animation:
+    sgc-typewriter 3.5s steps(40) 0.5s both,
+    sgc-blink 0.75s step-end infinite;
+}
+
+/* ─── HERO ORB BACKGROUNDS ──────────────────────── */
+
+.sgc-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+
+.sgc-orb-cyan {
+  background: radial-gradient(circle, rgba(0,255,240,0.3) 0%, transparent 70%);
+  animation: sgc-hero-orb 12s ease-in-out infinite;
+}
+
+.sgc-orb-green {
+  background: radial-gradient(circle, rgba(0,255,136,0.25) 0%, transparent 70%);
+  animation: sgc-hero-orb 15s ease-in-out infinite reverse;
+}
+
+.sgc-orb-blue {
+  background: radial-gradient(circle, rgba(30,58,138,0.5) 0%, transparent 70%);
+  animation: sgc-hero-orb 18s ease-in-out infinite 3s;
+}
+
+/* ─── SCAN LINE EFFECT ──────────────────────────── */
+
+.sgc-scan::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--sgc-electric-cyan), transparent);
+  animation: sgc-scan-line 4s linear infinite;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ─── BORDER FLOW ANIMATION ─────────────────────── */
+
+.sgc-border-animate {
+  background: linear-gradient(270deg, var(--sgc-electric-cyan), var(--sgc-neon-green), var(--sgc-ocean-blue));
+  background-size: 600% 600%;
+  animation: sgc-border-flow 4s ease infinite;
+}
+
+/* ─── REDUCE MOTION ─────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

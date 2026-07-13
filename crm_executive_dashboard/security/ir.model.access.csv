@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_dashboard_kpi_user,crm.dashboard.kpi.user,model_crm_dashboard_kpi,group_crm_dashboard_user,1,0,0,0
+access_crm_dashboard_kpi_manager,crm.dashboard.kpi.manager,model_crm_dashboard_kpi,group_crm_dashboard_manager,1,1,0,0
+access_crm_dashboard_filter_user,crm.dashboard.filter.user,model_crm_dashboard_filter,group_crm_dashboard_user,1,1,1,0
+access_crm_dashboard_filter_manager,crm.dashboard.filter.manager,model_crm_dashboard_filter,group_crm_dashboard_manager,1,1,1,1
+access_crm_dashboard_alert_user,crm.dashboard.alert.rule.user,model_crm_dashboard_alert_rule,group_crm_dashboard_user,1,0,0,0
+access_crm_dashboard_alert_manager,crm.dashboard.alert.rule.manager,model_crm_dashboard_alert_rule,group_crm_dashboard_manager,1,1,1,1
+access_crm_dashboard_report_user,crm.dashboard.report.config.user,model_crm_dashboard_report_config,group_crm_dashboard_user,1,0,0,0
+access_crm_dashboard_report_manager,crm.dashboard.report.config.manager,model_crm_dashboard_report_config,group_crm_dashboard_manager,1,1,1,1
+access_crm_dashboard_report_run_user,crm.dashboard.report.run.user,model_crm_dashboard_report_run,group_crm_dashboard_user,1,0,0,0
+access_crm_dashboard_report_run_manager,crm.dashboard.report.run.manager,model_crm_dashboard_report_run,group_crm_dashboard_manager,1,1,1,1
+access_crm_dashboard_export_user,crm.dashboard.export.user,model_crm_dashboard_export,group_crm_dashboard_user,1,0,1,0
+access_crm_dashboard_export_manager,crm.dashboard.export.manager,model_crm_dashboard_export,group_crm_dashboard_manager,1,1,1,1

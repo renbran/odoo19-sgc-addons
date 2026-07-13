@@ -1,0 +1,2490 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SGC TECH AI — Inner Pages
+     About Us    →  /about
+     Industries  →  /industries
+     Services    →  /services
+     ══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  ABOUT US PAGE                                          ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<template id="sgctech_about" name="SGC TECH AI — About Us">
+    <t t-set="title">About SGC TECH AI | Odoo + AI Partner in UAE</t>
+    <t t-set="meta_description">Meet SGC TECH AI — a UAE-based Odoo + AI implementation partner delivering fixed-price, fixed-timeline ERP systems with VAT, Corporate Tax, and RERA compliance.</t>
+    <t t-call="website.layout">
+        <div id="wrap" class="sgc-main-wrap oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "About Us", "item": "https://sgctech.ai/about"}
+                ]
+            }
+            </script>
+
+            <!-- ▸▸▸  TRUST HERO — About Us (Glassmorphism 2-Col)  ◂◂◂ -->
+            <section class="sgc-about-trust-hero" id="about-hero">
+
+                <!-- Interactive dot-grid canvas (replaces static image) -->
+                <canvas id="sgc-grid-canvas" class="sgc-ath-grid-canvas" aria-hidden="true"/>
+
+                <!-- Ambient orbs -->
+                <div class="sgc-ath-orb sgc-ath-orb-1"/>
+                <div class="sgc-ath-orb sgc-ath-orb-2"/>
+
+                <div class="sgc-ath-inner container">
+                    <div class="row g-5 align-items-start">
+
+                        <!-- ═══ LEFT COLUMN ═══ -->
+                        <div class="col-lg-7 d-flex flex-column justify-content-center pt-lg-3">
+
+                            <!-- Badge -->
+                            <div class="sgc-ath-badge sgc-ath-anim sgc-ath-d1">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                </svg>
+                                Operator-Led · IFZA Dubai · Est. 2024
+                            </div>
+
+                            <!-- Heading -->
+                            <h1 class="sgc-ath-heading sgc-ath-anim sgc-ath-d2">
+                                Odoo + AI for the<br/>
+                                <span class="sgc-gradient-text">UAE Mid-Market</span><br/>
+                                That Actually Works
+                            </h1>
+
+                            <!-- Description -->
+                            <p class="sgc-ath-desc sgc-ath-anim sgc-ath-d3">
+                                SGC Tech AI delivers fixed-price, fixed-timeline Odoo implementations
+                                with a built-in AI layer — UAE VAT, Corporate Tax, ESR, UBO, PDPL, and RERA
+                                compliance built in from day one. No open-ended retainers.
+                                No per-user surprise billing.
+                            </p>
+
+                            <!-- CTAs -->
+                            <div class="sgc-ath-ctas sgc-ath-anim sgc-ath-d4">
+                                <a href="/industries" class="sgc-ath-btn-primary">
+                                    View Case Studies
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                         stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                        <line x1="5" y1="12" x2="19" y2="12"/>
+                                        <polyline points="12 5 19 12 12 19"/>
+                                    </svg>
+                                </a>
+                                <a href="/sgctech-contact" class="sgc-ath-btn-secondary">
+                                    <svg width="15" height="15" viewBox="0 0 24 24"
+                                         fill="currentColor" aria-hidden="true">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    Book Scoping Call
+                                </a>
+                            </div>
+
+                        </div><!-- /col left -->
+
+                        <!-- ═══ RIGHT COLUMN ═══ -->
+                        <div class="col-lg-5 sgc-ath-anim sgc-ath-d5">
+
+                            <!-- ── Compact Stats Card ── -->
+                            <div class="sgc-ath-card">
+                                <div class="sgc-ath-card-glow"/>
+                                <div class="sgc-ath-card-body">
+
+                                    <!-- Headline stat -->
+                                    <div class="sgc-ath-card-hdr">
+                                        <div class="sgc-ath-card-icon" aria-hidden="true">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                                 stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <circle cx="12" cy="12" r="6"/>
+                                                <circle cx="12" cy="12" r="2"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="sgc-ath-big-num">AED 1.15B</div>
+                                            <div class="sgc-ath-big-lbl">Sales Volume Processed on Client Systems</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="sgc-ath-div"/>
+
+                                    <!-- Compact 3-stat row -->
+                                    <div class="sgc-ath-mini">
+                                        <div class="sgc-ath-mini-stat">
+                                            <span class="sgc-ath-mini-val">104%</span>
+                                            <span class="sgc-ath-mini-key">Year-1 ROI</span>
+                                        </div>
+                                        <div class="sgc-ath-mini-sep"/>
+                                        <div class="sgc-ath-mini-stat">
+                                            <span class="sgc-ath-mini-val">5.9</span>
+                                            <span class="sgc-ath-mini-key">Mo Payback</span>
+                                        </div>
+                                        <div class="sgc-ath-mini-sep"/>
+                                        <div class="sgc-ath-mini-stat">
+                                            <span class="sgc-ath-mini-val">580</span>
+                                            <span class="sgc-ath-mini-key">Deals Managed</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tag pills -->
+                                    <div class="sgc-ath-tags">
+                                        <div class="sgc-ath-tag">
+                                            <span class="sgc-ath-tag-dot" aria-hidden="true"/>
+                                            ACTIVE · IFZA FREE ZONE · EST. 2024
+                                        </div>
+                                        <div class="sgc-ath-tag">
+                                            <svg width="11" height="11" viewBox="0 0 24 24"
+                                                 fill="currentColor" aria-hidden="true">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                            </svg>
+                                            CMA CERTIFIED · FOUNDER &amp; CEO
+                                        </div>
+                                        <div class="sgc-ath-tag sgc-ath-tag-violet">
+                                            <svg width="11" height="11" viewBox="0 0 24 24"
+                                                 fill="currentColor" aria-hidden="true">
+                                                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                                            </svg>
+                                            ODOO SPECIALIST · CO-FOUNDER
+                                        </div>
+                                    </div>
+
+                                </div><!-- /card-body -->
+                            </div><!-- /stats card -->
+
+                            <!-- ── Founder Expertise Seals ── -->
+                            <div class="sgc-founder-seals">
+                                <div class="sgc-seal-header">
+                                    <span class="sgc-seal-header-label">FOUNDED &amp; LED BY VERIFIED EXPERTS</span>
+                                </div>
+                                <div class="sgc-seals-row">
+
+                                    <!-- Seal 1: CMA Co-Founder -->
+                                    <div class="sgc-seal-badge">
+                                        <div class="sgc-seal-ring-wrap">
+                                            <svg class="sgc-seal-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                                                <defs>
+                                                    <path id="sgcSeal1Arc" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/>
+                                                </defs>
+                                                <circle cx="60" cy="60" r="57" fill="none" stroke="rgba(0,212,255,0.18)" stroke-width="1" stroke-dasharray="3 5"/>
+                                                <text font-size="8" fill="rgba(0,212,255,0.62)" font-family="Share Tech Mono,monospace" letter-spacing="4.8">
+                                                    <textPath href="#sgcSeal1Arc">· CERTIFIED MANAGEMENT ACCOUNTANT · UAE</textPath>
+                                                </text>
+                                            </svg>
+                                            <div class="sgc-seal-core sgc-seal-core-cyan">
+                                                <span class="sgc-seal-abbr">CMA</span>
+                                                <span class="sgc-seal-role">Finance &amp;<br/>Operations</span>
+                                            </div>
+                                        </div>
+                                        <div class="sgc-seal-footer">
+                                            <span class="sgc-seal-title-text">FOUNDER &amp; CEO</span>
+                                            <span class="sgc-seal-sub">CMA · Finance &amp; Operations Lead</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="sgc-seals-divider"/>
+
+                                    <!-- Seal 2: Odoo/ERP Co-Founder -->
+                                    <div class="sgc-seal-badge">
+                                        <div class="sgc-seal-ring-wrap">
+                                            <svg class="sgc-seal-svg sgc-seal-svg-rev" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                                                <defs>
+                                                    <path id="sgcSeal2Arc" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/>
+                                                </defs>
+                                                <circle cx="60" cy="60" r="57" fill="none" stroke="rgba(123,47,190,0.22)" stroke-width="1" stroke-dasharray="3 5"/>
+                                                <text font-size="8" fill="rgba(168,85,247,0.68)" font-family="Share Tech Mono,monospace" letter-spacing="4.2">
+                                                    <textPath href="#sgcSeal2Arc">· ODOO SPECIALIST · ERP ARCHITECT · AI SYSTEMS</textPath>
+                                                </text>
+                                            </svg>
+                                            <div class="sgc-seal-core sgc-seal-core-violet">
+                                                <span class="sgc-seal-abbr">ERP</span>
+                                                <span class="sgc-seal-role">AI &amp;<br/>Architect</span>
+                                            </div>
+                                        </div>
+                                        <div class="sgc-seal-footer">
+                                            <span class="sgc-seal-title-text">CO-FOUNDER</span>
+                                            <span class="sgc-seal-sub">ERP &amp; AI Technology Director</span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div><!-- /founder seals -->
+
+                        </div><!-- /col right -->
+                    </div><!-- /row -->
+                </div><!-- /container -->
+            </section>
+
+            <!-- ▸▸▸  COMPANY STORY  ◂◂◂ -->
+            <section class="sgc-about-story sgc-section">
+                <div class="container">
+                    <div class="row align-items-center g-5">
+                        <!-- Visual -->
+                        <div class="col-lg-5 sgc-reveal-left" style="position:relative;">
+                            <div class="sgc-about-story-img">
+                                <img src="/website_sgctech_ai/static/src/img/ai_brain.jpg"
+                                     alt="SGC TECH AI neural network powering Odoo + AI automation for UAE businesses"
+                                     loading="lazy"
+                                     style="width:100%;border-radius:var(--r-xl);
+                                            border:1px solid var(--glass-border);
+                                            box-shadow:0 0 80px rgba(0,212,255,0.18),var(--glass-shadow);
+                                            mix-blend-mode:lighten;"/>
+                                <div class="sgc-about-glow-ring"/>
+                            </div>
+                            <!-- floating badges -->
+                            <div class="sgc-float-card glass" style="position:absolute;bottom:2.5rem;left:-1.5rem;z-index:5;">
+                                <div class="sgc-float-card-icon">🎯</div>
+                                <div class="sgc-float-card-text">
+                                    <strong>Fixed-Price Delivery</strong>
+                                    <span>No open-ended retainers</span>
+                                </div>
+                            </div>
+                            <div class="sgc-float-card glass" style="position:absolute;top:2rem;right:-1.5rem;z-index:5;">
+                                <div class="sgc-float-card-icon">🇦🇪</div>
+                                <div class="sgc-float-card-text">
+                                    <strong>IFZA Dubai · Est. 2024</strong>
+                                    <span>UAE Free Zone Licensed</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Copy -->
+                        <div class="col-lg-7 sgc-story-body sgc-reveal-right">
+                            <div class="sgc-story-tag">
+                                <span>◉</span> Our Story
+                            </div>
+                            <h2>Built by operators, <span class="sgc-gradient-text">for ambitious UAE businesses</span></h2>
+                            <p>
+                                SGC Tech AI was founded on a single observation: mid-market businesses in the UAE
+                                were stuck with spreadsheets, WhatsApp threads, and disconnected tools while waiting
+                                months for ERP implementations that never quite delivered.
+                            </p>
+                            <p>
+                                Our founders have personally sat in finance, sales, and operations chairs —
+                                leading Odoo deployments across real-estate developers, brokerages, and contractors
+                                that have collectively processed <strong style="color:var(--sgc-cyan)">AED 1.15 billion</strong> in sales volume across real-estate brokerages and developers.
+                                That practitioner perspective shapes every engagement we take on.
+                            </p>
+                            <p>
+                                Incorporated as <strong style="color:var(--sgc-text-1)">Scholarix Global Consultant FZE</strong> in the IFZA Dubai
+                                Free Zone, we deliver fixed-price, fixed-timeline implementations — with UAE VAT,
+                                Corporate Tax, ESR, PDPL, and RERA compliance built in from the first line of config.
+                            </p>
+                            <!-- Achievement pills — verified against internal docs v2026.05 -->
+                            <div class="sgc-achievement-pills mt-4">
+                                <span class="sgc-achieve-pill">✓ CMA Certified Founder</span>
+                                <span class="sgc-achieve-pill">✓ UAE VAT &amp; CT Compliant</span>
+                                <span class="sgc-achieve-pill">✓ PDPL &amp; RERA Aligned</span>
+                                <span class="sgc-achieve-pill">✓ Fixed Price · Fixed Timeline</span>
+                                <span class="sgc-achieve-pill">✓ Vendor-Neutral AI</span>
+                                <span class="sgc-achieve-pill">✓ IFZA Free Zone Licensed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  MISSION / VISION / VALUES  ◂◂◂ -->
+            <section class="sgc-mvv-section">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">OUR FOUNDATION</span>
+                        <h2>Mission, Vision <span class="sgc-gradient-text">&amp; Values</span></h2>
+                        <p>The principles that drive every package we build and every client we serve.</p>
+                    </div>
+                    <div class="sgc-mvv-grid sgc-stagger">
+                        <div class="sgc-mvv-card mission sgc-reveal">
+                            <div class="sgc-mvv-icon">🎯</div>
+                            <h3>Our Mission</h3>
+                            <p>Give UAE mid-market operators a single, integrated Odoo + AI operating system — delivered on a fixed price, fixed timeline — that replaces spreadsheets, WhatsApp threads, Tally, and disconnected tools for good.</p>
+                        </div>
+                        <div class="sgc-mvv-card vision sgc-reveal">
+                            <div class="sgc-mvv-icon">🔭</div>
+                            <h3>Our Vision</h3>
+                            <p>Become the reference Odoo + AI implementation partner for UAE real-estate brokerages, developers, and contractors navigating Dubai Law No. 7 of 2025, RERA/Ejari tightening, UAE Corporate Tax, and PDPL — with 30–50 retained mid-market clients across UAE/GCC.</p>
+                        </div>
+                        <div class="sgc-mvv-card values sgc-reveal">
+                            <div class="sgc-mvv-icon">💎</div>
+                            <h3>Our Values</h3>
+                            <p>Provable over promised — every claim is tied to an audited number or named project. Operator empathy — we've sat in the finance and ops chairs ourselves. Compliance-first — UAE VAT, Corporate Tax, ESR, UBO, goAML, PDPL, RERA, TDRA built into delivery. Fixed price, fixed timeline — no open-ended retainers.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  JOURNEY TIMELINE  ◂◂◂ -->
+            <section class="sgc-timeline-section sgc-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">OUR JOURNEY</span>
+                        <h2>From operator roots to <span class="sgc-gradient-text">enterprise solutions</span></h2>
+                        <p>Founded in 2024 — built on years of hands-on UAE ERP delivery experience.</p>
+                    </div>
+                    <div class="sgc-timeline">
+                        <!-- Pre-2024: Founder Track Record -->
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div class="sgc-timeline-content">
+                                <div class="sgc-timeline-year">Pre-2024</div>
+                                <h4>Founders' Proven Track Record</h4>
+                                <p>Over four years of hands-on Odoo implementations across UAE real-estate brokerages, developers, and group holdings — including Samana Group, Peace Homes, AX Capital, and the flagship OSUS rollout (580 deals, AED 1.15B volume). AI-powered document extraction, inbound voice, and AML/PEP screening capabilities built and deployed.</p>
+                            </div>
+                            <div class="sgc-timeline-dot"/>
+                            <div style="flex:1;"/>
+                        </div>
+                        <!-- 2024 -->
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div class="sgc-timeline-content">
+                                <div class="sgc-timeline-year">2024</div>
+                                <h4>SGC Tech AI Founded</h4>
+                                <p>Incorporated as Scholarix Global Consultant FZE in IFZA Dubai Free Zone. Formalised three-layer pricing model: Implementation, Platform Subscription, Operations Retainer. Odoo v17–v19 capability stack with AI layer production-ready.</p>
+                            </div>
+                            <div class="sgc-timeline-dot"/>
+                            <div style="flex:1;"/>
+                        </div>
+                        <!-- 2025-26 -->
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div style="flex:1;"/>
+                            <div class="sgc-timeline-dot sgc-timeline-dot-active"/>
+                            <div class="sgc-timeline-content sgc-timeline-content-active">
+                                <div class="sgc-timeline-year" style="color:var(--sgc-cyan);">2025–2026 ✦ NOW</div>
+                                <h4>Audited Results &amp; Scaling</h4>
+                                <p>Independently audited 104% Year-1 ROI and 5.9-month payback validated. Rescue audit service launched. Odoo v20-ready architecture. Odoo Partner enrolment active. Targeting 30–50 retained mid-market clients across UAE/GCC.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CLIENT TRACK RECORD  ◂◂◂ -->
+            <section class="sgc-credibility-section sgc-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">PROVEN TRACK RECORD</span>
+                        <h2>Deployed inside <span class="sgc-gradient-text">real UAE businesses</span></h2>
+                        <p>Every engagement listed below is a founder-led, hands-on Odoo implementation — not a consulting deck, not a whitepaper, not a hypothetical.</p>
+                    </div>
+                    <div class="sgc-track-grid sgc-stagger">
+                        <!-- OSUS Properties — Flagship -->
+                        <div class="sgc-track-card sgc-reveal sgc-track-featured">
+                            <div class="sgc-track-badge">FLAGSHIP</div>
+                            <div class="sgc-track-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            </div>
+                            <h4>OSUS Properties</h4>
+                            <span class="sgc-track-type">Real Estate Brokerage · Dubai</span>
+                            <p>Full Odoo implementation — custom commission engine, CRM, reporting. 580 deals managed, AED 1.15B sales volume, independently audited 104% Year-1 ROI with 5.9-month payback.</p>
+                            <div class="sgc-track-metrics">
+                                <span class="sgc-track-metric"><strong>AED 1.15B</strong> Volume</span>
+                                <span class="sgc-track-metric"><strong>104%</strong> ROI</span>
+                                <span class="sgc-track-metric"><strong>5.9 mo</strong> Payback</span>
+                            </div>
+                        </div>
+                        <!-- Samana Group -->
+                        <div class="sgc-track-card sgc-reveal">
+                            <div class="sgc-track-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                            </div>
+                            <h4>Samana Group</h4>
+                            <span class="sgc-track-type">Property Development · Multi-Entity</span>
+                            <p>Multi-entity Odoo finance and operations rollout across group holding structures. Full accounting, project costing, and inter-company reconciliation.</p>
+                        </div>
+                        <!-- Peace Homes -->
+                        <div class="sgc-track-card sgc-reveal">
+                            <div class="sgc-track-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            </div>
+                            <h4>Peace Homes Development</h4>
+                            <span class="sgc-track-type">Developer · Finance &amp; Sales</span>
+                            <p>Odoo finance and sales operations implementation — unit tracking, payment schedules, and developer-specific reporting workflows.</p>
+                        </div>
+                        <!-- AX Capital -->
+                        <div class="sgc-track-card sgc-reveal">
+                            <div class="sgc-track-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/></svg>
+                            </div>
+                            <h4>AX Capital Real Estate</h4>
+                            <span class="sgc-track-type">Brokerage · Odoo Operations</span>
+                            <p>Odoo operations implementation — property listings, agent management, and transaction processing across brokerage operations.</p>
+                        </div>
+                        <!-- Dubai Marina Developer -->
+                        <div class="sgc-track-card sgc-reveal">
+                            <div class="sgc-track-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                            </div>
+                            <h4>205-Unit Marina Developer</h4>
+                            <span class="sgc-track-type">AI Booking Automation</span>
+                            <p>AI-driven inbound enquiry handling and booking automation for a 205-unit Dubai Marina development — reducing response time and increasing conversion.</p>
+                        </div>
+                    </div>
+                    <p class="sgc-track-note sgc-reveal">All metrics sourced from independent client-side ERP ROI audit (Mar 2026). Client reference available under NDA for qualified prospects.</p>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  COMPLIANCE & CERTIFICATIONS  ◂◂◂ -->
+            <section class="sgc-compliance-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">COMPLIANCE &amp; SECURITY</span>
+                        <h2>UAE compliance <span class="sgc-gradient-text">built in, not bolted on</span></h2>
+                        <p>Every implementation ships with UAE regulatory compliance configured from day one — and a clear roadmap toward formal certification.</p>
+                    </div>
+                    <div class="sgc-compliance-grid sgc-stagger">
+                        <!-- Active Compliance -->
+                        <div class="sgc-compliance-card sgc-reveal">
+                            <div class="sgc-compliance-status active">ACTIVE</div>
+                            <h4>Built Into Every Engagement</h4>
+                            <div class="sgc-compliance-list">
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> UAE VAT 5%</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> Corporate Tax 9%</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> PDPL (Decree-Law 45/2021)</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> ESR &amp; UBO Register</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> goAML Reporting</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> RERA / Ejari Alignment</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> Dubai Law 7/2025 (Contractors)</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> TDRA CD 56 &amp; 57/2024</span>
+                                <span class="sgc-compliance-item"><i class="fa fa-check-circle"/> CBUAE Art. 16 AI Disclosure</span>
+                            </div>
+                        </div>
+                        <!-- Certification Roadmap -->
+                        <div class="sgc-compliance-card sgc-reveal">
+                            <div class="sgc-compliance-status roadmap">ROADMAP</div>
+                            <h4>Certification Roadmap</h4>
+                            <div class="sgc-compliance-list">
+                                <span class="sgc-compliance-item sgc-roadmap-item">
+                                    <i class="fa fa-clock"/> SOC 2 Type II
+                                    <span class="sgc-roadmap-date">Q1 2027 · Controls aligned</span>
+                                </span>
+                                <span class="sgc-compliance-item sgc-roadmap-item">
+                                    <i class="fa fa-clock"/> ISO 27001
+                                    <span class="sgc-roadmap-date">Q2 2027 · Gap assessment</span>
+                                </span>
+                                <span class="sgc-compliance-item sgc-roadmap-item">
+                                    <i class="fa fa-clock"/> Odoo Official Partner
+                                    <span class="sgc-roadmap-date">2026 · Enrolment active</span>
+                                </span>
+                            </div>
+                            <p class="sgc-compliance-note">We operate with SOC 2-aligned controls today. Formal certification is on our 2027 roadmap with audit initiation planned for Q1 2027.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CORE COMPETENCIES  ◂◂◂ -->
+            <section class="sgc-competencies">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">CORE COMPETENCIES</span>
+                        <h2>What we <span class="sgc-gradient-text">excel at</span></h2>
+                        <p>Deep expertise across every layer of the modern ERP stack.</p>
+                    </div>
+                    <div class="sgc-competency-grid sgc-stagger">
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">⚙️</span>
+                            <h4>Odoo 19 Architecture</h4>
+                            <p>Deep ORM, OWL framework, and custom module development across all Odoo app areas.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">🤖</span>
+                            <h4>AI &amp; ML Integration</h4>
+                            <p>OpenAI GPT-4, custom ML models, predictive analytics, and copilot assistants built into Odoo.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">🇦🇪</span>
+                            <h4>UAE Compliance</h4>
+                            <p>VAT 5%, FTA filing, RERA compliance, WPS payroll integration, Arabic RTL &amp; AED currency.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">🔗</span>
+                            <h4>APIs &amp; Integrations</h4>
+                            <p>REST, GraphQL, Payment gateways (Stripe, PayTabs), n8n/Make.com, WhatsApp &amp; ERP migrations.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">☁️</span>
+                            <h4>Cloud Infrastructure</h4>
+                            <p>AWS, Azure, Cloudpepper &amp; self-hosted deployments with HA architecture and SSL security.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">🎓</span>
+                            <h4>Training &amp; Change Mgmt</h4>
+                            <p>Structured user training, adoption playbooks, and change management for seamless go-lives.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">📊</span>
+                            <h4>Analytics &amp; Reporting</h4>
+                            <p>Custom Odoo dashboards, Power BI integration, KPI frameworks &amp; real-time BI.</p>
+                        </div>
+                        <div class="sgc-competency-card sgc-reveal">
+                            <span class="sgc-competency-icon">🛡️</span>
+                            <h4>Security &amp; Compliance</h4>
+                            <p>2FA, role-based access, data encryption, audit trails &amp; GDPR-ready from day one.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  COST OF INACTION  ◂◂◂ -->
+            <section class="sgc-section sgc-dot-bg">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">COST OF DOING NOTHING</span>
+                        <h2>Status quo costs more than <span class="sgc-gradient-text">transformation</span></h2>
+                        <p>Conservative annual estimate for a 25-agent UAE brokerage. Your numbers may differ — we model them in Discovery.</p>
+                    </div>
+                    <div class="sgc-why-grid sgc-stagger">
+                        <div class="sgc-why-card sgc-reveal">
+                            <div class="sgc-why-icon orange">⏳</div>
+                            <h3>Slow Commission Cycle</h3>
+                            <p>4–7 day calculation cycle, agent disputes, 1.5 FTEs of finance time absorbed monthly — costing an estimated <strong style="color:var(--sgc-cyan)">AED 180K/yr</strong> in wasted labour.</p>
+                        </div>
+                        <div class="sgc-why-card sgc-reveal">
+                            <div class="sgc-why-icon red">📉</div>
+                            <h3>Lost or Cold Leads</h3>
+                            <p>WhatsApp leads not logged, no follow-up cadence, ~15% conversion left on the table — an estimated <strong style="color:var(--sgc-cyan)">AED 420K/yr</strong> in missed revenue.</p>
+                        </div>
+                        <div class="sgc-why-card sgc-reveal">
+                            <div class="sgc-why-icon violet">📋</div>
+                            <h3>Manual Reporting</h3>
+                            <p>Quarterly RERA/VAT/CT reporting rebuilt manually, audit stress and error risk — an estimated <strong style="color:var(--sgc-cyan)">AED 60K/yr</strong> in compliance overhead.</p>
+                        </div>
+                        <div class="sgc-why-card sgc-reveal">
+                            <div class="sgc-why-icon cyan">📝</div>
+                            <h3>Document Data Entry</h3>
+                            <p>SPA, Ejari, MOU, passport scans re-keyed at ~8 hours per deal — an estimated <strong style="color:var(--sgc-cyan)">AED 90K/yr</strong> in manual labour.</p>
+                        </div>
+                    </div>
+                    <p class="sgc-track-note sgc-reveal text-center mt-4" style="font-size:1.05rem;color:var(--sgc-cyan);">
+                        Total cost of doing nothing: <strong>AED 750,000 / year</strong>. The question isn't "can we afford a system?" — it's "can we afford another year without one?"
+                    </p>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  HOW WE ENGAGE  ◂◂◂ -->
+            <section class="sgc-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">HOW WE ENGAGE</span>
+                        <h2>Four steps. <span class="sgc-gradient-text">Clear and accountable.</span></h2>
+                        <p>Every engagement follows a structured, milestone-based process — no ambiguity, no scope creep.</p>
+                    </div>
+                    <div class="sgc-timeline">
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div class="sgc-timeline-content">
+                                <div class="sgc-timeline-year">Step 1</div>
+                                <h4>Scoping Call — Free</h4>
+                                <p>30-minute call to confirm fit and ICP match. No commitment required. We assess your vertical, team size, and compliance needs.</p>
+                            </div>
+                            <div class="sgc-timeline-dot"/>
+                            <div style="flex:1;"/>
+                        </div>
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div class="sgc-timeline-content">
+                                <div class="sgc-timeline-year">Step 2</div>
+                                <h4>Rescue Audit — Optional</h4>
+                                <p>2-week paid diagnostic with a written remediation plan. 50% credited to implementation if you proceed within 90 days. From AED 5,000.</p>
+                            </div>
+                            <div class="sgc-timeline-dot"/>
+                            <div style="flex:1;"/>
+                        </div>
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div class="sgc-timeline-content">
+                                <div class="sgc-timeline-year">Step 3</div>
+                                <h4>Implementation — Fixed Price</h4>
+                                <p>Fixed price, fixed timeline, defined go-live date and acceptance criteria. Discovery to go-live in 2–16 weeks depending on tier.</p>
+                            </div>
+                            <div class="sgc-timeline-dot"/>
+                            <div style="flex:1;"/>
+                        </div>
+                        <div class="sgc-timeline-item sgc-reveal">
+                            <div style="flex:1;"/>
+                            <div class="sgc-timeline-dot sgc-timeline-dot-active"/>
+                            <div class="sgc-timeline-content sgc-timeline-content-active">
+                                <div class="sgc-timeline-year" style="color:var(--sgc-cyan);">Step 4 ✦ ONGOING</div>
+                                <h4>Operations Retainer</h4>
+                                <p>Monthly ownership post-go-live with quarterly ROI reporting modelled on the OSUS audit template. Bronze (AED 5K/mo), Silver (AED 9K/mo), or Gold (AED 15K/mo). 6-month minimum.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  TRUST BADGES  ◂◂◂ -->
+            <div class="sgc-badge-bar">
+                <div class="container">
+                    <div class="sgc-badge-bar-inner">
+                        <span class="sgc-trust-badge"><span class="badge-icon">🏆</span> Odoo Implementation Team</span>
+                        <span class="sgc-trust-divider"/>
+                        <span class="sgc-trust-badge"><span class="badge-icon">🇦🇪</span> UAE-Based Team</span>
+                        <span class="sgc-trust-divider"/>
+                        <span class="sgc-trust-badge"><span class="badge-icon">✦</span> SOC 2-Aligned Controls</span>
+                        <span class="sgc-trust-divider"/>
+                        <span class="sgc-trust-badge"><span class="badge-icon">🤖</span> Vendor-Neutral AI</span>
+                        <span class="sgc-trust-divider"/>
+                        <span class="sgc-trust-badge"><span class="badge-icon">🔒</span> 30–90 Day Go-Live</span>
+                        <span class="sgc-trust-divider"/>
+                        <span class="sgc-trust-badge"><span class="badge-icon">⭐</span> 104% Audited ROI</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ▸▸▸  FINAL CTA  ◂◂◂ -->
+            <section class="sgc-cta-section">
+                <div class="sgc-cta-lines">
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                </div>
+                <div class="container">
+                    <div class="sgc-cta-inner sgc-reveal">
+                        <span class="sgc-label">WORK WITH US</span>
+                        <h2>Ready to transform your <span class="sgc-gradient-text">operations?</span></h2>
+                        <p>Fixed-price, fixed-timeline Odoo + AI implementation. Go-live guarantee: if we miss the agreed go-live date by more than 14 days for reasons within our control, one month of Operations Retainer is free.</p>
+                        <div class="sgc-cta-buttons">
+                            <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-lg">
+                                Browse Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                            <a href="https://app.cal.com/sgctech" target="_blank" class="sgc-btn sgc-btn-ghost sgc-btn-lg">
+                                <i class="fa fa-calendar me-1"/> Book a Demo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /wrap -->
+    </t>
+</template>
+
+<record id="sgctech_about_page" model="website.page">
+    <field name="name">SGC TECH AI — About Us</field>
+    <field name="url">/about</field>
+    <field name="view_id" ref="sgctech_about"/>
+    <field name="is_published">True</field>
+</record>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  INDUSTRIES PAGE                                        ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<template id="sgctech_industries" name="SGC TECH AI — Industries">
+    <t t-set="title">Industries We Serve | Odoo + AI ERP UAE | SGC TECH AI</t>
+    <t t-set="meta_description">Odoo + AI ERP packages for real estate, construction, trading, retail, hospitality, manufacturing, healthcare, education, professional services and logistics in the UAE.</t>
+    <t t-call="website.layout">
+        <div id="wrap" class="sgc-main-wrap oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Industries", "item": "https://sgctech.ai/industries"}
+                ]
+            }
+            </script>
+
+            <!-- ▸▸▸  HERO  ◂◂◂ -->
+            <section class="sgc-page-hero sgc-ind-page-hero">
+                <img class="sgc-page-hero-bg"
+                     src="/website_sgctech_ai/static/src/img/industries/real_estate_lg.jpg"
+                     alt="Dubai skyline at sunset showcasing UAE's technological advancement and innovation"
+                     loading="eager"/>
+                <div class="sgc-orb sgc-orb-cyan"
+                     style="width:600px;height:600px;top:-180px;right:-150px;opacity:0.22;"/>
+                <div class="sgc-orb sgc-orb-violet"
+                     style="width:500px;height:500px;bottom:-200px;left:-100px;opacity:0.18;"/>
+
+                <div class="container" style="position:relative;z-index:10;">
+                    <div class="row justify-content-center text-center">
+                        <div class="col-lg-9">
+                            <nav class="sgc-breadcrumb justify-content-center sgc-reveal" aria-label="breadcrumb">
+                                <a href="/">Home</a>
+                                <span class="sgc-breadcrumb-sep">/</span>
+                                <span>Industries</span>
+                            </nav>
+                            <div class="sgc-story-tag mx-auto sgc-reveal">
+                                <span>◈</span> 10 Industries · Pre-Built · UAE-Ready
+                            </div>
+                            <h1 class="sgc-page-title sgc-reveal">
+                                Odoo ERP for <span class="sgc-gradient-text">every industry</span>
+                            </h1>
+                            <p class="sgc-page-subtitle mx-auto sgc-reveal">
+                                Each package is pre-engineered with industry-specific modules, workflows,
+                                dashboards, and UAE compliance — ready to deploy in 30–90 days.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  QUICK FILTER TABS  ◂◂◂ -->
+            <nav class="sgc-ind-filter" aria-label="Industry filter">
+                <div class="container">
+                    <div class="sgc-ind-filter-tabs">
+                        <a href="#ind-realestate"  class="sgc-ind-tab">🏗️ Real Estate</a>
+                        <a href="#ind-construction" class="sgc-ind-tab">🏛️ Construction</a>
+                        <a href="#ind-trading"      class="sgc-ind-tab">📦 Trading</a>
+                        <a href="#ind-retail"       class="sgc-ind-tab">🛒 Retail</a>
+                        <a href="#ind-hospitality"  class="sgc-ind-tab">🏨 Hospitality</a>
+                        <a href="#ind-manufacturing" class="sgc-ind-tab">⚙️ Manufacturing</a>
+                        <a href="#ind-healthcare"   class="sgc-ind-tab">🏥 Healthcare</a>
+                        <a href="#ind-education"    class="sgc-ind-tab">🎓 Education</a>
+                        <a href="#ind-services"     class="sgc-ind-tab">💼 Professional Services</a>
+                        <a href="#ind-logistics"    class="sgc-ind-tab">🚚 Logistics</a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- ▸▸▸  CASE STUDY BOOKSHELF (Animata-inspired)  ◂◂◂ -->
+            <section class="sgc-casebooks-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">CASE STUDY LIBRARY</span>
+                        <h2>Industry playbooks as <span class="sgc-gradient-text">interactive books</span></h2>
+                        <p>Open each industry volume to explore modules, outcomes, and launch scope in a case-study format.</p>
+                    </div>
+
+                    <div class="sgc-casebooks-shelf sgc-stagger">
+                        <a href="#ind-realestate" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 01</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/real_estate.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Real Estate</h3>
+                                    <p>Property + RERA Systems</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="#ind-construction" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 02</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/construction.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Construction</h3>
+                                    <p>BoQ + Project Controls</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="#ind-trading" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 03</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/trading.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Trading</h3>
+                                    <p>Warehouse + Customs</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="#ind-retail" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 04</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/retail.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Retail</h3>
+                                    <p>POS + Omnichannel</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="#ind-hospitality" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 05</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/hospitality.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Hospitality</h3>
+                                    <p>PMS + Restaurant Ops</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+
+                        <a href="#ind-manufacturing" class="sgc-casebook-card sgc-reveal" data-tilt="true">
+                            <span class="sgc-casebook-spine">VOL 06</span>
+                            <div class="sgc-casebook-cover" style="background-image:url('/website_sgctech_ai/static/src/img/industries/manufacturing.jpg');">
+                                <div class="sgc-casebook-overlay"/>
+                                <div class="sgc-casebook-meta">
+                                    <h3>Manufacturing</h3>
+                                    <p>MRP + Shop Floor</p>
+                                    <span>Read Playbook</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §1  REAL ESTATE
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-realestate">
+                <div class="sgc-orb sgc-orb-cyan"
+                     style="width:400px;height:400px;top:-100px;right:-100px;opacity:0.12;"/>
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <!-- Left: detail -->
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🏗️</div>
+                            <div class="sgc-story-tag">
+                                <span>01</span> Real Estate &amp; Property Management
+                            </div>
+                            <h2 class="sgc-ind-title">Complete <span class="sgc-gradient-text">Property ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                Manage your entire real estate portfolio from unit listings to owner settlements.
+                                Built for UAE developers, brokers, and property managers with RERA compliance,
+                                DLD integrations, and Arabic-ready owner portals.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Property &amp; unit management with floor plan visuals</li>
+                                <li>RERA-compliant escrow tracking &amp; installment schedules</li>
+                                <li>Owner portal with Arabic/English self-service</li>
+                                <li>Commission management &amp; agent CRM</li>
+                                <li>Maintenance ticketing &amp; facilities management</li>
+                                <li>Service charge billing &amp; PDC cheque tracking</li>
+                                <li>AI-powered occupancy forecasting</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Property CRM</span>
+                                <span class="sgc-ind-module-tag">Unit Mgmt</span>
+                                <span class="sgc-ind-module-tag">Owner Portal</span>
+                                <span class="sgc-ind-module-tag">RERA Compliance</span>
+                                <span class="sgc-ind-module-tag">Maintenance</span>
+                                <span class="sgc-ind-module-tag">PDC Cheques</span>
+                                <span class="sgc-ind-module-tag">Commission Mgmt</span>
+                                <span class="sgc-ind-module-tag">AI Analytics</span>
+                            </div>
+                            <a href="/shop?search=real+estate" class="sgc-btn sgc-btn-primary">
+                                View Real Estate Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <!-- Right: visual KPI card -->
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/real_estate_lg.jpg"
+                                 alt="Modern luxury residential tower with contemporary architecture demonstrating property management capabilities"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">AED<br/>2,500</span>
+                                <span class="sgc-ind-visual-label">Starting Price · Starter Package</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">30–90 days</span>
+                                        <span class="sgc-ind-kpi-text">Deployment Time</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">12+ modules</span>
+                                        <span class="sgc-ind-kpi-text">Included (Pro)</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">RERA</span>
+                                        <span class="sgc-ind-kpi-text">Compliant Built-in</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">180 days</span>
+                                        <span class="sgc-ind-kpi-text">Support (Enterprise)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §2  CONSTRUCTION
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-construction">
+                <div class="sgc-orb sgc-orb-violet"
+                     style="width:400px;height:400px;top:-80px;left:-100px;opacity:0.1;"/>
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🏛️</div>
+                            <div class="sgc-story-tag">
+                                <span>02</span> Construction &amp; Contracting
+                            </div>
+                            <h2 class="sgc-ind-title">Project-to-Cash <span class="sgc-gradient-text">Construction ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                From Bill of Quantities to final handover — manage every stage of your
+                                construction projects with real-time cost visibility, subcontractor control,
+                                and progress billing that meets UAE contracting standards.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Bill of Quantities (BoQ) with cost breakdowns</li>
+                                <li>Project costing &amp; WIP tracking per phase</li>
+                                <li>Subcontractor management &amp; payments</li>
+                                <li>Progress billing (% complete) &amp; retention tracking</li>
+                                <li>Material procurement with multi-warehouse</li>
+                                <li>Site daily reports &amp; photo documentation</li>
+                                <li>Heavy equipment &amp; fleet tracking</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Project Mgmt</span>
+                                <span class="sgc-ind-module-tag">BoQ Builder</span>
+                                <span class="sgc-ind-module-tag">Subcontractors</span>
+                                <span class="sgc-ind-module-tag">Progress Billing</span>
+                                <span class="sgc-ind-module-tag">Procurement</span>
+                                <span class="sgc-ind-module-tag">Fleet Mgmt</span>
+                                <span class="sgc-ind-module-tag">Site Reports</span>
+                                <span class="sgc-ind-module-tag">Cost Control</span>
+                            </div>
+                            <a href="/shop?search=construction" class="sgc-btn sgc-btn-primary">
+                                View Construction Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/construction_lg.jpg"
+                                 alt="Active construction site with modern equipment and project management demonstrating construction ERP capabilities"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">100%<br/>Visibility</span>
+                                <span class="sgc-ind-visual-label">Real-time Project Cost Control</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">30–90 days</span>
+                                        <span class="sgc-ind-kpi-text">Go-Live Timeline</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">18+ modules</span>
+                                        <span class="sgc-ind-kpi-text">Pro Package Stack</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Multi-site</span>
+                                        <span class="sgc-ind-kpi-text">Project Management</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">UAE VAT</span>
+                                        <span class="sgc-ind-kpi-text">Billing Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §3  TRADING & DISTRIBUTION
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-trading">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">📦</div>
+                            <div class="sgc-story-tag">
+                                <span>03</span> Trading &amp; Distribution
+                            </div>
+                            <h2 class="sgc-ind-title">End-to-End <span class="sgc-gradient-text">Trade ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                From import to final delivery — control your trading operations with
+                                multi-warehouse management, landed costs, supplier portals, and customs
+                                handling built for the UAE free zone and mainland landscape.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Multi-warehouse with barcode &amp; zone management</li>
+                                <li>Landed cost allocation (shipping, duties, insurance)</li>
+                                <li>Supplier portal with RFQ &amp; purchase approval workflow</li>
+                                <li>Import/export documentation &amp; customs handling</li>
+                                <li>Price list management with customer-specific pricing</li>
+                                <li>Lot/serial number tracking &amp; expiry date management</li>
+                                <li>UAE VAT invoicing &amp; FTA e-filing reports</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Inventory Mgmt</span>
+                                <span class="sgc-ind-module-tag">Purchase Orders</span>
+                                <span class="sgc-ind-module-tag">Sales Orders</span>
+                                <span class="sgc-ind-module-tag">Landed Costs</span>
+                                <span class="sgc-ind-module-tag">Supplier Portal</span>
+                                <span class="sgc-ind-module-tag">Customs Docs</span>
+                                <span class="sgc-ind-module-tag">Barcode WMS</span>
+                                <span class="sgc-ind-module-tag">UAE VAT</span>
+                            </div>
+                            <a href="/shop?search=trading" class="sgc-btn sgc-btn-primary">
+                                View Trading Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/trading_lg.jpg"
+                                 alt="Modern warehouse with organized inventory management and logistics operations"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">99%<br/>Accuracy</span>
+                                <span class="sgc-ind-visual-label">Inventory &amp; Traceability</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Multi-WH</span>
+                                        <span class="sgc-ind-kpi-text">Warehouse Control</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Free Zone</span>
+                                        <span class="sgc-ind-kpi-text">UAE Compliant</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Lot/SN</span>
+                                        <span class="sgc-ind-kpi-text">Full Traceability</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">AED/USD</span>
+                                        <span class="sgc-ind-kpi-text">Multi-Currency</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §4  RETAIL & E-COMMERCE
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-retail">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🛒</div>
+                            <div class="sgc-story-tag">
+                                <span>04</span> Retail &amp; E-Commerce
+                            </div>
+                            <h2 class="sgc-ind-title">Unified <span class="sgc-gradient-text">Retail Platform</span></h2>
+                            <p class="sgc-ind-desc">
+                                Connect in-store POS with your online shop in one unified platform.
+                                From loyalty programmes to multi-store management, drive sales while
+                                keeping inventory perfectly synchronised across all channels.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Touchscreen POS with offline mode &amp; split payments</li>
+                                <li>E-commerce store with product catalogue sync</li>
+                                <li>Loyalty points &amp; gift card programmes</li>
+                                <li>Multi-store &amp; franchise management</li>
+                                <li>Real-time inventory sync across all channels</li>
+                                <li>Customer insights &amp; purchase analytics</li>
+                                <li>UAE VAT receipts &amp; simplified invoicing</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Point of Sale</span>
+                                <span class="sgc-ind-module-tag">E-Commerce</span>
+                                <span class="sgc-ind-module-tag">Loyalty</span>
+                                <span class="sgc-ind-module-tag">Multi-Store</span>
+                                <span class="sgc-ind-module-tag">Gift Cards</span>
+                                <span class="sgc-ind-module-tag">Inventory Sync</span>
+                                <span class="sgc-ind-module-tag">CRM</span>
+                                <span class="sgc-ind-module-tag">Analytics</span>
+                            </div>
+                            <a href="/shop?search=retail" class="sgc-btn sgc-btn-primary">
+                                View Retail Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/retail_lg.jpg"
+                                 alt="Modern retail store interior with integrated POS system"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">360°<br/>View</span>
+                                <span class="sgc-ind-visual-label">Omnichannel Retail Management</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Online + POS</span>
+                                        <span class="sgc-ind-kpi-text">Unified Commerce</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Real-time</span>
+                                        <span class="sgc-ind-kpi-text">Stock Sync</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Loyalty</span>
+                                        <span class="sgc-ind-kpi-text">Points Engine</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">24/7</span>
+                                        <span class="sgc-ind-kpi-text">Online Sales</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §5  HOSPITALITY
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-hospitality">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🏨</div>
+                            <div class="sgc-story-tag">
+                                <span>05</span> Hospitality &amp; F&amp;B
+                            </div>
+                            <h2 class="sgc-ind-title">Seamless <span class="sgc-gradient-text">Hospitality ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                Deliver exceptional guest experiences with a fully integrated hospitality
+                                stack — from hotel PMS to restaurant POS, housekeeping, and F&amp;B cost control,
+                                all connected in real time.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Hotel Property Management System (PMS) with room calendar</li>
+                                <li>Restaurant POS with table management &amp; kitchen display</li>
+                                <li>Housekeeping &amp; maintenance scheduling</li>
+                                <li>Online booking integration (website + channel managers)</li>
+                                <li>F&amp;B recipe costing &amp; food cost control</li>
+                                <li>Guest loyalty &amp; membership management</li>
+                                <li>UAE Tourism Tax (TDT) billing compliance</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Hotel PMS</span>
+                                <span class="sgc-ind-module-tag">Restaurant POS</span>
+                                <span class="sgc-ind-module-tag">Housekeeping</span>
+                                <span class="sgc-ind-module-tag">Reservations</span>
+                                <span class="sgc-ind-module-tag">F&amp;B Costing</span>
+                                <span class="sgc-ind-module-tag">TDT Tax</span>
+                                <span class="sgc-ind-module-tag">Guest Loyalty</span>
+                                <span class="sgc-ind-module-tag">Channel Mgr</span>
+                            </div>
+                            <a href="/shop?search=hospitality" class="sgc-btn sgc-btn-primary">
+                                View Hospitality Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/hospitality_lg.jpg"
+                                 alt="Luxury hotel lobby and hospitality operations demonstrating PMS and guest management"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">5★<br/>Service</span>
+                                <span class="sgc-ind-visual-label">Hotel &amp; Restaurant Management</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">PMS+POS</span>
+                                        <span class="sgc-ind-kpi-text">Fully Integrated</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">TDT</span>
+                                        <span class="sgc-ind-kpi-text">Dubai Compliant</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Online</span>
+                                        <span class="sgc-ind-kpi-text">Booking Ready</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">F&amp;B Cost</span>
+                                        <span class="sgc-ind-kpi-text">Recipe Control</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §6  MANUFACTURING
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-manufacturing">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">⚙️</div>
+                            <div class="sgc-story-tag">
+                                <span>06</span> Manufacturing &amp; Production
+                            </div>
+                            <h2 class="sgc-ind-title">Smart <span class="sgc-gradient-text">Manufacturing ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                From demand planning to finished goods — control every step of production
+                                with AI-assisted scheduling, quality control, and real-time shop floor
+                                visibility that keeps your plant running at peak efficiency.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Bill of Materials (BoM) with multi-level structure</li>
+                                <li>Manufacturing Orders with work centre scheduling</li>
+                                <li>Quality control checks at each production stage</li>
+                                <li>AI-driven demand forecasting &amp; production planning</li>
+                                <li>Shop floor management with tablet interface</li>
+                                <li>OEE (Overall Equipment Effectiveness) tracking</li>
+                                <li>Raw material procurement &amp; supplier management</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">MRP</span>
+                                <span class="sgc-ind-module-tag">Work Centres</span>
+                                <span class="sgc-ind-module-tag">Quality Control</span>
+                                <span class="sgc-ind-module-tag">Shop Floor</span>
+                                <span class="sgc-ind-module-tag">BoM Builder</span>
+                                <span class="sgc-ind-module-tag">OEE Tracking</span>
+                                <span class="sgc-ind-module-tag">Procurement</span>
+                                <span class="sgc-ind-module-tag">AI Forecast</span>
+                            </div>
+                            <a href="/shop?search=manufacturing" class="sgc-btn sgc-btn-primary">
+                                View Manufacturing Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/manufacturing_lg.jpg"
+                                 alt="Industrial manufacturing facility with production equipment and quality control"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">OEE<br/>+30%</span>
+                                <span class="sgc-ind-visual-label">Equipment Efficiency Gains</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">MRP II</span>
+                                        <span class="sgc-ind-kpi-text">Planning Engine</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">AI</span>
+                                        <span class="sgc-ind-kpi-text">Demand Forecast</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">QC</span>
+                                        <span class="sgc-ind-kpi-text">Inline Quality</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Tablet</span>
+                                        <span class="sgc-ind-kpi-text">Shop Floor UI</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §7  HEALTHCARE
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-healthcare">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🏥</div>
+                            <div class="sgc-story-tag">
+                                <span>07</span> Healthcare &amp; Medical
+                            </div>
+                            <h2 class="sgc-ind-title">Patient-Centred <span class="sgc-gradient-text">Medical ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                Streamline clinic and hospital operations with a patient-centred ERP
+                                that connects appointments, billing, pharmacy, insurance claims, and
+                                medical records — HAAD/DHA compliant out of the box.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Patient management with full medical history</li>
+                                <li>Online appointment booking &amp; doctor scheduling</li>
+                                <li>Insurance claim submission &amp; pre-authorisation</li>
+                                <li>Pharmacy stock management &amp; dispensing</li>
+                                <li>Lab results management &amp; test ordering</li>
+                                <li>HAAD/DHA billing compliance for UAE clinics</li>
+                                <li>Patient portal for online access &amp; results</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Patient Mgmt</span>
+                                <span class="sgc-ind-module-tag">Appointments</span>
+                                <span class="sgc-ind-module-tag">Insurance Claims</span>
+                                <span class="sgc-ind-module-tag">Pharmacy</span>
+                                <span class="sgc-ind-module-tag">Lab Orders</span>
+                                <span class="sgc-ind-module-tag">HAAD/DHA</span>
+                                <span class="sgc-ind-module-tag">Patient Portal</span>
+                                <span class="sgc-ind-module-tag">Billing</span>
+                            </div>
+                            <a href="/shop?search=healthcare" class="sgc-btn sgc-btn-primary">
+                                View Healthcare Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/healthcare_lg.jpg"
+                                 alt="Modern healthcare technology office with advanced patient management systems"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">100%<br/>HAAD</span>
+                                <span class="sgc-ind-visual-label">UAE Health Authority Compliant</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">EMR</span>
+                                        <span class="sgc-ind-kpi-text">Electronic Records</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Insurance</span>
+                                        <span class="sgc-ind-kpi-text">Claims Ready</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Online</span>
+                                        <span class="sgc-ind-kpi-text">Patient Portal</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Multi</span>
+                                        <span class="sgc-ind-kpi-text">Branch Support</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §8  EDUCATION
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-education">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🎓</div>
+                            <div class="sgc-story-tag">
+                                <span>08</span> Education &amp; Training
+                            </div>
+                            <h2 class="sgc-ind-title">Modern <span class="sgc-gradient-text">Education ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                From student enrolment to fee collection and academic performance —
+                                manage your school, university, or training centre with a comprehensive
+                                education management system and integrated LMS.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Student enrolment &amp; admissions management</li>
+                                <li>Timetable scheduling &amp; class management</li>
+                                <li>Online LMS with course delivery &amp; assessments</li>
+                                <li>Attendance tracking (RFID/QR supported)</li>
+                                <li>Fee invoicing with instalment plans</li>
+                                <li>Parent portal with Arabic/English notifications</li>
+                                <li>Staff HR &amp; payroll with UAE WPS compliance</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Student Mgmt</span>
+                                <span class="sgc-ind-module-tag">LMS</span>
+                                <span class="sgc-ind-module-tag">Timetabling</span>
+                                <span class="sgc-ind-module-tag">Attendance</span>
+                                <span class="sgc-ind-module-tag">Fee Invoicing</span>
+                                <span class="sgc-ind-module-tag">Parent Portal</span>
+                                <span class="sgc-ind-module-tag">HR/Payroll</span>
+                                <span class="sgc-ind-module-tag">WPS</span>
+                            </div>
+                            <a href="/shop?search=education" class="sgc-btn sgc-btn-primary">
+                                View Education Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/education_lg.jpg"
+                                 alt="Contemporary educational facility promoting learning and student management systems"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">360°<br/>Campus</span>
+                                <span class="sgc-ind-visual-label">Integrated Education Management</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">LMS</span>
+                                        <span class="sgc-ind-kpi-text">Online Learning</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Arabic</span>
+                                        <span class="sgc-ind-kpi-text">RTL Support</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">WPS</span>
+                                        <span class="sgc-ind-kpi-text">UAE Payroll</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Parent</span>
+                                        <span class="sgc-ind-kpi-text">Self-Service Portal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §9  PROFESSIONAL SERVICES
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-services">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">💼</div>
+                            <div class="sgc-story-tag">
+                                <span>09</span> Professional Services
+                            </div>
+                            <h2 class="sgc-ind-title">Time &amp; Billing <span class="sgc-gradient-text">Services ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                Run consultancies, law firms, accounting practices, and agencies with a
+                                services ERP built around time tracking, project delivery, client billing,
+                                and recurring retainer management.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Project &amp; task management with staff allocation</li>
+                                <li>Timesheet tracking with billable/non-billable split</li>
+                                <li>Retainer management &amp; recurring invoicing</li>
+                                <li>Client portal for quotes, invoices &amp; project progress</li>
+                                <li>Resource planning &amp; utilisation dashboards</li>
+                                <li>Expense management with receipt scanning</li>
+                                <li>Professional services SLA tracking</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Project Mgmt</span>
+                                <span class="sgc-ind-module-tag">Timesheets</span>
+                                <span class="sgc-ind-module-tag">Retainers</span>
+                                <span class="sgc-ind-module-tag">Client Portal</span>
+                                <span class="sgc-ind-module-tag">Expenses</span>
+                                <span class="sgc-ind-module-tag">Resource Plan</span>
+                                <span class="sgc-ind-module-tag">SLA Tracking</span>
+                                <span class="sgc-ind-module-tag">Recurring Inv.</span>
+                            </div>
+                            <a href="/shop?search=services" class="sgc-btn sgc-btn-primary">
+                                View Services Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/professional_services_lg.jpg"
+                                 alt="Commercial office building representing professional services and consulting"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">95%<br/>Billable</span>
+                                <span class="sgc-ind-visual-label">Resource Utilisation Target</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Time</span>
+                                        <span class="sgc-ind-kpi-text">Auto-Capture</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Client</span>
+                                        <span class="sgc-ind-kpi-text">Portal Access</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Retainer</span>
+                                        <span class="sgc-ind-kpi-text">Auto-Invoicing</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">SLA</span>
+                                        <span class="sgc-ind-kpi-text">KPI Dashboard</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ════════════════════════════════════════════════════════════
+                 §10  LOGISTICS & TRANSPORT
+                 ════════════════════════════════════════════════════════════ -->
+            <section class="sgc-ind-section" id="ind-logistics">
+                <div class="container" style="position:relative;z-index:5;">
+                    <div class="sgc-ind-detail">
+                        <div class="sgc-reveal-left">
+                            <div class="sgc-ind-icon-large">🚚</div>
+                            <div class="sgc-story-tag">
+                                <span>10</span> Logistics &amp; Transport
+                            </div>
+                            <h2 class="sgc-ind-title">Connected <span class="sgc-gradient-text">Logistics ERP</span></h2>
+                            <p class="sgc-ind-desc">
+                                From fleet dispatch to last-mile delivery — run your logistics and
+                                transport business with real-time GPS tracking, route optimisation,
+                                driver management, and seamless freight billing.
+                            </p>
+                            <ul class="sgc-ind-features">
+                                <li>Fleet management with GPS &amp; maintenance scheduling</li>
+                                <li>Delivery order management &amp; dispatch planning</li>
+                                <li>Route optimisation &amp; driver mobile app</li>
+                                <li>Freight billing with weight/volume calculations</li>
+                                <li>Customer delivery portal with live tracking</li>
+                                <li>Fuel management &amp; cost analysis</li>
+                                <li>UAE RTA compliance &amp; licence management</li>
+                            </ul>
+                            <div class="sgc-ind-modules">
+                                <span class="sgc-ind-module-tag">Fleet Mgmt</span>
+                                <span class="sgc-ind-module-tag">GPS Tracking</span>
+                                <span class="sgc-ind-module-tag">Dispatch</span>
+                                <span class="sgc-ind-module-tag">Route Optim.</span>
+                                <span class="sgc-ind-module-tag">Freight Billing</span>
+                                <span class="sgc-ind-module-tag">Driver App</span>
+                                <span class="sgc-ind-module-tag">Fuel Mgmt</span>
+                                <span class="sgc-ind-module-tag">RTA Compliance</span>
+                            </div>
+                            <a href="/shop?search=logistics" class="sgc-btn sgc-btn-primary">
+                                View Logistics Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                        </div>
+                        <div class="sgc-ind-visual sgc-reveal-right">
+                            <img class="sgc-ind-visual-img"
+                                 src="/website_sgctech_ai/static/src/img/industries/logistics_lg.jpg"
+                                 alt="Dubai port and skyline representing UAE logistics and supply chain excellence"
+                                 loading="lazy"/>
+                            <div class="sgc-ind-visual-card">
+                                <span class="sgc-ind-visual-number">Live<br/>Track</span>
+                                <span class="sgc-ind-visual-label">Real-Time Fleet Visibility</span>
+                                <div class="sgc-ind-kpi-row">
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">GPS</span>
+                                        <span class="sgc-ind-kpi-text">Live Tracking</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Route</span>
+                                        <span class="sgc-ind-kpi-text">Optimisation</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">Mobile</span>
+                                        <span class="sgc-ind-kpi-text">Driver App</span>
+                                    </div>
+                                    <div class="sgc-ind-kpi">
+                                        <span class="sgc-ind-kpi-value">RTA</span>
+                                        <span class="sgc-ind-kpi-text">UAE Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CTA  ◂◂◂ -->
+            <section class="sgc-cta-section">
+                <div class="sgc-cta-lines">
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                </div>
+                <div class="container">
+                    <div class="sgc-cta-inner sgc-reveal">
+                        <span class="sgc-label">DON'T SEE YOUR INDUSTRY?</span>
+                        <h2>We build <span class="sgc-gradient-text">custom packages</span> too</h2>
+                        <p>Tell us your industry and we'll scope a custom Odoo package for your exact needs.</p>
+                        <div class="sgc-cta-buttons">
+                            <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-lg">
+                                Browse All Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                            <a href="https://app.cal.com/sgctech" target="_blank" class="sgc-btn sgc-btn-ghost sgc-btn-lg">
+                                <i class="fa fa-comments me-1"/> Request Custom Quote
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /wrap -->
+    </t>
+</template>
+
+<record id="sgctech_industries_page" model="website.page">
+    <field name="name">SGC TECH AI — Industries</field>
+    <field name="url">/industries</field>
+    <field name="view_id" ref="sgctech_industries"/>
+    <field name="is_published">True</field>
+</record>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  SERVICES PAGE                                          ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<template id="sgctech_services" name="SGC TECH AI — Services">
+    <t t-set="title">Our Services | Fixed-Price Odoo + AI UAE | SGC TECH AI</t>
+    <t t-set="meta_description">Fixed-price Odoo implementation, platform subscription and optional operations retainer. Rescue audits available. UAE compliance built in.</t>
+    <t t-call="website.layout">
+        <div id="wrap" class="sgc-main-wrap oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Services", "item": "https://sgctech.ai/services"}
+                ]
+            }
+            </script>
+
+            <!-- ▸▸▸  HERO  ◂◂◂ -->
+            <section class="sgc-page-hero">
+                <img class="sgc-page-hero-bg"
+                     src="/website_sgctech_ai/static/src/img/industries/construction_lg.jpg"
+                     alt="Iconic UAE construction project demonstrating engineering excellence"
+                     loading="eager"/>
+                <div class="sgc-orb sgc-orb-cyan"
+                     style="width:500px;height:500px;top:-150px;left:-100px;opacity:0.2;"/>
+                <div class="sgc-orb sgc-orb-violet"
+                     style="width:400px;height:400px;bottom:-100px;right:-100px;opacity:0.18;"/>
+
+                <div class="container" style="position:relative;z-index:10;">
+                    <div class="row justify-content-center text-center">
+                        <div class="col-lg-8">
+                            <nav class="sgc-breadcrumb justify-content-center sgc-reveal" aria-label="breadcrumb">
+                                <a href="/">Home</a>
+                                <span class="sgc-breadcrumb-sep">/</span>
+                                <span>Services</span>
+                            </nav>
+                            <div class="sgc-story-tag mx-auto sgc-reveal">
+                        <span>⚡</span> Three-Layer Delivery Model
+                            </div>
+                            <h1 class="sgc-page-title sgc-reveal">
+                                How we <span class="sgc-gradient-text">deliver</span>
+                            </h1>
+                            <p class="sgc-page-subtitle mx-auto sgc-reveal">
+                                Fixed-price implementation, mandatory platform subscription, and optional operations retainer — a clear, predictable delivery model with no hidden costs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  SERVICES CARDS  ◂◂◂ -->
+            <section class="sgc-section" style="background:var(--sgc-bg-1);">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">WHAT WE OFFER</span>
+                        <h2>Four services. <span class="sgc-gradient-text">One delivery model.</span></h2>
+                        <p>Every engagement follows our three-layer model — or starts with a Rescue Audit if you're already stuck.</p>
+                    </div>
+                    <div class="sgc-services-grid sgc-stagger">
+                        <!-- Layer 1 -->
+                        <div class="sgc-service-card sgc-reveal">
+                            <div class="sgc-service-icon-wrap sgc-service-icon-1">⚡</div>
+                            <h3>Layer 1: End-to-End Implementation</h3>
+                            <p>Fixed-price, fixed-timeline Odoo implementation — from discovery through go-live. Every module, workflow, and UAE compliance config delivered on schedule.</p>
+                            <ul class="sgc-service-list">
+                                <li>Industry-specific module bundles</li>
+                                <li>Pre-configured workflows &amp; automations</li>
+                                <li>Structured 6-phase go-live process</li>
+                                <li>UAE VAT, CT, ESR, UBO, PDPL, RERA built in</li>
+                            </ul>
+                        </div>
+                        <!-- Layer 2 -->
+                        <div class="sgc-service-card sgc-reveal">
+                            <div class="sgc-service-icon-wrap sgc-service-icon-2">☁️</div>
+                            <h3>Layer 2: Platform Subscription</h3>
+                            <p>Mandatory monthly subscription covering hosting, AI credits, UAE compliance updates, security patches, and SLA — everything your live Odoo instance needs to stay current.</p>
+                            <ul class="sgc-service-list">
+                                <li>Managed Odoo hosting &amp; uptime SLA</li>
+                                <li>AI credits (OpenAI, Anthropic, Google)</li>
+                                <li>UAE compliance &amp; tax updates</li>
+                                <li>Security patches &amp; version upgrades</li>
+                            </ul>
+                        </div>
+                        <!-- Layer 3 -->
+                        <div class="sgc-service-card sgc-reveal">
+                            <div class="sgc-service-icon-wrap sgc-service-icon-3">🔧</div>
+                            <h3>Layer 3: Operations Retainer</h3>
+                            <p>Optional monthly retainer for ongoing enhancements, custom reports, AI feature expansion, and dedicated support — Bronze, Silver, or Gold tiers available.</p>
+                            <ul class="sgc-service-list">
+                                <li>Custom report &amp; dashboard development</li>
+                                <li>AI feature expansion &amp; ML pipelines</li>
+                                <li>Workflow enhancements &amp; tweaks</li>
+                                <li>Dedicated support architect (Gold)</li>
+                            </ul>
+                        </div>
+                        <!-- Rescue Audit -->
+                        <div class="sgc-service-card sgc-reveal">
+                            <div class="sgc-service-icon-wrap sgc-service-icon-4">🛡️</div>
+                            <h3>Rescue Audit</h3>
+                            <p>Stuck with a failed or incomplete Odoo implementation? Our Rescue Audit diagnoses what went wrong, maps a recovery plan, and gets you back on track — fixed-price, fixed-timeline.</p>
+                            <ul class="sgc-service-list">
+                                <li>Quick Audit — AED 5,000 (3–5 days)</li>
+                                <li>Standard Audit — AED 12,500 (2 weeks)</li>
+                                <li>Deep Audit — AED 25,000 (3–4 weeks)</li>
+                                <li>50% credited to implementation within 90 days</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Operations Retainer Pricing -->
+                    <div class="sgc-section-header sgc-reveal mt-5">
+                        <span class="sgc-label">LAYER 3 — OPERATIONS RETAINER</span>
+                        <h2>Optional monthly <span class="sgc-gradient-text">enhancement &amp; support</span></h2>
+                        <p>6-month minimum commitment. Hours do not roll over beyond one month. Cancellation requires 60 days written notice after minimum term.</p>
+                    </div>
+                    <div class="sgc-pricing-grid sgc-stagger">
+                        <!-- Bronze -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Bronze</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>5,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 8 hours/month</li>
+                                <li><span class="check">✓</span> AED 625/hr effective rate</li>
+                                <li><span class="check">✓</span> Standard SLA response</li>
+                                <li><span class="check">✓</span> New module configuration</li>
+                                <li><span class="check">✓</span> Custom reports &amp; dashboards</li>
+                            </ul>
+                        </div>
+                        <!-- Silver (featured) -->
+                        <div class="sgc-pricing-card featured sgc-reveal">
+                            <span class="sgc-pricing-badge">Most Chosen</span>
+                            <div class="sgc-pricing-tier">Silver</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount grad">
+                                    <span class="sgc-price-currency">AED</span>9,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 16 hours/month</li>
+                                <li><span class="check">✓</span> AED 562/hr effective rate</li>
+                                <li><span class="check">✓</span> +1 priority bump</li>
+                                <li><span class="check">✓</span> AI workflow expansion</li>
+                                <li><span class="check">✓</span> Process redesign</li>
+                            </ul>
+                        </div>
+                        <!-- Gold -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Gold</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>15,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 30 hours/month</li>
+                                <li><span class="check">✓</span> AED 500/hr effective rate</li>
+                                <li><span class="check">✓</span> Top priority queue</li>
+                                <li><span class="check">✓</span> Dedicated support architect</li>
+                                <li><span class="check">✓</span> Quarterly ROI reporting</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  DEPLOYMENT PROCESS  ◂◂◂ -->
+            <section class="sgc-process-section">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">OUR METHODOLOGY</span>
+                        <h2>From signed Order Form to <span class="sgc-gradient-text">go-live in 4 weeks</span></h2>
+                        <p>Growth-tier schedule shown. Starter 2–3 weeks · Professional 6–10 weeks · Enterprise 10–16 weeks.</p>
+                    </div>
+                    <div class="sgc-process-track sgc-stagger">
+                        <div class="sgc-process-step sgc-reveal">
+                            <div class="sgc-process-step-num">1</div>
+                            <div class="sgc-process-day-badge">Week 1</div>
+                            <h4>Discovery</h4>
+                            <p>Process workshops, data audit, module map, and UAT plan signed off.</p>
+                        </div>
+                        <div class="sgc-process-step sgc-reveal">
+                            <div class="sgc-process-step-num">2</div>
+                            <div class="sgc-process-day-badge">Week 2</div>
+                            <h4>Build</h4>
+                            <p>Odoo configured, custom extensions developed, AI layer wired, dashboards built.</p>
+                        </div>
+                        <div class="sgc-process-step sgc-reveal">
+                            <div class="sgc-process-step-num">3</div>
+                            <div class="sgc-process-day-badge">Week 3</div>
+                            <h4>Migrate</h4>
+                            <p>Legacy data migrated, AI workflows trained on real cases, integrations live in staging.</p>
+                        </div>
+                        <div class="sgc-process-step sgc-reveal">
+                            <div class="sgc-process-step-num">4</div>
+                            <div class="sgc-process-day-badge">Week 4</div>
+                            <h4>Go Live 🚀</h4>
+                            <p>UAT sign-off, user training, production cut-over, 14-day hypercare begins.</p>
+                        </div>
+                    </div>
+                    <p class="sgc-track-note sgc-reveal text-center mt-4">Go-live guarantee: if we miss the agreed go-live date by more than 14 days for reasons within our control, one month of Operations Retainer is free.</p>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  STATS BAR  ◂◂◂ -->
+            <section class="sgc-stats-section sgc-dot-bg">
+                <div class="container">
+                    <div class="sgc-stats-grid sgc-stagger">
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="6" data-suffix="+">0+</span>
+                            <span class="sgc-counter-label">Founder-Led Deployments</span>
+                        </div>
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="90" data-suffix=" days">0</span>
+                            <span class="sgc-counter-label">Max. Deployment</span>
+                        </div>
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="3" data-suffix="+">0+</span>
+                            <span class="sgc-counter-label">Primary Verticals</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CTA  ◂◂◂ -->
+            <section class="sgc-cta-section">
+                <div class="sgc-cta-lines">
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                </div>
+                <div class="container">
+                    <div class="sgc-cta-inner sgc-reveal">
+                        <span class="sgc-label">READY TO START?</span>
+                        <h2>Pick a package and <span class="sgc-gradient-text">go live in 30–90 days</span></h2>
+                        <p>Browse our pre-built industry packages or talk to an expert for a custom quote.</p>
+                        <div class="sgc-cta-buttons">
+                            <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-lg">
+                                Browse Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                            <a href="https://app.cal.com/sgctech" target="_blank" class="sgc-btn sgc-btn-ghost sgc-btn-lg">
+                                <i class="fa fa-phone me-1"/> Talk to an Expert
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /wrap -->
+    </t>
+</template>
+
+<record id="sgctech_services_page" model="website.page">
+    <field name="name">SGC TECH AI — Services</field>
+    <field name="url">/services</field>
+    <field name="view_id" ref="sgctech_services"/>
+    <field name="is_published">True</field>
+</record>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  PRICING PAGE                                           ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<template id="sgctech_pricing" name="SGC TECH AI — Pricing">
+    <t t-set="title">Pricing | Odoo + AI Implementation Packages UAE</t>
+    <t t-set="meta_description">Transparent Odoo + AI implementation pricing for UAE businesses. Starter, Growth, Professional and Enterprise tiers. Optional operations retainer.</t>
+    <t t-call="website.layout">
+        <div id="wrap" class="sgc-main-wrap oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Pricing", "item": "https://sgctech.ai/pricing"}
+                ]
+            }
+            </script>
+
+            <!-- ▸▸▸  HERO  ◂◂◂ -->
+            <section class="sgc-page-hero">
+                <img class="sgc-page-hero-bg"
+                     src="/website_sgctech_ai/static/src/img/tech_office.jpg"
+                     alt="SGC TECH AI analytics command centre showing real-time Odoo dashboards and KPIs"
+                     loading="eager"/>
+                <div class="sgc-orb sgc-orb-cyan"
+                     style="width:600px;height:600px;top:-200px;left:-150px;opacity:0.2;"/>
+                <div class="sgc-orb sgc-orb-violet"
+                     style="width:500px;height:500px;bottom:-150px;right:-100px;opacity:0.18;"/>
+                <div class="container" style="position:relative;z-index:10;">
+                    <div class="row justify-content-center text-center">
+                        <div class="col-lg-8">
+                            <nav class="sgc-breadcrumb justify-content-center sgc-reveal" aria-label="breadcrumb">
+                                <a href="/">Home</a>
+                                <span class="sgc-breadcrumb-sep">/</span>
+                                <span>Pricing</span>
+                            </nav>
+                            <div class="sgc-story-tag mx-auto sgc-reveal">
+                                <span>💎</span> Implementation + Subscription · + 5% UAE VAT
+                            </div>
+                            <h1 class="sgc-page-title sgc-reveal">
+                                Transparent <span class="sgc-gradient-text">Pricing</span>
+                            </h1>
+                            <p class="sgc-page-subtitle mx-auto sgc-reveal">
+                                Choose the tier that matches your ambition. Every package is pre-built,
+                                tested, and ready to deploy — no hidden fees, no surprises.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  PRICING CARDS ◂◂◂ -->
+            <section class="sgc-section sgc-pricing sgc-grid-bg" style="background:var(--sgc-bg-1);">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">PACKAGES</span>
+                        <h2>Four tiers. <span class="sgc-gradient-text">Every industry.</span></h2>
+                        <p>Implementation price + monthly platform subscription. All prices ex-VAT. UAE VAT 5% applied at checkout.</p>
+                    </div>
+                    <div class="sgc-pricing-grid sgc-stagger">
+                        <!-- Starter -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Starter</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Implementation</span>
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>15,000
+                                </div>
+                                <span class="sgc-price-period">+ AED 1,500/mo platform subscription</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 5–8 core Odoo modules</li>
+                                <li><span class="check">✓</span> Pre-configured workflows</li>
+                                <li><span class="check">✓</span> UAE VAT &amp; AED currency</li>
+                                <li><span class="check">✓</span> Single-company setup</li>
+                                <li><span class="check">✓</span> 2–3 week go-live</li>
+                                <li><span class="check">✓</span> Hosting &amp; AI credits included</li>
+                                <li class="dim"><span>–</span> Advanced automations</li>
+                                <li class="dim"><span>–</span> Custom dashboards</li>
+                                <li class="dim"><span>–</span> AI analytics</li>
+                            </ul>
+                            <a href="/shop" class="sgc-btn sgc-btn-ghost sgc-btn-full">Browse Starter Packages</a>
+                        </div>
+                        <!-- Growth (featured) -->
+                        <div class="sgc-pricing-card featured sgc-reveal">
+                            <span class="sgc-pricing-badge">Most Popular</span>
+                            <div class="sgc-pricing-tier">Growth</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Implementation</span>
+                                <div class="sgc-price-amount grad">
+                                    <span class="sgc-price-currency">AED</span>22,000
+                                </div>
+                                <span class="sgc-price-period">+ AED 2,500/mo platform subscription</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 12–18 modules + integrations</li>
+                                <li><span class="check">✓</span> Advanced automations</li>
+                                <li><span class="check">✓</span> UAE VAT + Arabic RTL</li>
+                                <li><span class="check">✓</span> Multi-company ready</li>
+                                <li><span class="check">✓</span> Custom dashboards included</li>
+                                <li><span class="check">✓</span> 4–6 week go-live</li>
+                                <li><span class="check">✓</span> Hosting, AI credits, SLA</li>
+                                <li><span class="check">✓</span> UAE compliance layer</li>
+                                <li class="dim"><span>–</span> AI analytics &amp; reporting</li>
+                            </ul>
+                            <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-full">Browse Growth</a>
+                        </div>
+                        <!-- Professional -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Professional</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Implementation</span>
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>40,000
+                                </div>
+                                <span class="sgc-price-period">+ AED 4,500/mo platform subscription</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 20+ modules + custom extensions</li>
+                                <li><span class="check">✓</span> AI analytics &amp; reporting</li>
+                                <li><span class="check">✓</span> Multi-company + multi-currency</li>
+                                <li><span class="check">✓</span> API integrations included</li>
+                                <li><span class="check">✓</span> Staff training (6 sessions)</li>
+                                <li><span class="check">✓</span> 6–10 week go-live</li>
+                                <li><span class="check">✓</span> Priority SLA &amp; support</li>
+                                <li><span class="check">✓</span> Advanced AI layer</li>
+                                <li class="dim"><span>–</span> Custom architecture</li>
+                            </ul>
+                            <a href="/shop" class="sgc-btn sgc-btn-secondary sgc-btn-full">Browse Professional</a>
+                        </div>
+                        <!-- Enterprise -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Enterprise</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Implementation from</span>
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>75,000
+                                </div>
+                                <span class="sgc-price-period">+ AED 7,500/mo platform subscription</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> Custom architecture, unlimited users</li>
+                                <li><span class="check">✓</span> 10–16 weeks delivery</li>
+                                <li><span class="check">✓</span> Advanced AI &amp; compliance</li>
+                                <li><span class="check">✓</span> Custom AI caps</li>
+                                <li><span class="check">✓</span> Regulated-entity readiness</li>
+                                <li><span class="check">✓</span> White-glove implementation</li>
+                                <li><span class="check">✓</span> API integrations included</li>
+                                <li><span class="check">✓</span> Custom module development</li>
+                                <li><span class="check">✓</span> Dedicated support architect</li>
+                            </ul>
+                            <a href="/shop" class="sgc-btn sgc-btn-secondary sgc-btn-full">Browse Enterprise</a>
+                        </div>
+                    </div><!-- /grid -->
+
+                    <!-- VAT note -->
+                    <p class="text-center mt-4" style="font-family:var(--font-mono);font-size:0.75rem;color:var(--sgc-text-3);">
+                        All prices are exclusive of 5% UAE VAT · Prices may vary by industry package ·
+                        <a href="mailto:hello@sgctech.ai" style="color:var(--sgc-cyan);">Contact us</a> for custom enterprise quotes
+                    </p>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  OPERATIONS RETAINER TIERS ◂◂◂ -->
+            <section class="sgc-section" style="background:var(--sgc-bg-0);">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">OPERATIONS RETAINER</span>
+                        <h2>Optional monthly <span class="sgc-gradient-text">support &amp; enhancement</span></h2>
+                        <p>Layer 3 — ongoing enhancements, custom reports, AI expansion, and dedicated support beyond the platform subscription.</p>
+                    </div>
+                    <div class="sgc-pricing-grid sgc-stagger">
+                        <!-- Bronze -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Bronze</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Retainer</span>
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>5,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 8 hours/month</li>
+                                <li><span class="check">✓</span> New module configuration</li>
+                                <li><span class="check">✓</span> Minor workflow tweaks</li>
+                                <li><span class="check">✓</span> Email support (standard SLA)</li>
+                                <li class="dim"><span>–</span> AI feature expansion</li>
+                                <li class="dim"><span>–</span> Dedicated support architect</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-ghost sgc-btn-full">Enquire About Bronze</a>
+                        </div>
+                        <!-- Silver -->
+                        <div class="sgc-pricing-card featured sgc-reveal">
+                            <span class="sgc-pricing-badge">Recommended</span>
+                            <div class="sgc-pricing-tier">Silver</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Retainer</span>
+                                <div class="sgc-price-amount grad">
+                                    <span class="sgc-price-currency">AED</span>9,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 16 hours/month</li>
+                                <li><span class="check">✓</span> Custom report development</li>
+                                <li><span class="check">✓</span> AI feature expansion</li>
+                                <li><span class="check">✓</span> +1 priority SLA queue</li>
+                                <li><span class="check">✓</span> Quarterly business review</li>
+                                <li class="dim"><span>–</span> Dedicated support architect</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-primary sgc-btn-full">Enquire About Silver</a>
+                        </div>
+                        <!-- Gold -->
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Gold</div>
+                            <div class="sgc-pricing-price">
+                                <span class="sgc-price-from">Retainer</span>
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>15,000
+                                </div>
+                                <span class="sgc-price-period">per month</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 30 hours/month</li>
+                                <li><span class="check">✓</span> Dedicated support architect</li>
+                                <li><span class="check">✓</span> Custom module development</li>
+                                <li><span class="check">✓</span> AI &amp; ML pipeline building</li>
+                                <li><span class="check">✓</span> Monthly business review</li>
+                                <li><span class="check">✓</span> Top priority queue</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-secondary sgc-btn-full">Enquire About Gold</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  RESCUE AUDIT ◂◂◂ -->
+            <section class="sgc-section sgc-grid-bg">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">RESCUE AUDIT</span>
+                        <h2>Already on Odoo? <span class="sgc-gradient-text">Let us diagnose first.</span></h2>
+                        <p>Stuck with a failed or under-performing implementation? Our Rescue Audit identifies gaps, maps a recovery plan, and gets you back on track.</p>
+                    </div>
+                    <div class="sgc-pricing-grid sgc-stagger">
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Quick Audit</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>5,000
+                                </div>
+                                <span class="sgc-price-period">3–5 business days</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 20-page findings deck</li>
+                                <li><span class="check">✓</span> 1-hour readout call</li>
+                                <li><span class="check">✓</span> Top-10 fix list</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-ghost sgc-btn-full">Book Quick Audit</a>
+                        </div>
+                        <div class="sgc-pricing-card featured sgc-reveal">
+                            <span class="sgc-pricing-badge">Most Chosen</span>
+                            <div class="sgc-pricing-tier">Standard Audit</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount grad">
+                                    <span class="sgc-price-currency">AED</span>12,500
+                                </div>
+                                <span class="sgc-price-period">2 weeks</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> 40-page report</li>
+                                <li><span class="check">✓</span> Technical + process + compliance review</li>
+                                <li><span class="check">✓</span> Prioritised remediation roadmap</li>
+                                <li><span class="check">✓</span> ROI model</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-primary sgc-btn-full">Book Standard Audit</a>
+                        </div>
+                        <div class="sgc-pricing-card sgc-reveal">
+                            <div class="sgc-pricing-tier">Deep Audit</div>
+                            <div class="sgc-pricing-price">
+                                <div class="sgc-price-amount">
+                                    <span class="sgc-price-currency">AED</span>25,000
+                                </div>
+                                <span class="sgc-price-period">3–4 weeks</span>
+                            </div>
+                            <div class="sgc-pricing-divider"/>
+                            <ul class="sgc-pricing-features">
+                                <li><span class="check">✓</span> Full forensic review</li>
+                                <li><span class="check">✓</span> Code-quality assessment</li>
+                                <li><span class="check">✓</span> Security &amp; data-integrity check</li>
+                                <li><span class="check">✓</span> 3-year cost-of-status-quo model</li>
+                                <li><span class="check">✓</span> Board-ready presentation</li>
+                            </ul>
+                            <a href="/sgctech-contact" class="sgc-btn sgc-btn-secondary sgc-btn-full">Book Deep Audit</a>
+                        </div>
+                    </div>
+                    <p class="text-center mt-4" style="font-family:var(--font-mono);font-size:0.8rem;color:var(--sgc-text-3);">
+                        50% of audit fee credited if you proceed to Implementation within 90 days.
+                    </p>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  WHAT'S INCLUDED (comparison table) ◂◂◂ -->
+            <section class="sgc-section" style="background:var(--sgc-bg-0);">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">COMPARE</span>
+                        <h2>What's included <span class="sgc-gradient-text">in every tier</span></h2>
+                    </div>
+                    <div class="sgc-compare-table sgc-reveal" style="overflow-x:auto;">
+                        <table class="sgc-pricing-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Starter</th>
+                                    <th class="featured">Growth</th>
+                                    <th>Professional</th>
+                                    <th>Enterprise</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Core Odoo Modules</td><td>5–8</td><td class="featured">12–18</td><td>20+</td><td>Custom</td></tr>
+                                <tr><td>Users</td><td>≤ 10</td><td class="featured">≤ 25</td><td>≤ 75</td><td>Unlimited</td></tr>
+                                <tr><td>UAE VAT &amp; CT Compliant</td><td>✓</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>Arabic RTL Support</td><td>✓</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>Multi-Company</td><td>—</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>Custom Dashboards</td><td>—</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>UAE Compliance Layer</td><td>—</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>AI Chat &amp; Voice</td><td>—</td><td class="featured">✓</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>API Integrations</td><td>—</td><td class="featured">—</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>AI Analytics</td><td>—</td><td class="featured">—</td><td>✓</td><td>✓</td></tr>
+                                <tr><td>Custom Module Dev</td><td>—</td><td class="featured">—</td><td>—</td><td>✓</td></tr>
+                                <tr><td>Staff Training</td><td>2 sessions</td><td class="featured">2 sessions</td><td>6 sessions</td><td>Custom</td></tr>
+                                <tr><td>Go-Live Timeline</td><td>2–3 weeks</td><td class="featured">4–6 weeks</td><td>6–10 weeks</td><td>10–16 weeks</td></tr>
+                                <tr><td>AI Tasks/month</td><td>5,000</td><td class="featured">15,000</td><td>50,000</td><td>Custom</td></tr>
+                                <tr><td>Platform Subscription</td><td>AED 1.5K/mo</td><td class="featured">AED 2.5K/mo</td><td>AED 4.5K/mo</td><td>From AED 7.5K/mo</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  FAQ  ◂◂◂ -->
+            <section class="sgc-section" style="background:var(--sgc-bg-1);">
+                <div class="container">
+                    <div class="sgc-section-header sgc-reveal">
+                        <span class="sgc-label">FAQ</span>
+                        <h2>Pricing <span class="sgc-gradient-text">questions answered</span></h2>
+                    </div>
+                    <div class="sgc-faq-grid sgc-stagger">
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>Is the implementation price a one-time fee?</h4>
+                            <p>Yes — the implementation price is a one-time fixed fee. In addition, a mandatory monthly platform subscription covers hosting, AI credits, UAE compliance updates, and SLA. The optional operations retainer covers ongoing enhancements.</p>
+                        </div>
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>Does the price include Odoo licencing?</h4>
+                            <p>SGC TECH AI packages contain community or LGPL-licenced modules. Odoo Enterprise edition is licensed separately from Odoo S.A. and is not included in our package price.</p>
+                        </div>
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>What is the deployment timeline?</h4>
+                            <p>We target a go-live window of 30–90 business days from project kick-off, depending on package scope and complexity. Our structured 6-phase process keeps every engagement on schedule with clear milestones throughout.</p>
+                        </div>
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>What is the go-live guarantee?</h4>
+                            <p>If we miss the agreed go-live date by 14 or more days, your next month's platform subscription is free. No fine print, no excuses.</p>
+                        </div>
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>Is UAE VAT included in the prices shown?</h4>
+                            <p>All prices on this page are exclusive of 5% UAE VAT. VAT will be applied at checkout and shown separately on your tax invoice. We are a UAE VAT-registered entity.</p>
+                        </div>
+                        <div class="sgc-faq-item sgc-reveal">
+                            <h4>Do you offer custom enterprise quotes?</h4>
+                            <p>Absolutely. For large enterprises, multi-site deployments, or heavily customised requirements, contact us at <a href="mailto:renbran@sgctech.ai" style="color:var(--sgc-cyan);">renbran@sgctech.ai</a> for a tailored proposal.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CTA  ◂◂◂ -->
+            <section class="sgc-cta-section">
+                <div class="sgc-cta-lines">
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                    <div class="sgc-cta-line"/>
+                </div>
+                <div class="container">
+                    <div class="sgc-cta-inner sgc-reveal">
+                        <span class="sgc-label">GET STARTED</span>
+                        <h2>Ready to pick your <span class="sgc-gradient-text">package?</span></h2>
+                        <p>Browse all industry packages in the store or book a free 30-minute consultation to find the right fit.</p>
+                        <div class="sgc-cta-buttons">
+                            <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-lg">
+                                Browse All Packages <i class="fa fa-arrow-right ms-1"/>
+                            </a>
+                            <a href="https://app.cal.com/sgctech" target="_blank" class="sgc-btn sgc-btn-ghost sgc-btn-lg">
+                                <i class="fa fa-calendar me-1"/> Book Free Consultation
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /wrap -->
+    </t>
+</template>
+
+<record id="sgctech_pricing_page" model="website.page">
+    <field name="name">SGC TECH AI — Pricing</field>
+    <field name="url">/pricing</field>
+    <field name="view_id" ref="sgctech_pricing"/>
+    <field name="is_published">True</field>
+</record>
+
+
+<!-- ╔══════════════════════════════════════════════════════════╗
+     ║  CONTACT / BOOK DEMO PAGE                               ║
+     ╚══════════════════════════════════════════════════════════╝ -->
+<template id="sgctech_contact" name="SGC TECH AI — Contact">
+    <t t-set="title">Contact SGC TECH AI | Book a Free Odoo Consultation</t>
+    <t t-set="meta_description">Book a free 30-minute Odoo consultation with SGC TECH AI. Email, WhatsApp or schedule a call. UAE-based team, 4-hour response time.</t>
+    <t t-call="website.layout">
+        <div id="wrap" class="sgc-main-wrap oe_structure">
+            <script type="application/ld+json">
+            {
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://sgctech.ai/"},
+                    {"@type": "ListItem", "position": 2, "name": "Contact", "item": "https://sgctech.ai/sgctech-contact"}
+                ]
+            }
+            </script>
+
+            <!-- ▸▸▸  HERO  ◂◂◂ -->
+            <section class="sgc-page-hero">
+                <img class="sgc-page-hero-bg"
+                     src="/website_sgctech_ai/static/src/img/dubai_skyline.jpg"
+                     alt="Dubai skyline at night reflecting on the water, SGC TECH AI UAE headquarters location"
+                     loading="eager"/>
+                <div class="sgc-orb sgc-orb-cyan"
+                     style="width:500px;height:500px;top:-150px;right:-100px;opacity:0.22;"/>
+                <div class="sgc-orb sgc-orb-violet"
+                     style="width:400px;height:400px;bottom:-100px;left:-80px;opacity:0.18;"/>
+                <div class="container" style="position:relative;z-index:10;">
+                    <div class="row justify-content-center text-center">
+                        <div class="col-lg-7">
+                            <nav class="sgc-breadcrumb justify-content-center sgc-reveal" aria-label="breadcrumb">
+                                <a href="/">Home</a>
+                                <span class="sgc-breadcrumb-sep">/</span>
+                                <span>Contact</span>
+                            </nav>
+                            <div class="sgc-story-tag mx-auto sgc-reveal">
+                                <span>📅</span> Free 30-Min Consultation · No Obligation
+                            </div>
+                            <h1 class="sgc-page-title sgc-reveal">
+                                Let's build your <span class="sgc-gradient-text">ERP together</span>
+                            </h1>
+                            <p class="sgc-page-subtitle mx-auto sgc-reveal">
+                                Talk to an Odoo architect. We'll understand your business,
+                                recommend the right package, and walk you through our structured deployment plan.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  CONTACT OPTIONS ◂◂◂ -->
+            <section class="sgc-section" style="background:var(--sgc-bg-1);">
+                <div class="container">
+                    <div class="row g-5 align-items-start">
+                        <!-- Left: contact methods -->
+                        <div class="col-lg-5">
+                            <div class="sgc-reveal">
+                                <span class="sgc-label">REACH US</span>
+                                <h2 class="mt-3 mb-4" style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--sgc-text-1);">
+                                    We're here to <span class="sgc-gradient-text">help you succeed</span>
+                                </h2>
+                            </div>
+                            <div class="sgc-contact-methods sgc-stagger">
+                                <a href="mailto:renbran@sgctech.ai" class="sgc-contact-method sgc-reveal">
+                                    <div class="sgc-contact-icon">✉️</div>
+                                    <div>
+                                        <strong>Email Us Directly</strong>
+                                        <span>renbran@sgctech.ai</span>
+                                    </div>
+                                </a>
+                                <a href="mailto:hello@sgctech.ai" class="sgc-contact-method sgc-reveal">
+                                    <div class="sgc-contact-icon">📨</div>
+                                    <div>
+                                        <strong>General Inquiries</strong>
+                                        <span>hello@sgctech.ai</span>
+                                    </div>
+                                </a>
+                                <a href="https://app.cal.com/sgctech" target="_blank" rel="noopener" class="sgc-contact-method sgc-reveal">
+                                    <div class="sgc-contact-icon">📅</div>
+                                    <div>
+                                        <strong>Book a Demo</strong>
+                                        <span>30-min consultation · calendar.sgctech.ai</span>
+                                    </div>
+                                </a>
+                                <a href="https://wa.me/+971521985231" target="_blank" rel="noopener" class="sgc-contact-method sgc-reveal">
+                                    <div class="sgc-contact-icon">💬</div>
+                                    <div>
+                                        <strong>WhatsApp</strong>
+                                        <span>+971 52 198 5231 · UAE business hours</span>
+                                    </div>
+                                </a>
+                                <div class="sgc-contact-method sgc-reveal" style="cursor:default;">
+                                    <div class="sgc-contact-icon">📍</div>
+                                    <div>
+                                        <strong>Our Location</strong>
+                                        <span>302, 4th Floor — Al Maktoum Rd, near Union Metro Station, Al Rigga, Deira, Dubai, UAE</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Trust badges -->
+                            <div class="mt-5 sgc-reveal">
+                                <div class="sgc-achievement-pills">
+                                    <span class="sgc-achieve-pill">✓ Response within 4 hours</span>
+                                    <span class="sgc-achieve-pill">✓ UAE-based team</span>
+                                    <span class="sgc-achieve-pill">✓ No hard sell</span>
+                                    <span class="sgc-achieve-pill">✓ Free consultation</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Odoo contact form or booking embed -->
+                        <div class="col-lg-7 sgc-reveal-right">
+                            <div class="sgc-contact-form-card glass">
+                                <div class="sgc-contact-form-header">
+                                    <h3>Send us a message</h3>
+                                    <p>Or <a href="https://app.cal.com/sgctech" target="_blank" rel="noopener" style="color:var(--sgc-cyan);">book a demo call</a> directly in our calendar.</p>
+                                </div>
+                                <form action="/web/dataset/call_kw" method="post" class="sgc-contact-form" data-odoo-form="mail.thread">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6">
+                                            <label class="sgc-form-label">Full Name *</label>
+                                            <input type="text" name="name" class="sgc-form-input" placeholder="Ahmed Al Mansouri" required="required"/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="sgc-form-label">Company Name</label>
+                                            <input type="text" name="company" class="sgc-form-input" placeholder="Your Company LLC"/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="sgc-form-label">Email *</label>
+                                            <input type="email" name="email" class="sgc-form-input" placeholder="ahmed@company.ae" required="required"/>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="sgc-form-label">Phone / WhatsApp</label>
+                                            <input type="tel" name="phone" class="sgc-form-input" placeholder="+971 50 000 0000"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="sgc-form-label">Industry</label>
+                                            <select name="industry" class="sgc-form-input">
+                                                <option value="">Select your industry…</option>
+                                                <option>Real Estate &amp; Property</option>
+                                                <option>Construction &amp; Contracting</option>
+                                                <option>Trading &amp; Distribution</option>
+                                                <option>Retail &amp; E-commerce</option>
+                                                <option>Hospitality &amp; F&amp;B</option>
+                                                <option>Manufacturing</option>
+                                                <option>Healthcare &amp; Medical</option>
+                                                <option>Education &amp; Training</option>
+                                                <option>Professional Services</option>
+                                                <option>Logistics &amp; Transport</option>
+                                                <option>Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="sgc-form-label">How can we help? *</label>
+                                            <textarea name="description" class="sgc-form-input" rows="4"
+                                                      placeholder="Tell us about your business and what you're looking to achieve with Odoo…"
+                                                      required="required"/>
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="sgc-btn sgc-btn-primary sgc-btn-full">
+                                                Send Message <i class="fa fa-paper-plane ms-1"/>
+                                            </button>
+                                            <p class="mt-3 text-center" style="font-size:0.75rem;color:var(--sgc-text-3);">
+                                                By submitting you agree to our Privacy Policy. We never share your data.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ▸▸▸  STATS TRUST BAR ◂◂◂ -->
+            <section class="sgc-stats-section sgc-dot-bg">
+                <div class="container">
+                    <div class="sgc-stats-grid sgc-stagger">
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="104" data-suffix="%">0%</span>
+                            <span class="sgc-counter-label">Audited Year-1 ROI</span>
+                        </div>
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="4" data-suffix="h">0h</span>
+                            <span class="sgc-counter-label">Avg. Response Time</span>
+                        </div>
+                        <div class="sgc-counter-item sgc-reveal-scale">
+                            <span class="sgc-counter-number" data-count="14" data-suffix=" days">0</span>
+                            <span class="sgc-counter-label">Go-Live Guarantee</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div><!-- /wrap -->
+    </t>
+</template>
+
+<record id="sgctech_contact_page" model="website.page">
+    <field name="name">SGC TECH AI — Contact</field>
+    <field name="url">/sgctech-contact</field>
+    <field name="view_id" ref="sgctech_contact"/>
+    <field name="is_published">True</field>
+</record>
+
+</odoo>

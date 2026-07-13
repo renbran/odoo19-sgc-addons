@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <!-- SGC shared watermark: Dubai skyline composite, single-tone line art -->
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M20 196 L20 140 L44 140 L44 196" />
+        <path d="M60 196 L60 110 L84 110 L84 196" />
+        <path d="M100 196 L100 150 L120 150 L120 196" />
+        <path d="M150 196 L150 60 L156 40 L162 60 L162 196" />
+        <path d="M190 196 L190 90 L210 90 L210 196" />
+        <path d="M230 196 L246 196 L246 20 L238 4 L230 20 Z" />
+        <path d="M270 196 L270 130 L292 130 L292 196" />
+        <path d="M310 196 L310 70 L334 70 L334 196" />
+        <path d="M350 196 L350 100 L370 100 L370 196" />
+        <path d="M390 196 L410 196 L410 30 L400 10 L390 30 Z" />
+        <path d="M430 196 L430 120 L452 120 L452 196" />
+        <path d="M470 196 L470 150 L490 150 L490 196" />
+        <path d="M510 196 L510 105 L534 105 L534 196" />
+        <path d="M550 196 L550 145 L575 145 L575 196" />
+        <path d="M10 196 L590 196" stroke-width="3" />
+    </g>
+</svg>

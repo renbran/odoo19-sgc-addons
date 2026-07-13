@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sgctech_ai" model="ir.ui.view">
+        <field name="name">res.config.settings.form.sgctech.ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="SGC TECH AI"
+                     name="website_sgctech_ai"
+                     logo="/website_sgctech_ai/static/description/icon.png">
+
+                    <block title="AI Image Generation (100% Free)">
+
+                        <setting string="Hugging Face Token"
+                                 help="Primary source — AI generated images using FLUX.1-schnell. Get a free token at huggingface.co/settings/tokens (read access is enough).">
+                            <field name="hf_token"
+                                   password="True"
+                                   placeholder="hf_…"/>
+                        </setting>
+
+                        <setting string="GenSpark Bridge URL"
+                               help="Secondary source — your self-hosted Genspark2API bridge used by the n8n build.">
+                           <field name="genspark_api_url"
+                                placeholder="http://143.244.130.74:7055"/>
+                        </setting>
+
+                        <setting string="GenSpark API Secret"
+                               help="Bearer secret sent to the bridge. This matches the API_SECRET used in your n8n and image platform build.">
+                           <field name="genspark_api_secret"
+                                password="True"
+                                placeholder="Paste your Genspark2API bearer secret…"/>
+                        </setting>
+
+                        <setting string="GenSpark Model"
+                               help="Plain-text prompt model to use through the bridge. Your exported n8n workflow currently uses imagen4.">
+                           <field name="genspark_model"
+                                placeholder="imagen4"/>
+                        </setting>
+
+                        <setting string="Pexels API Key"
+                                 help="Fallback source — high quality stock photos searched by product name. Get a free key at pexels.com/api (200 requests/hour free).">
+                            <field name="pexels_api_key"
+                                   password="True"
+                                   placeholder="Paste your Pexels API key…"/>
+                        </setting>
+
+                    </block>
+
+                    <block title="Cloudinary CDN (Optional)"
+                           help="Leave blank to store generated images directly in Odoo.">
+
+                        <setting string="Cloud Name">
+                            <field name="cloudinary_cloud_name"
+                                   placeholder="my-cloud-name"/>
+                        </setting>
+
+                        <setting string="API Key">
+                            <field name="cloudinary_api_key"
+                                   placeholder="848282…"/>
+                        </setting>
+
+                        <setting string="API Secret">
+                            <field name="cloudinary_api_secret"
+                                   password="True"
+                                   placeholder="••••••••"/>
+                        </setting>
+
+                    </block>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

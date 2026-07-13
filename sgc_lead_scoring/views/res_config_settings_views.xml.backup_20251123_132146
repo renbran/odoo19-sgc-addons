@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Settings View -->
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.llm.lead.scoring</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='crm_sale']" position="after">
+                <div class="app_settings_block" data-key="llm_lead_scoring" string="LLM Lead Scoring" data-string="LLM Lead Scoring" id="llm_lead_scoring_settings">
+                    <h2>AI-Powered Lead Scoring</h2>
+
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="auto_enrich_enabled"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="auto_enrich_enabled"/>
+                                <div class="text-muted">
+                                    Automatically enrich leads using scheduled action
+                                </div>
+                                <div class="content-group" invisible="not auto_enrich_enabled">
+                                    <div class="mt16">
+                                        <field name="auto_enrich_new_leads" class="oe_inline"/>
+                                        <label for="auto_enrich_new_leads"/>
+                                    </div>
+                                    <div class="mt8">
+                                        <field name="auto_enrich_on_update" class="oe_inline"/>
+                                        <label for="auto_enrich_on_update"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="enable_customer_research"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="enable_customer_research"/>
+                                <div class="text-muted">
+                                    Use LLM to research customers from publicly available sources
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-lg-6 o_setting_box">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <label for="llm_provider_id" string="Default LLM Provider"/>
+                                <div class="text-muted">
+                                    Select the default LLM provider for lead scoring
+                                </div>
+                                <div class="content-group mt16">
+                                    <field name="llm_provider_id"
+                                           placeholder="Select LLM Provider..."
+                                           context="{'form_view_ref': 'llm_lead_scoring.view_llm_provider_form'}"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="mt32">Scoring Weights</h3>
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                Configure how different factors contribute to the AI probability score.
+                                Total must equal 100%.
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4 o_setting_box">
+                            <label for="weight_completeness" string="Completeness Weight"/>
+                            <field name="weight_completeness" class="oe_inline"/>
+                            <span>%</span>
+                        </div>
+                        <div class="col-12 col-lg-4 o_setting_box">
+                            <label for="weight_clarity" string="Clarity Weight"/>
+                            <field name="weight_clarity" class="oe_inline"/>
+                            <span>%</span>
+                        </div>
+                        <div class="col-12 col-lg-4 o_setting_box">
+                            <label for="weight_engagement" string="Engagement Weight"/>
+                            <field name="weight_engagement" class="oe_inline"/>
+                            <span>%</span>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

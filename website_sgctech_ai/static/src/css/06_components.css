@@ -1,0 +1,187 @@
+/* ============================================================
+   SGC TECH AI — Buttons & Reusable Components
+   ============================================================ */
+
+/* ── Primary button ────────────────────────────────────── */
+.sgc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.925rem;
+    letter-spacing: 0.02em;
+    border-radius: var(--r-full);
+    padding: 0.8rem 2rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: var(--t-spring);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer pseudo-element */
+.sgc-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 50%; height: 200%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+}
+.sgc-btn:hover::after { left: 120%; }
+
+/* Primary */
+.sgc-btn-primary {
+    background: var(--grad-brand);
+    color: white;
+    box-shadow: 0 0 25px var(--sgc-cyan-glow), 0 4px 20px rgba(0,0,0,0.30);
+}
+.sgc-btn-primary:hover {
+    color: white;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 40px var(--sgc-cyan-glow), 0 0 80px rgba(0,212,255,0.12), 0 8px 30px rgba(0,0,0,0.40);
+}
+.sgc-btn-primary:active { transform: translateY(-1px) scale(0.99); }
+
+/* Ghost */
+.sgc-btn-ghost {
+    background: transparent;
+    color: var(--sgc-text-1);
+    border: 1px solid var(--glass-border-h);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+.sgc-btn-ghost:hover {
+    background: rgba(0,212,255,0.08);
+    border-color: var(--sgc-cyan);
+    color: var(--sgc-cyan);
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px var(--sgc-cyan-glow2);
+}
+
+/* Secondary (violet) */
+.sgc-btn-secondary {
+    background: linear-gradient(135deg, var(--sgc-violet), var(--sgc-violet-dark));
+    color: white;
+    box-shadow: 0 0 25px var(--sgc-violet-glow), 0 4px 20px rgba(0,0,0,0.30);
+}
+.sgc-btn-secondary:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 0 40px var(--sgc-violet-glow), 0 8px 30px rgba(0,0,0,0.40);
+}
+
+/* Pricing CTA variants */
+.sgc-btn-sm { padding: 0.6rem 1.4rem; font-size: 0.85rem; }
+.sgc-btn-lg { padding: 1rem 2.6rem; font-size: 1rem; }
+.sgc-btn-full { width: 100%; justify-content: center; border-radius: var(--r-lg); }
+
+/* ── Pricing button featured ───────────────────────────── */
+.sgc-pricing-card.featured .sgc-btn { box-shadow: 0 0 30px var(--sgc-cyan-glow), inset 0 1px 0 rgba(255,255,255,0.15); }
+
+/* ── Badge / chip ──────────────────────────────────────── */
+.sgc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--r-full);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    color: var(--sgc-cyan);
+}
+.sgc-chip.violet {
+    background: rgba(123,47,190,0.10);
+    border-color: rgba(168,85,247,0.30);
+    color: var(--sgc-violet-light);
+}
+.sgc-chip.green {
+    background: rgba(0,229,160,0.08);
+    border-color: rgba(0,229,160,0.25);
+    color: var(--sgc-green);
+}
+
+/* ── Highlight number box ──────────────────────────────── */
+.sgc-highlight-box {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-xl);
+    padding: var(--sp-xl) var(--sp-2xl);
+    text-align: center;
+    transition: var(--t-base);
+}
+.sgc-highlight-box:hover { border-color: var(--glass-border-h); }
+
+/* ── Neon divider ──────────────────────────────────────── */
+.sgc-neon-divider {
+    height: 1px;
+    background: linear-gradient(to right,
+        transparent 0%,
+        var(--sgc-cyan) 30%,
+        var(--sgc-violet) 70%,
+        transparent 100%);
+    margin: 0;
+    opacity: 0.5;
+}
+
+/* ── Feature icon box ──────────────────────────────────── */
+.sgc-icon-box {
+    width: 48px; height: 48px;
+    border-radius: var(--r-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(123,47,190,0.12));
+    border: 1px solid rgba(0,212,255,0.18);
+    flex-shrink: 0;
+    transition: var(--t-spring);
+}
+.sgc-icon-box:hover {
+    background: var(--grad-brand);
+    border-color: transparent;
+    box-shadow: 0 0 24px var(--sgc-cyan-glow);
+}
+
+/* ── Glow ring around elements ─────────────────────────── */
+.sgc-glow-ring {
+    box-shadow: 0 0 0 1px var(--sgc-cyan), 0 0 20px var(--sgc-cyan-glow), 0 0 60px var(--sgc-cyan-glow2);
+}
+
+/* ── Horizontal scroll ticker ──────────────────────────── */
+.sgc-ticker-wrapper { overflow: hidden; position: relative; }
+.sgc-ticker-wrapper::before,
+.sgc-ticker-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; width: 80px;
+    z-index: 2;
+    pointer-events: none;
+}
+.sgc-ticker-wrapper::before { left: 0; background: linear-gradient(to right, var(--sgc-bg-1), transparent); }
+.sgc-ticker-wrapper::after  { right: 0; background: linear-gradient(to left,  var(--sgc-bg-1), transparent); }
+
+/* ── Odoo website editor overrides ────────────────────── */
+#wrapwrap .o_editable { min-height: 0 !important; }
+#wrapwrap .s_website_form { background: var(--glass-bg) !important; border-radius: var(--r-xl); }
+#wrapwrap .form-control,
+#wrapwrap .form-select {
+    background: rgba(13,31,56,0.8) !important;
+    border: 1px solid var(--glass-border) !important;
+    color: var(--sgc-text-1) !important;
+    border-radius: var(--r-sm) !important;
+}
+#wrapwrap .form-control:focus,
+#wrapwrap .form-select:focus {
+    border-color: var(--sgc-cyan) !important;
+    box-shadow: 0 0 0 3px var(--sgc-cyan-glow2) !important;
+}
+#wrapwrap .form-label { color: var(--sgc-text-2) !important; }

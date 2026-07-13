@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ir.actions.server must be created before the base.automation
+         that references it via action_server_ids eval -->
+
+    <record id="action_tag_linkedin_applicant" model="ir.actions.server">
+        <field name="name">Tag LinkedIn Applicant</field>
+        <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="state">code</field>
+        <field name="code">
+category = env.ref('sgc_hr_linkedin_tracking.linkedin_category')
+for applicant in records:
+    applicant.write({'categ_ids': [(4, category.id)]})
+        </field>
+    </record>
+
+    <record id="automated_rule_tag_linkedin" model="base.automation">
+        <field name="name">Tag LinkedIn-Sourced Applicants</field>
+        <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="trigger">on_create</field>
+        <field name="filter_domain">[('alias_id', '=', 15)]</field>
+        <field name="action_server_ids" eval="[(4, ref('sgc_hr_linkedin_tracking.action_tag_linkedin_applicant'))]"/>
+    </record>
+</odoo>

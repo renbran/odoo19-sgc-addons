@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════
+         SGC TECH AI — Full Homepage Template
+         ══════════════════════════════════════════════════════ -->
+    <template id="sgctech_homepage" name="SGC TECH AI Homepage">
+        <t t-set="title">Odoo + AI Implementation Partner UAE | SGC TECH AI</t>
+        <t t-set="meta_description">SGC TECH AI delivers fixed-price, fixed-timeline Odoo + AI implementations for UAE mid-market businesses. VAT, Corporate Tax, RERA compliance built in. Go live in 30–90 days.</t>
+        <t t-call="website.layout">
+            <div id="wrap" class="sgc-main-wrap oe_structure">
+
+                <!-- ▸▸▸  §1  HERO — Rotating Globe + SGC TECH AI Text  ◂◂◂ -->
+                <section class="sgc-hero sgc-hero-globe" id="home">
+
+                    <!-- Rotating D3.js Globe Canvas -->
+            <!-- D3.js + TopoJSON for Globe Hero -->
+            <script src="https://d3js.org/d3.v7.min.js"></script>
+            <script src="https://d3js.org/topojson.v3.min.js"></script>
+            <!-- Globe Hero JS (loaded directly, not via assets bundle) -->
+            <script src="/website_sgctech_ai/static/src/js/globe_hero.js"></script>
+                    <canvas id="sgc-globe-canvas" class="sgc-globe-canvas" aria-hidden="true"/>
+
+                    <!-- Overlay Text -->
+                    <div class="sgc-globe-overlay">
+                        <h1 class="sgc-brush-title">SGC TECH AI</h1>
+                        <p class="sgc-brush-subtitle">End-to-End Odoo + AI for UAE Mid-Market</p>
+                        <p class="sgc-globe-hint">Drag to rotate · Scroll to zoom · Click country for stats</p>
+                    </div>
+
+                </section>
+
+                <!-- ▸▸▸  §2  TRUST BAR  ◂◂◂ -->
+                <div class="sgc-badge-bar">
+                    <div class="container">
+                        <div class="sgc-badge-bar-inner">
+                            <span class="sgc-trust-badge" title="Odoo Implementation Team"><span class="badge-icon sgc-svg-badge sgc-badge-odoo" aria-hidden="true"></span> Odoo Implementation Team</span>
+                            <span class="sgc-trust-badge" title="AI-Enhanced Modules"><span class="badge-icon sgc-svg-badge sgc-badge-ai" aria-hidden="true"></span> AI-Enhanced Modules</span>
+                            <span class="sgc-trust-badge" title="UAE VAT Ready"><span class="badge-icon sgc-svg-badge sgc-badge-uae" aria-hidden="true"></span> UAE VAT Ready</span>
+                            <span class="sgc-trust-badge" title="30–90 Day Deployment"><span class="badge-icon sgc-svg-badge sgc-badge-lightning" aria-hidden="true"></span> 30–90 Day Deployment</span>
+                            <span class="sgc-trust-badge" title="Go-Live Timeline Guarantee"><span class="badge-icon sgc-svg-badge sgc-badge-shield" aria-hidden="true"></span> Go-Live Timeline Guarantee</span>
+                            <span class="sgc-trust-badge" title="Arabic + English"><span class="badge-icon sgc-svg-badge sgc-badge-globe" aria-hidden="true"></span> Arabic + English</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ▸▸▸  §3  INDUSTRIES  ◂◂◂ -->
+                <section class="sgc-section sgc-industries sgc-grid-bg" id="industries">
+                    <div class="container">
+                        <div class="sgc-section-header sgc-reveal">
+                            <span class="sgc-label">INDUSTRIES</span>
+                            <h2>Built for your <span class="sgc-gradient-text">vertical</span></h2>
+                            <p>Fixed-price, fixed-timeline Odoo implementations with AI and UAE compliance built in for every sector.</p>
+                        </div>
+                        <div class="sgc-industries-grid sgc-stagger">
+                            <!-- Real Estate -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg"
+                                     style="background-image:url('/website_sgctech_ai/static/src/img/industries/real_estate.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Real Estate">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="reG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <rect x="8" y="18" width="14" height="22" rx="2" stroke="url(#reG)" stroke-width="2"><animate attributeName="y" values="18;16;18" dur="3s" repeatCount="indefinite"/><animate attributeName="height" values="22;24;22" dur="3s" repeatCount="indefinite"/></rect>
+                                                <rect x="26" y="10" width="14" height="30" rx="2" stroke="url(#reG)" stroke-width="2"><animate attributeName="y" values="10;8;10" dur="3.5s" repeatCount="indefinite"/><animate attributeName="height" values="30;32;30" dur="3.5s" repeatCount="indefinite"/></rect>
+                                                <rect x="12" y="24" width="3" height="4" rx="0.5" fill="#00D4FF" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/></rect>
+                                                <rect x="30" y="16" width="3" height="4" rx="0.5" fill="#00D4FF" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite"/></rect>
+                                                <rect x="35" y="23" width="3" height="4" rx="0.5" fill="#7B2FBE" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur="2.1s" repeatCount="indefinite"/></rect>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Real Estate</h3>
+                                            <p>Property &amp; RERA Solutions</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">CRM, commissions, unit management, RERA reporting, deal lifecycle &amp; agent portals.</p>
+                                        <a href="/shop?search=real+estate" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Construction -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/construction.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Construction">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="coG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <line x1="14" y1="40" x2="14" y2="14" stroke="url(#coG)" stroke-width="2.5" stroke-linecap="round"/>
+                                                <line x1="14" y1="14" x2="36" y2="14" stroke="url(#coG)" stroke-width="2" stroke-linecap="round"><animate attributeName="x2" values="36;38;36" dur="2.5s" repeatCount="indefinite"/></line>
+                                                <rect x="30" y="28" width="12" height="8" rx="1" stroke="#7B2FBE" stroke-width="1.5"><animate attributeName="y" values="28;32;28" dur="3s" repeatCount="indefinite"/></rect>
+                                                <polygon points="14,14 10,8 18,8" fill="#00D4FF" opacity="0.9"><animate attributeName="opacity" values="0.9;0.5;0.9" dur="2s" repeatCount="indefinite"/></polygon>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Construction</h3>
+                                            <p>Project &amp; BoQ Management</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">Project costing, BoQ, subcontractor management, progress billing &amp; Dubai Law 7/2025 readiness.</p>
+                                        <a href="/shop?search=construction" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Trading -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/trading.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Trading">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="trG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <rect x="4" y="20" width="18" height="20" rx="2" stroke="url(#trG)" stroke-width="2"/>
+                                                <rect x="8" y="32" width="4" height="8" rx="1" fill="#00D4FF" opacity="0.5"><animate attributeName="height" values="8;6;8" dur="2s" repeatCount="indefinite"/><animate attributeName="y" values="32;34;32" dur="2s" repeatCount="indefinite"/></rect>
+                                                <rect x="14" y="30" width="4" height="10" rx="1" fill="#7B2FBE" opacity="0.5"><animate attributeName="height" values="10;7;10" dur="2.5s" repeatCount="indefinite"/><animate attributeName="y" values="30;33;30" dur="2.5s" repeatCount="indefinite"/></rect>
+                                                <circle cx="34" cy="14" r="6" stroke="url(#trG)" stroke-width="1.5"><animate attributeName="r" values="6;7;6" dur="3s" repeatCount="indefinite"/></circle>
+                                                <path d="M31 14 L34 11 L37 14 L34 17 Z" fill="#00D4FF" opacity="0.7"><animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/></path>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Trading &amp; Distribution</h3>
+                                            <p>Supply Chain Solutions</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">Multi-warehouse, landed costs, supplier portals, import/export &amp; customs handling.</p>
+                                        <a href="/shop?search=trading" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Retail -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/retail.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Retail">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="rtG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <path d="M8 16 L12 6 L36 6 L40 16 Z" stroke="url(#rtG)" stroke-width="2" stroke-linejoin="round" fill="none"/>
+                                                <rect x="8" y="16" width="32" height="24" rx="2" stroke="url(#rtG)" stroke-width="2"/>
+                                                <circle cx="24" cy="28" r="5" stroke="#00D4FF" stroke-width="1.5"><animate attributeName="r" values="5;6;5" dur="2.5s" repeatCount="indefinite"/></circle>
+                                                <line x1="24" y1="25" x2="24" y2="31" stroke="#00D4FF" stroke-width="1.5"/>
+                                                <line x1="21" y1="28" x2="27" y2="28" stroke="#00D4FF" stroke-width="1.5"/>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Retail &amp; E-commerce</h3>
+                                            <p>POS &amp; Omnichannel</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">POS, loyalty programmes, multi-store, online shop integration &amp; inventory sync.</p>
+                                        <a href="/shop?search=retail" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Hospitality -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/hospitality.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Hospitality">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="hoG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <rect x="6" y="14" width="36" height="26" rx="3" stroke="url(#hoG)" stroke-width="2"/>
+                                                <rect x="18" y="8" width="12" height="6" rx="1.5" stroke="url(#hoG)" stroke-width="1.5"/>
+                                                <circle cx="24" cy="11" r="1.5" fill="#00D4FF" opacity="0.8"><animate attributeName="opacity" values="0.8;0.3;0.8" dur="3s" repeatCount="indefinite"/></circle>
+                                                <rect x="12" y="26" width="6" height="5" rx="1" fill="#00D4FF" opacity="0.3"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/></rect>
+                                                <rect x="21" y="26" width="6" height="5" rx="1" fill="#7B2FBE" opacity="0.3"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="3s" repeatCount="indefinite"/></rect>
+                                                <rect x="30" y="26" width="6" height="5" rx="1" fill="#00D4FF" opacity="0.3"><animate attributeName="opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite"/></rect>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Hospitality</h3>
+                                            <p>Hotel &amp; F&amp;B Management</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">Hotel PMS, restaurant POS, housekeeping, reservations &amp; F&amp;B cost control.</p>
+                                        <a href="/shop?search=hospitality" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Manufacturing -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/manufacturing.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Manufacturing">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="mfG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <circle cx="18" cy="20" r="9" stroke="url(#mfG)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="0 18 20" to="360 18 20" dur="8s" repeatCount="indefinite"/></circle>
+                                                <circle cx="18" cy="20" r="3" fill="#00D4FF" opacity="0.4"/>
+                                                <circle cx="34" cy="30" r="7" stroke="url(#mfG)" stroke-width="2"><animateTransform attributeName="transform" type="rotate" from="360 34 30" to="0 34 30" dur="6s" repeatCount="indefinite"/></circle>
+                                                <circle cx="34" cy="30" r="2.5" fill="#7B2FBE" opacity="0.4"/>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Manufacturing</h3>
+                                            <p>MRP &amp; Production</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">MRP, work centres, quality control, shop floor management &amp; production planning.</p>
+                                        <a href="/shop?search=manufacturing" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Healthcare -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/healthcare.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Healthcare">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="hcG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <path d="M14 10 C8 10 6 16 6 18 C6 28 24 38 24 38 C24 38 42 28 42 18 C42 16 40 10 34 10 C30 10 26 14 24 16 C22 14 18 10 14 10Z" stroke="url(#hcG)" stroke-width="2" stroke-linejoin="round"><animate attributeName="stroke-width" values="2;2.8;2" dur="1.2s" repeatCount="indefinite"/></path>
+                                                <line x1="20" y1="22" x2="28" y2="22" stroke="#00D4FF" stroke-width="2.5" stroke-linecap="round"><animate attributeName="opacity" values="1;0.5;1" dur="1.2s" repeatCount="indefinite"/></line>
+                                                <line x1="24" y1="18" x2="24" y2="26" stroke="#00D4FF" stroke-width="2.5" stroke-linecap="round"><animate attributeName="opacity" values="1;0.5;1" dur="1.2s" repeatCount="indefinite"/></line>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Healthcare</h3>
+                                            <p>Clinic &amp; Patient Systems</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">Patient management, clinic scheduling, billing, insurance claims &amp; pharmacy.</p>
+                                        <a href="/shop?search=healthcare" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Education -->
+                            <div class="sgc-industry-card sgc-reveal" data-tilt="true">
+                                <div class="sgc-ind-card-bg" style="background-image:url('/website_sgctech_ai/static/src/img/industries/education.jpg');"/>
+                                <div class="sgc-card-glare"/>
+                                <div class="sgc-industry-card-content">
+                                    <div class="sgc-industry-card-header">
+                                        <div class="sgc-industry-icon" aria-label="Education">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none">
+                                                <defs><linearGradient id="edG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00D4FF"/><stop offset="100%" stop-color="#7B2FBE"/></linearGradient></defs>
+                                                <polygon points="24,8 44,18 24,28 4,18" stroke="url(#edG)" stroke-width="2" stroke-linejoin="round" fill="none"><animate attributeName="points" values="24,8 44,18 24,28 4,18;24,6 44,18 24,28 4,18;24,8 44,18 24,28 4,18" dur="4s" repeatCount="indefinite"/></polygon>
+                                                <path d="M12 24 L12 36 C12 36 18 40 24 40 C30 40 36 36 36 36 L36 24" stroke="url(#edG)" stroke-width="2" fill="none"/>
+                                                <circle cx="24" cy="18" r="2" fill="#00D4FF" opacity="0.5"><animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/></circle>
+                                            </svg>
+                                        </div>
+                                        <div class="sgc-industry-card-header-text">
+                                            <h3>Education</h3>
+                                            <p>LMS &amp; Campus Solutions</p>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-industry-card-bottom">
+                                        <span class="sgc-card-pill"><i class="fa fa-cube"/> Industry Pack</span>
+                                        <p class="sgc-card-desc">Student enrolment, LMS, attendance, fee management &amp; parent portals.</p>
+                                        <a href="/shop?search=education" class="sgc-card-cta">Explore <i class="fa fa-arrow-right"/></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ▸▸▸  §4  WHY US  ◂◂◂ -->
+                <section class="sgc-section sgc-why-us" id="why-us">
+                    <div class="sgc-orb sgc-orb-violet"
+                         style="width:350px;height:350px;top:10%;right:-80px;opacity:0.4;"/>
+                    <div class="container" style="position:relative;z-index:10;">
+                        <div class="row align-items-center g-5 mb-5">
+                            <!-- AI Brain image -->
+                            <div class="col-lg-4 d-none d-lg-block text-center sgc-reveal-left">
+                                <div style="position:relative;display:inline-block;">
+                                    <div style="position:absolute;inset:-20px;background:radial-gradient(ellipse,rgba(0,212,255,0.18) 0%,transparent 70%);border-radius:50%;animation:sgc-pulse 3s ease-in-out infinite;"></div>
+                                    <img src="/website_sgctech_ai/static/src/img/ai_brain.jpg"
+                                         alt="SGC TECH AI neural network powering Odoo + AI automation for UAE businesses"
+                                         style="width:100%;max-width:340px;border-radius:var(--r-xl);
+                                                border:1px solid var(--glass-border);
+                                                box-shadow:0 0 60px rgba(0,212,255,0.20),var(--glass-shadow);
+                                                mix-blend-mode:lighten;"
+                                         loading="lazy"/>
+                                </div>
+                            </div>
+                            <!-- Section header -->
+                            <div class="col-lg-8">
+                                <div class="sgc-section-header text-lg-start sgc-reveal mb-0">
+                                    <span class="sgc-label">WHY SGC TECH AI</span>
+                                    <h2>Enterprise infrastructure, <span class="sgc-gradient-text">startup speed</span></h2>
+                                    <p>We deliver fixed-price, fixed-timeline Odoo + AI implementations — with UAE compliance built in from day one.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sgc-why-grid sgc-stagger">
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon cyan">⚡</div>
+                                <h3>30–90 Day Deployment</h3>
+                                <p>Pre-configured packages skip months of setup. Discovery to go-live in 2–16 weeks depending on tier.</p>
+                            </div>
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon green">✅</div>
+                                <h3>Production-Ready</h3>
+                                <p>Tested against real workflows with audited results: 104% Year-1 ROI, 5.9-month payback.</p>
+                            </div>
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon violet">📈</div>
+                                <h3>Scales With You</h3>
+                                <p>Start with Starter, upgrade to Growth or Professional anytime. Multi-company and multi-currency ready.</p>
+                            </div>
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon orange">🎯</div>
+                                <h3>Expert Support</h3>
+                                <p>Contracted SLA with guaranteed response times. Quarterly health-check reports and compliance updates included.</p>
+                            </div>
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon cyan">⬇️</div>
+                                <h3>Fixed Price, Fixed Timeline</h3>
+                                <p>No open-ended retainers. No per-user surprise billing. Three transparent implementation tiers.</p>
+                            </div>
+                            <div class="sgc-why-card sgc-reveal">
+                                <div class="sgc-why-icon green">🇦🇪</div>
+                                <h3>UAE-Optimised</h3>
+                                <p>VAT, Corporate Tax, ESR, UBO, PDPL, RERA, goAML — built into delivery, not bolted on.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ▸▸▸  §5  STATS  ◂◂◂ -->
+                <section class="sgc-stats-section sgc-dot-bg" id="stats">
+                    <div class="container">
+                        <div class="sgc-stats-grid sgc-stagger">
+                            <div class="sgc-counter-item sgc-reveal-scale">
+                                <span class="sgc-counter-number" data-count="1.15" data-decimals="2" data-suffix="B+">0</span>
+                                <span class="sgc-counter-label">AED Volume Processed</span>
+                            </div>
+                            <div class="sgc-counter-item sgc-reveal-scale">
+                                <span class="sgc-counter-number" data-count="104" data-suffix="%">0%</span>
+                                <span class="sgc-counter-label">Audited Year-1 ROI</span>
+                            </div>
+                            <div class="sgc-counter-item sgc-reveal-scale">
+                                <span class="sgc-counter-number" data-count="5.9" data-decimals="1" data-suffix=" mo">0</span>
+                                <span class="sgc-counter-label">Payback Period</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ▸▸▸  §6  PRICING  ◂◂◂ -->
+                <section class="sgc-section sgc-pricing sgc-grid-bg" id="pricing">
+                    <div class="container">
+                        <div class="sgc-section-header sgc-reveal">
+                            <span class="sgc-label">PRICING</span>
+                            <h2>Transparent pricing, <span class="sgc-gradient-text">zero surprises</span></h2>
+                            <p>Implementation + mandatory subscription + optional retainer. Three layers, zero surprises.</p>
+                        </div>
+                        <div class="sgc-pricing-grid sgc-stagger">
+                            <!-- Starter -->
+                            <div class="sgc-pricing-card sgc-reveal">
+                                <div class="sgc-pricing-tier">Starter</div>
+                                <div class="sgc-pricing-price">
+                                    <span class="sgc-price-from">From</span>
+                                    <div class="sgc-price-amount">
+                                        <span class="sgc-price-currency">AED</span>15,000
+                                    </div>
+                                    <span class="sgc-price-period">one-time implementation</span>
+                                </div>
+                                <span class="sgc-price-subline">AED 1,500/mo platform subscription</span>
+                                <div class="sgc-pricing-divider"/>
+                                <ul class="sgc-pricing-features">
+                                    <li><span class="check">✓</span> 5–8 core Odoo modules</li>
+                                    <li><span class="check">✓</span> ≤ 10 users · 2–3 weeks</li>
+                                    <li><span class="check">✓</span> UAE VAT &amp; Corporate Tax setup</li>
+                                    <li><span class="check">✓</span> Data migration (2 sources)</li>
+                                    <li><span class="check">✓</span> 14-day hypercare</li>
+                                    <li><span class="check">✓</span> 5K AI tasks/month</li>
+                                    <li class="dim"><span class="check" style="color:var(--sgc-text-3)">–</span> Advanced automations</li>
+                                </ul>
+                                <a href="/shop" class="sgc-btn sgc-btn-ghost sgc-btn-full">Browse Starter</a>
+                            </div>
+                            <!-- Growth (featured) -->
+                            <div class="sgc-pricing-card featured sgc-reveal">
+                                <span class="sgc-pricing-badge">Most Popular</span>
+                                <div class="sgc-pricing-tier">Growth</div>
+                                <div class="sgc-pricing-price">
+                                    <span class="sgc-price-from">From</span>
+                                    <div class="sgc-price-amount grad">
+                                        <span class="sgc-price-currency">AED</span>22,000
+                                    </div>
+                                    <span class="sgc-price-period">one-time implementation</span>
+                                </div>
+                                <span class="sgc-price-subline">AED 2,500/mo platform subscription</span>
+                                <div class="sgc-pricing-divider"/>
+                                <ul class="sgc-pricing-features">
+                                    <li><span class="check">✓</span> 12–18 modules + integrations</li>
+                                    <li><span class="check">✓</span> ≤ 25 users · 4–6 weeks</li>
+                                    <li><span class="check">✓</span> Advanced automations</li>
+                                    <li><span class="check">✓</span> AI Chat &amp; Voice layer</li>
+                                    <li><span class="check">✓</span> 15K AI tasks/month</li>
+                                    <li><span class="check">✓</span> Multi-company ready</li>
+                                    <li class="dim"><span class="check" style="color:var(--sgc-text-3)">–</span> Custom architecture</li>
+                                </ul>
+                                <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-full">Browse Growth</a>
+                            </div>
+                            <!-- Professional -->
+                            <div class="sgc-pricing-card sgc-reveal">
+                                <div class="sgc-pricing-tier">Professional</div>
+                                <div class="sgc-pricing-price">
+                                    <span class="sgc-price-from">From</span>
+                                    <div class="sgc-price-amount">
+                                        <span class="sgc-price-currency">AED</span>40,000
+                                    </div>
+                                    <span class="sgc-price-period">one-time implementation</span>
+                                </div>
+                                <span class="sgc-price-subline">AED 4,500/mo platform subscription</span>
+                                <div class="sgc-pricing-divider"/>
+                                <ul class="sgc-pricing-features">
+                                    <li><span class="check">✓</span> 20+ modules + custom extensions</li>
+                                    <li><span class="check">✓</span> ≤ 75 users · 6–10 weeks</li>
+                                    <li><span class="check">✓</span> AI analytics &amp; reporting</li>
+                                    <li><span class="check">✓</span> 50K AI tasks/month</li>
+                                    <li><span class="check">✓</span> Multi-company + multi-currency</li>
+                                    <li><span class="check">✓</span> API integrations included</li>
+                                    <li><span class="check">✓</span> Staff training (6 sessions)</li>
+                                </ul>
+                                <a href="/shop" class="sgc-btn sgc-btn-secondary sgc-btn-full">Browse Professional</a>
+                            </div>
+                            <!-- Enterprise -->
+                            <div class="sgc-pricing-card sgc-reveal">
+                                <div class="sgc-pricing-tier">Enterprise</div>
+                                <div class="sgc-pricing-price">
+                                    <span class="sgc-price-from">From</span>
+                                    <div class="sgc-price-amount">
+                                        <span class="sgc-price-currency">AED</span>75,000
+                                    </div>
+                                    <span class="sgc-price-period">one-time implementation</span>
+                                </div>
+                                <span class="sgc-price-subline">From AED 7,500/mo platform subscription</span>
+                                <div class="sgc-pricing-divider"/>
+                                <ul class="sgc-pricing-features">
+                                    <li><span class="check">✓</span> Custom architecture, unlimited users</li>
+                                    <li><span class="check">✓</span> 10–16 weeks delivery</li>
+                                    <li><span class="check">✓</span> Advanced AI &amp; compliance</li>
+                                    <li><span class="check">✓</span> Custom AI caps</li>
+                                    <li><span class="check">✓</span> Regulated-entity readiness</li>
+                                    <li><span class="check">✓</span> White-glove installation</li>
+                                    <li><span class="check">✓</span> Dedicated account lead</li>
+                                </ul>
+                                <a href="/shop" class="sgc-btn sgc-btn-ghost sgc-btn-full">Browse Enterprise</a>
+                            </div>
+                        </div><!-- /grid -->
+                        <div class="sgc-pricing-retainer-note sgc-reveal" style="text-align:center;margin-top:2rem;">
+                            <p style="color:var(--sgc-text-2);font-size:0.95rem;">Optional Operations Retainer: Bronze AED 5,000/mo · Silver AED 9,000/mo · Gold AED 15,000/mo (6-month minimum)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ▸▸▸  §7  TESTIMONIALS  ◂◂◂ -->
+                <section class="sgc-section sgc-testimonials" id="testimonials">
+                    <div class="container">
+                        <div class="sgc-section-header sgc-reveal">
+                            <span class="sgc-label">TESTIMONIALS</span>
+                            <h2>Trusted by <span class="sgc-gradient-text">real businesses</span></h2>
+                            <p>See what clients say after going live with SGC TECH AI packages.</p>
+                        </div>
+                        <div class="sgc-testi-grid sgc-stagger">
+                            <div class="sgc-testi-card sgc-reveal">
+                                <div class="sgc-testi-quote-icon">"</div>
+                                <div class="sgc-testi-stars">★★★★★</div>
+                                <p class="sgc-testi-text">The Odoo implementation transformed our brokerage operations. Same-day commission calculations replaced a 4–7 day manual cycle. The AI layer handles lead capture and document extraction seamlessly.</p>
+                                <div class="sgc-testi-author">
+                                    <div class="sgc-testi-avatar">OSUS</div>
+                                    <div>
+                                        <div class="sgc-testi-name">OSUS Properties Case Study</div>
+                                        <div class="sgc-testi-role">Dubai Real-Estate Brokerage · 70 Agents</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sgc-testi-card sgc-reveal">
+                                <div class="sgc-testi-quote-icon">"</div>
+                                <div class="sgc-testi-stars">★★★★★</div>
+                                <p class="sgc-testi-text">From Discovery to go-live in under 6 weeks. The fixed-price model meant no billing surprises, and the RERA-compliant reporting saved us significant audit preparation time.</p>
+                                <div class="sgc-testi-author">
+                                    <div class="sgc-testi-avatar">SN</div>
+                                    <div>
+                                        <div class="sgc-testi-name">SN</div>
+                                        <div class="sgc-testi-role">Operations Director · BuildTech LLC, Abu Dhabi</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sgc-testi-card sgc-reveal">
+                                <div class="sgc-testi-quote-icon">"</div>
+                                <div class="sgc-testi-stars">★★★★★</div>
+                                <p class="sgc-testi-text">Switched from a legacy system to the Trading Professional package. Multi-warehouse and VAT integration worked perfectly out of the box. Game-changer for our team.</p>
+                                <div class="sgc-testi-author">
+                                    <div class="sgc-testi-avatar">RM</div>
+                                    <div>
+                                        <div class="sgc-testi-name">Rami Mansour</div>
+                                        <div class="sgc-testi-role">IT Manager · Gulf Trade &amp; Supply, Sharjah</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ▸▸▸  §8  TECH STACK TICKER  ◂◂◂ -->
+                <div class="sgc-tech-stack">
+                    <div class="sgc-ticker-wrapper">
+                        <div class="sgc-tech-scroll-track">
+                            <!-- duplicated for seamless loop -->
+                            <t t-foreach="[1,2]" t-as="rep">
+                                <span class="sgc-tech-item">⚙️ Odoo v17–v19</span>
+                                <span class="sgc-tech-item">🤖 Vendor-Neutral AI</span>
+                                <span class="sgc-tech-item">☁️ AWS / Azure</span>
+                                <span class="sgc-tech-item">🐘 PostgreSQL 16</span>
+                                <span class="sgc-tech-item">🐍 Python 3.12</span>
+                                <span class="sgc-tech-item">📊 Power BI</span>
+                                <span class="sgc-tech-item">🔗 REST API</span>
+                                <span class="sgc-tech-item">📱 Mobile PWA</span>
+                                <span class="sgc-tech-item">💳 Stripe / PayTabs</span>
+                                <span class="sgc-tech-item">🔒 SSL / 2FA</span>
+                                <span class="sgc-tech-item">🌐 Arabic RTL</span>
+                                <span class="sgc-tech-item">🧾 UAE VAT</span>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ▸▸▸  §9  CTA BANNER  ◂◂◂ -->
+                <section class="sgc-cta-section" id="contact">
+                    <div class="sgc-cta-lines">
+                        <div class="sgc-cta-line"/>
+                        <div class="sgc-cta-line"/>
+                        <div class="sgc-cta-line"/>
+                    </div>
+                    <div class="container">
+                        <div class="sgc-cta-inner sgc-reveal">
+                            <span class="sgc-label">READY TO GO LIVE?</span>
+                            <h2>Deploy your ERP in <span class="sgc-gradient-text">record time</span></h2>
+                            <p>Pick an implementation tier, get a fixed-price proposal, and go live on a contracted timeline. Go-live guarantee: if we miss the agreed go-live date by more than 14 days for reasons within our control, one month of Operations Retainer is free.</p>
+                            <div class="sgc-cta-buttons">
+                                <a href="/shop" class="sgc-btn sgc-btn-primary sgc-btn-lg">
+                                    Explore Packages
+                                    <i class="fa fa-arrow-right ms-1"/>
+                                </a>
+                                <a href="https://app.cal.com/sgctech" target="_blank" class="sgc-btn sgc-btn-ghost sgc-btn-lg">
+                                    <i class="fa fa-phone me-1"/>
+                                    Talk to an Expert
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div><!-- /wrap -->
+        </t>
+    </template>
+
+    <!-- ══════════════════════════════════════════════════════
+         Register as a Website Page
+         The <template> above already creates the ir.ui.view.
+         We just need a website.page record pointing at it.
+         Access at:  /sgctech-home
+         To set as homepage: Website > Settings > Homepage URL
+         ══════════════════════════════════════════════════════ -->
+    <record id="sgctech_homepage_page" model="website.page">
+        <field name="name">SGC TECH AI — Home</field>
+        <field name="url">/sgctech-home</field>
+        <field name="view_id" ref="sgctech_homepage"/>
+        <field name="is_published">True</field>
+    </record>
+</odoo>

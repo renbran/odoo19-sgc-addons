@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_construction_transmittal_tree" model="ir.ui.view">
+        <field name="name">construction.transmittal.tree</field>
+        <field name="model">construction.transmittal</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="number"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="recipient_id"/>
+                <field name="issue_date"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_transmittal_form" model="ir.ui.view">
+        <field name="name">construction.transmittal.form</field>
+        <field name="model">construction.transmittal</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_issue" string="Issue" type="object" invisible="state != 'draft'" class="oe_highlight"/>
+                    <button name="action_receive" string="Received" type="object" invisible="state != 'issued'"/>
+                    <button name="action_acknowledge" string="Acknowledge" type="object" invisible="state != 'received'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,issued,received,acknowledged"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="number"/></h1>
+                        <label for="name" class="oe_edit_only"/>
+                        <h2><field name="name"/></h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="recipient_id"/>
+                        </group>
+                        <group>
+                            <field name="issue_date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Documents">
+                            <field name="document_ids">
+                                <list>
+                                    <field name="number"/>
+                                    <field name="name"/>
+                                    <field name="category"/>
+                                    <field name="revision_no"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group string="Remarks">
+                        <field name="remarks" nolabel="1"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_construction_transmittal" model="ir.actions.act_window">
+        <field name="name">Transmittals</field>
+        <field name="res_model">construction.transmittal</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

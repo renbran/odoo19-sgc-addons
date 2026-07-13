@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Partner Form View Inherit: Statement of Account XLSX Export -->
+    <record id="view_partner_form_sgc_soa_export" model="ir.ui.view">
+        <field name="name">res.partner.form.sgc.soa.export</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_export_soa_xlsx" type="object"
+                    class="oe_stat_button" icon="fa-file-excel-o"
+                    string="Statement of Account (XLSX)"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Statement of Account: partner list reachable from the Construction
+         Reporting menu (the standalone Contacts app is not installed). Open a
+         customer, then Print > Statement of Account for the full SOA. -->
+    <record id="action_construction_partner_soa" model="ir.actions.act_window">
+        <field name="name">Statement of Account</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('customer_rank', '>', 0)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No customers yet</p>
+            <p>Open a customer and use Print &gt; Statement of Account to generate the full SOA.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_construction_partner_soa"
+        name="Statement of Account"
+        parent="menu_construction_reporting"
+        action="action_construction_partner_soa"
+        sequence="20"/>
+
+</odoo>

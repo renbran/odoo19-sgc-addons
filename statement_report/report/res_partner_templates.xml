@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="res_partner_statement_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div>
+                    <h3>Payment Statement Report</h3>
+                </div>
+                <table>
+                    <tr><td><t t-esc="customer" /></td></tr>
+                    <tr><td><t t-if="street" t-esc="street" /></td></tr>
+                    <tr><td><t t-if="street2" t-esc="street2" /></td></tr>
+                    <tr><td><t t-if="city" t-esc="city" /></td></tr>
+                    <tr><td><t t-if="state" t-esc="state" /></td></tr>
+                </table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice No.</th>
+                            <th>Reference</th>
+                            <th>Due Date</th>
+                            <th>Invoices/Debit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="my_data" t-as="line">
+                            <tr>
+                                <td><t t-esc="line.get('name', 'N/A')" /></td>
+                                <td><t t-esc="line.get('ref', '-')" /></td>
+                                <td><t t-esc="line.get('invoice_date_due', '-')" /></td>
+                                <td><t t-esc="currency" /><t t-esc="line.get('sub_total', '0.00')" /></td>
+                                <td><t t-esc="currency" /><t t-esc="line.get('balance', '0.00')" /></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <t t-if="total">
+                    <div>
+                        <table>
+                            <tr>
+                                <td>Total Amount:</td>
+                                <td><t t-esc="currency" /><t t-esc="total" /></td>
+                            </tr>
+                            <tr>
+                                <td>Total Balance:</td>
+                                <td><t t-esc="currency" /><t t-esc="balance" /></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,100 @@
+/* ================================================================
+   SGCTECH AI 2026 — Design Tokens  v2026.05
+   ================================================================ */
+:root {
+  /* ── Backgrounds ─────────────────────────────────────────── */
+  --bg-0: #04080F;
+  --bg-1: #070D1A;
+  --bg-2: #0A1220;
+  --bg-3: #0D1A2E;
+  --bg-4: #112038;
+
+  /* ── Brand ───────────────────────────────────────────────── */
+  --cyan:        #00D4FF;
+  --cyan-light:  #5EDFFF;
+  --cyan-dark:   #0099CC;
+  --violet:      #7B2FBE;
+  --violet-light:#A855F7;
+  --violet-dark: #5B1F9E;
+  --emerald:     #00E5A0;
+  --amber:       #FFB020;
+
+  /* ── Alpha / Glow ────────────────────────────────────────── */
+  --cyan-a10:  rgba(0,212,255,0.10);
+  --cyan-a18:  rgba(0,212,255,0.18);
+  --cyan-a35:  rgba(0,212,255,0.35);
+  --cyan-a50:  rgba(0,212,255,0.50);
+  --violet-a10:rgba(123,47,190,0.10);
+  --violet-a18:rgba(123,47,190,0.18);
+  --violet-a35:rgba(123,47,190,0.35);
+  --glow-cyan: 0 0 40px rgba(0,212,255,0.30), 0 0 80px rgba(0,212,255,0.12);
+  --glow-violet:0 0 40px rgba(123,47,190,0.30),0 0 80px rgba(123,47,190,0.12);
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --t1: #EDF2FA;
+  --t2: #8BA5C8;
+  --t3: #4D6A8A;
+  --t-inv: #07111F;
+
+  /* ── Glass ───────────────────────────────────────────────── */
+  --glass-bg:      rgba(10,18,32,0.55);
+  --glass-bg-h:    rgba(13,26,46,0.72);
+  --glass-border:  rgba(0,212,255,0.14);
+  --glass-border-h:rgba(0,212,255,0.42);
+  --glass-blur:    22px;
+  --glass-sat:     180%;
+  --glass-shadow:  0 8px 32px rgba(0,0,0,0.50), 0 0 0 1px rgba(0,212,255,0.07);
+  --glass-shadow-h:0 20px 60px rgba(0,0,0,0.65), 0 0 60px rgba(0,212,255,0.14);
+
+  /* ── Gradients ───────────────────────────────────────────── */
+  --grad-brand:  linear-gradient(135deg,#00D4FF 0%,#7B2FBE 100%);
+  --grad-brand-r:linear-gradient(135deg,#7B2FBE 0%,#00D4FF 100%);
+  --grad-text:   linear-gradient(90deg,#00D4FF 0%,#A855F7 60%,#7B2FBE 100%);
+  --grad-glass:  linear-gradient(135deg,rgba(0,212,255,0.06) 0%,rgba(123,47,190,0.06) 100%);
+  --grad-mesh-1: radial-gradient(ellipse 70% 50% at 15% 20%,rgba(0,212,255,0.13) 0%,transparent 70%);
+  --grad-mesh-2: radial-gradient(ellipse 60% 60% at 85% 80%,rgba(123,47,190,0.13) 0%,transparent 70%);
+  --grad-mesh-3: radial-gradient(ellipse 50% 40% at 50% 50%,rgba(0,229,160,0.05) 0%,transparent 70%);
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-head: 'Manrope','Inter','Segoe UI',sans-serif;
+  --font-body: 'Inter','Segoe UI',sans-serif;
+  --font-mono: 'Share Tech Mono','Courier New',monospace;
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-semibold:600;
+  --fw-bold:    700;
+  --fw-xbold:   800;
+  --ls-tight:  -0.02em;
+  --ls-base:    0.00em;
+  --ls-wide:    0.04em;
+
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --sp-1: 0.25rem; --sp-2: 0.5rem;  --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem;  --sp-8: 2rem;    --sp-10:2.5rem;
+  --sp-12:3rem;    --sp-16:4rem;    --sp-20:5rem;    --sp-24:6rem;
+  --section-y:  7rem;
+  --nav-h:      80px;
+  --container:  1200px;
+
+  /* ── Radii ───────────────────────────────────────────────── */
+  --r-sm:  6px;  --r-md: 12px; --r-lg: 18px;
+  --r-xl:  24px; --r-2xl:32px; --r-full:9999px;
+
+  /* ── Transitions ─────────────────────────────────────────── */
+  --ease:       cubic-bezier(0.4,0,0.2,1);
+  --ease-spring:cubic-bezier(0.34,1.56,0.64,1);
+  --ease-out:   cubic-bezier(0,0,0.2,1);
+  --t-fast:   150ms; --t-base: 300ms; --t-slow: 600ms;
+
+  /* ── Mesh animation timing ───────────────────────────────── */
+  --mesh-dur: 20s;
+  --mesh-ease: ease-in-out;
+
+  /* ── Z-index ─────────────────────────────────────────────── */
+  --z-mesh:     0;
+  --z-particles:2;
+  --z-content:  10;
+  --z-sticky:   800;
+  --z-nav:      900;
+  --z-modal:    1000;
+}

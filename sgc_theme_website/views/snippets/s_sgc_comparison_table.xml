@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_comparison_table" name="SGC Comparison Table">
+        <section class="s_sgc_comparison_table sgc-watermark--burj-al-arab sgc-geo--none sgc-palette--navy-cream"
+                 data-name="SGC Comparison Table" data-snippet="s_sgc_comparison_table">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <h2 class="text-center s_sgc_comparison_table_title">More Than <span class="sgc-accent-word">Accounting</span></h2>
+                <div class="table-responsive">
+                    <table class="table s_sgc_comparison_table_table">
+                        <thead>
+                            <tr>
+                                <th class="s_sgc_comparison_table_th_label"/>
+                                <th class="s_sgc_comparison_table_th s_sgc_comparison_table_th--old">Traditional Accounting Firm</th>
+                                <th class="s_sgc_comparison_table_th s_sgc_comparison_table_th--new">SGC Transformation Partner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Focus</td><td>Past transactions &amp; compliance</td><td>Strategic advisory &amp; growth guidance</td></tr>
+                            <tr><td>Approach</td><td>Reactive &amp; compliance-driven</td><td>Proactive &amp; data-driven</td></tr>
+                            <tr><td>Relationship</td><td>Vendor relationship</td><td>Trusted transformation partner</td></tr>
+                            <tr><td>Value Delivered</td><td>Accurate reports &amp; filings</td><td>Measurable business impact</td></tr>
+                            <tr><td>Impact</td><td>Limited to financial reporting</td><td>Strategy, operations &amp; technology</td></tr>
+                            <tr><td>Outcome</td><td>Stay compliant, avoid penalties</td><td>Sustainable long-term value</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row text-center s_sgc_comparison_table_points">
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-chess-knight"/>
+                        <h6>Strategic Mindset</h6>
+                        <p>We think beyond numbers to shape your future.</p>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-object-group"/>
+                        <h6>Integrated Approach</h6>
+                        <p>Bringing strategy, finance, operations, people &amp; technology together.</p>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-line-chart"/>
+                        <h6>Measurable Impact</h6>
+                        <p>Turning insights into results that move the needle.</p>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <i class="fa fa-handshake-o"/>
+                        <h6>Lasting Partnership</h6>
+                        <p>Committed to your success today and tomorrow.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

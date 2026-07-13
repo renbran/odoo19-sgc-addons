@@ -1,0 +1,275 @@
+/* ============================================================
+   SGC TECH AI — Backend (Odoo Admin) Theme Overrides
+   ============================================================ */
+
+/* ─── BACKEND BASE ──────────────────────────────── */
+
+.o_web_client {
+  font-family: var(--sgc-font-body) !important;
+  background: #0d1117 !important;
+  color: #e6edf3 !important;
+}
+
+/* ─── TOP BAR ───────────────────────────────────── */
+
+.o_main_navbar {
+  background: var(--sgc-deep-navy) !important;
+  border-bottom: 1px solid rgba(0,255,240,0.15) !important;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5) !important;
+}
+
+.o_main_navbar .o_menu_brand {
+  font-family: var(--sgc-font-display) !important;
+  font-weight: 800 !important;
+  color: var(--sgc-white) !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.05em !important;
+}
+
+.o_main_navbar .o_menu_brand::before {
+  content: 'SGC TECH AI · ';
+  color: var(--sgc-electric-cyan);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+}
+
+.o_main_navbar .o_nav_entry,
+.o_main_navbar .o_menu_sections .o_nav_entry {
+  color: rgba(255,255,255,0.7) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s !important;
+}
+
+.o_main_navbar .o_nav_entry:hover {
+  background: rgba(0,255,240,0.08) !important;
+  color: var(--sgc-electric-cyan) !important;
+}
+
+/* Home icon */
+.o_main_navbar .o_menu_brand_home {
+  background: linear-gradient(135deg, #00FFF0, #00FF88) !important;
+  border-radius: 8px !important;
+  padding: 4px 10px !important;
+  color: var(--sgc-deep-navy) !important;
+  font-weight: 800 !important;
+}
+
+/* ─── SIDEBAR MENU ──────────────────────────────── */
+
+.o_action_manager .o_drawer,
+.o_web_client .o_drawer {
+  background: #0d1117 !important;
+  border-right: 1px solid rgba(0,255,240,0.1) !important;
+}
+
+/* ─── FORMS & VIEWS ─────────────────────────────── */
+
+.o_form_view {
+  background: #0d1117 !important;
+}
+
+.o_form_sheet {
+  background: rgba(12,30,52,0.8) !important;
+  border: 1px solid rgba(0,255,240,0.15) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.4) !important;
+}
+
+.o_form_view .o_field_widget input,
+.o_form_view .o_field_widget textarea,
+.o_form_view .o_field_widget select {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 8px !important;
+  color: #e6edf3 !important;
+  font-family: var(--sgc-font-body) !important;
+}
+
+.o_form_view .o_field_widget input:focus,
+.o_form_view .o_field_widget textarea:focus {
+  border-color: var(--sgc-electric-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(0,255,240,0.1) !important;
+}
+
+/* Form labels */
+.o_form_label {
+  color: rgba(255,255,255,0.6) !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.03em !important;
+  text-transform: uppercase !important;
+}
+
+/* ─── BUTTONS (BACKEND) ─────────────────────────── */
+
+.o_form_view .btn-primary,
+.o_list_view .btn-primary {
+  background: linear-gradient(135deg, #00FFF0, #00FF88) !important;
+  border: none !important;
+  color: var(--sgc-deep-navy) !important;
+  font-weight: 700 !important;
+  border-radius: 50px !important;
+  box-shadow: 0 0 15px rgba(0,255,240,0.3) !important;
+  transition: all 0.2s !important;
+}
+
+.o_form_view .btn-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 20px rgba(0,255,240,0.5) !important;
+}
+
+.o_form_view .btn-secondary {
+  background: transparent !important;
+  border: 1.5px solid rgba(0,255,240,0.4) !important;
+  color: var(--sgc-electric-cyan) !important;
+  border-radius: 50px !important;
+}
+
+/* ─── LIST VIEW ─────────────────────────────────── */
+
+.o_list_view {
+  background: transparent !important;
+}
+
+.o_list_view .o_data_row:hover td {
+  background: rgba(0,255,240,0.04) !important;
+}
+
+.o_list_view thead th {
+  background: rgba(12,30,52,0.9) !important;
+  color: rgba(255,255,255,0.6) !important;
+  font-family: var(--sgc-font-body) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(0,255,240,0.15) !important;
+}
+
+/* ─── KANBAN VIEW ───────────────────────────────── */
+
+.o_kanban_view .o_kanban_group {
+  background: rgba(12,30,52,0.5) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0,255,240,0.1) !important;
+}
+
+.o_kanban_view .o_kanban_record {
+  background: rgba(30,58,138,0.2) !important;
+  border: 1px solid rgba(0,255,240,0.15) !important;
+  border-radius: 10px !important;
+  transition: all 0.2s !important;
+}
+
+.o_kanban_view .o_kanban_record:hover {
+  border-color: rgba(0,255,240,0.4) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ─── STAT BUTTONS (SMART BUTTONS) ──────────────── */
+
+.o_form_view .oe_stat_button {
+  background: rgba(0,255,240,0.06) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 10px !important;
+  color: var(--sgc-electric-cyan) !important;
+  transition: all 0.2s !important;
+}
+
+.o_form_view .oe_stat_button:hover {
+  background: rgba(0,255,240,0.12) !important;
+  transform: translateY(-1px) !important;
+}
+
+.o_form_view .oe_stat_button .o_stat_text {
+  color: rgba(255,255,255,0.6) !important;
+  font-size: 0.7rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+.o_form_view .oe_stat_button .o_stat_value {
+  color: var(--sgc-electric-cyan) !important;
+  font-family: var(--sgc-font-display) !important;
+  font-weight: 800 !important;
+}
+
+/* ─── BREADCRUMB ────────────────────────────────── */
+
+.o_cp_breadcrumb .o_breadcrumb_item a,
+.o_breadcrumb .breadcrumb-item a {
+  color: var(--sgc-electric-cyan) !important;
+  font-size: 0.875rem !important;
+}
+
+.o_cp_breadcrumb .o_breadcrumb_item.active,
+.o_breadcrumb .breadcrumb-item.active {
+  color: rgba(255,255,255,0.8) !important;
+}
+
+/* ─── CHATTER / MESSAGES ────────────────────────── */
+
+.o_chatter {
+  background: rgba(8,15,28,0.8) !important;
+  border-top: 1px solid rgba(0,255,240,0.1) !important;
+}
+
+.o_thread_message_core {
+  background: rgba(30,58,138,0.15) !important;
+  border: 1px solid rgba(0,255,240,0.1) !important;
+  border-radius: 10px !important;
+}
+
+/* ─── DASHBOARD KPI CARDS ───────────────────────── */
+
+.o_info_record,
+.o_dashboard .o_stat_info {
+  background: linear-gradient(135deg, rgba(0,255,240,0.08), rgba(30,58,138,0.15)) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 12px !important;
+  padding: 20px !important;
+}
+
+/* ─── SEARCH BAR ────────────────────────────────── */
+
+.o_searchview {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 50px !important;
+}
+
+.o_searchview .o_searchview_input {
+  color: #e6edf3 !important;
+  background: transparent !important;
+}
+
+/* ─── DROPDOWN MENUS ────────────────────────────── */
+
+.dropdown-menu {
+  background: rgba(12,30,52,0.95) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(20px) !important;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.6) !important;
+}
+
+.dropdown-item {
+  color: rgba(255,255,255,0.7) !important;
+  border-radius: 8px !important;
+  margin: 2px 6px !important;
+  font-family: var(--sgc-font-body) !important;
+}
+
+.dropdown-item:hover {
+  background: rgba(0,255,240,0.08) !important;
+  color: var(--sgc-electric-cyan) !important;
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────── */
+
+.o_action_manager *::-webkit-scrollbar { width: 4px; }
+.o_action_manager *::-webkit-scrollbar-track { background: transparent; }
+.o_action_manager *::-webkit-scrollbar-thumb {
+  background: rgba(0,255,240,0.2);
+  border-radius: 4px;
+}

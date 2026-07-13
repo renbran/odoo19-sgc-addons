@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Employee Form: UAE WPS Tab -->
+    <record id="view_eh_employee_form_wps" model="ir.ui.view">
+        <field name="name">hr.employee.form.wps</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="UAE WPS" name="uae_wps">
+                    <group>
+                        <group string="Identification">
+                            <field name="wps_employee_id"/>
+                            <field name="wps_passport_no"/>
+                            <field name="wps_nationality_id"/>
+                        </group>
+                        <group string="Bank Details">
+                            <field name="wps_bank_id"/>
+                            <field name="wps_iban"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
