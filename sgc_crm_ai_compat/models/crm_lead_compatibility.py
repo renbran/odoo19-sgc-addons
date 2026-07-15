@@ -18,10 +18,10 @@ class CrmLeadCompatibility(models.Model):
     # Check if field already exists before adding
     @api.model
     def _add_compatibility_fields(self):
-        """Add AI fields only if they don't exist"""
+        """Add AI fields only if they don"t exist"""
         field_names = self._fields.keys()
         
-        # Only add fields if they don't already exist
+        # Only add fields if they don"t already exist
         if 'ai_enrichment_report' not in field_names:
             _logger.info("Adding ai_enrichment_report compatibility field to crm.lead")
             return True
@@ -45,7 +45,7 @@ class CrmLeadCompatibility(models.Model):
         for lead in self:
             # Check if real field exists (from llm_lead_scoring)
             if hasattr(lead, '_origin') and hasattr(lead._origin, 'ai_enrichment_report'):
-                # Field exists from other module, don't override
+                # Field exists from other module, don"t override
                 continue
             else:
                 # Provide placeholder
@@ -60,15 +60,7 @@ class CrmLeadCompatibility(models.Model):
         super(CrmLeadCompatibility, self).init()
         self._add_compatibility_fields()
 
-    # Override user_id to disable tracking (prevents email notification on manual assignment)
-    user_id = fields.Many2one(
-        "res.users", string="Salesperson", default=lambda self: self.env.user,
-        domain="[(\"share\", \"=\", False)]",
-        check_company=True, index=True, tracking=False)
-PYEOF
-echo "Done writing"
-
-    # Override user_id to disable tracking (prevents email notification on manual assignment)
+    # Override user_id to disable tracking
     user_id = fields.Many2one(
         'res.users', string='Salesperson', default=lambda self: self.env.user,
         domain="[('share', '=', False)]",
