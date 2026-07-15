@@ -2,6 +2,7 @@
 
 import logging
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -65,3 +66,30 @@ class CrmLeadCompatibility(models.Model):
         'res.users', string='Salesperson', default=lambda self: self.env.user,
         domain="[('share', '=', False)]",
         check_company=True, index=True, tracking=False)
+
+    # BANT validation: require >=3/4 BANT fields filled when moving to Research Done+
+    def write(self, vals):
+        bant_fields = ['x_bant_budget', 'x_bant_authority', 'x_bant_need', 'x_bant_timeline']
+        if vals.get('stage_id'):
+            # stage_id can be int or tuple (id, name) from form views
+            stage_id = vals['stage_id']
+            if isinstance(stage_id, (list, tuple)):
+                stage_id = stage_id[0]
+            target_stage = self.env['crm.stage'].browse(stage_id)
+            if target_stage and target_stage.sequence >= 6:
+                for lead in self:
+                    filled = 0
+                    for f in bant_fields:
+                        if f in lead._fields:
+                            val = vals.get(f, getattr(lead, f, False))
+                            if val and isinstance(val, str) and val.strip():
+                                filled += 1
+                            elif val and not isinstance(val, str):
+                                filled += 1
+                    if filled < 3:
+                        stage_name = target_stage.display_name or str(target_stage.sequence)
+                        raise ValidationError(
+                            "At least 3 out of 4 BANT fields (Budget, Authority, Need, Timeline) "
+                            "must be filled before moving to stage '%s'." % stage_name
+                        )
+        return super(CrmLeadCompatibility, self).write(vals)
