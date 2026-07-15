@@ -59,3 +59,17 @@ class CrmLeadCompatibility(models.Model):
         """Initialize compatibility layer"""
         super(CrmLeadCompatibility, self).init()
         self._add_compatibility_fields()
+
+    # Override user_id to disable tracking (prevents email notification on manual assignment)
+    user_id = fields.Many2one(
+        "res.users", string="Salesperson", default=lambda self: self.env.user,
+        domain="[(\"share\", \"=\", False)]",
+        check_company=True, index=True, tracking=False)
+PYEOF
+echo "Done writing"
+
+    # Override user_id to disable tracking (prevents email notification on manual assignment)
+    user_id = fields.Many2one(
+        'res.users', string='Salesperson', default=lambda self: self.env.user,
+        domain="[('share', '=', False)]",
+        check_company=True, index=True, tracking=False)
