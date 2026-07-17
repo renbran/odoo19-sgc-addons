@@ -4,34 +4,58 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-call="sgc_construction_management.construction_external_layout">
-                    <div class="page">
+                    <div class="page sgc-report">
                         <div class="oe_structure"/>
 
                         <div class="row mt-4 mb-4">
                             <div class="col-12 text-center">
-                                <h2 class="fw-bold">PROJECT STATEMENT OF ACCOUNT</h2>
-                                <h4 t-field="o.name"/>
-                                <span t-field="o.ref"/>
+                                <h2 class="fw-bold" style="color: #0F213D; font-family: 'IBM Plex Serif', Georgia, serif;">PROJECT STATEMENT OF ACCOUNT</h2>
+                                <h4 t-field="o.name" style="color: #B79554;"/>
+                                <span style="color: #5F6775; text-transform: uppercase; letter-spacing: 1px; font-size: 10px;"><span t-field="o.ref"/></span>
                             </div>
                         </div>
 
                         <div class="row mb-4">
                             <div class="col-6">
-                                <strong>Client:</strong> <span t-field="o.client_id"/><br/>
-                                <strong>Location:</strong> <span t-field="o.location"/><br/>
-                                <strong>Project Manager:</strong> <span t-field="o.project_manager_id"/>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; width:40%; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">Client</td>
+                                        <td style="color: #1C2430;"><span t-field="o.client_id"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">Location</td>
+                                        <td style="color: #1C2430;"><span t-field="o.location"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">Project Manager</td>
+                                        <td style="color: #1C2430;"><span t-field="o.project_manager_id"/></td>
+                                    </tr>
+                                </table>
                             </div>
                             <div class="col-6 text-end">
-                                <strong>Contract Value:</strong> <span t-field="o.contract_value" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/><br/>
-                                <strong>Start Date:</strong> <span t-field="o.start_date"/><br/>
-                                <strong>End Date:</strong> <span t-field="o.end_date"/>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">Contract Value</td>
+                                        <td style="color: #1C2430;">
+                                            <span t-field="o.contract_value" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">Start Date</td>
+                                        <td style="color: #1C2430;"><span t-field="o.start_date"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold" style="color: #0F213D; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px;">End Date</td>
+                                        <td style="color: #1C2430;"><span t-field="o.end_date"/></td>
+                                    </tr>
+                                </table>
                             </div>
                         </div>
 
                         <t t-set="data" t-value="report_data[o.id]"/>
 
-                        <h4 class="mt-4 border-bottom pb-2">Customer Invoices (Revenue)</h4>
-                        <table class="table table-sm o_main_table table-striped mt-2">
+                        <h4 class="mt-4 border-bottom pb-2" style="color: #0F213D;">Customer Invoices (Revenue)</h4>
+                        <table class="table table-sm o_main_table mt-2">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -57,9 +81,9 @@
                                         <t t-set="total_revenue" t-value="total_revenue + inv.amount_total_signed"/>
                                     </tr>
                                 </t>
-                                <tr class="fw-bold">
-                                    <td colspan="3" class="text-end">Total Revenue Earned:</td>
-                                    <td class="text-end">
+                                <tr class="fw-bold" style="background-color: #ECE7DF;">
+                                    <td colspan="3" class="text-end" style="color: #0F213D;">Total Revenue Earned:</td>
+                                    <td class="text-end" style="color: #0F213D;">
                                         <span t-esc="total_revenue" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </td>
                                     <td></td>
@@ -67,8 +91,8 @@
                             </tbody>
                         </table>
 
-                        <h4 class="mt-5 border-bottom pb-2">Vendor Bills (Expenses)</h4>
-                        <table class="table table-sm o_main_table table-striped mt-2">
+                        <h4 class="mt-5 border-bottom pb-2" style="color: #0F213D;">Vendor Bills (Expenses)</h4>
+                        <table class="table table-sm o_main_table mt-2">
                             <thead>
                                 <tr>
                                     <th>Date</th>
@@ -94,9 +118,9 @@
                                         <t t-set="total_expense" t-value="total_expense - bill.amount_total_signed"/>
                                     </tr>
                                 </t>
-                                <tr class="fw-bold">
-                                    <td colspan="3" class="text-end">Total Project Expenses:</td>
-                                    <td class="text-end">
+                                <tr class="fw-bold" style="background-color: #ECE7DF;">
+                                    <td colspan="3" class="text-end" style="color: #0F213D;">Total Project Expenses:</td>
+                                    <td class="text-end" style="color: #0F213D;">
                                         <span t-esc="total_expense" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </td>
                                     <td></td>
@@ -107,9 +131,9 @@
                         <div class="row mt-5">
                             <div class="col-6 offset-6">
                                 <table class="table table-sm">
-                                    <tr class="border-top fw-bold fs-5">
-                                        <td>PROJECT MARGIN</td>
-                                        <td class="text-end">
+                                    <tr class="border-top" style="background-color: #0F213D;">
+                                        <td style="color: #FFFFFF; font-weight: 700; font-size: 12px;">PROJECT MARGIN</td>
+                                        <td class="text-end" style="color: #B79554; font-weight: 700; font-size: 14px; font-family: 'IBM Plex Serif', Georgia, serif;">
                                             <span t-esc="total_revenue - total_expense" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                         </td>
                                     </tr>

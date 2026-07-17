@@ -1,25 +1,170 @@
-/* Force background colors and theme colors to render in PDF output.
-   wkhtmltopdf drops background colors by default, which makes dark/light
-   header bars and colored cards (bg-dark, bg-light, text-white, badges)
-   render as invisible or unreadable in generated PDFs. */
+/* ============================================================================
+   SGC TECH AI — Brand-Aligned Report Stylesheet
+   Version: 3.0 (Brand Guidelines v3)
+   
+   Colors:
+     Ivory:      #F7F4EE (background)
+     Navy:       #0F213D (primary dark, table headers)
+     Gold:       #B79554 (accents, dividers)
+     Charcoal:   #1C2430 (primary text)
+     Slate:      #5F6775 (secondary text)
+     Champagne:  #D9C08A (secondary gold)
+     Parchment:  #ECE7DF (light gray)
+   
+   Fonts: IBM Plex Sans (body), IBM Plex Serif (headlines)
+   ============================================================================ */
+
+/* Force background colors to render in PDF output */
 * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
 }
 
-/* ============================================================================
-   Construction report stylesheet.
-   Odoo rebuilds the PDF body from the .article div (and the header/footer
-   from the .header/.footer divs), so an inline <style> in the layout template
-   never reaches wkhtmltopdf — the rules must live in this asset bundle.
-   Everything is scoped under .sgc-report so other modules' PDFs are untouched.
-   ============================================================================ */
+/* ── Font Imports (Local files for offline PDF generation) ── */
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/IBM-Plex-Sans-Regular.woff2') format('woff2');
+}
 
-.sgc-report { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #212529; line-height: 1.5; }
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 500;
+    src: url('../fonts/IBM-Plex-Sans-Medium.woff2') format('woff2');
+}
 
-/* ── Grid (minimal subset for reports) ── */
-.sgc-report .row { display: flex; flex-wrap: wrap; margin: 0 -6px; }
-.sgc-report .row > div { box-sizing: border-box; padding: 0 6px; }
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 600;
+    src: url('../fonts/IBM-Plex-Sans-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../fonts/IBM-Plex-Sans-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/IBM-Plex-Serif-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    font-style: normal;
+    font-weight: 500;
+    src: url('../fonts/IBM-Plex-Serif-Medium.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    font-style: normal;
+    font-weight: 600;
+    src: url('../fonts/IBM-Plex-Serif-SemiBold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    font-style: normal;
+    font-weight: 700;
+    src: url('../fonts/IBM-Plex-Serif-Bold.woff2') format('woff2');
+}
+
+/* ── Base Report Styling ── */
+.sgc-report {
+    font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif;
+    font-size: 11px;
+    color: #1C2430;
+    line-height: 1.6;
+    background-color: #F7F4EE;
+}
+
+/* ── Typography Hierarchy ── */
+.sgc-report h1, .sgc-report .h1 {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0F213D;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report h2, .sgc-report .h2 {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0F213D;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report h3, .sgc-report .h3 {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0F213D;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report h4, .sgc-report .h4 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #B79554;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report h5, .sgc-report .h5 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0F213D;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report h6, .sgc-report .h6 {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #5F6775;
+    margin-bottom: 0.5rem;
+}
+
+.sgc-report p {
+    font-size: 11px;
+    line-height: 1.75;
+    color: #1C2430;
+    margin-bottom: 0.75rem;
+}
+
+.sgc-report small, .sgc-report .text-small {
+    font-size: 0.875rem;
+    color: #5F6775;
+}
+
+.sgc-report .fs-5 {
+    font-size: 1.125rem;
+}
+
+/* ── Grid System ── */
+.sgc-report .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -6px;
+}
+
+.sgc-report .row > div {
+    box-sizing: border-box;
+    padding: 0 6px;
+}
+
 .sgc-report .col-3 { width: 25%; }
 .sgc-report .col-4 { width: 33.333%; }
 .sgc-report .col-5 { width: 41.667%; }
@@ -28,65 +173,343 @@
 .sgc-report .col-12 { width: 100%; }
 .sgc-report .offset-6 { margin-left: 50%; }
 
-/* ── Tables ── */
-.sgc-report .table { border-collapse: collapse; width: 100%; margin-bottom: 12px; }
-.sgc-report .table th, .sgc-report .table td {
-    padding: 6px 8px; vertical-align: middle; text-align: left;
-    border: 1px solid #adb5bd;
+/* ── Tables — Brand Style ── */
+.sgc-report .table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 12px;
 }
-/* Light header band: dark text on light gray reads reliably on any printer */
-.sgc-report .table thead th { background-color: #e9ecef !important; color: #212529 !important; font-weight: bold; border-bottom: 2px solid #adb5bd; }
-.sgc-report .table-sm th, .sgc-report .table-sm td { padding: 4px 6px; font-size: 10px; }
-.sgc-report .table-bordered { border: 1px solid #adb5bd; }
-.sgc-report .table-borderless th, .sgc-report .table-borderless td { border: none; }
-.sgc-report .table-dark, .sgc-report .table-dark th,
-.sgc-report .table thead.table-dark th { background-color: #e9ecef !important; color: #212529 !important; }
-.sgc-report .table-secondary { background-color: #e2e3e5 !important; }
-.sgc-report .table-primary { background-color: #cfe2ff !important; }
-.sgc-report .table-success { background-color: #d4edda !important; }
-.sgc-report .table-warning { background-color: #fff3cd !important; }
-.sgc-report .table-danger { background-color: #f8d7da !important; }
-.sgc-report tfoot td { font-weight: bold; background-color: #e9ecef !important; }
 
-/* ── Cards ── */
-.sgc-report .card { border: 1px solid #ced4da; border-radius: 6px; padding: 14px; margin-bottom: 12px; background-color: #fff; }
-.sgc-report .bg-light { background-color: #f8f9fa !important; }
-.sgc-report .bg-dark { background-color: #e9ecef !important; color: #212529 !important; }
-.sgc-report .card-label { font-size: 10px; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.sgc-report .table th,
+.sgc-report .table td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    text-align: left;
+    border: 1px solid #D9C08A;
+}
 
-/* ── Typography ── */
+/* Navy headers with white text — Brand standard */
+.sgc-report .table thead th {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #B79554;
+    padding: 10px 12px;
+}
+
+.sgc-report .table-sm th,
+.sgc-report .table-sm td {
+    padding: 6px 8px;
+    font-size: 10px;
+}
+
+.sgc-report .table-bordered {
+    border: 1px solid #D9C08A;
+}
+
+.sgc-report .table-borderless th,
+.sgc-report .table-borderless td {
+    border: none;
+}
+
+/* Override Bootstrap dark/secondary/primary for brand alignment */
+.sgc-report .table-dark,
+.sgc-report .table-dark th,
+.sgc-report .table thead.table-dark th {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report .table-secondary {
+    background-color: #ECE7DF !important;
+    color: #1C2430 !important;
+}
+
+.sgc-report .table-primary {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report .table-success {
+    background-color: #2C6654 !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report .table-warning {
+    background-color: #C78F2B !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report .table-danger {
+    background-color: #A24949 !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report tfoot td {
+    font-weight: bold;
+    background-color: #ECE7DF !important;
+    color: #1C2430 !important;
+    border-top: 2px solid #B79554;
+}
+
+/* Table row alternating colors for scanability */
+.sgc-report .table tbody tr:nth-child(even) {
+    background-color: #F7F4EE;
+}
+
+.sgc-report .table tbody tr:nth-child(odd) {
+    background-color: #FFFFFF;
+}
+
+/* ── Cards — Brand Style ── */
+.sgc-report .card {
+    border: 1px solid #D9C08A;
+    border-radius: 6px;
+    padding: 14px;
+    margin-bottom: 12px;
+    background-color: #FFFFFF;
+}
+
+.sgc-report .bg-light {
+    background-color: #F7F4EE !important;
+}
+
+.sgc-report .bg-dark {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+}
+
+.sgc-report .card-label {
+    font-size: 10px;
+    color: #5F6775;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+/* ── KPI Cards — Brand Style ── */
+.sgc-report .kpi-card {
+    border: 1px solid #D9C08A;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+    background-color: #FFFFFF;
+}
+
+.sgc-report .kpi-label {
+    font-size: 9px;
+    color: #5F6775;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.sgc-report .kpi-value {
+    font-family: 'IBM Plex Serif', Georgia, serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F213D;
+    margin-bottom: 4px;
+}
+
+.sgc-report .kpi-change-positive {
+    font-size: 10px;
+    color: #2C6654;
+    font-weight: 500;
+}
+
+.sgc-report .kpi-change-negative {
+    font-size: 10px;
+    color: #A24949;
+    font-weight: 500;
+}
+
+/* ── Text Utilities ── */
 .sgc-report .text-center { text-align: center !important; }
 .sgc-report .text-end { text-align: right !important; }
 .sgc-report .float-end { float: right !important; }
 .sgc-report .float-start { float: left !important; }
-.sgc-report .text-muted { color: #6c757d !important; }
-.sgc-report .text-success { color: #28a745 !important; }
-.sgc-report .text-danger { color: #dc3545 !important; }
-.sgc-report .text-white { color: #212529 !important; }
-.sgc-report .fw-bold, .sgc-report strong, .sgc-report .font-weight-bold { font-weight: 700 !important; }
-.sgc-report h1, .sgc-report .h1 { font-size: 2rem; font-weight: 700; }
-.sgc-report h2, .sgc-report .h2 { font-size: 1.5rem; font-weight: 700; }
-.sgc-report h3, .sgc-report .h3 { font-size: 1.25rem; font-weight: 700; }
-.sgc-report h4, .sgc-report .h4 { font-size: 1.125rem; font-weight: 700; }
-.sgc-report h5, .sgc-report .h5 { font-size: 1rem; font-weight: 700; }
-.sgc-report h6, .sgc-report .h6 { font-size: 0.875rem; font-weight: 700; }
-.sgc-report .small, .sgc-report .text-small { font-size: 0.875rem; }
-.sgc-report .fs-5 { font-size: 1.125rem; }
+
+.sgc-report .text-muted { color: #5F6775 !important; }
+.sgc-report .text-success { color: #2C6654 !important; }
+.sgc-report .text-danger { color: #A24949 !important; }
+.sgc-report .text-warning { color: #C78F2B !important; }
+.sgc-report .text-white { color: #FFFFFF !important; }
+.sgc-report .text-navy { color: #0F213D !important; }
+.sgc-report .text-gold { color: #B79554 !important; }
+.sgc-report .text-charcoal { color: #1C2430 !important; }
+.sgc-report .text-slate { color: #5F6775 !important; }
+
+.sgc-report .fw-bold,
+.sgc-report strong,
+.sgc-report .font-weight-bold {
+    font-weight: 700 !important;
+}
 
 /* ── Spacing ── */
-.sgc-report .mt-1 { margin-top: 0.25rem; } .sgc-report .mt-2 { margin-top: 0.5rem; } .sgc-report .mt-3 { margin-top: 1rem; }
-.sgc-report .mt-4 { margin-top: 1.5rem; } .sgc-report .mt-5 { margin-top: 2rem; }
-.sgc-report .mb-1 { margin-bottom: 0.25rem; } .sgc-report .mb-2 { margin-bottom: 0.5rem; }
-.sgc-report .mb-3 { margin-bottom: 1rem; } .sgc-report .mb-4 { margin-bottom: 1.5rem; }
+.sgc-report .mt-1 { margin-top: 0.25rem; }
+.sgc-report .mt-2 { margin-top: 0.5rem; }
+.sgc-report .mt-3 { margin-top: 1rem; }
+.sgc-report .mt-4 { margin-top: 1.5rem; }
+.sgc-report .mt-5 { margin-top: 2rem; }
+.sgc-report .mb-1 { margin-bottom: 0.25rem; }
+.sgc-report .mb-2 { margin-bottom: 0.5rem; }
+.sgc-report .mb-3 { margin-bottom: 1rem; }
+.sgc-report .mb-4 { margin-bottom: 1.5rem; }
 .sgc-report .pb-1 { padding-bottom: 0.25rem; }
+.sgc-report .pb-2 { padding-bottom: 0.5rem; }
 .sgc-report .p-3 { padding: 1rem; }
 .sgc-report .pt-2 { padding-top: 0.5rem; }
 
-/* ── Borders / rules ── */
-.sgc-report .border-bottom { border-bottom: 2px solid #adb5bd; }
-.sgc-report .border-top { border-top: 2px solid #adb5bd; }
-.sgc-report .border-top-1 { border-top: 1px solid #adb5bd; }
-.sgc-report hr { border: none; border-top: 1px solid #adb5bd; margin: 8px 0; }
+/* ── Borders / Dividers — Gold Accent ── */
+.sgc-report .border-bottom {
+    border-bottom: 2px solid #B79554;
+}
 
-/* ── Table row borders for wkhtmltopdf ── */
-.sgc-report .table tr + tr td, .sgc-report .table tr + tr th { border-top: 1px solid #adb5bd; }
+.sgc-report .border-top {
+    border-top: 2px solid #B79554;
+}
+
+.sgc-report .border-top-1 {
+    border-top: 1px solid #B79554;
+}
+
+.sgc-report .border-navy {
+    border-color: #0F213D !important;
+}
+
+.sgc-report hr {
+    border: none;
+    border-top: 1px solid #B79554;
+    margin: 8px 0;
+}
+
+/* ── Table Row Borders for wkhtmltopdf ── */
+.sgc-report .table tr + tr td,
+.sgc-report .table tr + tr th {
+    border-top: 1px solid #D9C08A;
+}
+
+/* ── Gold Corner Geometry (Signature Element) ── */
+.sgc-report .gold-corner {
+    position: relative;
+}
+
+.sgc-report .gold-corner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border-top: 1px solid #B79554;
+    border-left: 1px solid #B79554;
+    pointer-events: none;
+}
+
+.sgc-report .gold-corner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30px;
+    height: 30px;
+    border-top: 0.5px solid #B79554;
+    border-left: 0.5px solid #B79554;
+    pointer-events: none;
+}
+
+/* ── Navigation Rail (Left accent line) ── */
+.sgc-report .nav-rail {
+    border-left: 2px solid #B79554;
+    padding-left: 12px;
+    margin-left: 8px;
+}
+
+/* ── Section Divider with Gold Line ── */
+.sgc-report .section-divider {
+    border: none;
+    border-top: 1px solid #B79554;
+    margin: 16px 0;
+}
+
+/* ── Badge Styles — Brand Colors ── */
+.sgc-report .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+}
+
+.sgc-report .badge-navy {
+    background-color: #0F213D;
+    color: #FFFFFF;
+}
+
+.sgc-report .badge-gold {
+    background-color: #B79554;
+    color: #FFFFFF;
+}
+
+.sgc-report .badge-success {
+    background-color: #2C6654;
+    color: #FFFFFF;
+}
+
+.sgc-report .badge-warning {
+    background-color: #C78F2B;
+    color: #FFFFFF;
+}
+
+.sgc-report .badge-danger {
+    background-color: #A24949;
+    color: #FFFFFF;
+}
+
+/* ── Watermark Effect (Subtle background pattern) ── */
+.sgc-report .page-watermark {
+    position: relative;
+}
+
+.sgc-report .page-watermark::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center, rgba(183, 149, 84, 0.03) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ── Coordinate Labels (Geographic identity) ── */
+.sgc-report .coord-label {
+    font-family: 'Courier New', monospace;
+    font-size: 7px;
+    color: rgba(183, 149, 84, 0.25);
+    letter-spacing: 1px;
+}
+
+/* ── Signature Block ── */
+.sgc-report .signature-block {
+    border-top: 1px solid #B79554;
+    padding-top: 8px;
+    margin-top: 16px;
+}
+
+.sgc-report .signature-line {
+    border-bottom: 1px solid #5F6775;
+    width: 120px;
+    display: inline-block;
+    margin: 8px 0;
+}
