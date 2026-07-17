@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SGC Construction Management',
-    'version': '19.0.1.2.1',
+    'version': '19.0.1.2.9',
     'summary': 'Manage BOQ, WBS, Work Orders, Billing, Quality & more',
     'description': """
 SGC Construction Management
@@ -64,6 +64,7 @@ A comprehensive module for managing construction projects including:
         # menu_construction_reporting (defined in construction_phase1_reports.xml).
         'views/res_partner_views.xml',
         'report/construction_purchase_order_report.xml',
+        'report/sgc_report_layout.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -79,8 +80,10 @@ A comprehensive module for managing construction projects including:
             'sgc_construction_management/static/src/xml/construction_dashboard.xml',
         ],
         'web.report_assets_common': [
-            # Force background/theme colors to print in PDF reports
+            # SGC brand styling for construction-specific reports
             'sgc_construction_management/static/src/css/construction_report.css',
+            # SGC brand styling for ALL standard Odoo reports (quotations, invoices, etc.)
+            'sgc_construction_management/static/src/css/sgc_report.css',
         ],
     },
     'demo': ['demo/construction_demo.xml'],
