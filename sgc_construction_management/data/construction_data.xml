@@ -39,19 +39,12 @@
             <field name="name">Other</field>
         </record>
 
-        <!-- Percentage UOM Category and UOM -->
-        <record id="uom_category_percentage" model="uom.category">
-            <field name="name">Percentage</field>
-            <field name="measure_type">reference</field>
-        </record>
-
+        <!-- Percentage UOM -->
         <record id="uom_percentage" model="uom.uom">
             <field name="name">Percent (%)</field>
-            <field name="category_id" ref="uom_category_percentage"/>
             <field name="factor">1</field>
-            <field name="factor_inv">1</field>
-            <field name="uom_type">reference</field>
             <field name="rounding">0.01</field>
+            <field name="active">True</field>
         </record>
     </data>
 </odoo>
