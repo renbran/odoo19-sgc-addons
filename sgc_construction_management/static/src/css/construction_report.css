@@ -390,6 +390,257 @@
     margin: 8px 0;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   STANDARD ODOO REPORT LAYOUT (o_report_layout_sgc)
+   Applied to ALL standard Odoo reports (invoices, quotations, etc.)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Base Body ── */
+.o_report_layout_sgc,
+.o_company_1_layout {
+    font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif !important;
+    font-size: 10px !important;
+    color: #1C2430 !important;
+    line-height: 1.6 !important;
+    background-color: #F7F4EE !important;
+}
+
+.page {
+    background-color: #FFFFFF !important;
+}
+
+/* ── Typography ── */
+.o_report_layout_sgc h1,
+.o_report_layout_sgc h2,
+.o_report_layout_sgc h3,
+.o_report_layout_sgc h4,
+.o_report_layout_sgc h5,
+.o_report_layout_sgc h6 {
+    font-family: 'IBM Plex Serif', Georgia, serif !important;
+    color: #0F213D !important;
+    margin-bottom: 0.5rem;
+}
+
+.o_report_layout_sgc h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    border-bottom: 1px solid #B79554;
+    padding-bottom: 8px;
+}
+
+.o_report_layout_sgc strong,
+.o_report_layout_sgc b {
+    font-weight: 600 !important;
+}
+
+/* ── Document Title ── */
+.o_report_layout_sgc h2 {
+    font-family: 'IBM Plex Serif', Georgia, serif !important;
+    color: #0F213D !important;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* ── Address / Info Blocks ── */
+.o_report_layout_sgc #informations {
+    background-color: #F7F4EE !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.o_report_layout_sgc #informations .row {
+    margin: 0;
+}
+
+.o_report_layout_sgc #informations strong {
+    color: #0F213D !important;
+    font-weight: 600 !important;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Standard Odoo Tables ── */
+.o_report_layout_sgc .table,
+.o_report_layout_sgc table.o_main_table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+}
+
+.o_report_layout_sgc .table th,
+.o_report_layout_sgc table.o_main_table thead th {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 9px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 10px !important;
+    border-bottom: 2px solid #B79554 !important;
+    border: 1px solid #1C2430 !important;
+}
+
+.o_report_layout_sgc .table td,
+.o_report_layout_sgc table.o_main_table tbody td {
+    padding: 6px 10px !important;
+    vertical-align: middle;
+    border: 1px solid #D9C08A !important;
+    font-size: 10px !important;
+}
+
+.o_report_layout_sgc table.o_main_table tbody tr:nth-child(even) td {
+    background-color: #F7F4EE !important;
+}
+
+.o_report_layout_sgc table.o_main_table tbody tr:nth-child(odd) td {
+    background-color: #FFFFFF !important;
+}
+
+.o_report_layout_sgc .table tfoot td,
+.o_report_layout_sgc table.o_main_table tfoot td {
+    font-weight: bold !important;
+    background-color: #ECE7DF !important;
+    color: #1C2430 !important;
+    border-top: 2px solid #B79554 !important;
+}
+
+/* ── Total Section ── */
+.o_report_layout_sgc #total {
+    margin-top: 16px;
+}
+
+.o_report_layout_sgc #total .o_total {
+    border-collapse: collapse;
+}
+
+.o_report_layout_sgc #total .o_total td {
+    padding: 6px 12px;
+    font-size: 10px;
+}
+
+.o_report_layout_sgc #total .o_total tr:last-child td {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    font-family: 'IBM Plex Serif', Georgia, serif !important;
+    border-top: 2px solid #B79554 !important;
+}
+
+.o_report_layout_sgc #total .o_total tr:last-child td:last-child {
+    color: #B79554 !important;
+    font-size: 14px !important;
+}
+
+/* ── Tax Lines ── */
+.o_report_layout_sgc .o_tax_label {
+    font-size: 9px;
+    color: #5F6775;
+}
+
+/* ── Description Blocks ── */
+.o_report_layout_sgc .o_description {
+    background-color: #F7F4EE !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 10px !important;
+    margin-bottom: 12px;
+    font-size: 10px;
+}
+
+/* ── Note / Terms Blocks ── */
+.o_report_layout_sgc .o_terms,
+.o_report_layout_sgc .o_note {
+    border-top: 1px solid #D9C08A;
+    padding-top: 8px;
+    margin-top: 12px;
+    font-size: 9px;
+    color: #5F6775;
+}
+
+/* ── Subtotal / Separator Rows ── */
+.o_report_layout_sgc .o_subtotal td {
+    border-top: 2px solid #B79554 !important;
+    font-weight: 600 !important;
+}
+
+/* ── Background / Watermark ── */
+.o_report_layout_background {
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: contain !important;
+    opacity: 0.05;
+}
+
+/* ── Override Odoo dynamic colors with SGC brand ── */
+.o_report_layout_sgc h2,
+.o_company_1_layout h2 {
+    color: #0F213D !important;
+    border-bottom-color: #B79554 !important;
+}
+
+.o_report_layout_sgc #informations strong,
+.o_company_1_layout #informations strong {
+    color: #0F213D !important;
+}
+
+.o_report_layout_sgc .o_total strong,
+.o_company_1_layout .o_total strong {
+    color: #0F213D !important;
+}
+
+.o_report_layout_sgc .o_company_tagline,
+.o_company_1_layout .o_company_tagline {
+    color: #B79554 !important;
+}
+
+/* ── Company Header ── */
+.o_report_layout_sgc .o_company_logo_small {
+    max-height: 36px;
+    max-width: 140px;
+}
+
+/* ── Muted / Helper Text ── */
+.o_report_layout_sgc .text-muted,
+.o_report_layout_sgc .text-secondary {
+    color: #5F6775 !important;
+}
+
+/* ── Buttons / Links ── */
+.o_report_layout_sgc a {
+    color: #0F213D;
+    text-decoration: underline;
+    text-decoration-color: #B79554;
+}
+
+/* ── Horizontal Rule ── */
+.o_report_layout_sgc hr {
+    border: none;
+    border-top: 1px solid #D9C08A;
+    margin: 12px 0;
+}
+
+/* ── Page Break Handling ── */
+.o_report_layout_sgc .o_page_break {
+    page-break-before: always;
+}
+
+/* ── Override leftover Lato / system font from Odoo base ── */
+.o_body_html,
+.o_body_html * {
+    font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONSTRUCTION-SPECIFIC REPORT STYLING (.sgc-report)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 /* ── Table Row Borders for wkhtmltopdf ── */
 .sgc-report .table tr + tr td,
 .sgc-report .table tr + tr th {
