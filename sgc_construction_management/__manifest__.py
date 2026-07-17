@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SGC Construction Management',
-    'version': '19.0.1.2.9',
+    'version': '19.0.1.2.10',
     'summary': 'Manage BOQ, WBS, Work Orders, Billing, Quality & more',
     'description': """
 SGC Construction Management
