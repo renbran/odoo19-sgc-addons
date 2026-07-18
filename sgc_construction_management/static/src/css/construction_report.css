@@ -764,3 +764,262 @@
     display: inline-block;
     margin: 8px 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STANDARD ODOO REPORTS — BRAND LETTERHEAD (o_report_layout_standard)
+   Applied to ALL default Odoo reports (invoices, quotations, SO, PO, etc.)
+   Targets the actual class used when no custom layout is selected.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Letterhead Header: Navy bar with gold bottom border ── */
+/* The padding-top on body creates space for the fixed-position header */
+.article.o_report_layout_standard + .footer {
+    margin-top: 0 !important;
+}
+
+.header.o_company_1_layout {
+    background-color: #0F213D !important;
+    padding: 10px 20px !important;
+    margin: -35px -20px 0 -20px !important;
+    border-bottom: 2px solid #B79554 !important;
+    min-height: 55px;
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Company tagline in header — gold italic */
+.header.o_company_1_layout .o_company_tagline {
+    color: #D9C08A !important;
+    font-style: italic !important;
+    font-size: 9px !important;
+    font-weight: 400 !important;
+    max-width: 100% !important;
+    margin-top: 4px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Override tagline background when it has background styling */
+.header.o_company_1_layout .o_company_tagline.bg-light,
+.header.o_company_1_layout .o_company_tagline.bg-white {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+/* Ensures the header company address info uses brand colors */
+.header.o_company_1_layout .list-unstyled {
+    color: #FFFFFF !important;
+    font-size: 8px !important;
+    line-height: 1.4 !important;
+}
+
+.header.o_company_1_layout .list-unstyled a {
+    color: #B79554 !important;
+}
+
+/* ── Standard Report Article Body ── */
+.article.o_report_layout_standard {
+    background-color: #FFFFFF !important;
+    font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif !important;
+    font-size: 10px !important;
+    color: #1C2430 !important;
+    line-height: 1.6 !important;
+}
+
+/* Page background */
+.article.o_report_layout_standard .page {
+    background-color: #FFFFFF !important;
+}
+
+/* ── Document Title ── */
+.article.o_report_layout_standard h2 {
+    font-family: 'IBM Plex Serif', Georgia, serif !important;
+    color: #0F213D !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.5px !important;
+    border-bottom: 1px solid #B79554 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 16px !important;
+}
+
+/* ── Information Block (invoice dates, etc.) ── */
+.article.o_report_layout_standard #informations {
+    background-color: #F7F4EE !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.article.o_report_layout_standard #informations strong {
+    color: #0F213D !important;
+    font-weight: 600 !important;
+    font-size: 9px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Override Odoo's default blue/sky blue ── */
+/* Odoo default table headers often use primary_color (blue) as background.
+   We force Navy regardless of what dynamic styles are applied. */
+.article.o_report_layout_standard .table thead th,
+.article.o_report_layout_standard .o_main_table thead th,
+.article.o_report_layout_standard table thead th {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 9px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 8px 10px !important;
+    border-bottom: 2px solid #B79554 !important;
+}
+
+/* Odoo sometimes applies inline primary_color to th — force override even harder */
+.article.o_report_layout_standard table thead th[style*="background"] {
+    background-color: #0F213D !important;
+}
+
+/* Table body cells — gold borders */
+.article.o_report_layout_standard .table td,
+.article.o_report_layout_standard .o_main_table tbody td {
+    padding: 6px 10px !important;
+    vertical-align: middle !important;
+    border: 1px solid #D9C08A !important;
+    font-size: 10px !important;
+}
+
+/* Alternating row colors */
+.article.o_report_layout_standard .table tbody tr:nth-child(even) td {
+    background-color: #F7F4EE !important;
+}
+
+.article.o_report_layout_standard .table tbody tr:nth-child(odd) td {
+    background-color: #FFFFFF !important;
+}
+
+/* Table footer — Navy top border */
+.article.o_report_layout_standard .table tfoot td,
+.article.o_report_layout_standard .o_main_table tfoot td {
+    font-weight: bold !important;
+    background-color: #ECE7DF !important;
+    color: #1C2430 !important;
+    border-top: 2px solid #B79554 !important;
+}
+
+/* ── Total Section ── */
+.article.o_report_layout_standard #total {
+    margin-top: 16px;
+}
+
+.article.o_report_layout_standard #total .o_total {
+    border-collapse: collapse;
+}
+
+.article.o_report_layout_standard #total .o_total td {
+    padding: 6px 12px;
+    font-size: 10px;
+}
+
+.article.o_report_layout_standard #total .o_total tr:last-child td {
+    background-color: #0F213D !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    font-family: 'IBM Plex Serif', Georgia, serif !important;
+    border-top: 2px solid #B79554 !important;
+}
+
+.article.o_report_layout_standard #total .o_total tr:last-child td:last-child {
+    color: #B79554 !important;
+    font-size: 14px !important;
+}
+
+/* ── Tax Labels ── */
+.article.o_report_layout_standard .o_tax_label {
+    font-size: 9px;
+    color: #5F6775;
+}
+
+/* ── Description Blocks ── */
+.article.o_report_layout_standard .o_description {
+    background-color: #F7F4EE !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 10px !important;
+    margin-bottom: 12px;
+    font-size: 10px;
+}
+
+/* ── Subtotal Rows ── */
+.article.o_report_layout_standard .o_subtotal td {
+    border-top: 2px solid #B79554 !important;
+    font-weight: 600 !important;
+}
+
+/* ── Note / Terms Blocks ── */
+.article.o_report_layout_standard .o_terms,
+.article.o_report_layout_standard .o_note {
+    border-top: 1px solid #D9C08A;
+    padding-top: 8px;
+    margin-top: 12px;
+    font-size: 9px;
+    color: #5F6775;
+}
+
+/* ── Address Block ── */
+.article.o_report_layout_standard .address {
+    margin-bottom: 12px;
+}
+
+.article.o_report_layout_standard .address address {
+    font-size: 10px;
+    color: #1C2430;
+    line-height: 1.5;
+}
+
+/* ── Links ── */
+.article.o_report_layout_standard a {
+    color: #0F213D;
+    text-decoration: underline;
+    text-decoration-color: #B79554;
+}
+
+/* ── Horizontal Rule ── */
+.article.o_report_layout_standard hr {
+    border: none;
+    border-top: 1px solid #D9C08A;
+    margin: 12px 0;
+}
+
+/* ── Page Break ── */
+.article.o_report_layout_standard .o_page_break {
+    page-break-before: always;
+}
+
+/* ── Footer ── */
+.footer.o_company_1_layout {
+    border-top: 2px solid #B79554 !important;
+    padding: 8px 20px 4px !important;
+    background-color: #F7F4EE !important;
+}
+
+.footer.o_company_1_layout .o_footer_content {
+    border-top: none !important;
+    padding-top: 0 !important;
+}
+
+.footer.o_company_1_layout .o_footer_content .text-muted {
+    color: #5F6775 !important;
+    font-size: 9px !important;
+}
+
+/* ── Override leftover Lato / system font in report body ── */
+.o_body_html,
+.o_body_html * {
+    font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif !important;
+}
