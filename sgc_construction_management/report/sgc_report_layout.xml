@@ -14,7 +14,7 @@
 
     <template id="external_layout_sgc" name="SGC TECH AI Brand Layout">
         <t t-if="not o" t-set="o" t-value="doc"/>
-        <t t-if="not company" t-set="company" t-value="res_company"/>
+        <t t-if="not company or company._name != 'res.company'" t-set="company" t-value="res_company"/>
         <t t-set="header_shape_height" t-value="'60'"/>
         
         <!-- ── Header: Navy bar with gold bottom border ── -->

@@ -16,7 +16,7 @@
 
     <template id="construction_external_layout">
         <t t-if="not o" t-set="o" t-value="doc"/>
-        <t t-if="not company" t-set="company" t-value="res_company"/>
+        <t t-if="not company or company._name != 'res.company'" t-set="company" t-value="res_company"/>
 
         <div class="header sgc-report" style="background-color: #0F213D; padding: 14px 20px 16px 20px; margin: 0 -20px 16px -20px;">
             <div class="row" style="align-items: center;">
