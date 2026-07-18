@@ -18,7 +18,7 @@
         <t t-if="not o" t-set="o" t-value="doc"/>
         <t t-if="not company" t-set="company" t-value="res_company"/>
 
-        <div class="header sgc-report" style="background-color: #0F213D; padding: 12px 20px; margin: -35px -20px 0 -20px;">
+        <div class="header sgc-report" style="background-color: #0F213D; padding: 16px 20px 22px 20px; margin: 0 -20px 16px -20px;">
             <div class="row" style="align-items: center;">
                 <div class="col-3">
                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 42px; max-width: 100%; filter: brightness(0) invert(1);" alt="Company Logo"/>
@@ -54,11 +54,11 @@
             <div style="border-bottom: 2px solid #B79554; margin-top: 8px;"/>
         </div>
 
-        <div class="article sgc-report" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" style="padding: 10px 0;">
+        <div class="article sgc-report" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" style="padding: 5px 0 10px 0;">
             <t t-out="0"/>
         </div>
 
-        <div class="footer sgc-report">
+        <div class="footer sgc-report" style="padding-bottom: 4px;">
             <div style="border-top: 2px solid #B79554; font-size: 8px; padding-top: 8px; margin-top: 16px;">
                 <div class="row" style="margin-top: 6px;">
                     <div class="col-4 signature-block">
@@ -90,4 +90,17 @@
             </div>
         </div>
     </template>
+
+    <!--
+        External layout alias registered so the report system can resolve
+        sgc_construction_management.external_layout_sgc as a valid document
+        layout. Delegates to construction_external_layout which provides
+        the full branded header/footer.
+    -->
+    <template id="external_layout_sgc">
+        <t t-call="sgc_construction_management.construction_external_layout">
+            <t t-out="0"/>
+        </t>
+    </template>
+
 </odoo>

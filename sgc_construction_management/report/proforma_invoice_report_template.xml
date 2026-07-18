@@ -5,7 +5,6 @@
             <t t-foreach="docs" t-as="o">
                 <t t-call="sgc_construction_management.construction_external_layout">
                     <div class="page sgc-report">
-                        <div class="oe_structure"/>
 
                         <div class="row mt-4 mb-4">
                             <div class="col-12 text-center">
@@ -130,7 +129,6 @@
                             </div>
                         </div>
 
-                        <div class="oe_structure"/>
                     </div>
                 </t>
             </t>
