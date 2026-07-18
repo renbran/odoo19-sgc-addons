@@ -11,4 +11,16 @@
         <field name="binding_type">report</field>
         <field name="paperformat_id" ref="sgc_construction_management.paperformat_construction_portrait"/>
     </record>
+
+    <record id="action_report_proforma_invoice" model="ir.actions.report">
+        <field name="name">Proforma Invoice</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_proforma_invoice</field>
+        <field name="report_file">sgc_construction_management.report_proforma_invoice</field>
+        <field name="print_report_name">'Proforma Invoice - %s' % (object.ra_number)</field>
+        <field name="binding_model_id" ref="model_construction_ra_billing"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="sgc_construction_management.paperformat_construction_portrait"/>
+    </record>
 </odoo>

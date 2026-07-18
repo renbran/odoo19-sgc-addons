@@ -65,6 +65,7 @@ A comprehensive module for managing construction projects including:
         'views/res_partner_views.xml',
         'report/construction_purchase_order_report.xml',
         'report/sgc_report_layout.xml',
+        'report/proforma_invoice_report_template.xml',
     ],
     'assets': {
         'web.assets_backend': [
