@@ -114,9 +114,15 @@
         </div>
     </template>
 
-    <!-- Override web.external_layout to use SGC layout always.
-         Replace both t-call branches (if-else) with our SGC branded layout. -->
+    <!-- Override web.external_layout: fix doc access + use our layout.
+         Fix 1: The standard template has <t t-if="not o" t-set="o" t-value="doc"/>
+         which raises KeyError: 'doc' in preview mode because _get_render_information
+         passes no 'doc' or 'o'. Replace with safe no-op.
+         Fix 2: Replace the t-call to use our branded layout. -->
     <template id="external_layout" inherit_id="web.external_layout" name="SGC External Layout (Brand)">
+        <xpath expr="//t[@t-if='not o' and @t-set='o' and @t-value='doc']" position="replace">
+            <t t-set="_x" t-value="0"/>
+        </xpath>
         <xpath expr="//t[@t-call]" position="replace">
             <t t-call="sgc_construction_management.external_layout_sgc">
                 <t t-out="0"/>
