@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- PDF QWEB TEMPLATE – base template for PDF export                 -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <template id="sgc_financial_report_template">
+        <t t-call="web.external_layout">
+            <t t-set="title">SGC Financial Report</t>
+            <div class="page">
+                <div class="sgc_report_header">
+                    <h2 t-esc="object.company_id.name"/>
+                    <h3 t-esc="object.report_type.replace('_', ' ').title()"/>
+                    <p>
+                        <span>From </span>
+                        <span t-esc="object.date_from"/>
+                        <span> to </span>
+                        <span t-esc="object.date_to"/>
+                    </p>
+                </div>
+                <div class="sgc_report_body">
+                    <t t-raw="object.result_html"/>
+                </div>
+                <div class="sgc_report_footer" t-if="object.company_id.sgc_dfr_report_footer">
+                    <p t-esc="object.company_id.sgc_dfr_report_footer"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Inline QWeb template for HTML report rendering                  -->
+    <!-- (Used by the report engine to build the result_html field)      -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <template id="sgc_report_table_template" name="SGC Report Table">
+        <div class="sgc-report">
+            <table class="table table-bordered table-sm o_sgc_report_table">
+                <thead>
+                    <tr class="table-primary">
+                        <t t-foreach="columns" t-as="col">
+                            <th t-esc="col"/>
+                        </t>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="lines" t-as="line">
+                        <tr t-attf-class="{{line.get('css_class', '')}}">
+                            <t t-foreach="columns" t-as="col">
+                                <td t-esc="line.get(col, '')"/>
+                            </t>
+                        </tr>
+                    </t>
+                </tbody>
+                <tfoot t-if="totals">
+                    <tr class="font-weight-bold bg-light">
+                        <t t-foreach="columns" t-as="col">
+                            <td t-esc="totals.get(col, '')"/>
+                        </t>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </template>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Configuration menu under Settings                                -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_menu_configuration" model="ir.ui.menu">
+        <field name="name">Configuration</field>
+        <field name="parent_id" ref="sgc_dfr_menu_root"/>
+        <field name="sequence">999</field>
+        <field name="group_ids" eval="[(6, 0, [ref('sgc_dfr_group_manager')])]"/>
+    </record>
+
+    <menuitem
+        id="sgc_dfr_menu_account_type_mapping"
+        name="Account Type Mappings"
+        parent="sgc_dfr_menu_configuration"
+        action="sgc_dfr_action_account_type_mapping"
+        sequence="10"
+        groups="sgc_dynamic_financial_report.sgc_dfr_group_manager"
+    />
+
+</odoo>

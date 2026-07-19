@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo noupdate="0">
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Access Rights Category                                          -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_category" model="ir.module.category">
+        <field name="name">SGC Dynamic Financial Reports</field>
+        <field name="description">Access rights for SGC Dynamic Financial Reports</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <!-- Odoo 19 moved group categorization from res.groups.category_id
+         (removed) to a res.groups.privilege record referenced via
+         res.groups.privilege_id. -->
+    <record id="sgc_dfr_privilege" model="res.groups.privilege">
+        <field name="name">SGC Dynamic Financial Reports</field>
+        <field name="category_id" ref="sgc_dfr_category"/>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Group: User – can view and use financial reports                -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_group_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="privilege_id" ref="sgc_dfr_privilege"/>
+        <field name="comment">
+            Users in this group can view and generate SGC Dynamic Financial Reports
+            (Balance Sheet, P&amp;L, Cash Flow, Trial Balance, General Ledger, etc.).
+            They can set report parameters and export to Excel but cannot modify
+            the account type mapping configuration.
+        </field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Group: Manager – can view, use, and configure reports           -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_group_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="privilege_id" ref="sgc_dfr_privilege"/>
+        <field name="comment">
+            Managers have the same capabilities as Users plus the ability to
+            configure account type to financial statement mappings and modify
+            report layout preferences. They can also access advanced filtering
+            options such as analytic dimension configuration.
+        </field>
+        <field name="implied_ids" eval="[(4, ref('sgc_dfr_group_user'))]"/>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Group: Admin – full access including model administration       -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_group_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="privilege_id" ref="sgc_dfr_privilege"/>
+        <field name="comment">
+            Administrators have unrestricted access to all SGC Dynamic Financial
+            Report features including the ability to create, modify, and delete
+            account type mappings, configure company-level report settings, and
+            manage access rights for other users.
+        </field>
+        <field name="implied_ids" eval="[(4, ref('sgc_dfr_group_manager'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+    </record>
+
+</odoo>

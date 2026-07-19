@@ -1,0 +1,184 @@
+// ─────────────────────────────────────────────────────────────────────
+// SGC Dynamic Financial Reports – Frontend Styles
+// ─────────────────────────────────────────────────────────────────────
+// These styles are loaded in web.assets_frontend.
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Report Container ────────────────────────────────────────────────
+.o_sgc_report_container {
+    margin: 0 -16px;
+    padding: 0 16px;
+
+    .sgc-report {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}
+
+// ── Report Table ─────────────────────────────────────────────────────
+.o_sgc_report_table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+
+    th,
+    td {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #dee2e6;
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    th {
+        background-color: #007bff;
+        color: #ffffff;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    td:first-child,
+    th:first-child {
+        text-align: left;
+    }
+
+    // Section header rows (group by account type, partner, etc.)
+    tr.section-header td {
+        background-color: #e9ecef;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    // Total / subtotal rows
+    tr.total-row td {
+        background-color: #d1ecf1;
+        font-weight: 700;
+        border-top: 2px solid #0c5460;
+    }
+
+    // Grand total row
+    tr.grand-total td {
+        background-color: #cce5ff;
+        font-weight: 700;
+        border-top: 3px double #004085;
+        font-size: 14px;
+    }
+
+    // Negative amounts
+    .negative {
+        color: #dc3545;
+    }
+
+    // Positive amounts
+    .positive {
+        color: #28a745;
+    }
+
+    // Zero balance rows (when not hidden)
+    tr.zero-balance {
+        color: #6c757d;
+        font-style: italic;
+    }
+
+    // Hover effect
+    tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+
+    // Indentation for hierarchy
+    td.indent-1 { padding-left: 1.5rem; }
+    td.indent-2 { padding-left: 2.5rem; }
+    td.indent-3 { padding-left: 3.5rem; }
+    td.indent-4 { padding-left: 4.5rem; }
+}
+
+// ── Report Header / Footer ──────────────────────────────────────────
+.sgc_report_header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #007bff;
+
+    h2 {
+        font-size: 18px;
+        margin-bottom: 0.25rem;
+        color: #212529;
+    }
+
+    h3 {
+        font-size: 15px;
+        margin-bottom: 0.25rem;
+        color: #495057;
+    }
+
+    p {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+}
+
+.sgc_report_footer {
+    margin-top: 2rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #dee2e6;
+    text-align: center;
+    font-size: 10px;
+    color: #6c757d;
+}
+
+// ── Loading State ───────────────────────────────────────────────────
+.sgc-financial-report-widget {
+    &.o_loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+    }
+}
+
+.sgc_report_loading {
+    text-align: center;
+    padding: 3rem;
+}
+
+// ── Report Toolbar ──────────────────────────────────────────────────
+.sgc_report_toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+
+    .sgc_report_title {
+        margin-left: auto;
+        font-weight: 600;
+        font-size: 14px;
+        color: #495057;
+    }
+}
+
+// ── Print Styles ────────────────────────────────────────────────────
+@media print {
+    .sgc_report_toolbar {
+        display: none !important;
+    }
+
+    .o_sgc_report_table {
+        th {
+            background-color: #ddd !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+
+    .sgc_report_header h2,
+    .sgc_report_header h3 {
+        color: #000 !important;
+    }
+}

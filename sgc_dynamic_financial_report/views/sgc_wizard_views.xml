@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- WIZARD FORM VIEW                                                 -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_wizard_view_form" model="ir.ui.view">
+        <field name="name">sgc.financial.report.wizard.view.form</field>
+        <field name="model">sgc.financial.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Financial Report" create="0" delete="0" edit="0">
+                <header>
+                    <button name="action_generate_report" string="Generate Report" type="object" class="oe_highlight"/>
+                    <button name="action_export_xlsx" string="Export XLSX" type="object" class="btn-secondary" icon="fa-file-excel-o"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,computed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="report_type" readonly="1" widget="radio" nolabel="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="company_group" string="Company">
+                            <field name="company_id" options="{'no_open': True}"/>
+                        </group>
+                        <group name="date_group" string="Date Range">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <group name="comparison_group" string="Period Comparison">
+                        <group>
+                            <field name="enable_comparison"/>
+                        </group>
+                        <group>
+                            <field name="comparison_date_from" invisible="not enable_comparison" required="enable_comparison"/>
+                            <field name="comparison_date_to" invisible="not enable_comparison" required="enable_comparison"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="filters" string="Filters">
+                            <group>
+                                <group name="account_filter" string="Accounts">
+                                    <field name="account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="account_group_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="target_move" widget="radio"/>
+                                </group>
+                                <group name="partner_filter" string="Partners">
+                                    <field name="partner_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                    <field name="partner_category_id"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group name="analytic_filter" string="Analytic">
+                                    <field name="analytic_account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                </group>
+                                <group name="journal_filter" string="Journals">
+                                    <field name="journal_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="display" string="Display Options">
+                            <group>
+                                <group>
+                                    <field name="show_hierarchy"/>
+                                    <field name="show_zero_balance"/>
+                                    <field name="hide_parent_hierarchy"/>
+                                </group>
+                                <group>
+                                    <field name="tax_grid" invisible="report_type != 'tax_report'"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- WIZARD RESULT VIEW                                               -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_wizard_view_result" model="ir.ui.view">
+        <field name="name">sgc.financial.report.wizard.view.result</field>
+        <field name="model">sgc.financial.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Report Result" create="0" delete="0" edit="0">
+                <header>
+                    <button name="action_export_xlsx" string="Export XLSX" type="object" class="oe_highlight" icon="fa-file-excel-o"/>
+                    <button name="action_generate_report" string="Refresh" type="object" class="btn-secondary" icon="fa-refresh"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h2>
+                            <field name="report_type" readonly="1"/>
+                            <span> – </span>
+                            <field name="company_id" readonly="1"/>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_from" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="o_sgc_report_container">
+                        <field name="result_html" nolabel="1" readonly="1" widget="html"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
