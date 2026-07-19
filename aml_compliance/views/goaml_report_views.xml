@@ -135,7 +135,7 @@
                         </page>
                         <page string="Related Invoices" name="invoices">
                             <field name="related_invoice_ids">
-                                <list>
+                                <tree>
                                     <field name="name"/>
                                     <field name="partner_id"/>
                                     <field name="invoice_date"/>
@@ -213,14 +213,16 @@
                 <filter name="filter_filed" string="Filed"
                         domain="[('state','in',['filed','acknowledged'])]"/>
                 <separator/>
-                <filter name="groupby_type" string="Report Type"
-                        context="{'group_by': 'report_type'}"/>
-                <filter name="groupby_state" string="Status"
-                        context="{'group_by': 'state'}"/>
-                <filter name="groupby_partner" string="Customer"
-                        context="{'group_by': 'partner_id'}"/>
-                <filter name="groupby_date" string="Report Date"
-                        context="{'group_by': 'report_date:month'}"/>
+                <group name="group_by">
+                    <filter name="groupby_type" string="Report Type"
+                            context="{'group_by': 'report_type'}"/>
+                    <filter name="groupby_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="groupby_partner" string="Customer"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="groupby_date" string="Report Date"
+                            context="{'group_by': 'report_date:month'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -231,7 +233,7 @@
     <record id="action_goaml_report" model="ir.actions.act_window">
         <field name="name">goAML Reports</field>
         <field name="res_model">aml.goaml.report</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_goaml_report_search"/>
         <field name="context">{'search_default_filter_draft': 1}</field>
         <field name="help" type="html">

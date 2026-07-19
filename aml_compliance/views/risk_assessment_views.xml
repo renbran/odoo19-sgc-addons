@@ -10,7 +10,7 @@
         <field name="name">aml.risk.assessment.list</field>
         <field name="model">aml.risk.assessment</field>
         <field name="arch" type="xml">
-            <tree string="Risk Assessments"
+            <list string="Risk Assessments"
                    decoration-danger="final_risk_level == 'very_high'"
                    decoration-warning="final_risk_level == 'high'"
                    decoration-info="final_risk_level == 'medium'">
@@ -37,7 +37,7 @@
                        decoration-success="state in ('reviewed', 'approved')"
                        decoration-danger="state == 'overridden'"/>
                 <field name="next_review_date"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -138,13 +138,13 @@
                     <notebook>
                         <page string="Factor Scores" name="factor_scores">
                             <field name="factor_score_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="factor_id" readonly="1"/>
                                     <field name="factor_category" readonly="1"/>
                                     <field name="raw_score"/>
                                     <field name="weighted_score" readonly="1"/>
                                     <field name="justification" readonly="1"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
 
@@ -223,7 +223,7 @@
                 <separator/>
                 <filter name="filter_review_overdue" string="Review Overdue"
                         domain="[('next_review_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
-                <group expand="0" string="Group By">
+                <group name="group_by">
                     <filter name="groupby_risk_level" string="Risk Level"
                             context="{'group_by': 'final_risk_level'}"/>
                     <filter name="groupby_state" string="Status"
@@ -241,7 +241,7 @@
     <record id="action_risk_assessment" model="ir.actions.act_window">
         <field name="name">Risk Assessments</field>
         <field name="res_model">aml.risk.assessment</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_risk_assessment_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">

@@ -54,6 +54,26 @@
               action="action_transaction_alert"
               sequence="10"/>
 
+    <menuitem id="menu_aml_investigation_cases"
+              name="Investigation Cases"
+              parent="menu_aml_monitoring"
+              action="action_investigation_case"
+              sequence="20"/>
+
+    <!-- ======================== -->
+    <!-- EDD & Investigations     -->
+    <!-- ======================== -->
+    <menuitem id="menu_aml_edd"
+              name="Enhanced Due Diligence"
+              parent="menu_aml_section"
+              sequence="35"/>
+
+    <menuitem id="menu_aml_edd_workflows"
+              name="EDD Workflows"
+              parent="menu_aml_edd"
+              action="action_edd_workflow"
+              sequence="10"/>
+
     <!-- ======================== -->
     <!-- Sanctions Screening      -->
     <!-- ======================== -->
@@ -137,6 +157,18 @@
               parent="menu_aml_dashboard"
               action="action_pending_alerts"
               sequence="70"/>
+
+    <menuitem id="menu_aml_dashboard_edd"
+              name="EDD Overview"
+              parent="menu_aml_dashboard"
+              action="action_dashboard_edd"
+              sequence="80"/>
+
+    <menuitem id="menu_aml_dashboard_investigation"
+              name="Case Overview"
+              parent="menu_aml_dashboard"
+              action="action_dashboard_investigation"
+              sequence="90"/>
 
     <!-- ======================== -->
     <!-- AML Configuration        -->

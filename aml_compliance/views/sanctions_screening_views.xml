@@ -7,7 +7,7 @@
         <field name="name">aml.sanctions.list.tree</field>
         <field name="model">aml.sanctions.list</field>
         <field name="arch" type="xml">
-            <list>
+            <tree>
                 <field name="listed_name"/>
                 <field name="list_source" widget="badge"/>
                 <field name="listed_type"/>
@@ -69,10 +69,12 @@
                 <filter name="filter_ofac" string="OFAC"
                         domain="[('list_source','=','ofac')]"/>
                 <separator/>
-                <filter name="groupby_source" string="List Source"
-                        context="{'group_by': 'list_source'}"/>
-                <filter name="groupby_type" string="Type"
-                        context="{'group_by': 'listed_type'}"/>
+                <group name="group_by">
+                    <filter name="groupby_source" string="List Source"
+                            context="{'group_by': 'list_source'}"/>
+                    <filter name="groupby_type" string="Type"
+                            context="{'group_by': 'listed_type'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -80,7 +82,7 @@
     <record id="action_sanctions_list" model="ir.actions.act_window">
         <field name="name">Sanctions Lists</field>
         <field name="res_model">aml.sanctions.list</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_sanctions_list_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Add a sanctions list entry</p>
@@ -188,10 +190,12 @@
                 <filter name="filter_match" string="Confirmed Matches"
                         domain="[('state','=','match')]"/>
                 <separator/>
-                <filter name="groupby_state" string="Status"
-                        context="{'group_by': 'state'}"/>
-                <filter name="groupby_source" string="List Source"
-                        context="{'group_by': 'match_source'}"/>
+                <group name="group_by">
+                    <filter name="groupby_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="groupby_source" string="List Source"
+                            context="{'group_by': 'match_source'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -199,7 +203,7 @@
     <record id="action_screening_result" model="ir.actions.act_window">
         <field name="name">Screening Results</field>
         <field name="res_model">aml.screening.result</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_screening_result_search"/>
         <field name="context">{'search_default_filter_pending': 1}</field>
         <field name="help" type="html">

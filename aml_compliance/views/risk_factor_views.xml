@@ -51,7 +51,7 @@
     <record id="action_risk_factor" model="ir.actions.act_window">
         <field name="name">Risk Factors</field>
         <field name="res_model">aml.risk.factor</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Configure risk factors
@@ -128,8 +128,10 @@
                         domain="[('risk_level', '=', 'elevated')]"/>
                 <filter name="filter_active" string="Currently Listed"
                         domain="[('date_delisted', '=', False)]"/>
-                <filter name="groupby_risk" string="Risk Level"
-                        context="{'group_by': 'risk_level'}"/>
+                <group name="group_by">
+                    <filter name="groupby_risk" string="Risk Level"
+                            context="{'group_by': 'risk_level'}"/>
+                </group>
             </search>
         </field>
     </record>
@@ -137,7 +139,7 @@
     <record id="action_fatf_jurisdiction" model="ir.actions.act_window">
         <field name="name">FATF Jurisdictions</field>
         <field name="res_model">aml.fatf.jurisdiction</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_fatf_jurisdiction_search"/>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
