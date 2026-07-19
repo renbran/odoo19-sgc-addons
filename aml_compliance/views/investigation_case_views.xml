@@ -78,7 +78,7 @@
                     <notebook>
                         <page string="Alerts" name="alerts">
                             <field name="alert_ids">
-                                <tree>
+                                <list>
                                     <field name="name"/>
                                     <field name="alert_date"/>
                                     <field name="rule_id"/>

@@ -7,7 +7,7 @@
         <field name="name">aml.sanctions.list.tree</field>
         <field name="model">aml.sanctions.list</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="listed_name"/>
                 <field name="list_source" widget="badge"/>
                 <field name="listed_type"/>

@@ -145,7 +145,7 @@ docker-compose up -d</pre>
         <field name="name">aml.opensanctions.config.tree</field>
         <field name="model">aml.opensanctions.config</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="mode" widget="badge"/>
                 <field name="api_url"/>
