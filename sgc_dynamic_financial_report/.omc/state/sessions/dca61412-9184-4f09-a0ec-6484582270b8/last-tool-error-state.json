@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"/c/Users/USER/vps-root-planning/module_generator_v19/addons\\\" && rm -f sgc_dynamic_financial_report/sgc_dynamic_financial_report-19.0.1.0.0.tar.gz && tar czf sgc_dynamic_financial_rep...",
+  "error": "Exit code 1\ntar: sgc_dynamic_financial_report: file changed as we read it",
+  "timestamp": "2026-07-19T08:52:52.628Z",
+  "retry_count": 2
+}

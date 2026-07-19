@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Search view for account type mapping                            -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_account_type_view_search" model="ir.ui.view">
+        <field name="name">sgc.dfr.account.type.view.search</field>
+        <field name="model">sgc.dfr.account.type</field>
+        <field name="arch" type="xml">
+            <search string="Search Account Type Mapping">
+                <field name="account_type"/>
+                <field name="financial_section"/>
+                <separator/>
+                <filter string="Assets" name="filter_assets" domain="[('financial_section', '=', 'assets')]"/>
+                <filter string="Liabilities" name="filter_liabilities" domain="[('financial_section', '=', 'liabilities')]"/>
+                <filter string="Equity" name="filter_equity" domain="[('financial_section', '=', 'equity')]"/>
+                <filter string="Revenue" name="filter_revenue" domain="[('financial_section', '=', 'revenue')]"/>
+                <filter string="Expenses" name="filter_expenses" domain="[('financial_section', '=', 'expenses')]"/>
+                <filter string="Other" name="filter_other" domain="[('financial_section', '=', 'other')]"/>
+                <separator/>
+                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Financial Section" name="group_section" context="{'group_by': 'financial_section'}"/>
+                    <filter string="Account Type" name="group_account_type" context="{'group_by': 'account_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- List view for account type mapping                              -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_account_type_view_list" model="ir.ui.view">
+        <field name="name">sgc.dfr.account.type.view.list</field>
+        <field name="model">sgc.dfr.account.type</field>
+        <field name="arch" type="xml">
+            <list string="Account Type Mappings" decoration-danger="not active" decoration-success="active">
+                <field name="sequence" widget="handle"/>
+                <field name="account_type"/>
+                <field name="financial_section"/>
+                <field name="active" widget="boolean_toggle" invisible="not context.get('show_active')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Form view for account type mapping                              -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_account_type_view_form" model="ir.ui.view">
+        <field name="name">sgc.dfr.account.type.view.form</field>
+        <field name="model">sgc.dfr.account.type</field>
+        <field name="arch" type="xml">
+            <form string="Account Type Mapping">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="account_type"/>
+                        </group>
+                        <group>
+                            <field name="financial_section"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Action window for account type mapping                          -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_action_account_type_mapping" model="ir.actions.act_window">
+        <field name="name">Account Type Mappings</field>
+        <field name="res_model">sgc.dfr.account.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sgc_dfr_account_type_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure account type to financial statement section mappings
+            </p>
+            <p>
+                Map each Odoo account type to the appropriate financial statement
+                section (Assets, Liabilities, Equity, Revenue, Expenses, or Other).
+                These mappings drive the classification logic in all SGC Dynamic
+                Financial Reports.
+            </p>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Noupdate section – default data created by post_init_hook       -->
+    <!-- This data block is kept for reference and future pre-seeding.   -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <data noupdate="1">
+
+        <!-- Default account type -> financial section mappings are created
+             by the post_init_hook (hooks/post_init_hook.py), not here. -->
+
+    </data>
+
+</odoo>
