@@ -13,11 +13,25 @@ class ksDynamicFinancialReportController(http.Controller):
 
     @http.route(['/dfr/pdf/download'], type='http', auth='public', methods=['POST'], csrf=False)
     def download_pdf_report(self, **post):
+        # Support both FormData (new JS) and JSON-RPC body (cached old JS)
+        if not post.get('id'):
+            try:
+                body = request.httprequest.get_json(force=True, silent=True)
+                if body and isinstance(body, dict):
+                    params = body.get('params', body)
+                    post = {k: v for k, v in params.items() if v is not None}
+            except Exception:
+                pass
         id = post.get('id')
-        data = json.loads(post.get('data', '{}'))
-        context = json.loads(post.get('context', '{}'))
+        data = json.loads(post.get('data', '{}')) if isinstance(post.get('data'), str) else (post.get('data') or {})
+        context = json.loads(post.get('context', '{}')) if isinstance(post.get('context'), str) else (post.get('context') or {})
         reportname = post.get('reportname')
-        pdf = request.env['ir.actions.report'].sudo().with_context(context)._render_qweb_pdf(reportname, id, data)[0]
+        if not id or not reportname:
+            return request.make_response('Missing id or reportname', status=400)
+        try:
+            pdf = request.env['ir.actions.report'].sudo().with_context(context)._render_qweb_pdf(reportname, id, data)[0]
+        except Exception as e:
+            return request.make_response(f'Report rendering failed: {html_escape(str(e))}', status=500)
         return request.make_response(pdf, headers=[
             ('Content-Type', 'application/pdf'),
             ('Content-Disposition', f'{reportname}.pdf'),
