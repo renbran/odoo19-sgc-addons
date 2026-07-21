@@ -11,16 +11,18 @@ import json
 
 class ksDynamicFinancialReportController(http.Controller):
 
-    @http.route(['/dfr/pdf/download'], type='jsonrpc', auth='public', methods=['POST', 'GET'], csrf=False)
-    def download_pdf_report(self, id, data, context, reportname):
-
-        pdf = request.env['ir.actions.report'].sudo().with_context(context)._render_qweb_pdf(reportname, id,data)[0]
-        pdfhttpheaders = [
+    @http.route(['/dfr/pdf/download'], type='http', auth='public', methods=['POST'], csrf=False)
+    def download_pdf_report(self, **post):
+        id = post.get('id')
+        data = json.loads(post.get('data', '{}'))
+        context = json.loads(post.get('context', '{}'))
+        reportname = post.get('reportname')
+        pdf = request.env['ir.actions.report'].sudo().with_context(context)._render_qweb_pdf(reportname, id, data)[0]
+        return request.make_response(pdf, headers=[
             ('Content-Type', 'application/pdf'),
-            ('Content-Length', len(pdf)),
             ('Content-Disposition', f'{reportname}.pdf'),
-        ]
-        return pdf
+            ('Content-Length', len(pdf)),
+        ])
 
     @http.route('/ks_dynamic_financial_report', type='http', auth='user', methods=['POST'], csrf=False)
     def get_report(self, model, ks_df_informations, output_format, financial_id=None, **kw):

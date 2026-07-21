@@ -21,7 +21,6 @@ import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { MultiRecordSelector } from "@web/core/record_selectors/multi_record_selector";
 import { downloadFile } from "@web/core/network/download";
 import { ensureJQuery } from "@web/core/ensure_jquery";
-import { rpc } from "@web/core/network/rpc";
 
 
 function $(selector, context) { return window.$(selector, context); }
@@ -716,21 +715,22 @@ export class ksDynamicReportsWidget extends Component {
             var report_name = self.ksGetReportName();
             var action = self.ksGetReportAction(report_name, data);
             self.props.action.context['OFFSET']=false;
-             var pdf_report = await rpc("/dfr/pdf/download", {
-                id: self.props.action.context.id,
-                data: action.data,
-                context: action.context,
-                reportname: report_name
+            var formData = new FormData();
+            formData.append('id', self.props.action.context.id);
+            formData.append('data', JSON.stringify(action.data));
+            formData.append('context', JSON.stringify(action.context));
+            formData.append('reportname', report_name);
+            const response = await fetch("/dfr/pdf/download", {
+                method: 'POST',
+                body: formData,
             });
-            return pdf_report;
+            if (!response.ok) {
+                throw new Error(`PDF download failed: ${response.statusText}`);
+            }
+            return await response.blob();
         });
         var filename = self.props.action.name;
-        const byteArray = new Uint8Array(pdf_data.length);
-        for (let i = 0; i < pdf_data.length; i++) {
-            byteArray[i] = pdf_data.charCodeAt(i);
-        }
-        const blob = new Blob([byteArray], { type: "application/pdf" });
-        await downloadFile(blob, filename, "application/pdf");
+        await downloadFile(pdf_data, filename, "application/pdf");
     }
     async ksPrintReportXlsx() {
 
