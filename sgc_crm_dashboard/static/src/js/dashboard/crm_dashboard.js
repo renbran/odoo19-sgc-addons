@@ -13,6 +13,7 @@ export class CrmDashboard extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
+        this.action = useService("action");
         this.state = useState({
             kpi: {},
             funnel: [],
@@ -260,6 +261,27 @@ export class CrmDashboard extends Component {
     daysLabel(days) {
         if (days === null || days === undefined) return "No activity";
         return days + "d";
+    }
+}
+
+    filterMoveToday() {
+        const self = this;
+        this.orm.call("crm.dashboard", "get_moved_today_leads", []).then(leadIds => {
+            if (!leadIds || leadIds.length === 0) {
+                self.notification.add("No leads moved out of New stage today", { type: "info" });
+                return;
+            }
+            self.action.doAction({
+                type: "ir.actions.act_window",
+                res_model: "crm.lead",
+                views: [[false, "list"], [false, "form"]],
+                domain: [["id", "in", leadIds]],
+                context: {},
+                name: "Leads Moved Today",
+            });
+        }).catch(e => {
+            self.notification.add("Failed to fetch moved leads", { type: "danger" });
+        });
     }
 }
 

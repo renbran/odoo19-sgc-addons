@@ -425,3 +425,26 @@ class CRMDashboard(models.AbstractModel):
             "activity_types": act_types,
             "recent_leads": recent_leads,
         }
+
+    @api.model
+    def get_moved_today_leads(self, user_id=None):
+        """Return IDs of leads that moved out of New stage (stage_id=1) today."""
+        cr = self.env.cr
+        fu_user_filter = ""
+        fu_params = []
+        if user_id:
+            fu_user_filter = "AND mtv.create_uid = %s"
+            fu_params = [user_id]
+        cr.execute(f""" 
+            SELECT DISTINCT mtv.res_id
+            FROM mail_tracking_value mtv
+            JOIN ir_model_fields imf ON imf.id = mtv.field
+            WHERE imf.model = 'crm.lead'
+              AND imf.name = 'stage_id'
+              AND mtv.create_date::date = CURRENT_DATE
+              AND mtv.old_value_integer = 1
+              {fu_user_filter}
+            ORDER BY mtv.res_id
+        """, fu_params)
+        return [r[0] for r in cr.fetchall()]
+
