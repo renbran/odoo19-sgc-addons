@@ -96,6 +96,15 @@ class CRMDashboard(models.AbstractModel):
         """, fu_params)
         outreach_email = cr.fetchone()[0] or 0
 
+        # Proposal: active leads in "Proposal" stage (stage_id = 9)
+        cr.execute(f"""
+            SELECT COUNT(*)
+            FROM crm_lead l
+            WHERE l.active = true AND l.stage_id = 9
+              {fu_user_filter}
+        """, fu_params)
+        proposal = cr.fetchone()[0] or 0
+
         # Objection Ranking: count of objections per objection name
         cr.execute(f"""
             SELECT o.name->>'en_US' as objection, COUNT(l.id) as count
@@ -279,6 +288,7 @@ class CRMDashboard(models.AbstractModel):
                 "follow_up": follow_up,
                 "research_done": research_done,
                 "outreach_email": outreach_email,
+                "proposal": proposal,
                 "booked": booked,
                 "daily_activity": daily_activity,
                 "total_orders": total_orders,
