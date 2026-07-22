@@ -114,7 +114,7 @@ class CRMDashboard(models.AbstractModel):
         cr.execute(f"""
             SELECT COUNT(*)
             FROM mail_tracking_value mtv
-            JOIN ir_model_fields imf ON imf.id = mtv.field_id
+            JOIN ir_model_fields imf ON imf.id = mtv.field_id_id
             WHERE imf.model = 'crm.lead'
               AND imf.name = 'stage_id'
               AND mtv.create_date::date = CURRENT_DATE
@@ -438,7 +438,7 @@ class CRMDashboard(models.AbstractModel):
         cr.execute(f""" 
             SELECT DISTINCT mtv.res_id
             FROM mail_tracking_value mtv
-            JOIN ir_model_fields imf ON imf.id = mtv.field
+            JOIN ir_model_fields imf ON imf.id = mtv.field_id
             WHERE imf.model = 'crm.lead'
               AND imf.name = 'stage_id'
               AND mtv.create_date::date = CURRENT_DATE
