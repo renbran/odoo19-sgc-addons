@@ -204,8 +204,8 @@
             </t>
 
             <!-- KPI Cards Row -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-md-3">
+            <div class="row g-3 mb-4 px-3 row-cols-2 row-cols-md-5">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-leads h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -220,7 +220,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-pipeline h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -235,7 +235,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-won h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -250,7 +250,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-lost h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -262,11 +262,26 @@
                                     <i class="fa fa-times-circle fa-lg" style="color:#FF5A5F;"/>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card o_kpi_card o_kpi-activity h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Today's Activity</div>
+                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.daily_activity)"/>
+                                    <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">leads touched today</div>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
+                                    <i class="fa fa-bolt fa-lg" style="color:#4DA3FF;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-
             <!-- Follow Up / Research Done / Email Outreach / Meeting Booked / Proposal -->
             <div class="row g-3 mb-4 px-3 row-cols-2 row-cols-md-5">
                 <div class="col">
@@ -341,52 +356,6 @@
                                     <i class="fa fa-file-text-o fa-lg" style="color:#9B59B6;"/>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-                        <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-3">
-                    <div class="card o_kpi_card o_kpi-activity h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Today's Activity</div>
-                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.daily_activity)"/>
-                                    <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">leads touched today</div>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
-                                    <i class="fa fa-bolt fa-lg" style="color:#4DA3FF;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sales Orders Row -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Total Orders</div>
-                            <div class="o_kpi_value" t-esc="formatNumber(state.kpi.total_orders)"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Confirmed Orders</div>
-                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatNumber(state.kpi.confirmed_orders)"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Revenue</div>
-                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatCurrency(state.kpi.confirmed_revenue)"/>
                         </div>
                     </div>
                 </div>
