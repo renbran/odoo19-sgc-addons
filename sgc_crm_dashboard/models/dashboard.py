@@ -105,6 +105,24 @@ class CRMDashboard(models.AbstractModel):
         """, fu_params)
         proposal = cr.fetchone()[0] or 0
 
+        # New to Moved: leads moved out of "New" stage (old_value_integer = 1) today
+        mt_fu_filter, mt_fu_params = "", []
+        if user_id:
+            mt_fu_filter, mt_fu_params = "AND mtv.create_uid = %s", [user_id]
+        elif not is_admin:
+            mt_fu_filter, mt_fu_params = "AND mtv.create_uid IN %s", [tuple(target_ids)]
+        cr.execute(f"""
+            SELECT COUNT(*)
+            FROM mail_tracking_value mtv
+            JOIN ir_model_fields imf ON imf.id = mtv.field_id
+            WHERE imf.model = 'crm.lead'
+              AND imf.name = 'stage_id'
+              AND mtv.create_date::date = CURRENT_DATE
+              AND mtv.old_value_integer = 1
+              {mt_fu_filter}
+        """, mt_fu_params)
+        new_to_moved = cr.fetchone()[0] or 0
+
         # Objection Ranking: count of objections per objection name
         cr.execute(f"""
             SELECT o.name->>'en_US' as objection, COUNT(l.id) as count
@@ -289,6 +307,7 @@ class CRMDashboard(models.AbstractModel):
                 "research_done": research_done,
                 "outreach_email": outreach_email,
                 "proposal": proposal,
+                "new_to_moved": new_to_moved,
                 "booked": booked,
                 "daily_activity": daily_activity,
                 "total_orders": total_orders,
