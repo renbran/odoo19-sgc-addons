@@ -263,14 +263,10 @@ export class CrmDashboard extends Component {
         return days + "d";
     }
 
-    filterMoveToday() {
-        const self = this;
-        this.orm.call("crm.dashboard", "get_moved_today_leads", []).then(leadIds => {
-            if (!leadIds || leadIds.length === 0) {
-                self.notification.add("No leads moved out of New stage today", { type: "info" });
+    filterMoveToday() {this.orm.call("crm.dashboard", "get_moved_today_leads", []).then(leadIds => {
+            if (!leadIds || leadIds.length === 0) {this.notification.add("No leads moved out of New stage today", { type: "info" });
                 return;
-            }
-            self.action.doAction({
+            }this.action.doAction({
                 type: "ir.actions.act_window",
                 res_model: "crm.lead",
                 views: [[false, "list"], [false, "form"]],
@@ -278,8 +274,7 @@ export class CrmDashboard extends Component {
                 context: {},
                 name: "Leads Moved Today",
             });
-        }).catch(e => {
-            self.notification.add("Failed to fetch moved leads", { type: "danger" });
+        }).catch(e => {this.notification.add("Failed to fetch moved leads", { type: "danger" });
         });
     }
 }
