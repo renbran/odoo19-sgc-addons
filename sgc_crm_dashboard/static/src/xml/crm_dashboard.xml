@@ -330,6 +330,24 @@
                     </div>
                 </div>
             </div>
+            <!-- Proposal -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-6 col-md-3">
+                    <div class="card o_kpi_card h-100" style="border-top:3px solid #9B59B6;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Proposal</div>
+                                    <div class="o_kpi_value" style="color:#9B59B6;" t-esc="formatNumber(state.kpi.proposal)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(155,89,182,0.15);">
+                                    <i class="fa fa-file-text-o fa-lg" style="color:#9B59B6;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="row g-3 mb-4 px-3">
                 <div class="col-6 col-md-3">
                     <div class="card o_kpi_card o_kpi-activity h-100">
