@@ -267,9 +267,9 @@
     </div>
 </div>
 
-            <!-- Follow Up / Research Done / Outreach Email / Meeting Booked / Daily Activity Row -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-3">
+            <!-- Follow Up / Research Done / Email Outreach / Meeting Booked / Proposal -->
+            <div class="row g-3 mb-4 px-3 row-cols-2 row-cols-md-5">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-follow-up h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -284,7 +284,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -299,7 +299,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -314,7 +314,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-booked h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -329,9 +329,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #9B59B6;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -347,7 +345,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row g-3 mb-4 px-3">
+                        <div class="row g-3 mb-4 px-3">
                 <div class="col-6 col-md-3">
                     <div class="card o_kpi_card o_kpi-activity h-100">
                         <div class="card-body">
