@@ -364,7 +364,7 @@
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <div class="o_kpi_label">New ??? Moved Today</div>
+                                    <div class="o_kpi_label">New → Moved Today</div>
                                     <div class="o_kpi_value" style="color:#E67E22;" t-esc="formatNumber(state.kpi.new_to_moved)"/>
                                     <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">moved out of New stage</div>
                                 </div>
