@@ -403,7 +403,7 @@ class GoAMLReport(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Linked Alerts'),
             'res_model': 'aml.transaction.alert',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('goaml_report_id', '=', self.id)],
             'context': {'default_goaml_report_id': self.id},
         }

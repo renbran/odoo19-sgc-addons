@@ -68,7 +68,7 @@ class KYCApplicationAML(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Risk Assessments'),
             'res_model': 'aml.risk.assessment',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('kyc_application_id', '=', self.id)],
             'context': {
                 'default_kyc_application_id': self.id,
