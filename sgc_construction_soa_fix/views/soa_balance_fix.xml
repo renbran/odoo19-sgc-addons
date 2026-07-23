@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Fixes report_soa_template's Balance column to use amount_residual
+    (actual outstanding amount) instead of amount_total (full invoiced
+    amount, regardless of payment). The Amount column is untouched - it
+    correctly continues to show each transaction's full value as a
+    historical record. Adds a pre-computed mini summary above the table
+    and a highlighted totals row below it.
+-->
+
+    <template id="report_soa_template_balance_fix"
+              inherit_id="sgc_construction_management.report_soa_template">
+
+        <!-- Mini summary (top): pre-computed independently of the
+             per-row running-balance loop below, so it can render before
+             the table exists. Uses the same amount_residual logic. -->
+        <xpath expr="//table" position="before">
+            <t t-set="soa_invoices_summary"
+               t-value="o.invoice_ids.filtered(lambda i: i.state == 'posted' and i.move_type in ('out_invoice', 'out_refund'))"/>
+            <t t-set="soa_currency"
+               t-value="soa_invoices_summary[0].currency_id if soa_invoices_summary else company.currency_id"/>
+            <t t-set="total_invoiced_summary"
+               t-value="sum(soa_invoices_summary.mapped(lambda i: i.amount_total if i.move_type == 'out_invoice' else -i.amount_total))"/>
+            <t t-set="balance_summary"
+               t-value="sum(soa_invoices_summary.mapped(lambda i: i.amount_residual if i.move_type == 'out_invoice' else -i.amount_residual))"/>
+            <div class="row mt-3 mb-2">
+                <div class="col-6">
+                    <div class="border rounded p-2"
+                         style="background-color:#f8f9fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                        <small class="text-muted">TOTAL INVOICED</small><br/>
+                        <strong><t t-esc="total_invoiced_summary" t-options='{"widget": "monetary", "display_currency": soa_currency}'/></strong>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="border rounded p-2"
+                         style="background-color:#f8f9fa;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                        <small class="text-muted">OUTSTANDING BALANCE</small><br/>
+                        <strong><t t-esc="balance_summary" t-options='{"widget": "monetary", "display_currency": soa_currency}'/></strong>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Track the gross total alongside the (soon to be corrected)
+             running balance, for the totals row. -->
+        <xpath expr="//t[@t-set='balance' and @t-value='0']" position="after">
+            <t t-set="total_invoiced" t-value="0"/>
+        </xpath>
+
+        <!-- Per-row: compute the residual-based signed amount, and keep
+             tracking the gross total for the totals row. signed_amount
+             (the Amount column) is untouched. -->
+        <xpath expr="//t[@t-set='signed_amount']" position="after">
+            <t t-set="residual_signed"
+               t-value="inv.amount_residual if inv.move_type == 'out_invoice' else -inv.amount_residual"/>
+            <t t-set="total_invoiced" t-value="total_invoiced + signed_amount"/>
+        </xpath>
+
+        <!-- The actual fix: Balance accumulates the outstanding portion,
+             not the full invoiced amount - a paid invoice now
+             contributes 0, exactly as it should. -->
+        <xpath expr="//t[@t-value='balance + signed_amount']" position="attributes">
+            <attribute name="t-value">balance + residual_signed</attribute>
+        </xpath>
+
+        <!-- Totals row, after the per-row loop closes. -->
+        <xpath expr="//t[@t-foreach='soa_invoices']" position="after">
+            <tr class="table-info"
+                style="font-weight:bold;-webkit-print-color-adjust:exact;print-color-adjust:exact;">
+                <td colspan="3">Total</td>
+                <td class="text-end"><t t-esc="total_invoiced" t-options='{"widget": "monetary", "display_currency": soa_currency}'/></td>
+                <td class="text-end"><t t-esc="balance" t-options='{"widget": "monetary", "display_currency": soa_currency}'/></td>
+            </tr>
+        </xpath>
+
+    </template>
+
+</odoo>
