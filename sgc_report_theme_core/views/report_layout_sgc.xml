@@ -35,18 +35,32 @@
     "web.external_layout".
 -->
 
+    <!--
+        2026-07-23 fix: the stock header/article/footer divs use
+        t-attf-class (a QWeb directive), not a plain class attribute -
+        view-inheritance XPath surgery operates on the RAW arch before
+        QWeb directives are evaluated, so hasclass('header') (which
+        specifically checks a literal class="..." attribute) matched
+        nothing and failed module install with "cannot be located in
+        parent view". Match via contains(@t-attf-class, ...) instead, and
+        patch t-attf-class itself (not class) with a full replacement
+        value - not add/remove, to avoid depending on undocumented
+        add/separator semantics for a non-"class" attribute, and to avoid
+        repeating the earlier bug where a second class-bearing attribute
+        on the same element got silently dropped.
+    -->
     <template id="external_layout_sgc" inherit_id="web.external_layout_standard" primary="True">
 
-        <xpath expr="//div[hasclass('header')]" position="attributes">
-            <attribute name="class" add="o_sgc_report" separator=" "/>
+        <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]" position="attributes">
+            <attribute name="t-attf-class">o_sgc_report header o_company_#{company.id}_layout</attribute>
         </xpath>
 
-        <xpath expr="//div[hasclass('article')]" position="attributes">
-            <attribute name="class" add="o_sgc_report" separator=" "/>
+        <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]" position="attributes">
+            <attribute name="t-attf-class">o_sgc_report article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
         </xpath>
 
-        <xpath expr="//div[hasclass('footer')]" position="attributes">
-            <attribute name="class" add="o_sgc_report" separator=" "/>
+        <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="attributes">
+            <attribute name="t-attf-class">o_sgc_report footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}</attribute>
         </xpath>
 
     </template>
