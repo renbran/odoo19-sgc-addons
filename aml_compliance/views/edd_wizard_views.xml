@@ -236,7 +236,7 @@
     <record id="action_edd_response" model="ir.actions.act_window">
         <field name="name">EDD Responses</field>
         <field name="res_model">aml.edd.response</field>
-        <field name="\t\t<field name=" view_mode>list,form</field></field>
+		<field name="view_mode">list,form</field>
     </record>
 
 </odoo>
