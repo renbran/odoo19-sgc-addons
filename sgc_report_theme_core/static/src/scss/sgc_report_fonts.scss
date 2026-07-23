@@ -1,0 +1,84 @@
+// SGC Report Theme - Core: font declarations only.
+//
+// D1-font (Architect refinement, RALPLAN 2026-07-23): family names below are
+// DISTINCT from any family stock Odoo report templates already reference
+// (they use 'Roboto' / the theme default). Rebinding an in-use family name
+// would leak globally into every unbridged report even with zero rulesets
+// below. Do not rename these to 'Roboto' or reuse a stock family name.
+//
+// A @font-face declaration on its own emits no visual change to any
+// existing markup - it only takes effect where content actually sets
+// font-family: 'IBM Plex Sans' / 'IBM Plex Serif', which only happens
+// inside .o_sgc_report (see sgc_report_blocks.scss). This file must never
+// contain anything other than @font-face rules.
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Sans-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Sans-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Sans-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Sans';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Sans-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Serif-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Serif-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Serif-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'IBM Plex Serif';
+    src: url('/sgc_report_theme_core/static/src/fonts/IBM-Plex-Serif-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+// NOTE (Phase 0 font-embedding spike - still to be executed against the
+// live container): wkhtmltopdf 0.12.6.1 has historically been unreliable
+// with @font-face + url() font loading, even for local paths served by the
+// app itself. If the spike shows fallback/boxed glyphs, replace the url()
+// sources above with base64 data-URIs of the same woff2 files rather than
+// changing the family names or this file's structure.

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+<!--
+    New, additive paperformat records. Nothing existing is modified or
+    reassigned - a bridge's report action must explicitly set
+    paperformat_id to one of these for it to take effect on that report.
+-->
+
+    <record id="paperformat_sgc_a4_portrait" model="report.paperformat">
+        <field name="name">SGC A4 Portrait</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">28</field>
+        <field name="margin_bottom">22</field>
+        <field name="margin_left">12</field>
+        <field name="margin_right">12</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">24</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="paperformat_sgc_a4_landscape" model="report.paperformat">
+        <field name="name">SGC A4 Landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">20</field>
+        <field name="margin_bottom">18</field>
+        <field name="margin_left">14</field>
+        <field name="margin_right">14</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">20</field>
+        <field name="dpi">96</field>
+    </record>
+
+</odoo>

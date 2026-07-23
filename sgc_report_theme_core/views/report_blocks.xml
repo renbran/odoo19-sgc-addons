@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    SGC Report Theme - Core: reusable QWeb blocks.
+
+    D2 (core purity, statically assertable): none of these templates carry
+    an inherit_id targeting an ir.actions.report template, external_layout*,
+    or any stock layout - they are new, standalone templates only ever
+    reached via an explicit t-call from a bridge module's own report
+    template or from external_layout_sgc itself. Installing this file alone
+    changes nothing, because nothing calls these templates yet.
+
+    Numeric fidelity (C4/F4): these blocks render structural/metadata markup
+    only. Any bridge that calls block_metadata_grid / block_summary_card
+    with amounts MUST pass the same t-field/t-esc value expression the
+    original stock template used - these blocks must never introduce their
+    own rounding/formatting of monetary or date values.
+-->
+
+    <!-- 1. Brand block -->
+    <template id="block_brand" name="SGC Brand Block">
+        <div class="o_sgc_brand_block">
+            <span class="o_sgc_brand_name" t-esc="company.name"/>
+            <t t-if="company.report_footer_tagline">
+                <div class="o_sgc_brand_tagline" t-esc="company.report_footer_tagline"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- 2. Address block (generic - caller passes a res.partner-like record and a label) -->
+    <template id="block_address" name="SGC Address Block">
+        <div class="o_sgc_address_block">
+            <div class="o_sgc_address_label" t-esc="address_label"/>
+            <div class="o_sgc_address_name" t-field="address_partner.name"/>
+            <div t-field="address_partner"
+                 t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
+        </div>
+    </template>
+
+    <!-- 3. Header (repeats across pages via wkhtmltopdf's header-html mechanism
+         when used as a report's header; also usable inline at top of body) -->
+    <template id="block_header" name="SGC Report Header">
+        <table class="o_sgc_header">
+            <tr>
+                <td style="width:60%;">
+                    <t t-call="sgc_report_theme_core.block_brand"/>
+                </td>
+                <td style="width:40%;text-align:right;">
+                    <t t-if="layout_document_title">
+                        <span t-esc="layout_document_title"
+                              style="font-family:'IBM Plex Serif';font-size:14px;color:#0B1F3A;font-weight:600;"/>
+                    </t>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <!-- 4. Footer (repeats across pages; includes legally-required company info,
+         same fields the stock external_layout footer shows, just restyled) -->
+    <template id="block_footer" name="SGC Report Footer">
+        <table class="o_sgc_footer">
+            <tr>
+                <td style="width:70%;">
+                    <span t-field="company.name"/>
+                    <t t-if="company.phone"> · <span t-field="company.phone"/></t>
+                    <t t-if="company.email"> · <span t-field="company.email"/></t>
+                    <t t-if="company.website"> · <span t-field="company.website"/></t>
+                    <t t-if="company.vat"> · <span t-esc="company.vat"/></t>
+                </td>
+                <td class="o_sgc_footer_pagenum" style="width:30%;">
+                    <span class="page"/> / <span class="topage"/>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <!-- 5. Signature block -->
+    <template id="block_signature" name="SGC Signature Block">
+        <table class="o_sgc_signature_block" style="width:100%;">
+            <tr>
+                <td style="width:50%;">
+                    <div class="o_sgc_signature_line">
+                        <span t-esc="signature_left_label or 'Authorised Signatory'"/>
+                    </div>
+                </td>
+                <td style="width:50%;">
+                    <div class="o_sgc_signature_line">
+                        <span t-esc="signature_right_label or 'Customer Acceptance'"/>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <!-- 6. Status badge (caller passes state_label + a normalized state_class
+         suffix matching one of: draft/open/paid/done/overdue/pending) -->
+    <template id="block_status_badge" name="SGC Status Badge">
+        <span t-attf-class="o_sgc_status_badge o_sgc_status_#{status_class or 'draft'}"
+              t-esc="status_label"/>
+    </template>
+
+    <!-- 7. Metadata grid (caller passes a list of {label, value} dicts via
+         metadata_rows; values must already be the same t-field/t-esc output
+         the stock template used - this block does not reformat them) -->
+    <template id="block_metadata_grid" name="SGC Metadata Grid">
+        <table class="o_sgc_metadata_grid">
+            <t t-foreach="metadata_rows" t-as="row">
+                <tr>
+                    <td class="o_sgc_metadata_label" t-esc="row['label']"/>
+                    <td class="o_sgc_metadata_value" t-esc="row['value']"/>
+                </tr>
+            </t>
+        </table>
+    </template>
+
+    <!-- 8. Summary card (single KPI/total tile; caller supplies the exact
+         formatted value string it already computed, unchanged) -->
+    <template id="block_summary_card" name="SGC Summary Card">
+        <div class="o_sgc_summary_card">
+            <div class="o_sgc_summary_label" t-esc="summary_label"/>
+            <div class="o_sgc_summary_value" t-esc="summary_value"/>
+        </div>
+    </template>
+
+    <!-- 9. Table style: not a t-call block but a class contract - bridges
+         add class="o_sgc_table" to their existing <table> (and
+         class="o_sgc_table_total_row" to their existing totals <tr>)
+         without altering any <td> value expression. Documented here so the
+         convention lives next to the other blocks. -->
+
+    <!-- 10. Watermark -->
+    <template id="block_watermark" name="SGC Watermark">
+        <t t-if="watermark_text">
+            <div class="o_sgc_watermark" t-esc="watermark_text"/>
+        </t>
+    </template>
+
+</odoo>
