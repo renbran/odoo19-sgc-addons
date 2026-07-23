@@ -44,17 +44,23 @@ re-points.
         "views/report_layout_sgc.xml",
         "views/report_blocks.xml",
     ],
-    # All three files live in the SAME bundle (web.report_assets_common) so
-    # SCSS variables defined in sgc_report_tokens.scss are guaranteed to be
-    # in scope for sgc_report_blocks.scss in a single compile pass. Splitting
-    # them across report_assets_common / report_assets_pdf risks a variable-
-    # scope failure since Odoo compiles each bundle independently.
-    # web.report_assets_common is included by both the HTML portal preview
-    # and the PDF render pipeline, so this still satisfies "report bundles
-    # only" (D1) - it is never added to web.assets_frontend, web.assets_common,
-    # or web.assets_backend.
+    # 2026-07-23 fix: web.report_assets_pdf does NOT automatically inline
+    # web.report_assets_common's custom-module contributions - they are
+    # compiled as separate, independent bundles (confirmed empirically: the
+    # compiled report_assets_pdf.min.css attachment had an identical content
+    # hash before and after this module was installed). wkhtmltopdf only
+    # picks up report_assets_pdf, so our SCSS must be declared in BOTH
+    # bundles, in the SAME file order in each, so sgc_report_tokens.scss's
+    # variables stay in scope for sgc_report_blocks.scss within each bundle's
+    # own independent compile pass. Neither bundle is web.assets_frontend,
+    # web.assets_common, or web.assets_backend (D1 still holds).
     "assets": {
         "web.report_assets_common": [
+            "sgc_report_theme_core/static/src/scss/sgc_report_fonts.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_tokens.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_blocks.scss",
+        ],
+        "web.report_assets_pdf": [
             "sgc_report_theme_core/static/src/scss/sgc_report_fonts.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_tokens.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_blocks.scss",
