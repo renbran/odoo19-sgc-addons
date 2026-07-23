@@ -34,6 +34,51 @@
             <attribute name="style">font-family:'IBM Plex Serif';color:#0B1F3A;font-weight:600;</attribute>
         </xpath>
 
+        <!--
+            2026-07-23 (user-requested data fix, not pure re-theming):
+            add a Payment column, and switch the Balance column from each
+            invoice's own residual to the cumulative running_balance
+            models/res_partner.py now computes. Both new fields come from
+            our own main_query() override - no existing value expression
+            is silently changed, this is the explicitly requested new
+            content.
+        -->
+        <xpath expr="//table[2]/thead/tr/th[4]" position="after">
+            <th>Payment</th>
+        </xpath>
+        <xpath expr="//table[2]/tbody/tr/td[4]" position="after">
+            <td><t t-esc="currency"/><t t-esc="line.get('amount_paid', '0.00')"/></td>
+        </xpath>
+        <xpath expr="//table[2]/tbody/tr/td[5]" position="replace">
+            <td><t t-esc="currency"/><t t-esc="line.get('running_balance', '0.00')"/></td>
+        </xpath>
+
+        <!--
+            Mini summary (top): reuses the already-proven block_summary_card
+            component from sgc_report_theme_core, showing the SAME total/
+            balance context variables the original template already prints
+            at the bottom - no new computation, just an at-a-glance repeat
+            near the top of the statement.
+        -->
+        <xpath expr="//table[2]" position="before">
+            <table style="width:100%;margin-bottom:16px;">
+                <tr>
+                    <td style="width:50%;padding-right:8px;">
+                        <t t-call="sgc_report_theme_core.block_summary_card">
+                            <t t-set="summary_label" t-value="'Total Invoiced'"/>
+                            <t t-set="summary_value" t-value="'%s%s' % (currency, total)"/>
+                        </t>
+                    </td>
+                    <td style="width:50%;padding-left:8px;">
+                        <t t-call="sgc_report_theme_core.block_summary_card">
+                            <t t-set="summary_label" t-value="'Outstanding Balance'"/>
+                            <t t-set="summary_value" t-value="'%s%s' % (currency, balance)"/>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+        </xpath>
+
     </template>
 
 </odoo>
