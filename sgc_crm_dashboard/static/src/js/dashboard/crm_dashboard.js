@@ -262,7 +262,6 @@ export class CrmDashboard extends Component {
         if (days === null || days === undefined) return "No activity";
         return days + "d";
     }
-}
 
     filterMoveToday() {
         const self = this;
