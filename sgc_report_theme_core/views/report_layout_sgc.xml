@@ -25,7 +25,19 @@
             <t t-set="company" t-value="o and o.company_id or res_company"/>
         </t>
 
-        <div class="o_sgc_report" t-attf-class="#{layout_landscape and 'o_sgc_report_landscape' or ''}">
+        <!--
+            2026-07-23 fix: previously had BOTH class="o_sgc_report" and a
+            separate t-attf-class="..." on this element. QWeb's t-attf-class
+            REPLACES the static class attribute rather than merging with it,
+            and layout_landscape is normally undefined here, so the rendered
+            div ended up with class="" - silently stripping o_sgc_report and
+            making every .o_sgc_report descendant selector in our SCSS match
+            nothing. Confirmed live: o_sgc_header/o_sgc_footer/
+            o_sgc_brand_block elements existed in the DOM but had zero
+            matches for .o_sgc_report itself. Single t-attf-class now
+            includes the base class explicitly.
+        -->
+        <div t-attf-class="o_sgc_report #{layout_landscape and 'o_sgc_report_landscape' or ''}">
             <t t-call="sgc_report_theme_core.block_watermark">
                 <t t-set="watermark_text" t-value="watermark_text or None"/>
             </t>
