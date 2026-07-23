@@ -19,11 +19,17 @@
 
     <!-- 1. Brand block -->
     <template id="block_brand" name="SGC Brand Block">
+        <!--
+            2026-07-23 fix: this block previously read
+            company.report_footer_tagline, a field that does not exist on
+            res.company - it broke every report going through block_header.
+            QWeb raises AttributeError for undefined ORM fields (unlike
+            plain template variables, which fail silently), so this crashed
+            in production. Only genuinely real res.company fields are used
+            below; no invented "tagline" concept.
+        -->
         <div class="o_sgc_brand_block">
             <span class="o_sgc_brand_name" t-esc="company.name"/>
-            <t t-if="company.report_footer_tagline">
-                <div class="o_sgc_brand_tagline" t-esc="company.report_footer_tagline"/>
-            </t>
         </div>
     </template>
 
