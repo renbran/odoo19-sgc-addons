@@ -7,6 +7,20 @@
 // markup in stock, not-yet-bridged reports sharing this asset bundle and
 // silently defeat the zero-visual-change guarantee of Phase 1.
 
+// 2026-07-23 third fix: wkhtmltopdf (like most browsers' print engines)
+// suppresses background-color/background-image by default unless told
+// otherwise - this is why borders/typography/spacing started working
+// after the header/footer/article class fix, but every background color
+// (.o_sgc_report ivory page bg, .o_sgc_summary_card parchment bg, the
+// status-badge tints, etc.) still didn't render. print-color-adjust
+// forces backgrounds to survive PDF rendering. Applied globally under
+// .o_sgc_report rather than per-rule so no future block is missed.
+.o_sgc_report,
+.o_sgc_report * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+}
+
 .o_sgc_report {
     font-family: $sgc-font-sans;
     color: $sgc-charcoal;
