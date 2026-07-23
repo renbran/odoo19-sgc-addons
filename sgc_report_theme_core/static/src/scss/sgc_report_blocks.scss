@@ -1,0 +1,205 @@
+// SGC Report Theme - Core: reusable block styles.
+//
+// D1 (Architect refinement, RALPLAN 2026-07-23): every ruleset in this file
+// MUST be scoped under the .o_sgc_report root class, which exists only
+// inside external_layout_sgc / the reusable blocks. No bare/global selector
+// (e.g. "table td { ... }") is allowed here - a bare selector would match
+// markup in stock, not-yet-bridged reports sharing this asset bundle and
+// silently defeat the zero-visual-change guarantee of Phase 1.
+
+.o_sgc_report {
+    font-family: $sgc-font-sans;
+    color: $sgc-charcoal;
+    background: $sgc-ivory;
+
+    // wkhtmltopdf-safe: table-based structural blocks only, no flex/grid
+    // for page layout (flex/grid page-break behaviour is unreliable on
+    // wkhtmltopdf 0.12.6.1 - see plan F1).
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    // --- Header / footer (repeating across pages) ---
+    .o_sgc_header {
+        width: 100%;
+        border-bottom: $sgc-divider-weight solid $sgc-divider-color;
+        padding-bottom: $sgc-space-md;
+        margin-bottom: $sgc-space-lg;
+    }
+
+    .o_sgc_footer {
+        width: 100%;
+        border-top: $sgc-divider-weight solid $sgc-divider-color;
+        padding-top: $sgc-space-sm;
+        margin-top: $sgc-space-lg;
+        font-size: 9px;
+        color: $sgc-slate;
+    }
+
+    .o_sgc_footer_pagenum {
+        text-align: right;
+    }
+
+    // --- Brand block ---
+    .o_sgc_brand_block {
+        .o_sgc_brand_name {
+            font-family: $sgc-font-serif;
+            font-weight: 600;
+            font-size: 18px;
+            color: $sgc-navy;
+            letter-spacing: 0.3px;
+        }
+
+        .o_sgc_brand_tagline {
+            font-size: 9px;
+            color: $sgc-gold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+
+    // --- Address block (company / customer) ---
+    .o_sgc_address_block {
+        font-size: 10px;
+        line-height: 1.5;
+
+        .o_sgc_address_label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: $sgc-slate;
+            margin-bottom: $sgc-space-xs;
+        }
+
+        .o_sgc_address_name {
+            font-weight: 600;
+            color: $sgc-charcoal;
+        }
+    }
+
+    // --- Signature block ---
+    .o_sgc_signature_block {
+        margin-top: $sgc-space-2xl;
+
+        .o_sgc_signature_line {
+            border-top: $sgc-divider-weight solid $sgc-divider-color;
+            padding-top: $sgc-space-xs;
+            font-size: 9px;
+            color: $sgc-slate;
+        }
+    }
+
+    // --- Status badge ---
+    .o_sgc_status_badge {
+        display: inline-block;
+        padding: 2px $sgc-space-sm;
+        border-radius: $sgc-radius-sm;
+        font-size: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+
+        &.o_sgc_status_draft   { background: $sgc-parchment; color: $sgc-slate; }
+        &.o_sgc_status_open    { background: rgba($sgc-navy, 0.1); color: $sgc-navy; }
+        &.o_sgc_status_paid,
+        &.o_sgc_status_done    { background: rgba($sgc-emerald, 0.12); color: $sgc-emerald; }
+        &.o_sgc_status_overdue { background: rgba($sgc-wine, 0.1); color: $sgc-wine; }
+        &.o_sgc_status_pending { background: rgba($sgc-amber, 0.14); color: $sgc-amber; }
+    }
+
+    // --- Metadata grid (document number / date / terms / ref) ---
+    .o_sgc_metadata_grid {
+        width: 100%;
+
+        td {
+            padding: $sgc-space-xs $sgc-space-sm $sgc-space-xs 0;
+            font-size: 9px;
+            vertical-align: top;
+        }
+
+        .o_sgc_metadata_label {
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: $sgc-slate;
+        }
+
+        .o_sgc_metadata_value {
+            color: $sgc-charcoal;
+            font-weight: 600;
+        }
+    }
+
+    // --- Summary card (totals / KPI cards) ---
+    .o_sgc_summary_card {
+        border: $sgc-divider-weight solid $sgc-divider-color;
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-md;
+        background: $sgc-parchment;
+
+        .o_sgc_summary_label {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: $sgc-slate;
+        }
+
+        .o_sgc_summary_value {
+            font-family: $sgc-font-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: $sgc-navy;
+        }
+    }
+
+    // --- Table style (line items / ledgers) ---
+    // NOTE: this ONLY affects tables that carry .o_sgc_table (bridge markup
+    // adds the class explicitly) - it never targets bare <table> so stock
+    // tables sharing the bundle are unaffected. Numeric-fidelity gate
+    // requires this ruleset never edits value expressions, only borders/
+    // spacing/typography.
+    .o_sgc_table {
+        thead {
+            display: table-header-group; // repeat header across page breaks
+        }
+
+        tr {
+            page-break-inside: avoid; // prevent orphaned rows
+        }
+
+        th {
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: $sgc-slate;
+            border-bottom: 1px solid $sgc-charcoal;
+            padding: $sgc-space-sm;
+            text-align: left;
+        }
+
+        td {
+            font-size: 10px;
+            padding: $sgc-space-sm;
+            border-bottom: $sgc-divider-weight solid $sgc-champagne;
+        }
+
+        .o_sgc_table_total_row td {
+            border-top: 1px solid $sgc-charcoal;
+            border-bottom: none;
+            font-weight: 600;
+            font-family: $sgc-font-serif;
+        }
+    }
+
+    // --- Watermark (draft / cancelled / confidential) ---
+    .o_sgc_watermark {
+        position: fixed;
+        top: 40%;
+        left: 15%;
+        font-family: $sgc-font-serif;
+        font-size: 72px;
+        color: rgba($sgc-slate, 0.12);
+        transform: rotate(-30deg);
+        z-index: 0;
+    }
+}

@@ -1,0 +1,43 @@
+// SGC Report Theme - Core: design tokens.
+//
+// D1 (Architect refinement, RALPLAN 2026-07-23): this file must compile to
+// ZERO global CSS rulesets. SCSS variables emit no CSS on their own - they
+// only produce output where a ruleset elsewhere (sgc_report_blocks.scss)
+// consumes them, and that consumption is namespaced under .o_sgc_report.
+// Do not add a bare selector to this file.
+//
+// Palette is restricted to the sanctioned SGC TECH AI palette. Never invent
+// a color outside this list (palette lint enforces this in CI).
+
+// --- Primary ---
+$sgc-ivory:      #FAF7F0;
+$sgc-navy:       #0B1F3A;
+$sgc-gold:       #B8912F;
+$sgc-charcoal:   #22262B;
+$sgc-slate:      #4B5563;
+
+// --- Supporting ---
+$sgc-champagne:  #E8DCC4;
+$sgc-parchment:  #F1EADD;
+$sgc-midnight:   #060D1A;
+$sgc-emerald:    #1B4332;
+$sgc-amber:      #B8860B;
+$sgc-wine:       #5C1A1B;
+
+// --- Typography ---
+$sgc-font-sans:  'IBM Plex Sans', Arial, sans-serif;
+$sgc-font-serif: 'IBM Plex Serif', Georgia, serif;
+
+// --- Spacing / layout (luxury whitespace, large margins) ---
+$sgc-space-xs:   4px;
+$sgc-space-sm:   8px;
+$sgc-space-md:   16px;
+$sgc-space-lg:   24px;
+$sgc-space-xl:   40px;
+$sgc-space-2xl:  64px;
+
+$sgc-divider-color: $sgc-slate;
+$sgc-divider-weight: 0.5px;
+
+$sgc-radius-sm: 2px;
+$sgc-radius-md: 4px;

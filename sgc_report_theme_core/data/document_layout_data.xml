@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+<!--
+    N1 (RALPLAN 2026-07-23): deliberately EMPTY in this first pass.
+
+    The original plan called for an "idempotent Document Layout config
+    record" capturing brand tokens (colour/font/logo/paperformat) as
+    versioned data. That record must NEVER set
+    res.company.external_report_layout_id and must NEVER set any
+    company-level font/colour field the stock web.external_layout
+    dispatcher reads - doing so would restyle every not-yet-bridged report
+    globally at Phase 1 (the exact N1-residual risk the consensus plan
+    exists to avoid).
+
+    Because the finalized design applies brand tokens per-bridge via CSS
+    (see sgc_report_blocks.scss, consumed only inside .o_sgc_report) rather
+    than via res.company fields, no such record is actually required for
+    Phase 1 to function. This file is kept as an explicit, empty,
+    trivially-idempotent placeholder so the manifest's data list and the
+    plan's "idempotent config record, no drift" acceptance criterion both
+    have a concrete, checkable artifact - loading it twice is a guaranteed
+    no-op. If a future phase needs a real res.company-scoped record (e.g.
+    for the Settings > Document Layout picker to show useful brand values),
+    add it here explicitly and re-run the idempotent-load test.
+-->
+</odoo>

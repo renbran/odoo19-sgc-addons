@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    external_layout_sgc - the additive SGC TECH AI report layout.
+
+    C1/C2 (RALPLAN 2026-07-23): this is a brand NEW template. It does not
+    inherit_id web.external_layout or any external_layout_standard/_bold/
+    _boxed/_clean view, and nothing in this module points any existing
+    report at it. A report only renders through this layout once a later
+    "bridge" module explicitly changes that report's own template to
+    t-call="sgc_report_theme_core.external_layout_sgc" instead of
+    "web.external_layout" - i.e. per-report, per-wave, reversible by
+    uninstalling that bridge.
+
+    A report.layout selector record is intentionally NOT registered in this
+    first pass (N2: it would be decorative/UX-only even if added - nothing
+    about rendering may ever depend on it being selected in Settings).
+-->
+
+    <template id="external_layout_sgc" name="SGC TECH AI External Layout">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="not company">
+            <t t-set="company" t-value="o and o.company_id or res_company"/>
+        </t>
+
+        <div class="o_sgc_report" t-attf-class="#{layout_landscape and 'o_sgc_report_landscape' or ''}">
+            <t t-call="sgc_report_theme_core.block_watermark">
+                <t t-set="watermark_text" t-value="watermark_text or None"/>
+            </t>
+
+            <t t-call="sgc_report_theme_core.block_header"/>
+
+            <div class="o_sgc_report_content">
+                <t t-out="0"/>
+            </div>
+
+            <t t-call="sgc_report_theme_core.block_footer"/>
+        </div>
+    </template>
+
+</odoo>
