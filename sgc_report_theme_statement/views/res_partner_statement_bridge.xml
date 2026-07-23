@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Wave 1 bridge: re-points statement_report's single template onto
+    external_layout_sgc, and applies the o_sgc_table styling class to its
+    two data tables.
+
+    C4/F4 (numeric fidelity): every t-esc value expression below is
+    IDENTICAL, character-for-character, to the original template in
+    statement_report/report/res_partner_templates.xml. Only the t-call
+    target and table class attributes change.
+-->
+
+    <template id="res_partner_statement_report_template_sgc"
+              inherit_id="statement_report.res_partner_statement_report_template">
+
+        <!-- Re-point the layout: stock -> additive SGC layout -->
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <!-- Style the line-items table (has the thead) -->
+        <xpath expr="//table[2]" position="attributes">
+            <attribute name="class">o_sgc_table</attribute>
+        </xpath>
+
+        <!-- Style the totals table (the only table nested in a div) -->
+        <xpath expr="//div/table" position="attributes">
+            <attribute name="class">o_sgc_table o_sgc_table_total_row</attribute>
+        </xpath>
+
+        <!-- Restyle the heading using SGC typography tokens only (no value change) -->
+        <xpath expr="//h3" position="attributes">
+            <attribute name="style">font-family:'IBM Plex Serif';color:#0B1F3A;font-weight:600;</attribute>
+        </xpath>
+
+    </template>
+
+</odoo>
