@@ -3,85 +3,52 @@
 <!--
     external_layout_sgc - the additive SGC TECH AI report layout.
 
-    C1/C2 (RALPLAN 2026-07-23): this is a brand NEW template. It does not
-    inherit_id web.external_layout or any external_layout_standard/_bold/
-    _boxed/_clean view, and nothing in this module points any existing
-    report at it. A report only renders through this layout once a later
-    "bridge" module explicitly changes that report's own template to
-    t-call="sgc_report_theme_core.external_layout_sgc" instead of
-    "web.external_layout" - i.e. per-report, per-wave, reversible by
-    uninstalling that bridge.
+    2026-07-23 architecture change: rebuilt as a PRIMARY-MODE inheritance
+    of web.external_layout_standard instead of a from-scratch template.
 
-    A report.layout selector record is intentionally NOT registered in this
-    first pass (N2: it would be decorative/UX-only even if added - nothing
-    about rendering may ever depend on it being selected in Settings).
+    Building from scratch (the original approach) meant reinventing
+    plumbing Odoo's stock layout already gets right - the header/footer/
+    article class-marker convention ir.actions.report._prepare_html()
+    requires for wkhtmltopdf's repeating-header mechanism, and
+    background-color handling - and that reinvention is exactly what
+    caused this module's early bugs.
+
+    inherit_id="web.external_layout_standard" + primary="True" gives us
+    both properties at once:
+    - The stock template is NEVER modified (mode=primary creates a
+      genuinely new, independently-callable view starting from a COPY of
+      the parent's arch) - untouched reports remain provably unaffected,
+      satisfying the same non-destructive guarantee the from-scratch
+      approach was trying to achieve (C1).
+    - We inherit all of the parent's already-correct, battle-tested
+      structure (header/article/footer divs with the right class markers,
+      company logo/address/tagline/footer field rendering, page numbers,
+      background-image support) instead of re-implementing it and
+      introducing new bugs.
+
+    We only XPath-patch in our own "o_sgc_report" scoping class onto the
+    three structural divs; sgc_report_tokens.scss / sgc_report_blocks.scss
+    style anything carrying that class. No inherit_id/t-call re-point of
+    any EXISTING REPORT happens here - only bridge modules do that, by
+    changing a report's own template to
+    t-call="sgc_report_theme_core.external_layout_sgc" instead of
+    "web.external_layout".
 -->
 
-    <template id="external_layout_sgc" name="SGC TECH AI External Layout">
-        <t t-if="not o and doc">
-            <t t-set="o" t-value="doc"/>
-        </t>
-        <t t-if="not company">
-            <t t-set="company" t-value="o and o.company_id or res_company"/>
-        </t>
+    <template id="external_layout_sgc" inherit_id="web.external_layout_standard" primary="True">
 
-        <!--
-            2026-07-23 fix: previously had BOTH class="o_sgc_report" and a
-            separate t-attf-class="..." on this element. QWeb's t-attf-class
-            REPLACES the static class attribute rather than merging with it,
-            and layout_landscape is normally undefined here, so the rendered
-            div ended up with class="" - silently stripping o_sgc_report and
-            making every .o_sgc_report descendant selector in our SCSS match
-            nothing. Confirmed live: o_sgc_header/o_sgc_footer/
-            o_sgc_brand_block elements existed in the DOM but had zero
-            matches for .o_sgc_report itself. Single t-attf-class now
-            includes the base class explicitly.
-        -->
-        <!--
-            2026-07-23 second fix: Odoo's ir.actions.report._prepare_html()
-            splits a report's rendered HTML by XPath-matching on the
-            LITERAL class tokens "header" / "footer" / "article" on div
-            elements (see base/models/ir_actions_report.py, match_klass) -
-            it extracts header/footer divs into a SEPARATE tree rendered
-            through web.minimal_layout for wkhtmltopdf's repeating
-            header-html/footer-html mechanism, and requires the body
-            content div to carry class="article" plus data-oe-model/
-            data-oe-id/data-oe-lang so multi-report batches associate the
-            right body with the right record. Our header/footer/content
-            divs previously carried only o_sgc_* classes, so none of them
-            matched this extraction logic - confirmed live via
-            /report/html/ (styled correctly, browser CSS engine, no
-            extraction involved) vs /report/pdf/ (unstyled, wkhtmltopdf
-            path, extraction applies). Both minimal_layout AND the PDF
-            html_container wrapper already t-call-assets both our bundles,
-            so once these divs carry the class Odoo's extraction logic
-            actually looks for, the existing CSS will apply. Stock
-            convention confirmed by reading web/views/report_templates.xml
-            directly (e.g. t-attf-class="header o_company_..."), which we
-            follow here as "header o_sgc_header_wrap" / "footer
-            o_sgc_footer_wrap" / "article o_sgc_report_content" rather than
-            inventing our own scheme.
-        -->
-        <div t-attf-class="o_sgc_report #{layout_landscape and 'o_sgc_report_landscape' or ''}">
-            <t t-call="sgc_report_theme_core.block_watermark">
-                <t t-set="watermark_text" t-value="watermark_text or None"/>
-            </t>
+        <xpath expr="//div[hasclass('header')]" position="attributes">
+            <attribute name="class" add="o_sgc_report" separator=" "/>
+        </xpath>
 
-            <div class="header o_sgc_header_wrap">
-                <t t-call="sgc_report_theme_core.block_header"/>
-            </div>
+        <xpath expr="//div[hasclass('article')]" position="attributes">
+            <attribute name="class" add="o_sgc_report" separator=" "/>
+        </xpath>
 
-            <div class="article o_sgc_report_content"
-                 t-att-data-oe-model="o and o._name"
-                 t-att-data-oe-id="o and o.id"
-                 t-att-data-oe-lang="o and o.env.context.get('lang')">
-                <t t-out="0"/>
-            </div>
+        <xpath expr="//div[hasclass('footer')]" position="attributes">
+            <attribute name="class" add="o_sgc_report" separator=" "/>
+        </xpath>
 
-            <div class="footer o_sgc_footer_wrap">
-                <t t-call="sgc_report_theme_core.block_footer"/>
-            </div>
-        </div>
     </template>
 
 </odoo>

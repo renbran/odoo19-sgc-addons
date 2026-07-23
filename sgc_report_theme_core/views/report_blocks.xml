@@ -43,51 +43,17 @@
         </div>
     </template>
 
-    <!-- 3. Header (repeats across pages via wkhtmltopdf's header-html mechanism
-         when used as a report's header; also usable inline at top of body) -->
-    <template id="block_header" name="SGC Report Header">
-        <table class="o_sgc_header">
-            <tr>
-                <td style="width:60%;">
-                    <t t-call="sgc_report_theme_core.block_brand"/>
-                </td>
-                <td style="width:40%;text-align:right;">
-                    <t t-if="layout_document_title">
-                        <span t-esc="layout_document_title"
-                              style="font-family:'IBM Plex Serif';font-size:14px;color:#0B1F3A;font-weight:600;"/>
-                    </t>
-                </td>
-            </tr>
-        </table>
-    </template>
-
-    <!-- 4. Footer (repeats across pages; includes legally-required company info,
-         same fields the stock external_layout footer shows, just restyled) -->
-    <template id="block_footer" name="SGC Report Footer">
-        <!--
-            2026-07-23 fix: both a raw "." middot and the &#183; entity
-            round-tripped through this instance's wkhtmltopdf pipeline as
-            mojibake (confirmed live: the DB correctly stores a real U+00B7
-            character, so the bug is downstream in PDF rendering, not our
-            source). Using a plain ASCII " | " separator sidesteps the
-            encoding issue entirely rather than debugging wkhtmltopdf
-            internals further.
-        -->
-        <table class="o_sgc_footer">
-            <tr>
-                <td style="width:70%;">
-                    <span t-field="company.name"/>
-                    <t t-if="company.phone"> | <span t-field="company.phone"/></t>
-                    <t t-if="company.email"> | <span t-field="company.email"/></t>
-                    <t t-if="company.website"> | <span t-field="company.website"/></t>
-                    <t t-if="company.vat"> | <span t-esc="company.vat"/></t>
-                </td>
-                <td class="o_sgc_footer_pagenum" style="width:30%;">
-                    <span class="page"/> / <span class="topage"/>
-                </td>
-            </tr>
-        </table>
-    </template>
+    <!--
+        2026-07-23: block_header / block_footer were removed. They
+        duplicated plumbing (logo, company address, tagline, footer
+        fields, page numbers) that external_layout_sgc now inherits for
+        free from web.external_layout_standard (see report_layout_sgc.xml)
+        - the stock header/footer divs already render this correctly and
+        are styled directly via the .o_sgc_report.header / .o_sgc_report.
+        footer selectors in sgc_report_blocks.scss. block_brand above
+        remains available as an opt-in helper for bridges that want the
+        brand name styled somewhere inside their own body content.
+    -->
 
     <!-- 5. Signature block -->
     <template id="block_signature" name="SGC Signature Block">
