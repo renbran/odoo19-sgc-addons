@@ -68,10 +68,10 @@
             <tr>
                 <td style="width:70%;">
                     <span t-field="company.name"/>
-                    <t t-if="company.phone"> · <span t-field="company.phone"/></t>
-                    <t t-if="company.email"> · <span t-field="company.email"/></t>
-                    <t t-if="company.website"> · <span t-field="company.website"/></t>
-                    <t t-if="company.vat"> · <span t-esc="company.vat"/></t>
+                    <t t-if="company.phone"> &#183; <span t-field="company.phone"/></t>
+                    <t t-if="company.email"> &#183; <span t-field="company.email"/></t>
+                    <t t-if="company.website"> &#183; <span t-field="company.website"/></t>
+                    <t t-if="company.vat"> &#183; <span t-esc="company.vat"/></t>
                 </td>
                 <td class="o_sgc_footer_pagenum" style="width:30%;">
                     <span class="page"/> / <span class="topage"/>
