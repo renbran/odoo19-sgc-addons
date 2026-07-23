@@ -52,12 +52,24 @@
             arch that XPath surgery operates on still has that <t>
             wrapper present, confirmed via the actual ParseError ("cannot
             be located") the shorter path produced.
+
+            2026-07-23 second fix: these two ops must run in THIS order.
+            XPath inheritance specs apply sequentially against the
+            accumulating tree - replacing td[5] FIRST (while it is still
+            the original balance cell) then inserting a new cell after
+            td[4] pushes the just-replaced running_balance cell to
+            position 6, giving the correct final order (Invoices/Debit,
+            Payment, Balance). Doing the insert first shifts td[5] to mean
+            the NEWLY inserted node by the time the replace runs,
+            corrupting the Payment cell instead - confirmed live: a
+            rendered PDF showed the running balance under "Payment" and
+            the untouched original per-row amount under "Balance".
         -->
-        <xpath expr="//table[2]/tbody/t/tr/td[4]" position="after">
-            <td><t t-esc="currency"/><t t-esc="line.get('amount_paid', '0.00')"/></td>
-        </xpath>
         <xpath expr="//table[2]/tbody/t/tr/td[5]" position="replace">
             <td><t t-esc="currency"/><t t-esc="line.get('running_balance', '0.00')"/></td>
+        </xpath>
+        <xpath expr="//table[2]/tbody/t/tr/td[4]" position="after">
+            <td><t t-esc="currency"/><t t-esc="line.get('amount_paid', '0.00')"/></td>
         </xpath>
 
         <!--
