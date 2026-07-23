@@ -1,20 +1,23 @@
 // SGC Report Theme - Core: reusable block styles.
 //
 // D1 (Architect refinement, RALPLAN 2026-07-23): every ruleset in this file
-// MUST be scoped under the .o_sgc_report root class, which exists only
-// inside external_layout_sgc / the reusable blocks. No bare/global selector
+// MUST be scoped under the .o_sgc_report class. No bare/global selector
 // (e.g. "table td { ... }") is allowed here - a bare selector would match
 // markup in stock, not-yet-bridged reports sharing this asset bundle and
 // silently defeat the zero-visual-change guarantee of Phase 1.
+//
+// 2026-07-23 architecture change: external_layout_sgc now primary-mode
+// inherits web.external_layout_standard and adds the "o_sgc_report" class
+// directly onto the stock header/article/footer divs (three separate
+// elements, not one shared wrapper) via XPath - so selectors below use
+// compound form (.o_sgc_report.header, .o_sgc_report.article,
+// .o_sgc_report.footer) for structural divs, while descendant selectors
+// (.o_sgc_report .o_sgc_brand_block etc.) still work correctly for blocks
+// a bridge calls INSIDE the article body content, since .o_sgc_report on
+// the article div is an ancestor of that content.
 
-// 2026-07-23 third fix: wkhtmltopdf (like most browsers' print engines)
-// suppresses background-color/background-image by default unless told
-// otherwise - this is why borders/typography/spacing started working
-// after the header/footer/article class fix, but every background color
-// (.o_sgc_report ivory page bg, .o_sgc_summary_card parchment bg, the
-// status-badge tints, etc.) still didn't render. print-color-adjust
-// forces backgrounds to survive PDF rendering. Applied globally under
-// .o_sgc_report rather than per-rule so no future block is missed.
+// print-color-adjust so background colors survive PDF rendering
+// (wkhtmltopdf suppresses backgrounds by default, same as browser print).
 .o_sgc_report,
 .o_sgc_report * {
     print-color-adjust: exact;
@@ -24,7 +27,6 @@
 .o_sgc_report {
     font-family: $sgc-font-sans;
     color: $sgc-charcoal;
-    background: $sgc-ivory;
 
     // wkhtmltopdf-safe: table-based structural blocks only, no flex/grid
     // for page layout (flex/grid page-break behaviour is unreliable on
@@ -34,28 +36,38 @@
         border-collapse: collapse;
     }
 
-    // --- Header / footer (repeating across pages) ---
-    .o_sgc_header {
-        width: 100%;
+    // --- Structural divs (header/article/footer all carry .o_sgc_report) ---
+    &.header {
+        background: $sgc-ivory;
         border-bottom: $sgc-divider-weight solid $sgc-divider-color;
-        padding-bottom: $sgc-space-md;
-        margin-bottom: $sgc-space-lg;
+        padding-bottom: $sgc-space-sm;
+
+        .o_company_tagline {
+            font-size: 9px;
+            color: $sgc-gold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     }
 
-    .o_sgc_footer {
-        width: 100%;
+    &.article {
+        background: $sgc-ivory;
+
+        h2 {
+            font-family: $sgc-font-serif;
+            font-weight: 600;
+            color: $sgc-navy;
+        }
+    }
+
+    &.footer {
         border-top: $sgc-divider-weight solid $sgc-divider-color;
         padding-top: $sgc-space-sm;
-        margin-top: $sgc-space-lg;
         font-size: 9px;
         color: $sgc-slate;
     }
 
-    .o_sgc_footer_pagenum {
-        text-align: right;
-    }
-
-    // --- Brand block ---
+    // --- Brand block (used by bridges inside body content if needed) ---
     .o_sgc_brand_block {
         .o_sgc_brand_name {
             font-family: $sgc-font-serif;
