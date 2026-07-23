@@ -51,6 +51,33 @@
     -->
     <template id="external_layout_sgc" inherit_id="web.external_layout_standard" primary="True">
 
+        <!--
+            2026-07-23 second fix: external_layout_standard assumes `o`
+            and `company` are ALREADY set - normally true because reports
+            t-call the web.external_layout DISPATCHER first, which sets
+            them up before delegating to external_layout_standard. Our
+            bridges t-call external_layout_sgc directly, bypassing that
+            dispatcher entirely, so `company` was undefined - confirmed
+            live via KeyError: 'company' in the actual PDF render.
+            Reproduces the dispatcher's own setup logic (copied verbatim
+            from web.external_layout in report_templates.xml) so this
+            template is usable standalone.
+        -->
+        <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]" position="before">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+        </xpath>
+
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]" position="attributes">
             <attribute name="t-attf-class">o_sgc_report header o_company_#{company.id}_layout</attribute>
         </xpath>
