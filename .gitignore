@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.omc/
+.claude/
+.ruff_cache/
+*.bak
+token-optimizer/sessions/
