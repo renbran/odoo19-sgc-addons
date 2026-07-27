@@ -34,7 +34,7 @@
 .o_report_layout_sgc,
 .o_company_1_layout {
     font-family: 'IBM Plex Sans', 'Helvetica', 'Arial', sans-serif !important;
-    font-size: 10px !important;
+    font-size: 11.5px !important;
     color: #1C2430 !important;
     line-height: 1.6 !important;
     background-color: #F7F4EE !important;
@@ -106,14 +106,14 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     display: block;
     color: #B79554 !important;
     font-weight: 700 !important;
-    font-size: 7.5px;
+    font-size: 8.5px;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 2px;
 }
 
 .o_report_layout_sgc #informations > div.col > div {
-    font-size: 10px;
+    font-size: 11.5px;
     font-weight: 600;
     color: #0F213D;
 }
@@ -139,7 +139,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     color: #FFFFFF !important;
     font-family: 'IBM Plex Sans', sans-serif !important;
     font-weight: 600 !important;
-    font-size: 9px !important;
+    font-size: 10.5px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     padding: 8px 10px !important;
@@ -160,7 +160,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     border: none !important;
     border-bottom: 1px solid #D9C08A !important;
     border-right: 1px solid #ECE7DF !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
     background-color: transparent !important;
 }
 
@@ -203,7 +203,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
 
 .o_report_layout_sgc .o_total_table td {
     padding: 7px 12px !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
 }
 
 .o_report_layout_sgc .o_total_table td:last-child {
@@ -218,7 +218,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
 .o_report_layout_sgc .o_total_table tr.o_taxes td {
     border-bottom: 1px solid #D9C08A !important;
     color: #5F6775 !important;
-    font-size: 9px !important;
+    font-size: 10px !important;
     font-style: italic;
 }
 
@@ -226,7 +226,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     background-color: #0F213D !important;
     color: #FFFFFF !important;
     font-weight: 700 !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-family: 'IBM Plex Serif', Georgia, serif !important;
     border-top: 2px solid #B79554 !important;
     padding: 9px 12px !important;
@@ -234,7 +234,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
 
 .o_report_layout_sgc .o_total_table tr.o_total td:last-child {
     color: #D9C08A !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
 }
 
 /* ── Tax Lines ── */
@@ -250,7 +250,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     border-radius: 4px;
     padding: 10px !important;
     margin-bottom: 12px;
-    font-size: 10px;
+    font-size: 11px;
 }
 
 /* ── Terms & Conditions Box ──
@@ -262,7 +262,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
    sgc_terms_box_invoice in sgc_report_layout.xml). */
 .o_report_layout_sgc .o_sgc_terms_heading {
     font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
@@ -276,7 +276,7 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     border: 1px solid #D9C08A !important;
     border-radius: 4px;
     padding: 10px 14px !important;
-    font-size: 9px !important;
+    font-size: 10.5px !important;
     line-height: 1.65 !important;
     color: #1C2430 !important;
 }

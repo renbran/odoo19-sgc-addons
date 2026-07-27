@@ -49,6 +49,15 @@
         was already generous. margin_top=50/header_spacing=35 is the
         combination that fits the taller 4-line letterhead with no
         clipping and no wasted blank space at the top of the page.
+
+        2026-07-28: overall report font sizes were bumped up (see
+        sgc_report.css) for readability, which made the 3-line footer
+        (company/tagline, address/contact, branding/page-number, plus an
+        optional custom footer note) taller. There is no separate
+        "footer_spacing" field in report.paperformat - unlike the header,
+        the footer just has to fit inside margin_bottom - so 15mm was
+        already tight before the font bump and would clip afterward.
+        Raised to 26mm to give the taller footer real breathing room.
     -->
     <record id="paperformat_sgc_a4" model="report.paperformat">
         <field name="name">SGC A4</field>
@@ -56,7 +65,7 @@
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
         <field name="margin_top">50</field>
-        <field name="margin_bottom">15</field>
+        <field name="margin_bottom">26</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="True"/>
