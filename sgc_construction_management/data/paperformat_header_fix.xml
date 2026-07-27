@@ -1,24 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        2026-07-27: base.paperformat_euro (the company's paperformat_id,
-        used by every standard report on this single-tenant instance) had
-        margin_top=30mm / header_spacing=40mm. That is not enough vertical
-        room for the SGC branded header (logo + multi-line company
-        address in external_layout_sgc, see report/sgc_report_layout.xml)
-        wkhtmltopdf renders the header into a box sized by the margin top
-        option, so content taller than that gets silently clipped, which
-        is why printed reports showed a near-empty navy strip instead of
-        the logo/name/address.
+        2026-07-27: the company's paperformat_id pointed at the stock
+        base.paperformat_euro record (margin_top=30mm, header_spacing=
+        40mm). That left far too little vertical room for the SGC
+        branded header (logo + multi-line company address, see
+        external_layout_sgc in report/sgc_report_layout.xml) - wkhtmltopdf
+        renders the header into a box sized by the margin-top value, so
+        content taller than that gets silently clipped. That's why
+        printed reports showed a near-empty navy strip instead of the
+        logo/name/address.
 
-        Raising margin_top to comfortably fit that header and lowering
-        header_spacing (the gap AFTER the header, before body content
-        starts - previously larger than the header box itself, wasting
-        page space) to a normal small value. margin_bottom is untouched;
-        the footer already rendered fully within it.
+        base.paperformat_euro itself could not be safely overridden here:
+        it ships noupdate-protected by the base module, so a plain
+        <record> write to it here is silently ignored by the ORM data
+        loader on every subsequent -u (confirmed empirically - the field
+        values never changed after upgrade). Cloning it into a new,
+        module-owned record and repointing the company to that instead
+        sidesteps that protection entirely and is the normal supported
+        way to customize paperformat without fighting stock noupdate
+        semantics.
+
+        Every other field is copied verbatim from base.paperformat_euro
+        (format/orientation/margins/dpi/header_line) - only margin_top and
+        header_spacing differ, sized to comfortably fit the branded
+        header. margin_bottom is unchanged; the footer already rendered
+        fully within it.
     -->
-    <record id="base.paperformat_euro" model="report.paperformat">
+    <record id="paperformat_sgc_a4" model="report.paperformat">
+        <field name="name">SGC A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
         <field name="margin_top">45</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_line" eval="True"/>
         <field name="header_spacing">6</field>
+        <field name="dpi">85</field>
     </record>
+
+    <function model="res.company" name="write"
+              eval="[[1], {'paperformat_id': ref('sgc_construction_management.paperformat_sgc_a4')}]"/>
+
+    <!--
+        Several report actions (sale.action_report_saleorder,
+        account.account_invoices, etc.) have their OWN paperformat_id
+        explicitly set to base.paperformat_euro rather than falling back
+        to the company default - that field takes precedence over
+        company.paperformat_id when set, so the company-level write above
+        alone would not fix header clipping on those specific reports.
+        Re-point every report action still explicitly using the old
+        format onto the new one, in one pass.
+    -->
+    <function model="ir.actions.report" name="write">
+        <function name="search" model="ir.actions.report">
+            <value eval="[('paperformat_id', '=', ref('base.paperformat_euro'))]"/>
+        </function>
+        <value eval="{'paperformat_id': ref('sgc_construction_management.paperformat_sgc_a4')}"/>
+    </function>
 </odoo>
