@@ -57,9 +57,18 @@ html, body, .o_body_html, #wrapwrap, main, .page {
 .o_report_layout_sgc > .header,
 .o_report_layout_sgc .o_sgc_header {
     background-color: #0F213D !important;
-    padding: 14px 4mm 12px 4mm !important;
+    padding: 5mm 4mm 4mm 4mm !important;
     margin: 0 !important;
     color: #FFFFFF;
+    min-height: 24mm !important;
+    display: block !important;
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.o_report_layout_sgc .o_sgc_header > div,
+.o_report_layout_sgc .o_sgc_header > table {
+    color: #FFFFFF !important;
 }
 
 /* Logo + brand text should sit comfortably centered inside the
