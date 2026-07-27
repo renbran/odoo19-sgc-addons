@@ -57,7 +57,12 @@
         "footer_spacing" field in report.paperformat - unlike the header,
         the footer just has to fit inside margin_bottom - so 15mm was
         already tight before the font bump and would clip afterward.
-        Raised to 26mm to give the taller footer real breathing room.
+        First raised to 26mm, but the footer's address column (company
+        street/city/country wraps to 4 lines via the contact widget, plus
+        a 5th line of phone/email) still had its last line clipped by the
+        page edge at 26mm - measured content height came out to ~27mm.
+        Raised again to 34mm for a real safety margin instead of cutting
+        it exactly at the calculated minimum.
     -->
     <record id="paperformat_sgc_a4" model="report.paperformat">
         <field name="name">SGC A4</field>
@@ -65,7 +70,7 @@
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
         <field name="margin_top">50</field>
-        <field name="margin_bottom">26</field>
+        <field name="margin_bottom">34</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="True"/>
