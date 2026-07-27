@@ -52,8 +52,8 @@
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 80px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
                                 <td style="vertical-align: middle;">
-                                    <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #0F213D; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></div>
-                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #B79554; margin-top: 3px;">Finance · System · Technology</div>
+                                    <h1 style="margin: 0; padding: 0; font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #FFFFFF; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></h1>
+                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #D9C08A; margin-top: 3px;">Finance · System · Technology</div>
                                 </td>
                             </tr>
                         </table>
