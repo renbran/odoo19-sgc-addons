@@ -75,20 +75,24 @@
                         </table>
                     </td>
 
-                    <!-- Right: full company contact details (street / city / country
-                         then phone, email, website on their own lines). Full address
-                         here AND a condensed one in the footer is intentional - the
-                         reference mockup shows the address in the letterhead. -->
+                    <!-- Right: compact company info (one line of address, then one line
+                         of T / E / W). Full street address is rendered in the
+                         footer below, where there's room for it - keeping the
+                         header band compact prevents wkhtmltopdf from clipping
+                         the brand name / logo area. -->
                     <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.55; color: #FFFFFF;">
-                        <div style="font-weight: 600; color: #FFFFFF; font-size: 9.5px; letter-spacing: 0.3px;">
-                            <t t-if="company.street"><span t-esc="company.street"/><br/></t>
-                            <t t-if="company.city or company.zip"><span t-esc="(company.zip or '') + ' ' + (company.city or '')"/><br/></t>
-                            <t t-if="company.country_id"><span t-esc="company.country_id.name"/></t>
+                        <div style="font-weight: 600; color: #FFFFFF; font-size: 9px; letter-spacing: 0.3px; white-space: nowrap;">
+                            <t t-set="header_address_parts" t-value="[]"/>
+                            <t t-if="company.city" t-set="header_address_parts" t-value="header_address_parts + [company.city]"/>
+                            <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
+                            <span t-if="header_address_parts" t-out="', '.join(header_address_parts)"/>
                         </div>
-                        <div style="margin-top: 4px; color: #D9C08A; font-size: 8.5px; letter-spacing: 0.3px;">
-                            <t t-if="company.phone"><span style="color: #B79554; font-weight: 700;">T </span><span t-esc="company.phone"/><br/></t>
-                            <t t-if="company.email"><span style="color: #B79554; font-weight: 700;">E </span><span t-esc="company.email"/><br/></t>
-                            <t t-if="company.website"><span style="color: #B79554; font-weight: 700;">W </span><span t-esc="company.website"/></t>
+                        <div style="margin-top: 4px; color: #D9C08A; font-size: 8.5px; letter-spacing: 0.3px; white-space: nowrap;">
+                            <t t-set="header_contact_parts" t-value="[]"/>
+                            <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>
+                            <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E ' + company.email]"/>
+                            <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W ' + company.website]"/>
+                            <span t-if="header_contact_parts" t-out="'  ·  '.join(header_contact_parts)"/>
                         </div>
                     </td>
                 </tr>
