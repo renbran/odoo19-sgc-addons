@@ -40,9 +40,12 @@
     background-color: #F7F4EE !important;
 }
 
-/* Page background */
-.page {
-    background-color: #FFFFFF !important;
+/* Page background - full bleed cream/ivory, no white anywhere on the
+   printed page (previously forced white here, leaving only the outer
+   "article" wrapper cream, which read as a cream card floating inside a
+   white page). */
+html, body, .o_body_html, #wrapwrap, main, .page {
+    background-color: #F7F4EE !important;
 }
 
 /* ── Typography ── */
@@ -105,13 +108,16 @@
 }
 
 /* ── Standard Odoo Tables ──
-   Clean hairline rows (bottom border only, no zebra striping, no full
-   grid) to match the reference mockup's premium finish. */
+   Clean hairline rows with a visible gold-framed header, matching the
+   reference mockup's premium finish (previously the row divider color
+   (#ECE7DF on #F7F4EE) was nearly invisible - darkened to champagne, and
+   an outer gold frame + gold header underline were added back). */
 .o_report_layout_sgc .table,
 .o_report_layout_sgc table.o_main_table {
     border-collapse: collapse !important;
     width: 100% !important;
     margin-bottom: 12px !important;
+    border: 1px solid #B79554 !important;
 }
 
 .o_report_layout_sgc .table th,
@@ -125,6 +131,7 @@
     letter-spacing: 0.5px !important;
     padding: 8px 10px !important;
     border: none !important;
+    border-bottom: 2px solid #B79554 !important;
 }
 
 .o_report_layout_sgc .table td,
@@ -132,7 +139,7 @@
     padding: 6px 10px !important;
     vertical-align: middle;
     border: none !important;
-    border-bottom: 1px solid #ECE7DF !important;
+    border-bottom: 1px solid #D9C08A !important;
     font-size: 10px !important;
     background-color: transparent !important;
 }

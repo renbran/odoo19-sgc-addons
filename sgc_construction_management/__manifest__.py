@@ -34,6 +34,7 @@ A comprehensive module for managing construction projects including:
         'security/construction_security.xml',
         'security/ir.model.access.csv',
         'data/construction_data.xml',
+        'data/paperformat_header_fix.xml',
         'data/ir_sequence.xml',
         'data/construction_sequences.xml',
         'report/construction_report_layout.xml',
