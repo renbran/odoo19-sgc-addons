@@ -29,7 +29,7 @@ A comprehensive module for managing construction projects including:
     'website': 'https://sgc-tech.ai',
     'support': 'support@sgc-tech.ai',
     'maintainer': 'SGC TECH AI',
-    'depends': ['base', 'mail', 'product', 'uom', 'account', 'report_xlsx', 'portal', 'web'],
+    'depends': ['base', 'mail', 'product', 'uom', 'account', 'sale', 'report_xlsx', 'portal', 'web'],
     'data': [
         'security/construction_security.xml',
         'security/ir.model.access.csv',

@@ -118,16 +118,18 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     color: #0F213D;
 }
 
-/* ── Standard Odoo Tables ──
-   Clean hairline rows with a visible gold-framed header, matching the
-   reference mockup's premium finish (previously the row divider color
-   (#ECE7DF on #F7F4EE) was nearly invisible - darkened to champagne, and
-   an outer gold frame + gold header underline were added back). */
+/* ── Standard Odoo Tables (line items) ──
+   Bootstrap's `table-borderless` (present on o_main_table) strips all
+   borders by default, so every line/frame here has to be re-added
+   explicitly. Outer gold frame, gold header underline, champagne row
+   hairlines, AND a thin vertical champagne rule between every column
+   so the grid reads clearly left-to-right (previously columns had no
+   separation at all - "no line in the center"). */
 .o_report_layout_sgc .table,
 .o_report_layout_sgc table.o_main_table {
     border-collapse: collapse !important;
     width: 100% !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 4px !important;
     border: 1px solid #B79554 !important;
 }
 
@@ -143,16 +145,28 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     padding: 8px 10px !important;
     border: none !important;
     border-bottom: 2px solid #B79554 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.o_report_layout_sgc .table th:last-child,
+.o_report_layout_sgc table.o_main_table thead th:last-child {
+    border-right: none !important;
 }
 
 .o_report_layout_sgc .table td,
 .o_report_layout_sgc table.o_main_table tbody td {
-    padding: 6px 10px !important;
+    padding: 7px 10px !important;
     vertical-align: middle;
     border: none !important;
     border-bottom: 1px solid #D9C08A !important;
+    border-right: 1px solid #ECE7DF !important;
     font-size: 10px !important;
     background-color: transparent !important;
+}
+
+.o_report_layout_sgc .table td:last-child,
+.o_report_layout_sgc table.o_main_table tbody td:last-child {
+    border-right: none !important;
 }
 
 .o_report_layout_sgc .table tfoot td,
@@ -163,32 +177,60 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     border-top: 2px solid #B79554 !important;
 }
 
-/* ── Total Section ── */
+/* ── Totals Box ──
+   Odoo's real markup is <table class="o_total_table table
+   table-borderless"> with row classes .o_subtotal / .o_taxes /
+   .o_total (NOT a wrapper class called ".o_total" as previously
+   assumed - that selector never matched anything, which is why the
+   totals had no border/line separating them from the items table
+   above). Box the whole totals table in gold so it reads as a
+   distinct block, with a clear line under Untaxed Amount, a clear
+   line under each tax/VAT line, and a bold navy Total row. */
 .o_report_layout_sgc #total {
-    margin-top: 16px;
+    margin-top: 10px;
 }
 
-.o_report_layout_sgc #total .o_total {
-    border-collapse: collapse;
+.o_report_layout_sgc .o_total_table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1px solid #B79554 !important;
+    margin-bottom: 0 !important;
 }
 
-.o_report_layout_sgc #total .o_total td {
-    padding: 6px 12px;
-    font-size: 10px;
+.o_report_layout_sgc .o_total_table td {
+    padding: 7px 12px !important;
+    font-size: 10px !important;
 }
 
-.o_report_layout_sgc #total .o_total tr:last-child td {
+.o_report_layout_sgc .o_total_table td:last-child {
+    text-align: right !important;
+}
+
+.o_report_layout_sgc .o_total_table tr.o_subtotal td {
+    border-bottom: 1px solid #D9C08A !important;
+    color: #1C2430 !important;
+}
+
+.o_report_layout_sgc .o_total_table tr.o_taxes td {
+    border-bottom: 1px solid #D9C08A !important;
+    color: #5F6775 !important;
+    font-size: 9px !important;
+    font-style: italic;
+}
+
+.o_report_layout_sgc .o_total_table tr.o_total td {
     background-color: #0F213D !important;
     color: #FFFFFF !important;
     font-weight: 700 !important;
     font-size: 12px !important;
     font-family: 'IBM Plex Serif', Georgia, serif !important;
     border-top: 2px solid #B79554 !important;
+    padding: 9px 12px !important;
 }
 
-.o_report_layout_sgc #total .o_total tr:last-child td:last-child {
-    color: #B79554 !important;
-    font-size: 14px !important;
+.o_report_layout_sgc .o_total_table tr.o_total td:last-child {
+    color: #D9C08A !important;
+    font-size: 13px !important;
 }
 
 /* ── Tax Lines ── */
@@ -207,20 +249,40 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     font-size: 10px;
 }
 
-/* ── Note / Terms Blocks ── */
-.o_report_layout_sgc .o_terms,
-.o_report_layout_sgc .o_note {
-    border-top: 1px solid #D9C08A;
-    padding-top: 8px;
-    margin-top: 12px;
-    font-size: 9px;
-    color: #5F6775;
+/* ── Terms & Conditions Box ──
+   doc.note / o.narration render inside a plain <div> in stock Odoo
+   with no class at all, so nothing was ever styled here before (the
+   old .o_terms/.o_note selectors targeted classes that don't exist in
+   the actual markup). The template now adds class="o_sgc_terms_box"
+   to that div plus a heading before it (see sgc_terms_box_saleorder /
+   sgc_terms_box_invoice in sgc_report_layout.xml). */
+.o_report_layout_sgc .o_sgc_terms_heading {
+    font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #B79554;
+    margin-top: 16px;
+    margin-bottom: 6px;
 }
 
-/* ── Subtotal / Separator Rows ── */
-.o_report_layout_sgc .o_subtotal td {
-    border-top: 2px solid #B79554 !important;
-    font-weight: 600 !important;
+.o_report_layout_sgc .o_sgc_terms_box {
+    background-color: #FBF9F4 !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 10px 14px !important;
+    font-size: 9px !important;
+    line-height: 1.65 !important;
+    color: #1C2430 !important;
+}
+
+.o_report_layout_sgc .o_sgc_terms_box p {
+    margin-bottom: 6px;
+}
+
+.o_report_layout_sgc .o_sgc_terms_box p:last-child {
+    margin-bottom: 0;
 }
 
 /* ── Background / Watermark ── */
@@ -244,9 +306,11 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     color: #0F213D !important;
 }
 
-.o_report_layout_sgc .o_total strong,
-.o_company_1_layout .o_total strong {
-    color: #0F213D !important;
+/* .o_total is the final totals ROW (tr.o_total), styled navy/white
+   above in the Totals Box section - its <strong> children must
+   inherit that white, not be forced back to navy. */
+.o_report_layout_sgc tr.o_total strong {
+    color: inherit !important;
 }
 
 .o_report_layout_sgc .o_company_tagline,

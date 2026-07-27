@@ -40,39 +40,42 @@
             }
         </style>
 
-        <!-- ── Header: logo + brand on the left, company address/contact on the right ── -->
+<!-- ── Header: logo + company info (address/contact) on the LEFT,
+             tagline alone on the RIGHT, per brand direction. ── -->
         <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
         <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="vertical-align: middle; padding: 6mm 4mm 4mm 4mm; width: 55%;">
+                    <!-- Left: Logo + Brand Name + full company address/contact -->
+                    <td style="vertical-align: middle; padding: 6mm 4mm 4mm 4mm; width: 62%;">
                         <table style="border-collapse: collapse;">
                             <tr>
                                 <td style="width: auto; padding-right: 12px; vertical-align: middle;">
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 80px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
                                 <td style="vertical-align: middle;">
-                                    <h1 style="margin: 0; padding: 0; font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #FFFFFF; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></h1>
-                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #D9C08A; margin-top: 3px;">Finance · System · Technology</div>
+                                    <h1 style="margin: 0; padding: 0; font-family: 'IBM Plex Serif', Georgia, serif; font-size: 18px; font-weight: 700; color: #FFFFFF; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></h1>
+                                    <t t-set="header_address_parts" t-value="[]"/>
+                                    <t t-if="company.street" t-set="header_address_parts" t-value="header_address_parts + [company.street]"/>
+                                    <t t-if="company.city or company.zip" t-set="header_address_parts" t-value="header_address_parts + [((company.zip or '') + ' ' + (company.city or '')).strip()]"/>
+                                    <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
+                                    <div t-if="header_address_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 500; color: #E8DCC4; line-height: 1.4; margin-top: 4px;">
+                                        <t t-foreach="header_address_parts" t-as="addr_part"><t t-esc="addr_part"/><t t-if="not addr_part_last"> · </t></t>
+                                    </div>
+                                    <t t-set="header_contact_parts" t-value="[]"/>
+                                    <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>
+                                    <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E ' + company.email]"/>
+                                    <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W ' + company.website]"/>
+                                    <div t-if="header_contact_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8px; color: #D9C08A; margin-top: 2px; line-height: 1.4;">
+                                        <t t-foreach="header_contact_parts" t-as="cpart"><t t-esc="cpart"/><t t-if="not cpart_last"> &#160;·&#160; </t></t>
+                                    </div>
                                 </td>
                             </tr>
                         </table>
                     </td>
-                    <td style="vertical-align: middle; text-align: right; padding: 6mm 4mm 4mm 4px; width: 45%;">
-                        <t t-set="header_address_parts" t-value="[]"/>
-                        <t t-if="company.street" t-set="header_address_parts" t-value="header_address_parts + [company.street]"/>
-                        <t t-if="company.city or company.zip" t-set="header_address_parts" t-value="header_address_parts + [((company.zip or '') + ' ' + (company.city or '')).strip()]"/>
-                        <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
-                        <t t-set="header_contact_parts" t-value="[]"/>
-                        <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>
-                        <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E ' + company.email]"/>
-                        <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W ' + company.website]"/>
-                        <div t-if="header_address_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; color: #1C2430; line-height: 1.4;">
-                            <t t-foreach="header_address_parts" t-as="addr_part"><t t-esc="addr_part"/><br t-if="not addr_part_last"/></t>
-                        </div>
-                        <div t-if="header_contact_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; color: #5F6775; margin-top: 3px; line-height: 1.4;">
-                            <t t-foreach="header_contact_parts" t-as="cpart"><t t-esc="cpart"/><br t-if="not cpart_last"/></t>
-                        </div>
+                    <!-- Right: Tagline only -->
+                    <td style="vertical-align: middle; text-align: right; padding: 6mm 4mm 4mm 4px; width: 38%;">
+                        <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #D9C08A; line-height: 1.5;">Finance · System<br/>· Technology</div>
                     </td>
                 </tr>
             </table>
@@ -166,6 +169,35 @@
             <t t-call="sgc_construction_management.external_layout_sgc">
                 <t t-out="0"/>
             </t>
+        </xpath>
+    </template>
+
+    <!-- ── Terms & Conditions box on Quotations / Sales Orders ──
+         doc.note ("order_note") and the payment-term note both live
+         inside one unclassed <div> in sale's stock template. Give that
+         div a class we can box/border with CSS, and add a heading
+         above it so the note reads as a labeled "Terms & Conditions"
+         section instead of a bare paragraph. -->
+    <template id="sgc_terms_box_saleorder" inherit_id="sale.report_saleorder_document" name="SGC Terms Box (Sale Order)">
+        <xpath expr="//div[span[@name='order_note']]" position="attributes">
+            <attribute name="class" add="o_sgc_terms_box" separator=" "/>
+        </xpath>
+        <xpath expr="//div[span[@name='order_note']]" position="before">
+            <div class="o_sgc_terms_heading">Terms &amp; Conditions</div>
+        </xpath>
+    </template>
+
+    <!-- ── Terms & Conditions box on Customer Invoices ──
+         o.narration lives in a <div name="comment"> guarded by a t-if,
+         so the heading is inserted INSIDE that div (before the note's
+         span) rather than as a sibling, keeping the same visibility
+         condition. -->
+    <template id="sgc_terms_box_invoice" inherit_id="account.report_invoice_document" name="SGC Terms Box (Invoice)">
+        <xpath expr="//div[@name='comment']" position="attributes">
+            <attribute name="class" add="o_sgc_terms_box" separator=" "/>
+        </xpath>
+        <xpath expr="//div[@name='comment']/span[@t-field='o.narration']" position="before">
+            <div class="o_sgc_terms_heading">Terms &amp; Conditions</div>
         </xpath>
     </template>
 </odoo>
