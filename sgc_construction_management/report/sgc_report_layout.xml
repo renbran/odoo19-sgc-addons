@@ -56,7 +56,7 @@
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 76px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
                                 <td style="vertical-align: middle;">
-                                    <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #0F213D; letter-spacing: 0.3px; line-height: 1.25;">
+                                    <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.25;">
                                         <span t-esc="company.name"/>
                                     </div>
                                     <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B79554; margin-top: 2px;">
@@ -72,18 +72,26 @@
                         </table>
                     </td>
 
-                    <!-- Right: Company address / contact -->
-                    <td style="vertical-align: top; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.7; color: #5F6775;">
-                        <div>
-                            <span t-field="company.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
+                    <!-- Right: Company address / contact - each composed as ONE joined
+                         line (rather than Odoo's multi-line "contact" widget) so the
+                         whole header stays compact enough to fit wkhtmltopdf's fixed
+                         header box without the top line getting clipped. -->
+                    <td style="vertical-align: top; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.5; color: #5F6775;">
+                        <t t-set="header_addr_parts" t-value="[]"/>
+                        <t t-if="company.street" t-set="header_addr_parts" t-value="header_addr_parts + [company.street]"/>
+                        <t t-if="company.street2" t-set="header_addr_parts" t-value="header_addr_parts + [company.street2]"/>
+                        <t t-if="company.city" t-set="header_addr_parts" t-value="header_addr_parts + [company.city]"/>
+                        <t t-if="company.country_id" t-set="header_addr_parts" t-value="header_addr_parts + [company.country_id.name]"/>
+                        <div t-if="header_addr_parts">
+                            <span t-out="', '.join(header_addr_parts)"/>
                         </div>
                         <t t-set="header_contact_parts" t-value="[]"/>
                         <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T: ' + company.phone]"/>
                         <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E: ' + company.email]"/>
+                        <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W: ' + company.website]"/>
                         <div t-if="header_contact_parts">
                             <span t-out="' | '.join(header_contact_parts)"/>
                         </div>
-                        <div t-if="company.website">W: <span t-esc="company.website"/></div>
                     </td>
                 </tr>
             </table>
