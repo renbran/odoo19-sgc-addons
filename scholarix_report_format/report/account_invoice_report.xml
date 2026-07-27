@@ -1,18 +1,215 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <!--
-        Professional Invoice report.
-        Inherits the standard Odoo 19 template and applies clean styling
-        overrides with high priority to ensure it renders last.
+        SGC TECH AI — Premium Cream / Navy / Gold Customer Invoice Report
+        ================================================================
+        Same architecture and palette as report/sale_order_report.xml
+        (INHERITS via targeted xpath, priority 99, non-destructive to
+        other modules inheriting account.report_invoice_document).
+
+        NOTE: this template's QWeb context variable is `o` (not `doc` as
+        in the sale order template) — that's how Odoo's stock
+        account.report_invoice_document is written.
     -->
     <template id="report_invoice_professional"
               inherit_id="account.report_invoice_document"
               priority="99">
 
-        <!-- Clean table styling -->
-        <xpath expr="//table[hasclass('table')]" position="attributes">
-            <attribute name="class">table table-sm o_main_table mt-4</attribute>
-            <attribute name="style">border-collapse: collapse;</attribute>
+        <!-- ═══════════════════════════════════════════════
+             1. INJECT SGC STYLES into <div class="page">
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <style type="text/css">
+                /* ============================================================
+                   SGC TECH AI — Premium Report Styles v6.0 (cream/navy/gold)
+                   wkhtmltopdf-safe: NO gradients, NO flexbox
+                   ============================================================ */
+                .page { font-family: 'Lato', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important; color: #22262B; font-size: 10px; line-height: 1.55; background-color: #FAF7F0; }
+
+                /* ── Letterhead ── */
+                .sgc-letterhead { padding-bottom: 10px; page-break-inside: avoid; }
+                .sgc-letterhead table { width: 100%; border: none; border-collapse: collapse; }
+                .sgc-letterhead table td { padding: 0; border: none; vertical-align: top; }
+                .sgc-brand-name { font-family: 'Georgia', 'Times New Roman', serif; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; color: #0B1F3A; margin: 0; }
+                .sgc-brand-tagline { font-size: 8.5px; color: #B8912F; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; font-weight: 700; }
+                .sgc-logo-img { max-height: 50px; max-width: 130px; margin-right: 10px; }
+                .sgc-company-contact { text-align: right; font-size: 9px; color: #4B5563; line-height: 1.7; }
+                .sgc-company-contact .line1 { font-weight: 700; color: #0B1F3A; font-size: 10px; margin-bottom: 2px; }
+
+                /* ── Hairline ── */
+                .sgc-hairline { border-bottom: 1.5px solid #B8912F; margin-bottom: 16px; }
+
+                /* ── Document title ── */
+                .sgc-doc-title-wrap { text-align: center; margin-bottom: 16px; page-break-inside: avoid; }
+                .sgc-doc-title { font-family: 'Georgia', 'Times New Roman', serif; font-size: 24px; font-weight: 700; color: #0B1F3A; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+                .sgc-doc-rule { text-align: center; margin: 8px 0; }
+                .sgc-doc-rule .l { display: inline-block; vertical-align: middle; width: 70px; height: 1px; background-color: #B8912F; }
+                .sgc-doc-rule .d { display: inline-block; vertical-align: middle; width: 5px; height: 5px; margin: 0 8px; background-color: #B8912F; }
+                .sgc-doc-number { font-size: 11px; color: #4B5563; font-weight: 600; letter-spacing: 0.5px; }
+
+                /* ── Meta grid (replaces standard #informations styling) ── */
+                #informations { margin-bottom: 16px; page-break-inside: avoid; }
+                #informations > div.col { background-color: #F1EADD; border: 1px solid #B8912F; border-radius: 3px; padding: 6px 10px !important; margin: 0 3px; }
+                #informations > div.col > strong { font-size: 7px !important; text-transform: uppercase; letter-spacing: 1.2px; color: #B8912F !important; font-weight: 700; display: block; margin-bottom: 1px; }
+                #informations > div.col > div { font-size: 10px; font-weight: 600; color: #0B1F3A; }
+
+                /* ── Bill To (plain, no card) ── */
+                .sgc-bill-to { margin-bottom: 16px; page-break-inside: avoid; }
+                .sgc-bill-to-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: #B8912F; font-weight: 700; margin-bottom: 4px; }
+                .sgc-bill-to-name { font-size: 12px; font-weight: 700; color: #0B1F3A; margin-bottom: 2px; }
+                .sgc-bill-to-details { font-size: 10px; color: #22262B; line-height: 1.5; }
+                .sgc-bill-to-vat { font-size: 9px; color: #4B5563; margin-top: 3px; }
+                .sgc-bill-to table { width: 100%; border: none; border-collapse: collapse; }
+                .sgc-bill-to table td { border: none; padding: 0; vertical-align: top; }
+
+                /* ── Main Table (stock template already carries o_main_table) ── */
+                .o_main_table { font-size: 10px !important; border-collapse: collapse !important; }
+                .o_main_table thead tr th { background-color: #0B1F3A !important; color: #FAF7F0 !important; padding: 8px 8px !important; font-size: 8px !important; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; border: none !important; }
+                .o_main_table tbody td { font-size: 10px; padding: 6px 8px !important; border-bottom: 1px solid #E8DCC4; vertical-align: top; line-height: 1.4; }
+
+                /* ── Sections ── */
+                tr.fw-bolder.o_line_section td { background-color: #0B1F3A !important; color: #FAF7F0 !important; font-weight: 700; font-size: 10.5px; padding: 7px 8px !important; border: none !important; border-top: 2px solid #B8912F !important; }
+                tr.fw-bold.o_line_subsection td { background-color: #F1EADD !important; color: #0B1F3A; font-weight: 600; font-size: 10px; padding: 6px 8px !important; border: none !important; border-left: 3px solid #B8912F !important; }
+
+                /* ── Totals ── */
+                .o_total_table { font-size: 10px; }
+                .o_total_table td { padding: 3px 8px !important; }
+                .o_total_table tr.o_total td { font-weight: 800; font-size: 13px; border-top: 2px solid #B8912F !important; color: #0B1F3A; padding-top: 6px !important; }
+
+                /* ── Terms ── */
+                .sgc-terms-box { background-color: #F1EADD; border: 1px solid #B8912F; border-radius: 4px; padding: 10px 14px; margin-top: 12px; font-size: 9px; color: #4B5563; line-height: 1.45; page-break-inside: avoid; }
+                .sgc-terms-label { color: #0B1F3A; font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+
+                /* ── Footer band ── */
+                .sgc-footer-band { text-align: center; margin-top: 16px; padding-top: 10px; border-top: 1.5px solid #B8912F; page-break-inside: avoid; }
+                .sgc-footer-company { font-size: 9px; font-weight: 700; color: #0B1F3A; letter-spacing: 0.3px; }
+                .sgc-footer-address { font-size: 8px; color: #4B5563; margin-top: 2px; }
+                .sgc-footer-tagline { font-size: 7px; letter-spacing: 3px; text-transform: uppercase; color: #B8912F; font-weight: 700; margin-top: 5px; }
+
+                /* ── Page-break control ── */
+                tr.fw-bolder.o_line_section { page-break-after: avoid !important; }
+                tr.fw-bolder.o_line_section + tr { page-break-before: avoid !important; }
+                tr.fw-bold.o_line_subsection { page-break-after: avoid !important; }
+                tr.fw-bold.o_line_subsection + tr { page-break-before: avoid !important; }
+            </style>
+        </xpath>
+
+        <!-- ═══════════════════════════════════════════════
+             2. SUPPRESS the standard layout_document_title
+                (rendered inside our own doc-title block instead)
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//t[@t-set='layout_document_title']" position="replace">
+            <t t-set="layout_document_title" t-value="''"/>
+        </xpath>
+
+        <!-- ═══════════════════════════════════════════════
+             3. SUPPRESS the standard address row
+                (rendered inside our own Bill To block instead)
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//div[hasclass('row')][.//t[@t-set='address']]" position="replace">
+            <t/>
+        </xpath>
+
+        <!-- ═══════════════════════════════════════════════
+             4. INJECT LETTERHEAD + TITLE + BILL TO
+                before #informations
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//div[@id='informations']" position="before">
+            <!-- ═══════ LETTERHEAD ═══════ -->
+            <div class="sgc-letterhead">
+                <table><tr>
+                    <td style="width:55%;">
+                        <table><tr>
+                            <td style="width:auto; padding-right:0;">
+                                <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" class="sgc-logo-img" alt="Company Logo"/>
+                            </td>
+                            <td>
+                                <div class="sgc-brand-name"><span t-field="o.company_id.name"/></div>
+                                <div class="sgc-brand-tagline">Finance &#183; System &#183; Technology</div>
+                            </td>
+                        </tr></table>
+                    </td>
+                    <td style="width:45%;" class="sgc-company-contact">
+                        <div class="line1"><span t-field="o.company_id.name"/></div>
+                        <div t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                        <div>
+                            <t t-if="o.company_id.phone">T: <span t-field="o.company_id.phone"/></t>
+                            <t t-if="o.company_id.phone and o.company_id.email"> &#183; </t>
+                            <t t-if="o.company_id.email">E: <span t-field="o.company_id.email"/></t>
+                        </div>
+                        <div t-if="o.company_id.website">W: <span t-field="o.company_id.website"/></div>
+                    </td>
+                </tr></table>
+            </div>
+            <!-- ═══════ HAIRLINE ═══════ -->
+            <div class="sgc-hairline"/>
+            <!-- ═══════ DOCUMENT TITLE ═══════ -->
+            <div class="sgc-doc-title-wrap">
+                <div class="sgc-doc-title">
+                    <t t-if="not proforma">
+                        <t t-if="o.move_type == 'out_invoice' and o.state == 'posted'">Invoice</t>
+                        <t t-elif="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</t>
+                        <t t-elif="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</t>
+                        <t t-elif="o.move_type == 'out_refund'">Credit Note</t>
+                        <t t-elif="o.move_type == 'in_refund'">Vendor Credit Note</t>
+                        <t t-elif="o.move_type == 'in_invoice'">Vendor Bill</t>
+                        <t t-else="">Invoice</t>
+                    </t>
+                    <t t-else="">
+                        <t t-if="o.move_type == 'out_refund'">Pro-Forma Credit Note</t>
+                        <t t-else="">Pro-Forma Invoice</t>
+                    </t>
+                </div>
+                <div class="sgc-doc-rule"><span class="l"/><span class="d"/><span class="l"/></div>
+                <div class="sgc-doc-number"><span t-if="o.name and o.name != '/'" t-field="o.name"/></div>
+            </div>
+            <!-- ═══════ BILL TO ═══════ -->
+            <div class="sgc-bill-to">
+                <table><tr>
+                    <td style="width:50%; padding-right:12px;">
+                        <div class="sgc-bill-to-label">Bill To</div>
+                        <div class="sgc-bill-to-name" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["name"], "no_marker": True}'/>
+                        <div class="sgc-bill-to-details" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                        <div t-if="o.partner_id.vat" class="sgc-bill-to-vat">
+                            <t t-if="o.company_id.account_fiscal_country_id.vat_label" t-out="o.company_id.account_fiscal_country_id.vat_label"/>
+                            <t t-else="">Tax ID</t>: <span t-field="o.partner_id.vat"/>
+                        </div>
+                        <div t-if="o.partner_id.country_code == 'MA' and o.partner_id.company_registry" class="sgc-bill-to-vat">
+                            ICE: <span t-field="o.partner_id.company_registry"/>
+                        </div>
+                    </td>
+                    <t t-if="o.partner_shipping_id and o.partner_shipping_id != o.partner_id" groups="account.group_delivery_invoice_address">
+                        <td style="width:50%; padding-left:12px; border-left:1px solid #E8DCC4;">
+                            <div class="sgc-bill-to-label">Shipping Address</div>
+                            <div class="sgc-bill-to-name" t-field="o.partner_shipping_id" t-options='{"widget": "contact", "fields": ["name"], "no_marker": True}'/>
+                            <div class="sgc-bill-to-details" t-field="o.partner_shipping_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                        </td>
+                    </t>
+                </tr></table>
+            </div>
+        </xpath>
+
+        <!-- ═══════════════════════════════════════════════
+             5. WRAP terms/narration ("comment") into SGC terms box
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//div[@name='comment']" position="replace">
+            <div t-if="not is_html_empty(o.narration)" class="sgc-terms-box" name="comment">
+                <div class="sgc-terms-label" style="margin-bottom:6px;">Terms &amp; Conditions</div>
+                <div style="font-size:9px; color:#22262B; line-height:1.55;" t-attf-style="#{'text-align:justify;text-justify:inter-word;' if o.company_id.terms_type != 'html' else ''}">
+                    <span t-field="o.narration"/>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- ═══════════════════════════════════════════════
+             6. ADD SGC FOOTER BAND at the end of page
+             ═══════════════════════════════════════════════ -->
+        <xpath expr="//div[hasclass('page')]//div[hasclass('oe_structure')][last()]" position="after">
+            <div class="sgc-footer-band">
+                <div class="sgc-footer-company"><span t-field="o.company_id.name"/></div>
+                <div class="sgc-footer-address" t-field="o.company_id.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                <div class="sgc-footer-tagline">Powered by Artificial Intelligence</div>
+            </div>
         </xpath>
 
     </template>
