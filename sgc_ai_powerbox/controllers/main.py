@@ -59,7 +59,10 @@ class SgcAIController(http.Controller):
             'model': model,
             'messages': messages,
             'temperature': 0.7,
-            'max_tokens': 500,
+            # 4096 covers the thinking budget of reasoning-heavy models
+            # (e.g. DeepSeek V4 Flash) while still leaving room for a real
+            # answer in the OpenAI-compatible content field.
+            'max_tokens': 4096,
         }
 
         headers = {
