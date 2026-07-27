@@ -39,21 +39,28 @@
         company address (street + city/country) and T/E/W contact under
         the brand name on the left (previously it was just brand name +
         one tagline line) - two extra lines of header content, which
-        clipped the document title at margin_top=80. Bumped to
-        margin_top=100/header_spacing=10 to fit brand name + 2-line
-        address + contact line with no clipping.
+        clipped the document title. Repeatedly bumping margin_top (up to
+        150mm) did NOT fix it - a pixel-diff between two renders at
+        different margin_top values proved the header+body block simply
+        shifts down the page as a whole, the gap between the header's
+        own bottom edge and the body/title start does not change.
+        header_spacing is the actual control for that internal gap; it
+        just hadn't been touched since the 2-line-header days when 10mm
+        was already generous. margin_top=50/header_spacing=35 is the
+        combination that fits the taller 4-line letterhead with no
+        clipping and no wasted blank space at the top of the page.
     -->
     <record id="paperformat_sgc_a4" model="report.paperformat">
         <field name="name">SGC A4</field>
         <field name="default" eval="False"/>
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">100</field>
+        <field name="margin_top">50</field>
         <field name="margin_bottom">15</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
         <field name="header_line" eval="True"/>
-        <field name="header_spacing">10</field>
+        <field name="header_spacing">35</field>
         <field name="dpi">85</field>
     </record>
 
