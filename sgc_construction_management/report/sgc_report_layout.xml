@@ -45,14 +45,20 @@
         <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="vertical-align: middle; padding: 6mm 4mm 4mm 4mm;">
-                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 80px; display: inline-block; vertical-align: middle; margin-right: 12px;" alt="Logo" class="o_sgc_logo"/>
-                        <div style="display: inline-block; vertical-align: middle;">
-                            <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #0F213D; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></div>
-                            <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #B79554; margin-top: 3px;">Finance · System · Technology</div>
-                        </div>
+                    <td style="vertical-align: middle; padding: 6mm 4mm 4mm 4mm; width: 55%;">
+                        <table style="border-collapse: collapse;">
+                            <tr>
+                                <td style="width: auto; padding-right: 12px; vertical-align: middle;">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 80px; display: block;" alt="Logo" class="o_sgc_logo"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #0F213D; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></div>
+                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #B79554; margin-top: 3px;">Finance · System · Technology</div>
+                                </td>
+                            </tr>
+                        </table>
                     </td>
-                    <td style="vertical-align: middle; text-align: right; padding: 6mm 4mm 4mm 4px;">
+                    <td style="vertical-align: middle; text-align: right; padding: 6mm 4mm 4mm 4px; width: 45%;">
                         <t t-set="header_address_parts" t-value="[]"/>
                         <t t-if="company.street" t-set="header_address_parts" t-value="header_address_parts + [company.street]"/>
                         <t t-if="company.city or company.zip" t-set="header_address_parts" t-value="header_address_parts + [((company.zip or '') + ' ' + (company.city or '')).strip()]"/>
