@@ -41,6 +41,7 @@
         </style>
 
         <!-- ── Header: logo + brand on the left, company address/contact on the right ── -->
+        <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
         <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header">
             <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <colgroup>
@@ -55,22 +56,7 @@
                                 <td style="width: auto; padding-right: 10px; vertical-align: middle;">
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 42px; max-width: 64px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
-                                <td style="vertical-align: middle;">
-                                    <!-- Short brand name (text before the first parenthesis,
-                                         e.g. "SGC TECH AI" out of "SGC TECH AI (Scholarix
-                                         Global Consultant FZE)") - the full legal name is long
-                                         enough that at a readable font size it wraps onto a
-                                         second line and overflows wkhtmltopdf's fixed header
-                                         box height. The full legal name is still shown in full
-                                         in the footer. -->
-                                    <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
-                                    <div style="font-family: Helvetica, Arial, sans-serif; font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.1; display: block !important; visibility: visible !important;">
-                                        <span>VISIBLE-TEST</span>
-                                    </div>
-                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #D9C08A; margin-top: 2px;">
-                                        Finance · System · Technology
-                                    </div>
-                                </td>
+                                <td style="vertical-align: middle;"><div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FFFFFF; line-height: 1.1;"><span t-esc="header_brand_name"/></div><div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #D9C08A; margin-top: 2px;">Finance · System · Technology</div></td>
                             </tr>
                         </table>
                     </td>
