@@ -56,10 +56,18 @@
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 76px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
                                 <td style="vertical-align: middle;">
-                                    <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.25;">
-                                        <span t-esc="company.name"/>
+                                    <!-- Short brand name (text before the first parenthesis,
+                                         e.g. "SGC TECH AI" out of "SGC TECH AI (Scholarix
+                                         Global Consultant FZE)") - the full legal name is long
+                                         enough that at a readable font size it wraps onto a
+                                         second line and overflows wkhtmltopdf's fixed header
+                                         box height. The full legal name is still shown in full
+                                         in the footer. -->
+                                    <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
+                                    <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.25; white-space: nowrap;">
+                                        <span t-esc="header_brand_name"/>
                                     </div>
-                                    <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B79554; margin-top: 2px;">
+                                    <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B79554; margin-top: 2px; white-space: nowrap;">
                                         <t t-if="company.report_header">
                                             <t t-raw="company.report_header"/>
                                         </t>
@@ -72,19 +80,11 @@
                         </table>
                     </td>
 
-                    <!-- Right: Company address / contact - each composed as ONE joined
-                         line (rather than Odoo's multi-line "contact" widget) so the
-                         whole header stays compact enough to fit wkhtmltopdf's fixed
-                         header box without the top line getting clipped. -->
-                    <td style="vertical-align: top; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.5; color: #5F6775;">
-                        <t t-set="header_addr_parts" t-value="[]"/>
-                        <t t-if="company.street" t-set="header_addr_parts" t-value="header_addr_parts + [company.street]"/>
-                        <t t-if="company.street2" t-set="header_addr_parts" t-value="header_addr_parts + [company.street2]"/>
-                        <t t-if="company.city" t-set="header_addr_parts" t-value="header_addr_parts + [company.city]"/>
-                        <t t-if="company.country_id" t-set="header_addr_parts" t-value="header_addr_parts + [company.country_id.name]"/>
-                        <div t-if="header_addr_parts">
-                            <span t-out="', '.join(header_addr_parts)"/>
-                        </div>
+                    <!-- Right: Company contact - kept to ONE line (phone | email |
+                         website only; the full street address already appears in the
+                         footer) so the header's total height stays small and
+                         predictable, regardless of how long the address is. -->
+                    <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.5; color: #5F6775; white-space: nowrap;">
                         <t t-set="header_contact_parts" t-value="[]"/>
                         <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T: ' + company.phone]"/>
                         <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E: ' + company.email]"/>
