@@ -56,7 +56,7 @@
                                 <td style="width: auto; padding-right: 10px; vertical-align: middle;">
                                     <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 42px; max-width: 64px; display: block;" alt="Logo" class="o_sgc_logo"/>
                                 </td>
-                                <td style="vertical-align: middle;"><div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FFFFFF; line-height: 1.1;"><span t-esc="header_brand_name"/></div><div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #D9C08A; margin-top: 2px;">Finance · System · Technology</div></td>
+                                <td style="vertical-align: middle;"><div>left cell content</div></td>
                             </tr>
                         </table>
                     </td>
@@ -67,6 +67,7 @@
                          header band compact prevents wkhtmltopdf from clipping
                          the brand name / logo area. -->
                     <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.55; color: #FFFFFF;">
+                        <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FFFFFF; line-height: 1.1;"><span t-esc="header_brand_name"/></div>
                         <div style="font-weight: 600; color: #FFFFFF; font-size: 9px; letter-spacing: 0.3px; white-space: nowrap;">
                             <t t-set="header_address_parts" t-value="[]"/>
                             <t t-if="company.city" t-set="header_address_parts" t-value="header_address_parts + [company.city]"/>
