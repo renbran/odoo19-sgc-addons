@@ -64,7 +64,7 @@
                                          box height. The full legal name is still shown in full
                                          in the footer. -->
                                     <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
-                                    <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.1;">
+                                    <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FF0000; letter-spacing: 0.3px; line-height: 1.1; background-color: yellow;">
                                         <span t-esc="header_brand_name"/>
                                     </div>
                                     <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 7.5px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #D9C08A; margin-top: 2px;">
@@ -87,11 +87,11 @@
                             <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
                             <span t-if="header_address_parts" t-out="', '.join(header_address_parts)"/>
                         </div>
-                        <div style="margin-top: 4px; color: #D9C08A; font-size: 8.5px; letter-spacing: 0.3px; white-space: nowrap;">
+                        <div style="margin-top: 4px; color: #D9C08A; font-size: 7.5px; letter-spacing: 0.3px;">
                             <t t-set="header_contact_parts" t-value="[]"/>
-                            <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>
-                            <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E ' + company.email]"/>
-                            <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W ' + company.website]"/>
+                            <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + [company.phone]"/>
+                            <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + [company.email]"/>
+                            <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + [company.website]"/>
                             <span t-if="header_contact_parts" t-out="'  ·  '.join(header_contact_parts)"/>
                         </div>
                     </td>
