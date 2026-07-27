@@ -43,50 +43,36 @@
         <!-- ── Header: logo + brand on the left, company address/contact on the right ── -->
         <t t-set="header_brand_name" t-value="company.name.split('(')[0].strip() if company.name and '(' in company.name else company.name"/>
         <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header">
-            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-                <colgroup>
-                    <col style="width: 55%;"/>
-                    <col style="width: 45%;"/>
-                </colgroup>
+            <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <!-- Left: Logo + Brand Name + Tagline -->
-                    <td style="vertical-align: middle;">
-                        <table style="border-collapse: collapse;">
-                            <tr>
-                                <td style="width: auto; padding-right: 10px; vertical-align: middle;">
-                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 42px; max-width: 64px; display: block;" alt="Logo" class="o_sgc_logo"/>
-                                </td>
-                                <td style="vertical-align: middle;"><div>left cell content</div></td>
-                            </tr>
-                        </table>
-                    </td>
-
-                    <!-- Right: compact company info (one line of address, then one line
-                         of T / E / W). Full street address is rendered in the
-                         footer below, where there's room for it - keeping the
-                         header band compact prevents wkhtmltopdf from clipping
-                         the brand name / logo area. -->
-                    <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.55; color: #FFFFFF;">
-                        <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 17px; font-weight: 700; color: #FFFFFF; line-height: 1.1;"><span t-esc="header_brand_name"/></div>
-                        <div style="font-weight: 600; color: #FFFFFF; font-size: 9px; letter-spacing: 0.3px; white-space: nowrap;">
-                            <t t-set="header_address_parts" t-value="[]"/>
-                            <t t-if="company.city" t-set="header_address_parts" t-value="header_address_parts + [company.city]"/>
-                            <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
-                            <span t-if="header_address_parts" t-out="', '.join(header_address_parts)"/>
+                    <td style="vertical-align: middle; padding: 6mm 4mm 4mm 4mm;">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 80px; display: inline-block; vertical-align: middle; margin-right: 12px;" alt="Logo" class="o_sgc_logo"/>
+                        <div style="display: inline-block; vertical-align: middle;">
+                            <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 19px; font-weight: 700; color: #0F213D; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></div>
+                            <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #B79554; margin-top: 3px;">Finance · System · Technology</div>
                         </div>
-                        <div style="margin-top: 4px; color: #D9C08A; font-size: 7.5px; letter-spacing: 0.3px;">
-                            <t t-set="header_contact_parts" t-value="[]"/>
-                            <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + [company.phone]"/>
-                            <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + [company.email]"/>
-                            <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + [company.website]"/>
-                            <span t-if="header_contact_parts" t-out="'  ·  '.join(header_contact_parts)"/>
+                    </td>
+                    <td style="vertical-align: middle; text-align: right; padding: 6mm 4mm 4mm 4px;">
+                        <t t-set="header_address_parts" t-value="[]"/>
+                        <t t-if="company.street" t-set="header_address_parts" t-value="header_address_parts + [company.street]"/>
+                        <t t-if="company.city or company.zip" t-set="header_address_parts" t-value="header_address_parts + [((company.zip or '') + ' ' + (company.city or '')).strip()]"/>
+                        <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
+                        <t t-set="header_contact_parts" t-value="[]"/>
+                        <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>
+                        <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E ' + company.email]"/>
+                        <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W ' + company.website]"/>
+                        <div t-if="header_address_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 9px; font-weight: 600; color: #1C2430; line-height: 1.4;">
+                            <t t-foreach="header_address_parts" t-as="addr_part"><t t-esc="addr_part"/><br t-if="not addr_part_last"/></t>
+                        </div>
+                        <div t-if="header_contact_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; color: #5F6775; margin-top: 3px; line-height: 1.4;">
+                            <t t-foreach="header_contact_parts" t-as="cpart"><t t-esc="cpart"/><br t-if="not cpart_last"/></t>
                         </div>
                     </td>
                 </tr>
             </table>
 
             <!-- Gold Hairline -->
-            <div style="border-bottom: 2px solid #B79554; margin-top: 8px;"/>
+            <div style="border-bottom: 2px solid #B79554; margin: 0 4mm;"/>
         </div>
 
         <!-- ── Body Content ── -->

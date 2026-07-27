@@ -48,37 +48,21 @@ html, body, .o_body_html, #wrapwrap, main, .page {
     background-color: #F7F4EE !important;
 }
 
-/* ── SGC Header Band (navy strip) ──
-   The header contains the brand name in WHITE, the tagline in
-   champagne, and the right-aligned contact lines also in light tones.
-   None of those are visible on the cream page background, so the
-   header div itself must paint the navy strip. The bottom gold
-   hairline and the spacing come from the inline template. */
+/* ── SGC Header (cream/letterhead) ──
+   Brand name + tagline render on the page's cream background with
+   their own colors (navy / gold) inline in the template. The bottom
+   gold hairline and spacing come from the inline template. */
 .o_report_layout_sgc > .header,
 .o_report_layout_sgc .o_sgc_header {
-    background-color: #0F213D !important;
-    padding: 5mm 4mm 4mm 4mm !important;
+    background-color: transparent !important;
+    padding: 0 !important;
     margin: 0 !important;
-    color: #FFFFFF;
-    min-height: 24mm !important;
-    display: block !important;
-    position: relative !important;
-    overflow: visible !important;
+    color: #1C2430;
 }
 
-.o_report_layout_sgc .o_sgc_header > div,
-.o_report_layout_sgc .o_sgc_header > table {
-    color: #FFFFFF !important;
-}
-
-/* Logo + brand text should sit comfortably centered inside the
-   navy strip - the inline template uses vertical-align:middle which
-   works against the small content height; force a min-height that
-   matches what the brand-name + tagline stack actually renders. */
-.o_report_layout_sgc .o_sgc_header table { width: 100% !important; }
 .o_report_layout_sgc .o_sgc_header img.o_sgc_logo {
-    max-height: 42px !important;
-    max-width: 64px !important;
+    max-height: 50px !important;
+    max-width: 80px !important;
 }
 
 /* ── Typography ── */
