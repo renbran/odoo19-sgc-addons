@@ -67,30 +67,28 @@
                                     <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.3px; line-height: 1.25; white-space: nowrap;">
                                         <span t-esc="header_brand_name"/>
                                     </div>
-                                    <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B79554; margin-top: 2px; white-space: nowrap;">
-                                        <t t-if="company.report_header">
-                                            <t t-raw="company.report_header"/>
-                                        </t>
-                                        <t t-else="">
-                                            Navigate · Innovate · Transform
-                                        </t>
+                                    <div style="font-size: 8px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #D9C08A; margin-top: 3px; white-space: nowrap;">
+                                        Finance · System · Technology
                                     </div>
                                 </td>
                             </tr>
                         </table>
                     </td>
 
-                    <!-- Right: Company contact - kept to ONE line (phone | email |
-                         website only; the full street address already appears in the
-                         footer) so the header's total height stays small and
-                         predictable, regardless of how long the address is. -->
-                    <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.5; color: #5F6775; white-space: nowrap;">
-                        <t t-set="header_contact_parts" t-value="[]"/>
-                        <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T: ' + company.phone]"/>
-                        <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E: ' + company.email]"/>
-                        <t t-if="company.website" t-set="header_contact_parts" t-value="header_contact_parts + ['W: ' + company.website]"/>
-                        <div t-if="header_contact_parts">
-                            <span t-out="' | '.join(header_contact_parts)"/>
+                    <!-- Right: full company contact details (street / city / country
+                         then phone, email, website on their own lines). Full address
+                         here AND a condensed one in the footer is intentional - the
+                         reference mockup shows the address in the letterhead. -->
+                    <td style="vertical-align: middle; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.55; color: #FFFFFF;">
+                        <div style="font-weight: 600; color: #FFFFFF; font-size: 9.5px; letter-spacing: 0.3px;">
+                            <t t-if="company.street"><span t-esc="company.street"/><br/></t>
+                            <t t-if="company.city or company.zip"><span t-esc="(company.zip or '') + ' ' + (company.city or '')"/><br/></t>
+                            <t t-if="company.country_id"><span t-esc="company.country_id.name"/></t>
+                        </div>
+                        <div style="margin-top: 4px; color: #D9C08A; font-size: 8.5px; letter-spacing: 0.3px;">
+                            <t t-if="company.phone"><span style="color: #B79554; font-weight: 700;">T </span><span t-esc="company.phone"/><br/></t>
+                            <t t-if="company.email"><span style="color: #B79554; font-weight: 700;">E </span><span t-esc="company.email"/><br/></t>
+                            <t t-if="company.website"><span style="color: #B79554; font-weight: 700;">W </span><span t-esc="company.website"/></t>
                         </div>
                     </td>
                 </tr>
@@ -142,7 +140,7 @@
                         <!-- Column 1: Company Name & Tagline -->
                         <td style="vertical-align: top; padding-right: 10px;">
                             <span style="font-weight: 700; color: #0F213D; font-size: 10px;"><t t-esc="company.name"/></span><br/>
-                            <span style="font-size: 8px; letter-spacing: 0.5px; color: #B79554;">Navigate · Innovate · Transform</span>
+                            <span style="font-size: 8px; letter-spacing: 0.5px; color: #B79554;">Finance · System · Technology</span>
                         </td>
 
                         <!-- Column 2: Address & Contact Details -->
