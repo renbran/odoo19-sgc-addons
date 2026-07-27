@@ -51,13 +51,24 @@ html, body, .o_body_html, #wrapwrap, main, .page {
 /* ── SGC Header (cream/letterhead) ──
    Brand name + tagline render on the page's cream background with
    their own colors (navy / gold) inline in the template. The bottom
-   gold hairline and spacing come from the inline template. */
-.o_report_layout_sgc > .header,
-.o_report_layout_sgc .o_sgc_header {
+   gold hairline and spacing come from the inline template.
+   IMPORTANT: another module (sgc_report_theme_core) declares a
+   competing `.header.o_company_1_layout { background-color: #0F213D }`
+   rule. Both have !important and same specificity, so cascade order
+   decides. Our rule must be loaded AFTER theirs AND have equal-or-
+   higher specificity. We use the chained .o_report_layout_sgc >
+   .header.o_company_1_layout form (three classes) which beats the
+   two-class `.header.o_company_1_layout` rule by specificity AND is
+   declared later (this file is the last entry in web.report_assets_common
+   per __manifest__.py order). */
+html body .o_report_layout_sgc > .header.o_company_1_layout.o_sgc_header {
     background-color: transparent !important;
     padding: 0 !important;
     margin: 0 !important;
     color: #1C2430;
+    min-height: 0 !important;
+    display: block !important;
+    border-bottom: none !important;
 }
 
 .o_report_layout_sgc .o_sgc_header img.o_sgc_logo {
