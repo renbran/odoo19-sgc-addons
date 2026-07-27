@@ -186,8 +186,12 @@ html, body, .o_body_html, #wrapwrap, main, .page {
    above). Box the whole totals table in gold so it reads as a
    distinct block, with a clear line under Untaxed Amount, a clear
    line under each tax/VAT line, and a bold navy Total row. */
+/* Odoo's stock wrapper is <div id="total" class="row mt-n3"> - the
+   Bootstrap mt-n3 negative margin pulls the totals box up so it visually
+   collides with the item table's bottom border now that both have
+   visible borders. Cancel it out. */
 .o_report_layout_sgc #total {
-    margin-top: 10px;
+    margin-top: 14px !important;
 }
 
 .o_report_layout_sgc .o_total_table {

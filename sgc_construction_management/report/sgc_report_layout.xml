@@ -55,12 +55,12 @@
                                 </td>
                                 <td style="vertical-align: middle;">
                                     <h1 style="margin: 0; padding: 0; font-family: 'IBM Plex Serif', Georgia, serif; font-size: 18px; font-weight: 700; color: #FFFFFF; line-height: 1.1; letter-spacing: 0.3px;"><span t-esc="header_brand_name"/></h1>
-                                    <t t-set="header_address_parts" t-value="[]"/>
-                                    <t t-if="company.street" t-set="header_address_parts" t-value="header_address_parts + [company.street]"/>
-                                    <t t-if="company.city or company.zip" t-set="header_address_parts" t-value="header_address_parts + [((company.zip or '') + ' ' + (company.city or '')).strip()]"/>
-                                    <t t-if="company.country_id" t-set="header_address_parts" t-value="header_address_parts + [company.country_id.name]"/>
-                                    <div t-if="header_address_parts" style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8.5px; font-weight: 500; color: #E8DCC4; line-height: 1.4; margin-top: 4px;">
-                                        <t t-foreach="header_address_parts" t-as="addr_part"><t t-esc="addr_part"/><t t-if="not addr_part_last"> · </t></t>
+                                    <t t-set="header_city_country" t-value="[]"/>
+                                    <t t-if="company.city" t-set="header_city_country" t-value="header_city_country + [company.city]"/>
+                                    <t t-if="company.country_id" t-set="header_city_country" t-value="header_city_country + [company.country_id.name]"/>
+                                    <div style="font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif; font-size: 8px; font-weight: 500; color: #E8DCC4; line-height: 1.45; margin-top: 4px;">
+                                        <div t-if="company.street" t-esc="company.street"/>
+                                        <div t-if="header_city_country" t-out="', '.join(header_city_country)"/>
                                     </div>
                                     <t t-set="header_contact_parts" t-value="[]"/>
                                     <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T ' + company.phone]"/>

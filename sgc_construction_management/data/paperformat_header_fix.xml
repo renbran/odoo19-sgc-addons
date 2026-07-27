@@ -33,18 +33,22 @@
         (not just reasoning about wkhtmltopdf's margin semantics, which
         turned out to behave less predictably than documented - smaller
         margin_top values clipped the header's brand-name line even with
-        a generous header_spacing). margin_top=95/header_spacing=10 is
-        the smallest combination tested that rendered the full header -
-        logo, brand name, tagline, full street address (street/city/
-        country), and T/E/W contact line - with no clipping and no
-        overlap with the body title beneath it.
+        a generous header_spacing).
+
+        2026-07-27 (later): the letterhead was rebuilt to put the full
+        company address (street + city/country) and T/E/W contact under
+        the brand name on the left (previously it was just brand name +
+        one tagline line) - two extra lines of header content, which
+        clipped the document title at margin_top=80. Bumped to
+        margin_top=100/header_spacing=10 to fit brand name + 2-line
+        address + contact line with no clipping.
     -->
     <record id="paperformat_sgc_a4" model="report.paperformat">
         <field name="name">SGC A4</field>
         <field name="default" eval="False"/>
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">80</field>
+        <field name="margin_top">100</field>
         <field name="margin_bottom">15</field>
         <field name="margin_left">5</field>
         <field name="margin_right">5</field>
