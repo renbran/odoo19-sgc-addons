@@ -57,50 +57,56 @@
     margin-bottom: 0.5rem;
 }
 
-.o_report_layout_sgc h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    border-bottom: 1px solid #B79554;
-    padding-bottom: 8px;
-}
-
 .o_report_layout_sgc strong,
 .o_report_layout_sgc b {
     font-weight: 600 !important;
 }
 
-/* ── Document Title ── */
+/* ── Document Title ──
+   Centering/sizing/gold-rule accent is handled inline by the
+   external_layout_sgc template itself (report/sgc_report_layout.xml) so
+   it can render centered above the address block for every report type.
+   Only recolor here, don't fight the template's own border/spacing. */
 .o_report_layout_sgc h2 {
     font-family: 'IBM Plex Serif', Georgia, serif !important;
     color: #0F213D !important;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
 }
 
-/* ── Address / Info Blocks ── */
+/* ── Address / Info Blocks ──
+   Each info column (Reference / Date / Salesperson / etc.) gets its own
+   gold-bordered box, matching the reference mockup's badge row - rather
+   than one shared card wrapping the whole #informations div. */
 .o_report_layout_sgc #informations {
-    background-color: #F7F4EE !important;
-    border: 1px solid #D9C08A !important;
-    border-radius: 4px;
-    padding: 12px !important;
     margin-bottom: 16px !important;
 }
 
-.o_report_layout_sgc #informations .row {
-    margin: 0;
+.o_report_layout_sgc #informations > div.col {
+    background-color: #F7F4EE !important;
+    border: 1px solid #D9C08A !important;
+    border-radius: 4px;
+    padding: 8px 10px !important;
+    margin: 0 4px;
 }
 
 .o_report_layout_sgc #informations strong {
-    color: #0F213D !important;
-    font-weight: 600 !important;
-    font-size: 9px;
+    display: block;
+    color: #B79554 !important;
+    font-weight: 700 !important;
+    font-size: 7.5px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
 }
 
-/* ── Standard Odoo Tables ── */
+.o_report_layout_sgc #informations > div.col > div {
+    font-size: 10px;
+    font-weight: 600;
+    color: #0F213D;
+}
+
+/* ── Standard Odoo Tables ──
+   Clean hairline rows (bottom border only, no zebra striping, no full
+   grid) to match the reference mockup's premium finish. */
 .o_report_layout_sgc .table,
 .o_report_layout_sgc table.o_main_table {
     border-collapse: collapse !important;
@@ -118,24 +124,17 @@
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     padding: 8px 10px !important;
-    border-bottom: 2px solid #B79554 !important;
-    border: 1px solid #1C2430 !important;
+    border: none !important;
 }
 
 .o_report_layout_sgc .table td,
 .o_report_layout_sgc table.o_main_table tbody td {
     padding: 6px 10px !important;
     vertical-align: middle;
-    border: 1px solid #D9C08A !important;
+    border: none !important;
+    border-bottom: 1px solid #ECE7DF !important;
     font-size: 10px !important;
-}
-
-.o_report_layout_sgc table.o_main_table tbody tr:nth-child(even) td {
-    background-color: #F7F4EE !important;
-}
-
-.o_report_layout_sgc table.o_main_table tbody tr:nth-child(odd) td {
-    background-color: #FFFFFF !important;
+    background-color: transparent !important;
 }
 
 .o_report_layout_sgc .table tfoot td,

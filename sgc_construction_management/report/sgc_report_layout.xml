@@ -2,111 +2,161 @@
 <odoo>
     <!-- ================================================================
          SGC TECH AI — Universal Report Layout (All Standard Reports)
-         
+
          This layout overrides the standard Odoo external_layout_standard
-         with full SGC brand styling: Navy header bar, gold accents,
-         IBM Plex fonts, branded footer.
-         
-         It is assigned to the company's external_report_layout_id so
-         ALL reports (quotations, invoices, deliveries, purchase orders,
-         receipts, etc.) automatically render with SGC brand.
+         with full SGC brand styling: cream/ivory page, navy typography,
+         gold hairlines/accents, IBM Plex fonts.
+
+         It is assigned to the company's external_report_layout_id AND
+         directly hijacks web.external_layout (see the "external_layout"
+         template below), so ALL reports (quotations, invoices,
+         deliveries, purchase orders, receipts, etc.) automatically
+         render with the SGC brand regardless of report-specific
+         inheritance elsewhere.
+
+         2026-07-27: rebuilt header/title/info-grid to match the SGC
+         "Pro-Forma Invoice" reference mockup: logo + brand name/tagline
+         on the LEFT, company address/contact on the RIGHT, a gold
+         hairline under the header, a centered serif document title with
+         a gold rule-diamond-rule accent, and individually-boxed info
+         fields (Reference / Date / Salesperson / etc.) instead of one
+         shared card. Table styling softened to clean hairline rows
+         (see static/src/css/sgc_report.css) instead of a full grid.
          ================================================================ -->
 
     <template id="external_layout_sgc" name="SGC TECH AI Brand Layout">
         <t t-if="not o" t-set="o" t-value="doc"/>
         <t t-if="not company" t-set="company" t-value="res_company"/>
-        <t t-set="header_shape_height" t-value="'60'"/>
-        
-        <!-- ── Header: Navy bar with gold bottom border ── -->
-        <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header">
-            <div class="o_sgc_header_bar" style="background-color: #0F213D; padding: 12px 20px;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="width: 64px; vertical-align: middle; padding-right: 12px;">
-                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
-                                 style="max-height: 42px; max-width: 64px; display: block;"
-                                 alt="Logo" class="o_sgc_logo"/>
-                        </td>
-                        <td style="vertical-align: middle;">
-                            <div style="font-family: 'IBM Plex Serif', Georgia, serif; font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.5px; line-height: 1.2;">
-                                <t t-esc="company.name"/>
-                            </div>
-                            <div style="font-size: 8px; color: #D9C08A; line-height: 1.4; margin-top: 2px;">
-                                <t t-if="company.street"><t t-esc="company.street"/></t>
-                                <t t-if="company.street2">, <t t-esc="company.street2"/></t>
-                                <t t-if="company.city">, <t t-esc="company.city"/></t>
-                                <t t-if="company.state_id">, <t t-esc="company.state_id.name"/></t>
-                                <t t-if="company.country_id">, <t t-esc="company.country_id.name"/></t>
-                            </div>
-                            <div style="font-size: 7.5px; color: #B79554; line-height: 1.3; margin-top: 1px;">
-                                <t t-if="company.vat"><span style="color: #FFFFFF;">TRN: </span><t t-esc="company.vat"/></t>
-                                <t t-if="company.phone"> <span style="color: #D9C08A; margin: 0 3px;">|</span> <t t-esc="company.phone"/></t>
-                                <t t-if="company.email"> <span style="color: #D9C08A; margin: 0 3px;">|</span> <t t-esc="company.email"/></t>
-                                <t t-if="company.website"> <span style="color: #D9C08A; margin: 0 3px;">|</span> <t t-esc="company.website"/></t>
-                            </div>
-                        </td>
-                        <td style="width: 180px; vertical-align: middle; text-align: right; padding-left: 16px;">
-                            <t t-if="company.report_header">
-                                <div style="font-size: 9px; color: #B79554; line-height: 1.4; font-style: italic; border-left: 2px solid #B79554; padding-left: 12px;">
-                                    <t t-raw="company.report_header"/>
-                                </div>
-                            </t>
-                            <t t-else="">
-                                <div style="font-size: 8px; color: #B79554; line-height: 1.4; font-style: italic; border-left: 2px solid #B79554; padding-left: 12px;">
-                                    Building Excellence, Delivering Trust
-                                </div>
-                            </t>
-                        </td>
-                    </tr>
-                </table>
-                <div style="border-bottom: 2px solid #B79554; margin-top: 8px;"/>
-            </div>
+
+        <!-- Global SGC Fonts & Base Styles -->
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:wght@400;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap');
+            .o_sgc_header, .o_sgc_footer, .o_report_layout_sgc {
+                font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+                color: #1C2430;
+            }
+            .sgc-serif {
+                font-family: 'IBM Plex Serif', Georgia, serif;
+            }
+        </style>
+
+        <!-- ── Header: logo + brand on the left, company address/contact on the right ── -->
+        <div t-attf-class="header o_company_#{company.id}_layout o_sgc_header" style="min-height: 0; padding: 0 4mm 10mm 4mm; overflow: visible;">
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <colgroup>
+                    <col style="width: 55%;"/>
+                    <col style="width: 45%;"/>
+                </colgroup>
+                <tr>
+                    <!-- Left: Logo + Brand Name + Tagline -->
+                    <td style="vertical-align: top;">
+                        <table style="border-collapse: collapse;">
+                            <tr>
+                                <td style="width: auto; padding-right: 10px; vertical-align: middle;">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 50px; max-width: 76px; display: block;" alt="Logo" class="o_sgc_logo"/>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <div class="sgc-serif" style="font-size: 19px; font-weight: 700; color: #0F213D; letter-spacing: 0.3px; line-height: 1.25;">
+                                        <span t-esc="company.name"/>
+                                    </div>
+                                    <div style="font-size: 8px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B79554; margin-top: 2px;">
+                                        <t t-if="company.report_header">
+                                            <t t-raw="company.report_header"/>
+                                        </t>
+                                        <t t-else="">
+                                            Navigate · Innovate · Transform
+                                        </t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    <!-- Right: Company address / contact -->
+                    <td style="vertical-align: top; text-align: right; padding-left: 16px; font-size: 9px; line-height: 1.7; color: #5F6775;">
+                        <div>
+                            <span t-field="company.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/>
+                        </div>
+                        <t t-set="header_contact_parts" t-value="[]"/>
+                        <t t-if="company.phone" t-set="header_contact_parts" t-value="header_contact_parts + ['T: ' + company.phone]"/>
+                        <t t-if="company.email" t-set="header_contact_parts" t-value="header_contact_parts + ['E: ' + company.email]"/>
+                        <div t-if="header_contact_parts">
+                            <span t-out="' | '.join(header_contact_parts)"/>
+                        </div>
+                        <div t-if="company.website">W: <span t-esc="company.website"/></div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Gold Hairline -->
+            <div style="border-bottom: 2px solid #B79554; margin-top: 8px;"/>
         </div>
 
         <!-- ── Body Content ── -->
         <div t-attf-class="article o_report_layout_sgc o_company_#{company.id}_layout {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}"
-             t-att-data-oe-model="o and o._name"
-             t-att-data-oe-id="o and o.id"
-             t-att-data-oe-lang="o and o.env.context.get('lang')"
-             style="padding: 16px 24px;">
+             t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')"
+             style="padding: 6mm 4mm;">
 
-            <!-- Address block (from standard layout) -->
+            <!-- Document Title: centered serif with gold rule-diamond-rule accent -->
+            <div style="text-align: center; margin: 4px 0 18px 0;">
+                <h2 class="sgc-serif" style="font-size: 22px; font-weight: 700; color: #0F213D; letter-spacing: 1px; text-transform: uppercase; margin: 0; border: none; padding: 0;">
+                    <t t-out="layout_document_title"/>
+                </h2>
+                <div style="margin-top: 8px;">
+                    <span style="display: inline-block; vertical-align: middle; width: 60px; height: 1px; background-color: #B79554;"/>
+                    <span style="display: inline-block; vertical-align: middle; width: 5px; height: 5px; margin: 0 8px; background-color: #B79554;"/>
+                    <span style="display: inline-block; vertical-align: middle; width: 60px; height: 1px; background-color: #B79554;"/>
+                </div>
+            </div>
+
+            <!-- Address block: "Bill To" label for sales/invoice documents, plain otherwise -->
+            <div t-if="o and o._name in ('sale.order', 'account.move')" style="font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: #B79554; font-weight: 700; margin-bottom: 4px;">
+                <t t-if="o._name == 'account.move' and o.move_type in ('out_refund', 'in_refund')">Credit To</t>
+                <t t-else="">Bill To</t>
+            </div>
             <t t-call="web.address_layout"/>
-
-            <!-- Document title in SGC style -->
-            <h2 style="font-family: 'IBM Plex Serif', Georgia, serif; color: #0F213D; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.5px; border-bottom: 1px solid #B79554; padding-bottom: 8px; margin-bottom: 16px;">
-                <t t-out="layout_document_title"/>
-            </h2>
 
             <!-- Main content slot -->
             <t t-out="0"/>
         </div>
 
-        <!-- ── Footer: Company details, page numbers, SGC branding ── -->
-        <div t-attf-class="footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}">
-            <div style="border-top: 2px solid #B79554; padding: 6px 20px 4px 20px; background-color: #FAFAFA;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 7.5px;">
+        <!-- ── Footer: fixed-layout table, uniform vertical alignment on every cell ── -->
+        <div t-attf-class="footer o_company_#{company.id}_layout o_sgc_footer {{report_type != 'pdf' and 'mt-auto'}}" style="font-size: 8px; line-height: 1.5; color: #1C2430; padding: 0 4mm; overflow: visible;">
+            <div style="border-top: 2px solid #B79554; padding-top: 4mm;">
+
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 8px; line-height: 1.5; color: #5F6775;">
+                    <colgroup>
+                        <col style="width: 40%;"/>
+                        <col style="width: 40%;"/>
+                        <col style="width: 20%;"/>
+                    </colgroup>
                     <tr>
-                        <td style="width: 45%; padding-right: 8px; vertical-align: top; color: #5F6775; line-height: 1.4;">
-                            <span style="color: #0F213D; font-weight: 700; font-size: 8px;"><t t-esc="company.name"/></span><br/>
-                            <t t-if="company.street"><t t-esc="company.street"/></t>
-                            <t t-if="company.city">, <t t-esc="company.city"/></t>
-                            <t t-if="company.country_id">, <t t-esc="company.country_id.name"/></t>
+                        <!-- Column 1: Company Name & Tagline -->
+                        <td style="vertical-align: top; padding-right: 10px;">
+                            <span style="font-weight: 700; color: #0F213D; font-size: 10px;"><t t-esc="company.name"/></span><br/>
+                            <span style="font-size: 8px; letter-spacing: 0.5px; color: #B79554;">Navigate · Innovate · Transform</span>
                         </td>
-                        <td style="width: 30%; padding: 0 8px; vertical-align: top; color: #5F6775;">
-                            <t t-if="company.vat">TRN: <span style="color: #0F213D; font-weight: 600;"><t t-esc="company.vat"/></span><br/></t>
-                            <t t-if="company.phone">T: <t t-esc="company.phone"/><br/></t>
-                            <t t-if="company.email"><t t-esc="company.email"/><br/></t>
+
+                        <!-- Column 2: Address & Contact Details -->
+                        <td style="vertical-align: top; padding: 0 10px;">
+                            <span t-field="company.partner_id" t-options="{'widget': 'contact', 'fields': ['address'], 'no_marker': True}"/><br/>
+                            <t t-set="footer_contact_parts" t-value="[]"/>
+                            <t t-if="company.phone" t-set="footer_contact_parts" t-value="footer_contact_parts + ['T: ' + company.phone]"/>
+                            <t t-if="company.email" t-set="footer_contact_parts" t-value="footer_contact_parts + [company.email]"/>
+                            <span t-if="footer_contact_parts" t-out="' | '.join(footer_contact_parts)"/>
                         </td>
-                        <td style="width: 25%; padding-left: 8px; vertical-align: top; text-align: right; white-space: nowrap;">
-                            <span style="color: #B79554; font-weight: 600; font-family: 'IBM Plex Serif', Georgia, serif; font-size: 8px;">SGC TECH AI</span><br/>
-                            <span style="color: #5F6775;">Page <span class="page"/>/<span class="topage"/></span><br/>
-                            <span style="color: #D9C08A;"><t t-esc="datetime.date.today().strftime('%d %b %Y')"/></span>
+
+                        <!-- Column 3: Branding & Page Numbers -->
+                        <td style="vertical-align: top; text-align: right; padding-left: 10px; white-space: nowrap;">
+                            <span style="font-weight: 600; color: #0F213D;">SGC TECH AI</span><br/>
+                            <span style="color: #5F6775;">Page <span class="page"/> / <span class="topage"/></span>
                         </td>
                     </tr>
                 </table>
+
+                <!-- Optional Custom Footer Note -->
                 <t t-if="company.report_footer">
-                    <div style="font-size: 6.5px; color: #5F6775; line-height: 1.2; margin-top: 2px; padding-top: 2px; border-top: 1px solid #ECE7DF;">
+                    <div style="font-size: 7px; color: #5F6775; line-height: 1.3; margin-top: 6px; padding-top: 4px; border-top: 1px solid #ECE7DF; text-align: center;">
                         <t t-raw="company.report_footer"/>
                     </div>
                 </t>
