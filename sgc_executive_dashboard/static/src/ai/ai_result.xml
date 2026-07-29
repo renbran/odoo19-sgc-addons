@@ -25,7 +25,7 @@
                 <div t-if="facts.length" class="o_sgc_ai_facts">
                     <div t-foreach="facts" t-as="f" t-key="f.label" class="o_sgc_ai_fact_row">
                         <span class="o_sgc_ai_fact_label" t-esc="f.label"/>
-                        <span class="o_sgc_ai_fact_value" t-esc="f.value"/>
+                        <span class="o_sgc_ai_fact_value" t-esc="factValue(f)"/>
                     </div>
                 </div>
 

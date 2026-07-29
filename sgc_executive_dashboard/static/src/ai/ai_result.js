@@ -65,6 +65,13 @@ export class SgcAiResult extends Component {
         return this.props.result.facts || [];
     }
 
+    factValue(f) {
+        if (f.value === undefined || f.value === null) {
+            return "";
+        }
+        return formatValue(f.value, f.format || f.value_format, this.props.currency);
+    }
+
     onOpenAction() {
         if (this.props.result.action) {
             this.action.doAction(this.props.result.action);

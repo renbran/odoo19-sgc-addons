@@ -18,9 +18,16 @@ class SgcProviderCrmSales(models.AbstractModel):
     @api.model
     def _sgc_collect(self, ctx):
         kpis, charts = [], []
-        # Assigned in the sale_management block below; declared up-front so the
-        # CRM KPI list can reference it whether or not Sales is installed.
+        # Computed up-front (not just in the sale_management block below) so
+        # the crm_quotations KPI built further down always reflects the real
+        # count instead of the pre-Sales-install default of 0.
         quotations_sent = 0
+        if self.env['ir.module.module'].sudo().search_count(
+                [('name', '=', 'sale_management'), ('state', 'in', ('installed', 'to upgrade'))]):
+            quotations_sent = self._sgc_count('sale.order',
+                [('state', 'in', ('draft', 'sent')),
+                 ('company_id', 'in', ctx['company_ids']),
+                 ('date_order', '>=', ctx['dt_from'])])
 
         # ---- Pipeline (crm.lead) ----
         dom = [('type', '=', 'opportunity'), ('company_id', 'in', ctx['company_ids'])]
@@ -55,10 +62,6 @@ class SgcProviderCrmSales(models.AbstractModel):
         # ---- Sales (sale.order), only if sale_management is installed ----
         if self.env['ir.module.module'].sudo().search_count(
                 [('name', '=', 'sale_management'), ('state', 'in', ('installed', 'to upgrade'))]):
-            quotations_sent = self._sgc_count('sale.order',
-                [('state', 'in', ('draft', 'sent')),
-                 ('company_id', 'in', ctx['company_ids']),
-                 ('date_order', '>=', ctx['dt_from'])])
             base = [('state', 'in', ('sale', 'done')), ('company_id', 'in', ctx['company_ids'])]
             cur = base + [('date_order', '>=', ctx['dt_from']), ('date_order', '<=', ctx['dt_to'])]
             prev_from, prev_to = self._sgc_previous_range(ctx)

@@ -177,7 +177,11 @@ class SgcAiPreset(models.Model):
             "Absolute rules: never invent or extrapolate a number; never "
             "restate every fact -- select what matters; write flowing "
             "prose, no bullet lists; under 150 words; no preamble such as "
-            "'Here is'. Instruction: " + self._render_prompt(ctx))
+            "'Here is'. Each fact's `format` field tells you how its "
+            "`value` is already expressed -- 'percent' values are ALREADY "
+            "on a 0-100 scale (e.g. a value of 1.3 with format 'percent' "
+            "means 1.3%, NOT 130%): quote the number exactly as given, "
+            "never multiply or rescale it. Instruction: " + self._render_prompt(ctx))
         try:
             return self.env['sgc.ai.transport'].complete(
                 system, json.dumps(facts, default=str),
