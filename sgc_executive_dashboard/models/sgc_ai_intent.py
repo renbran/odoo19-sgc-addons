@@ -259,5 +259,8 @@ class SgcAiIntent(models.AbstractModel):
             "'Here is'.")
         narrative = self.env['sgc.ai.assistant']._call_llm(
             system, json.dumps(facts, default=str))
+        # Hard guardrail (not just the prompt instruction above): reject a
+        # narrative that states any number not traceable to `facts`.
+        narrative, _verified = self.env['sgc.ai.assistant']._sgc_verify_narrative(narrative, facts)
         return {'ok': True, 'narrative': narrative, 'facts': facts,
                 'period': data['meta']['period']}

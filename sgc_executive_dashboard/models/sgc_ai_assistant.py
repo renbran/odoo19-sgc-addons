@@ -10,6 +10,7 @@ ORM (see `sgc_provider_dynamic.py`).
 """
 import collections
 import logging
+import re
 import threading
 import time
 
@@ -192,3 +193,58 @@ class SgcAiAssistant(models.AbstractModel):
         except Exception:
             _logger.warning("SGC AI: _call_llm failed", exc_info=True)
             return None
+
+    @api.model
+    def _sgc_verify_narrative(self, narrative, facts, tolerance=0.02):
+        """Hard guardrail, not a prompt hint: reject a narrative that states
+        a number not traceable to any real fact, rather than trusting the
+        LLM to have followed the "don't invent/rescale numbers" instruction.
+
+        Closes the exact bug found live 2026-07-30: a preset's facts gave a
+        real win_rate of 1.3333 (format=percent, i.e. 1.33%) and the LLM's
+        prose reported it as "133%" -- a plausible-sounding but fabricated
+        number the prompt-only approach did not catch. On failure the
+        narrative is discarded (never shown) so the caller falls back to the
+        real, correctly-formatted facts with no prose rather than a
+        confident-sounding wrong one.
+
+        Returns (narrative_or_None, verified: bool).
+        """
+        if not narrative:
+            return narrative, True
+
+        allowed = set()
+        for f in facts or []:
+            for key in ('value', 'delta', 'baseline', 'latest', 'sigma'):
+                v = f.get(key) if isinstance(f, dict) else None
+                if isinstance(v, (int, float)) and not isinstance(v, bool):
+                    allowed.add(round(float(v), 4))
+                    allowed.add(round(abs(float(v)), 4))
+
+        if not allowed:
+            # Nothing to check the narrative against (e.g. an empty KPI
+            # set) -- fail closed: a briefing with no grounding facts has
+            # nothing legitimate to quote.
+            return None, False
+
+        def _traceable(n):
+            return any(abs(n - a) <= max(0.05, tolerance * abs(a)) for a in allowed)
+
+        for tok in re.findall(r'-?\d[\d,]*\.?\d*', narrative):
+            try:
+                n = float(tok.replace(',', ''))
+            except ValueError:
+                continue
+            # Small bare integers ("one of two", "a single risk") are almost
+            # always sentence structure, not a restated data point -- only
+            # gate on numbers with enough magnitude/precision to plausibly
+            # BE a fact.
+            if n == int(n) and abs(n) <= 12:
+                continue
+            if not _traceable(n):
+                _logger.warning(
+                    "SGC AI: narrative failed numeric verification (%.4g not "
+                    "traceable to any supplied fact) -- withholding narrative. "
+                    "facts=%s narrative=%r", n, facts, narrative)
+                return None, False
+        return narrative, True
