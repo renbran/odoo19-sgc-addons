@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Executive Command Center — SGC TECH AI</title>
+<!--
+  Stage 8: v1.1 update. Added an "AI Command Layer" section calling out the
+  new safety-validated AI bar, free-text questions, /sgcai command-palette
+  integration, and 2-sigma anomaly scan. All v1 screenshots remain accurate;
+  fresh AI-bar screenshots are deferred per the Stage 5 partial-gate
+  report (live-browser E2E was blocked by environmental factors:
+  `website._control_third_party_trackers_in_html` upstream template bug +
+  no headless chromium available + claude-in-chrome vision tool rate limit).
+  The user manual at docs/sgc_executive_dashboard-user-manual.md is the
+  authoritative text reference for the AI surface in the meantime.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<style>
+:root {
+  --sgc-navy: #0A1B30;
+  --sgc-gold: #B8935E;
+  --sgc-cream: #FAF7EF;
+  --sgc-gold-border: rgba(184, 147, 94, .38);
+  --sgc-gold-hairline: rgba(184, 147, 94, .55);
+  --sgc-ink: #241F16;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Inter", "Segoe UI", system-ui, sans-serif; color: var(--sgc-ink); background: var(--sgc-cream); }
+.hero {
+  background: linear-gradient(135deg, #fff 0%, var(--sgc-cream) 100%);
+  border-bottom: 4px solid var(--sgc-gold);
+  padding: 48px 8% 56px;
+}
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--sgc-gold); }
+h1 { font-family: "Fraunces", Georgia, serif; color: var(--sgc-navy); font-size: 44px; margin: 8px 0 6px; letter-spacing: -.01em; }
+.tagline { color: #4A4133; margin: 0 0 18px; font-size: 18px; max-width: 760px; }
+.pillrow { display: flex; gap: 10px; flex-wrap: wrap; }
+.pill { background: var(--sgc-navy); color: #fff; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.pill.alt { background: var(--sgc-gold); color: var(--sgc-navy); }
+main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+section { margin-bottom: 40px; }
+h2 { color: var(--sgc-navy); font-family: "Fraunces", Georgia, serif; border-left: 4px solid var(--sgc-gold); padding-left: 14px; margin: 0 0 14px; font-size: 22px; }
+p, li { line-height: 1.65; font-size: 15px; }
+ul { padding-left: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.tile { background: #fff; border: 1px solid var(--sgc-gold-border); border-top: 1px solid var(--sgc-gold-hairline); border-radius: 10px; padding: 14px; }
+.tile strong { color: var(--sgc-navy); }
+.cta { background: var(--sgc-navy); color: #fff; padding: 14px 22px; border-radius: 8px; font-weight: 700; text-decoration: none; display: inline-block; border: 1px solid var(--sgc-gold-border); }
+.foot { color: #6E6353; font-size: 13px; border-top: 1px solid var(--sgc-gold-hairline); padding-top: 20px; margin-top: 48px; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="eyebrow">SGC TECH AI &middot; Odoo 19 &middot; v1.1</div>
+  <h1>Executive Command Center</h1>
+  <p class="tagline">A unified, C-level command center across every SGC application — real estate, construction, deals, finance, HR &amp; UAE payroll, CRM, projects, learning and more. v1.1 adds the <strong>AI Command Layer</strong>: safety-validated one-click presets, free-text business questions, and a global <code>/sgcai</code> command palette.</p>
+  <div class="pillrow">
+    <span class="pill">Cross-App KPIs</span>
+    <span class="pill alt">Degrade Gracefully</span>
+    <span class="pill">12 Instrumented Domains</span>
+    <span class="pill alt">One-Click Activation</span>
+    <span class="pill">AI Command Layer</span>
+    <span class="pill alt">Safety-Validated</span>
+  </div>
+</div>
+<main>
+  <section>
+    <h2>Why this module</h2>
+    <p>Built on a <strong>provider-registry</strong> architecture: every domain declares its own KPI collection against the real Odoo module it needs. The aggregator walks the registry at runtime, so <strong>applications that aren't installed become opportunity tiles</strong>, not errors — the right UX for a C-level view across the entire estate.</p>
+  </section>
+
+  <section>
+    <h2>What's inside</h2>
+    <ul>
+      <li><strong>Hero KPI band</strong> — promoted, high-signal metrics across the period selected.</li>
+      <li><strong>Trend &amp; distribution charts</strong> — Chart.js line, bar, doughnut and polarArea cards, fed by Odoo ORM aggregates.</li>
+      <li><strong>Drill-through</strong> — click any KPI to open the underlying list view, pre-filtered.</li>
+      <li><strong>Application Universe</strong> — every Odoo app, installed or dormant, with one-click activation for administrators.</li>
+      <li><strong>Period selector</strong> — Month / Quarter / Year to date / Rolling 12 months / custom.</li>
+      <li><strong>AI Command Layer (v1.1)</strong> — one-click preset chips, free-text business questions, a 2&sigma; anomaly scan, and a global <code>/sgcai</code> command palette (Ctrl+K). Every AI response is read-only and constrained by a hardcoded Python allowlist &mdash; see "Safety" below.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Domains instrumented in v1</h2>
+    <div class="grid">
+      <div class="tile"><strong>Real Estate</strong><br/>Units, offplan sales, leases, expiries.</div>
+      <div class="tile"><strong>Construction</strong><br/>Projects, progress, budget, NCRs.</div>
+      <div class="tile"><strong>Deals</strong><br/>Pipeline, closed value, velocity.</div>
+      <div class="tile"><strong>Commission</strong><br/>Liability, payout state.</div>
+      <div class="tile"><strong>CRM &amp; Sales</strong><br/>Pipeline, win rate, revenue.</div>
+      <div class="tile"><strong>Procurement</strong><br/>Spend, approvals.</div>
+      <div class="tile"><strong>Finance</strong><br/>P&amp;L, ageing, AML, UAE e-invoicing.</div>
+      <div class="tile"><strong>HR &amp; UAE Payroll</strong><br/>Headcount, WPS, attendance, leave, reqs.</div>
+      <div class="tile"><strong>Compliance / KYC</strong><br/>Completion, expiring docs.</div>
+      <div class="tile"><strong>Projects</strong><br/>Workload, overdue.</div>
+      <div class="tile"><strong>Learning</strong><br/>Completion, certificates, assessment.</div>
+      <div class="tile"><strong>Video</strong><br/>Meeting cadence.</div>
+    </div>
+  </section>
+
+  <section class="container-fluid" style="padding: 0;">
+    <h2>See it in action</h2>
+    <p style="margin-bottom: 24px;">Real screenshots captured from a live Odoo 19 install — nothing mocked.</p>
+
+    <div class="row" style="margin: 0 0 32px 0;">
+      <div class="col-md-12" style="padding: 0;">
+        <img src="screenshots/01_dashboard_hero_kpis.jpg" alt="Executive Command Center hero band with period selector and top KPI cards" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Hero KPI band.</strong> A consolidated performance header (live-app count, data-stream count, last-updated timestamp) with a Month/Quarter/Year-to-date/Rolling-12-months period selector, followed by the highest-signal KPI cards pulled from whichever domains are installed &mdash; for example Offplan Sales Value, Gross Margin, Closed Deal Value, Overdue Receivables and Contract Value.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 0 0 32px 0;">
+      <div class="col-md-12" style="padding: 0;">
+        <img src="screenshots/02_trends_charts.jpg" alt="Trends and distribution charts: occupancy trend, offplan sales trajectory, sales by project, portfolio mix" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Trends &amp; distribution charts.</strong> Chart.js line, bar and doughnut cards per domain &mdash; occupancy trend, offplan sales trajectory, sales-by-project and portfolio mix are shown here for the Real Estate provider; every other installed domain renders its own trend/distribution row in the same section.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 0 0 32px 0;">
+      <div class="col-md-12" style="padding: 0;">
+        <img src="screenshots/03_more_charts.jpg" alt="Additional charts: milestone status, billing vs spend, deal velocity, deals by stage, commission by status, top earning agents, pipeline by stage, revenue and spend trajectory" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Cross-domain chart gallery.</strong> Construction (milestone status, billing vs. spend), Deals (velocity, pipeline by stage), Commission (payout status, top earning agents), CRM &amp; Sales (revenue trajectory) and Procurement (spend trajectory) charts all sit side by side in one scrollable gallery.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 0 0 32px 0;">
+      <div class="col-md-12" style="padding: 0;">
+        <img src="screenshots/04_operational_signals.jpg" alt="Organisational shape headcount chart and operational signal KPI cards" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Operational signals.</strong> Below the charts, a row of compact operational KPI cards &mdash; Units Under Management, Occupancy, Active Leases, Lease Expiries (30d), Rent Invoiced for Real Estate; Active Projects, Avg. Progress vs. Plan, On-Time Milestones, Overdue Milestones, Avg. Budget Consumed for Construction &mdash; plus an Organisational Shape headcount-by-department chart from the HR provider.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 0 0 32px 0;">
+      <div class="col-md-6" style="padding-right: 10px;">
+        <img src="screenshots/05_application_universe.jpg" alt="Application Universe tab showing live installed applications" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Application Universe &mdash; live.</strong> A second tab lists every Odoo application on the database with a live/dormant split and platform-coverage percentage; installed apps that feed a KPI provider are tagged &ldquo;Feeds KPIs&rdquo;.</p>
+      </div>
+      <div class="col-md-6" style="padding-left: 10px;">
+        <img src="screenshots/06_application_universe_dormant.jpg" alt="Application Universe dormant tab showing opportunity tiles with Activate buttons" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Application Universe &mdash; dormant.</strong> Not-yet-installed apps render as opportunity tiles with an Activate action, visible to administrators only &mdash; this is what lets the dashboard degrade gracefully on any Odoo 19 database instead of erroring.</p>
+      </div>
+    </div>
+
+    <div class="row" style="margin: 0 0 8px 0;">
+      <div class="col-md-12" style="padding: 0;">
+        <img src="screenshots/07_drilldown_deals_list.jpg" alt="Drill-through from a KPI card into the underlying filtered list view" class="img-fluid rounded" style="border: 1px solid #E7E1D3; border-radius: 10px; width: 100%;"/>
+        <p style="margin-top: 10px; color: #4A5568;"><strong style="color: var(--sgc-navy);">Drill-through.</strong> Clicking a KPI card opens the underlying Odoo list view, pre-filtered to that KPI's domain &mdash; here, a Deals KPI opens the filtered sale-order list with number, customer, salesperson, total and invoicing status columns.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>AI Command Layer (v1.1)</h2>
+    <p>An <strong>AI bar</strong> at the top of the Command Center adds three entry points:</p>
+    <ul>
+      <li><strong>One-click preset chips</strong> &mdash; five bundled commands (Board Pack Summary, Cash &amp; Collection Risk, What Looks Wrong?, Pipeline Health, Why Did Revenue Move?). The "What Looks Wrong?" chip is marked <strong>Instant</strong>: 2&sigma; statistical scan across every saved KPI definition, no LLM call, returns synchronously.</li>
+      <li><strong>Free-text question box</strong> &mdash; type "why did margin drop", "top 10 late customers", "brief me on this period" and press Enter. The dashboard classifies the verb (metric/compare/explain/anomaly/etc.) and routes the request to the configured AI provider.</li>
+      <li><strong>Global <code>/sgcai</code> command palette</strong> (Ctrl+K) &mdash; open from any Odoo backend screen, not just the dashboard. The palette stays cheap while you type (only a classifier call, no LLM round-trip) and opens the Command Center pre-loaded with the answer on Enter.</li>
+    </ul>
+    <h3 style="color: var(--sgc-navy); border-left: 4px solid var(--sgc-gold); padding-left: 14px; font-size: 18px; margin: 24px 0 12px;">Safety</h3>
+    <p>The AI layer is read-only and constrained by a hardcoded Python allowlist (<code>sgc.capability</code> in the module source). Concretely, an LLM response can never:</p>
+    <ul>
+      <li>Query a model not on the allowlist (<code>res.users</code>, <code>ir.config_parameter</code>, <code>stock.picking</code>, <code>mrp.production</code>, etc. are explicitly rejected).</li>
+      <li>Read a field the allowlist doesn't list for that model.</li>
+      <li>Bypass the company scoping or the date window &mdash; both are server-forced.</li>
+      <li>Use a dangerous operator (<code>any</code>, <code>inselect</code>, <code>child_of</code>, <code>parent_of</code> are rejected at the validator).</li>
+      <li>Write anything &mdash; the AI surface is read-only at the ORM level.</li>
+    </ul>
+    <p>The module ships 18 table-driven rejection tests in <code>tests/test_ai_dynamic_security.py</code> that continuously verify the allowlist and validator. 5 narrative presets ship out of the box (the existing <code>sgc_ai.*</code> System Parameters from <code>sgc_ai_powerbox</code> are reused &mdash; no duplicate configuration work).</p>
+  </section>
+
+  <section>
+    <h2>Branding &amp; access</h2>
+    <p>Built on SGC TECH AI's navy + gold + cream brand system. Access is gated by <strong>Executive Viewer</strong> and <strong>Executive Officer</strong> security groups (Settings → Users → SGC Executive).</p>
+  </section>
+
+  <section class="foot">
+    <p>Author: SGC TECH AI &middot; <a href="https://sgctech.ai">sgctech.ai</a> &middot; info@sgctech.ai</p>
+    <p>Compatible with Odoo 19.0 Community &amp; Enterprise. No hard dependencies on any business module — instruments only the apps present in your database.</p>
+  </section>
+</main>
+</body>
+</html>
