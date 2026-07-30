@@ -96,46 +96,6 @@ class CRMDashboard(models.AbstractModel):
         """, fu_params)
         outreach_email = cr.fetchone()[0] or 0
 
-        # Proposal: active leads in "Proposal" stage (stage_id = 9)
-        cr.execute(f"""
-            SELECT COUNT(*)
-            FROM crm_lead l
-            WHERE l.active = true AND l.stage_id = 9
-              {fu_user_filter}
-        """, fu_params)
-        proposal = cr.fetchone()[0] or 0
-
-        # New to Moved: leads moved out of "New" stage (old_value_integer = 1) today
-        mt_fu_filter, mt_fu_params = "", []
-        if user_id:
-            mt_fu_filter, mt_fu_params = "AND mtv.create_uid = %s", [user_id]
-        elif not is_admin:
-            mt_fu_filter, mt_fu_params = "AND mtv.create_uid IN %s", [tuple(target_ids)]
-        cr.execute(f"""
-            SELECT COUNT(*)
-            FROM mail_tracking_value mtv
-            JOIN ir_model_fields imf ON imf.id = mtv.field_id
-            WHERE imf.model = 'crm.lead'
-              AND imf.name = 'stage_id'
-              AND mtv.create_date::date = CURRENT_DATE
-              AND mtv.old_value_integer = 1
-              {mt_fu_filter}
-        """, mt_fu_params)
-        new_to_moved = cr.fetchone()[0] or 0
-
-        # Objection Ranking: count of objections per objection name
-        cr.execute(f"""
-            SELECT o.name->>'en_US' as objection, COUNT(l.id) as count
-            FROM crm_lead l
-            JOIN crm_lead_objection_rel rel ON rel.lead_id = l.id
-            JOIN crm_objection o ON o.id = rel.objection_id
-            WHERE l.active = true
-              {fu_user_filter}
-            GROUP BY o.name
-            ORDER BY count DESC
-        """, fu_params)
-        objection_ranking = [{"objection": r[0], "count": r[1]} for r in cr.fetchall()]
-
         # Meeting Booked: active leads in "Meeting Booked" stage (stage_id = 3)
         cr.execute(f"""
             SELECT COUNT(*)
@@ -168,7 +128,7 @@ class CRMDashboard(models.AbstractModel):
         for o in order.search([("state", "=", "sale")]):
             confirmed_revenue += o.amount_total
 
-        # Funnel: ordered stages
+        # Funnel: ordered stages (kept for the existing Conversion Funnel widget)
         funnel_stages = []
         for s in self.env["crm.stage"].search([], order="sequence"):
             f_domain = [("stage_id", "=", s.id)]
@@ -190,6 +150,93 @@ class CRMDashboard(models.AbstractModel):
             stage_leads = lead.search_count(s_domain)
             if stage_leads > 0:
                 stages.append({"name": s.name, "count": stage_leads})
+
+        # ─── Pipeline Aging (replace Conversion Funnel insight) ─────────
+        # Age = days since create_date. Buckets surface how much of the
+        # open pipeline is rotting vs. fresh.
+        aging_domain = [("active", "=", True)]
+        if user_id:
+            aging_domain.append(("user_id", "=", user_id))
+        elif not is_admin:
+            aging_domain.append(("user_id", "in", target_ids))
+        aging_user_filter = ""
+        aging_params = []
+        if user_id:
+            aging_user_filter = "AND user_id = %s"
+            aging_params.append(user_id)
+        elif not is_admin:
+            aging_user_filter = "AND user_id IN %s"
+            aging_params.append(tuple(target_ids))
+        cr.execute("""
+            SELECT
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 0 AND 7 THEN 1 ELSE 0 END) AS b_0_7,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 8 AND 30 THEN 1 ELSE 0 END) AS b_8_30,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) AS b_31_60,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) AS b_61_90,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) > 90 THEN 1 ELSE 0 END) AS b_90p
+            FROM crm_lead WHERE active = true
+              """ + aging_user_filter + """
+        """, tuple(aging_params))
+        row = cr.dictfetchone() or {}
+        pipeline_aging = [
+            {"bucket": "0-7d",   "count": row.get("b_0_7") or 0},
+            {"bucket": "8-30d",  "count": row.get("b_8_30") or 0},
+            {"bucket": "31-60d", "count": row.get("b_31_60") or 0},
+            {"bucket": "61-90d", "count": row.get("b_61_90") or 0},
+            {"bucket": "90d+",   "count": row.get("b_90p") or 0},
+        ]
+
+        # ─── Pipeline by Owner (concentration insight) ───────────────────
+        owner_domain = [("active", "=", True)]
+        if user_id:
+            owner_domain.append(("user_id", "=", user_id))
+        cr.execute("""
+            SELECT u.id as user_id, COALESCE(p.name, u.login) as name,
+                   COUNT(l.id) as active_leads
+            FROM res_users u
+            LEFT JOIN res_partner p ON u.partner_id = p.id
+            JOIN crm_lead l ON l.user_id = u.id AND l.active = true
+            WHERE u.active = true AND u.id > 2
+              """ + ("AND l.user_id = %s" if user_id else "") + """
+            GROUP BY u.id, p.name, u.login
+            HAVING COUNT(l.id) > 0
+            ORDER BY active_leads DESC
+            LIMIT 10
+        """, ([user_id] if user_id else []))
+        owner_pipeline = [
+            {"id": r["user_id"], "name": r["name"], "count": r["active_leads"]}
+            for r in cr.dictfetchall()
+        ]
+
+        # ─── Pipeline by Source (replaces meaningless Teams widget) ──────
+        lang = self.env.user.lang or "en_US"
+        source_params = [lang]
+        source_user_filter = ""
+        if user_id:
+            source_user_filter = "AND l.user_id = %s"
+            source_params.append(user_id)
+        elif not is_admin:
+            source_user_filter = "AND l.user_id IN %s"
+            source_params.append(tuple(target_ids))
+        cr.execute("""
+            SELECT
+              COALESCE(NULLIF(s.name->>%s, ''), 'Unassigned') as source_name,
+              COUNT(l.id) as cnt
+            FROM crm_lead l
+            LEFT JOIN utm_source s ON l.source_id = s.id
+            WHERE l.active = true
+              """ + source_user_filter + """
+            GROUP BY source_name
+            ORDER BY cnt DESC
+            LIMIT 10
+        """, tuple(source_params))
+        pipeline_by_source = [
+            {"name": r["source_name"] or "Unassigned", "count": r["cnt"]}
+            for r in cr.dictfetchall()
+        ]
+        # If everything is "Unassigned", drop the breakdown — it's noise.
+        if pipeline_by_source and pipeline_by_source[0]["name"] == "Unassigned" and len(pipeline_by_source) == 1:
+            pipeline_by_source = []
 
         # Per-salesperson summary with days-since-booking
         cr = self.env.cr
@@ -250,42 +297,45 @@ class CRMDashboard(models.AbstractModel):
                 "days_without_booking": days_without_booking,
             })
 
-        # Monthly trend
+        # Monthly activity: last 6 months of created / won / archived.
+        # date_closed is preferred over create_date because it tells us when
+        # the deal actually moved, not when it was imported.
         monthly = []
         now = datetime.now()
         months = OrderedDict()
-        for i in range(11, -1, -1):
+        for i in range(5, -1, -1):
             d = now - timedelta(days=30 * i)
             key = d.strftime("%Y-%m")
-            months[key] = {"new": 0, "won": 0}
+            months[key] = {"created": 0, "won": 0, "lost": 0}
 
-        month_domain = [("create_date", ">=", (now - timedelta(days=365)).strftime("%Y-%m-%d"))]
+        range_start = (now - timedelta(days=180)).strftime("%Y-%m-%d")
+        month_domain = [("create_date", ">=", range_start)]
         if user_id:
             month_domain.append(("user_id", "=", user_id))
         elif not is_admin:
             month_domain.append(("user_id", "in", target_ids))
 
-        for l in lead.search(month_domain):
-            m = l.create_date.strftime("%Y-%m") if l.create_date else False
-            if m and m in months:
-                months[m]["new"] += 1
-                if l.active and l.stage_id in won_stage_ids:
-                    months[m]["won"] += 1
+        for l in lead.search(month_domain, order="create_date"):
+            key = l.create_date.strftime("%Y-%m") if l.create_date else False
+            if key in months:
+                months[key]["created"] += 1
+        for l in lead.search([("date_closed", ">=", range_start)] + (
+            [("user_id", "=", user_id)] if user_id else (
+                [("user_id", "in", target_ids)] if not is_admin else []
+            )
+        )):
+            key = l.date_closed.strftime("%Y-%m") if l.date_closed else False
+            if key not in months:
+                continue
+            if l.active and l.stage_id in won_stage_ids:
+                months[key]["won"] += 1
+            elif not l.active:
+                months[key]["lost"] += 1
         for k, v in months.items():
-            monthly.append({"month": k, "new": v["new"], "won": v["won"]})
+            monthly.append({"month": k, "created": v["created"], "won": v["won"], "lost": v["lost"]})
 
-        # Teams
-        teams = []
-        for t in team.search([("active", "=", True)]):
-            t_domain = [("team_id", "=", t.id)]
-            t_leads = lead.search_count(t_domain)
-            t_won = lead.search_count(t_domain + [("stage_id", "in", won_stage_ids)])
-            teams.append({
-                "name": t.name,
-                "leads": t_leads,
-                "won": t_won,
-                "target": t.dashboard_target_revenue or 0,
-            })
+        # (Teams block removed — DB has only 1 team, no insight. Replaced
+        # by owner_pipeline + pipeline_by_source above.)
 
         # All users for filter dropdown (admin only, exclude inactive)
         all_users = []
@@ -306,20 +356,21 @@ class CRMDashboard(models.AbstractModel):
                 "follow_up": follow_up,
                 "research_done": research_done,
                 "outreach_email": outreach_email,
-                "proposal": proposal,
-                "new_to_moved": new_to_moved,
                 "booked": booked,
                 "daily_activity": daily_activity,
                 "total_orders": total_orders,
                 "confirmed_orders": confirmed_orders,
                 "confirmed_revenue": confirmed_revenue,
             },
-            "objection_ranking": objection_ranking,
+            # ─── Charts (replaces Conversion Funnel, Teams) ─────────────
+            "pipeline_aging": pipeline_aging,
+            "owner_pipeline": owner_pipeline,
+            "pipeline_by_source": pipeline_by_source,
+            # ─── Kept widgets ──────────────────────────────────────────
             "funnel": funnel_stages,
             "stages": stages,
             "salesperson": salesperson_data[:10] if is_admin and not user_id else salesperson_data,
             "monthly": monthly,
-            "teams": teams,
         }
 
     @api.model
@@ -327,7 +378,6 @@ class CRMDashboard(models.AbstractModel):
         """Return detailed productivity data for a single salesperson."""
         cr = self.env.cr
 
-        won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
         won_stage_ids_sql = ",".join(map(str, won_stage_ids)) if won_stage_ids else "0"
         cr.execute(f"""
             SELECT
@@ -425,26 +475,3 @@ class CRMDashboard(models.AbstractModel):
             "activity_types": act_types,
             "recent_leads": recent_leads,
         }
-
-    @api.model
-    def get_moved_today_leads(self, user_id=None):
-        """Return IDs of leads that moved out of New stage (stage_id=1) today."""
-        cr = self.env.cr
-        fu_user_filter = ""
-        fu_params = []
-        if user_id:
-            fu_user_filter = "AND mtv.create_uid = %s"
-            fu_params = [user_id]
-        cr.execute(f""" 
-            SELECT DISTINCT mtv.res_id
-            FROM mail_tracking_value mtv
-            JOIN ir_model_fields imf ON imf.id = mtv.field_id
-            WHERE imf.model = 'crm.lead'
-              AND imf.name = 'stage_id'
-              AND mtv.create_date::date = CURRENT_DATE
-              AND mtv.old_value_integer = 1
-              {fu_user_filter}
-            ORDER BY mtv.res_id
-        """, fu_params)
-        return [r[0] for r in cr.fetchall()]
-

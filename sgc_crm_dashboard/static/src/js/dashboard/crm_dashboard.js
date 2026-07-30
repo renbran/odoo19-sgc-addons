@@ -13,15 +13,15 @@ export class CrmDashboard extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.action = useService("action");
         this.state = useState({
             kpi: {},
             funnel: [],
             stages: [],
             salesperson: [],
             monthly: [],
-            teams: [],
-            objection_ranking: [],
+            pipeline_aging: [],
+            owner_pipeline: [],
+            pipeline_by_source: [],
             loading: true,
             selectedSalesperson: null,
             salespersonDetail: null,
@@ -35,6 +35,9 @@ export class CrmDashboard extends Component {
             stageChart: useRef("stageChart"),
             monthlyChart: useRef("monthlyChart"),
             funnelChart: useRef("funnelChart"),
+            agingChart: useRef("agingChart"),
+            ownerChart: useRef("ownerChart"),
+            sourceChart: useRef("sourceChart"),
         };
         this.charts = {};
         this._chartsReady = false;
@@ -59,8 +62,9 @@ export class CrmDashboard extends Component {
             this.state.stages = data.stages;
             this.state.salesperson = data.salesperson;
             this.state.monthly = data.monthly;
-            this.state.teams = data.teams;
-            this.state.objection_ranking = data.objection_ranking || [];
+            this.state.pipeline_aging = data.pipeline_aging || [];
+            this.state.owner_pipeline = data.owner_pipeline || [];
+            this.state.pipeline_by_source = data.pipeline_by_source || [];
             this.state.isAdmin = data.is_admin;
             this.state.allUsers = data.all_users || [];
             this.state.selectedUserId = data.selected_user_id || null;
@@ -121,20 +125,9 @@ export class CrmDashboard extends Component {
         this.renderStageChart();
         this.renderMonthlyChart();
         this.renderFunnelChart();
-    }
-
-    // Brand color palette — Premium Executive (Dark + Gold)
-    getBrandColors() {
-        return {
-            gold: "#C7A23A",
-            emerald: "#00B67A",
-            amber: "#F4B740",
-            coral: "#FF5A5F",
-            blue: "#4DA3FF",
-            muted: "#708090",
-            goldLight: "#D4AF37",
-            emeraldLight: "#00CC88",
-        };
+        this.renderAgingChart();
+        this.renderOwnerChart();
+        this.renderSourceChart();
     }
 
     renderStageChart() {
@@ -143,17 +136,7 @@ export class CrmDashboard extends Component {
         if (this.charts.stage) this.charts.stage.destroy();
         const labels = this.state.stages.map(s => s.name);
         const data = this.state.stages.map(s => s.count);
-        const brand = this.getBrandColors();
-        const colors = [
-            brand.gold,
-            brand.emerald,
-            brand.amber,
-            brand.blue,
-            brand.emeraldLight,
-            brand.coral,
-            brand.goldLight,
-            brand.muted,
-        ];
+        const colors = ["#7D7EAF", "#BD85BA", "#F78EAD", "#FFA48E", "#FFCA71", "#CEA716", "#1EC198", "#a0a0a0", "#6C63FF", "#E74C3C"];
         this.charts.stage = new Chart(canvas, {
             type: "doughnut",
             data: {
@@ -174,24 +157,148 @@ export class CrmDashboard extends Component {
         if (!canvas || !this.state.monthly.length) return;
         if (this.charts.monthly) this.charts.monthly.destroy();
         const labels = this.state.monthly.map(m => m.month);
-        const brand = this.getBrandColors();
         this.charts.monthly = new Chart(canvas, {
             type: "bar",
             data: {
                 labels,
                 datasets: [
-                    { label: "New Leads", data: this.state.monthly.map(m => m.new), backgroundColor: brand.gold, borderRadius: 4 },
-                    { label: "Won", data: this.state.monthly.map(m => m.won), backgroundColor: brand.emerald, borderRadius: 4 },
+                    { label: "Created", data: this.state.monthly.map(m => m.created), backgroundColor: "#7D7EAF", borderRadius: 4 },
+                    { label: "Won",     data: this.state.monthly.map(m => m.won),     backgroundColor: "#1EC198", borderRadius: 4 },
+                    { label: "Lost",    data: this.state.monthly.map(m => m.lost),    backgroundColor: "#FF5A5F", borderRadius: 4 },
                 ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.12)" }, ticks: { color: "#A7B4C6" } },
-                    x: { grid: { display: false }, ticks: { color: "#A7B4C6" } },
+                    y: { beginAtZero: true, grid: { color: "#f0f0f0" } },
+                    x: { grid: { display: false } },
                 },
                 plugins: { legend: { labels: { usePointStyle: true, padding: 16 } } },
+            },
+        });
+    }
+
+    // Pipeline Aging — bar chart of how many active leads sit in each
+    // age bucket. Surfaces "rotting pipeline" before stage breakdowns.
+    renderAgingChart() {
+        const canvas = this.chartRefs.agingChart?.el;
+        if (!canvas || !this.state.pipeline_aging.length) return;
+        if (this.charts.aging) this.charts.aging.destroy();
+        const labels = this.state.pipeline_aging.map(b => b.bucket);
+        const counts = this.state.pipeline_aging.map(b => b.count);
+        const colors = counts.map((v, i) => {
+            // Red for stale (>60d), amber for warm (8-30d), green for fresh
+            if (i >= 3) return "#FF5A5F";
+            if (i === 2) return "#FFA48E";
+            if (i === 1) return "#FFCA71";
+            return "#1EC198";
+        });
+        const total = counts.reduce((a, b) => a + b, 0) || 1;
+        this.charts.aging = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Active Leads",
+                    data: counts,
+                    backgroundColor: colors,
+                    borderRadius: 6,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: "#f0f0f0" }, ticks: { callback: v => v.toLocaleString() } },
+                    x: { grid: { display: false } },
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const v = ctx.raw;
+                                const pct = ((v / total) * 100).toFixed(1);
+                                return `${v.toLocaleString()} leads (${pct}% of open pipeline)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    // Pipeline by Owner — horizontal bar. Surfaces concentration risk.
+    renderOwnerChart() {
+        const canvas = this.chartRefs.ownerChart?.el;
+        if (!canvas || !this.state.owner_pipeline.length) return;
+        if (this.charts.owner) this.charts.owner.destroy();
+        const labels = this.state.owner_pipeline.map(o => o.name);
+        const counts = this.state.owner_pipeline.map(o => o.count);
+        const total = counts.reduce((a, b) => a + b, 0) || 1;
+        const colors = counts.map((_, i) => {
+            const pct = counts[i] / total;
+            return pct > 0.6 ? "#FF5A5F" : pct > 0.3 ? "#FFA48E" : "#7D7EAF";
+        });
+        this.charts.owner = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Active Pipeline",
+                    data: counts,
+                    backgroundColor: colors,
+                    borderRadius: 4,
+                    barThickness: 22,
+                }],
+            },
+            options: {
+                indexAxis: "y",
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { beginAtZero: true, grid: { color: "#f0f0f0" }, ticks: { callback: v => v.toLocaleString() } },
+                    y: { grid: { display: false } },
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const v = ctx.raw;
+                                const pct = ((v / total) * 100).toFixed(1);
+                                return `${v.toLocaleString()} leads (${pct}%)`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    // Pipeline by Source — donut. Empty data → empty state, no chart.
+    renderSourceChart() {
+        const canvas = this.chartRefs.sourceChart?.el;
+        if (!canvas || !this.state.pipeline_by_source.length) return;
+        if (this.charts.source) this.charts.source.destroy();
+        const labels = this.state.pipeline_by_source.map(s => s.name);
+        const counts = this.state.pipeline_by_source.map(s => s.count);
+        this.charts.source = new Chart(canvas, {
+            type: "doughnut",
+            data: {
+                labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: ["#7D7EAF","#BD85BA","#F78EAD","#FFA48E","#FFCA71","#CEA716","#1EC198","#0dcaf0","#a0a0a0","#6C63FF"],
+                    borderWidth: 0,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "55%",
+                plugins: { legend: { position: "right", labels: { padding: 10, usePointStyle: true } } },
             },
         });
     }
@@ -203,13 +310,12 @@ export class CrmDashboard extends Component {
         const labels = this.state.funnel.map(s => s.name);
         const data = this.state.funnel.map(s => s.count);
         const maxVal = Math.max(...data, 1);
-        const brand = this.getBrandColors();
         const colors = data.map((v) => {
             const ratio = v / maxVal;
-            if (ratio > 0.5) return brand.gold;
-            if (ratio > 0.2) return brand.emerald;
-            if (ratio > 0.05) return brand.amber;
-            return brand.blue;
+            if (ratio > 0.5) return "#7D7EAF";
+            if (ratio > 0.2) return "#BD85BA";
+            if (ratio > 0.05) return "#F78EAD";
+            return "#FFA48E";
         });
         this.charts.funnel = new Chart(canvas, {
             type: "bar",
@@ -222,8 +328,8 @@ export class CrmDashboard extends Component {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    x: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.12)" }, ticks: { color: "#A7B4C6", callback: v => v.toLocaleString() } },
-                    y: { grid: { display: false }, ticks: { color: "#A7B4C6" } },
+                    x: { beginAtZero: true, grid: { color: "#f0f0f0" }, ticks: { callback: v => v.toLocaleString() } },
+                    y: { grid: { display: false } },
                 },
                 plugins: {
                     legend: { display: false },
@@ -250,37 +356,16 @@ export class CrmDashboard extends Component {
     }
 
     daysColor(days) {
-        if (days === null || days === undefined) return "#708090";
-        const brand = this.getBrandColors();
-        if (days <= 3) return brand.emerald;
-        if (days <= 7) return brand.amber;
-        if (days <= 14) return brand.gold;
-        return brand.coral;
+        if (days === null || days === undefined) return "#a0a0a0";
+        if (days <= 3) return "#1EC198";
+        if (days <= 7) return "#FFCA71";
+        if (days <= 14) return "#FFA48E";
+        return "#E74C3C";
     }
 
     daysLabel(days) {
         if (days === null || days === undefined) return "No activity";
         return days + "d";
-    }
-
-    filterMoveToday() {
-        const self = this;
-        this.orm.call("crm.dashboard", "get_moved_today_leads", []).then(leadIds => {
-            if (!leadIds || leadIds.length === 0) {
-                self.notification.add("No leads moved out of New stage today", { type: "info" });
-                return;
-            }
-            self.action.doAction({
-                type: "ir.actions.act_window",
-                res_model: "crm.lead",
-                views: [[false, "list"], [false, "form"]],
-                domain: [["id", "in", leadIds]],
-                context: {},
-                name: "Leads Moved Today",
-            });
-        }).catch(e => {
-            self.notification.add("Failed to fetch moved leads", { type: "danger" });
-        });
     }
 }
 

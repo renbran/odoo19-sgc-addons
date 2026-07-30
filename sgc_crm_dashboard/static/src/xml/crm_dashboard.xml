@@ -204,8 +204,8 @@
             </t>
 
             <!-- KPI Cards Row -->
-            <div class="row g-3 mb-4 px-3 row-cols-2 row-cols-md-5">
-                <div class="col">
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-md-3">
                     <div class="card o_kpi_card o_kpi-leads h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -220,7 +220,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <div class="card o_kpi_card o_kpi-pipeline h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -235,7 +235,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <div class="card o_kpi_card o_kpi-won h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -250,7 +250,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-md-3">
                     <div class="card o_kpi_card o_kpi-lost h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -262,10 +262,76 @@
                                     <i class="fa fa-times-circle fa-lg" style="color:#FF5A5F;"/>
                                 </div>
                             </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- Follow Up / Research Done / Outreach Email / Meeting Booked / Daily Activity Row -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-6 col-md-3">
+                    <div class="card o_kpi_card o_kpi-follow-up h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Follow Up</div>
+                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.follow_up)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(244,183,64,0.15);">
+                                    <i class="fa fa-bell fa-lg" style="color:#F4B740;"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col">
+                <div class="col-6 col-md-3">
+                    <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Research Done</div>
+                                    <div class="o_kpi_value" style="color:#00B67A;" t-esc="formatNumber(state.kpi.research_done)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(0,182,122,0.15);">
+                                    <i class="fa fa-search fa-lg" style="color:#00B67A;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Email Outreach</div>
+                                    <div class="o_kpi_value" style="color:#4DA3FF;" t-esc="formatNumber(state.kpi.outreach_email)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
+                                    <i class="fa fa-envelope fa-lg" style="color:#4DA3FF;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card o_kpi_card o_kpi-booked h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Meeting Booked</div>
+                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.booked)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
+                                    <i class="fa fa-calendar-check fa-lg" style="color:#C7A23A;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-6 col-md-3">
                     <div class="card o_kpi_card o_kpi-activity h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -282,107 +348,67 @@
                     </div>
                 </div>
             </div>
-            <!-- Follow Up / Research Done / Email Outreach / Meeting Booked / Proposal / New to Moved -->
-            <div class="row g-3 mb-4 px-3 row-cols-2 row-cols-md-6">
-                <div class="col">
-                    <div class="card o_kpi_card o_kpi-follow-up h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Follow Up</div>
-                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.follow_up)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(244,183,64,0.15);">
-                                    <i class="fa fa-bell fa-lg" style="color:#F4B740;"/>
-                                </div>
-                            </div>
+
+            <!-- Sales Orders Row -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-md-4">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-body text-center">
+                            <div class="o_kpi_label">Total Orders</div>
+                            <div class="o_kpi_value" t-esc="formatNumber(state.kpi.total_orders)"/>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Research Done</div>
-                                    <div class="o_kpi_value" style="color:#00B67A;" t-esc="formatNumber(state.kpi.research_done)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(0,182,122,0.15);">
-                                    <i class="fa fa-search fa-lg" style="color:#00B67A;"/>
-                                </div>
-                            </div>
+                <div class="col-md-4">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-body text-center">
+                            <div class="o_kpi_label">Confirmed Orders</div>
+                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatNumber(state.kpi.confirmed_orders)"/>
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Email Outreach</div>
-                                    <div class="o_kpi_value" style="color:#4DA3FF;" t-esc="formatNumber(state.kpi.outreach_email)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
-                                    <i class="fa fa-envelope fa-lg" style="color:#4DA3FF;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card o_kpi_card o_kpi-booked h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Meeting Booked</div>
-                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.booked)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
-                                    <i class="fa fa-calendar-check fa-lg" style="color:#C7A23A;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #9B59B6;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Proposal</div>
-                                    <div class="o_kpi_value" style="color:#9B59B6;" t-esc="formatNumber(state.kpi.proposal)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(155,89,182,0.15);">
-                                    <i class="fa fa-file-text-o fa-lg" style="color:#9B59B6;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #E67E22;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">New → Moved Today</div>
-                                    <div class="o_kpi_value" style="color:#E67E22;" t-esc="formatNumber(state.kpi.new_to_moved)"/>
-                                    <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">moved out of New stage</div>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(230,126,34,0.15);">
-                                    <i class="fa fa-arrow-right fa-lg" style="color:#E67E22;"/>
-                                </div>
-                            </div>
+                <div class="col-md-4">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-body text-center">
+                            <div class="o_kpi_label">Revenue</div>
+                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatCurrency(state.kpi.confirmed_revenue)"/>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Funnel + Pipeline Charts Row -->
+            <!-- Pipeline Health Row: Aging + Stage donut -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-md-6">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-hourglass-half me-2" style="color:#C7A23A;"/>Pipeline Aging</h6>
+                            <small>Active leads by age since create_date — red = rotting</small>
+                        </div>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas t-ref="agingChart"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-pie-chart me-2" style="color:#C7A23A;"/>Pipeline by Stage (Active)</h6>
+                        </div>
+                        <div class="card-body d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <canvas t-ref="stageChart"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Movement: Conversion Funnel + Monthly Activity -->
             <div class="row g-3 mb-4 px-3">
                 <div class="col-md-6">
                     <div class="card o_dash_card h-100">
                         <div class="card-header">
                             <h6 class="mb-0 fw-semibold"><i class="fa fa-filter me-2" style="color:#C7A23A;"/>Conversion Funnel</h6>
+                            <small>All-time leads per stage (active + archived)</small>
                         </div>
                         <div class="card-body" style="height: 300px;">
                             <canvas t-ref="funnelChart"/>
@@ -392,37 +418,49 @@
                 <div class="col-md-6">
                     <div class="card o_dash_card h-100">
                         <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                            <h6 class="mb-0 fw-semibold"><i class="fa fa-pie-chart me-2" style="color:#C7A23A;"/>Pipeline by Stage (Active)</h6>
-                            <button class="btn btn-sm btn-outline-primary py-0 px-2" t-on-click="filterMoveToday" title="Leads that moved out of New stage today">
-                                <i class="fa fa-filter me-1" style="font-size:0.75rem;"/>Move Today
-                            </button>
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-chart-bar me-2" style="color:#C7A23A;"/>Pipeline Movement (6 months)</h6>
+                            <small>Created vs Won vs Archived per month</small>
                         </div>
-                        </div>
-                        <div class="card-body d-flex align-items-center justify-content-center" style="height: 300px;">
-                            <canvas t-ref="stageChart"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monthly Trend -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-md-12">
-                    <div class="card o_dash_card">
-                        <div class="card-header">
-                            <h6 class="mb-0 fw-semibold"><i class="fa fa-bar-chart me-2" style="color:#C7A23A;"/>Monthly Leads Trend (12 months)</h6>
-                        </div>
-                        <div class="card-body" style="height: 250px;">
+                        <div class="card-body" style="height: 300px;">
                             <canvas t-ref="monthlyChart"/>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Salesperson & Teams Row -->
+            <!-- Concentration Row: Owner + Source -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-md-7">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-user-tie me-2" style="color:#C7A23A;"/>Pipeline by Owner</h6>
+                            <small>Active leads per salesperson — flag concentration risk</small>
+                        </div>
+                        <div class="card-body" style="height: 300px;">
+                            <canvas t-ref="ownerChart"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="card o_dash_card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-bullhorn me-2" style="color:#C7A23A;"/>Pipeline by Source</h6>
+                            <small t-if="state.pipeline_by_source.length === 0" class="text-muted">No UTM source data — populate campaign tracking</small>
+                        </div>
+                        <div class="card-body d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <canvas t-if="state.pipeline_by_source.length > 0" t-ref="sourceChart"/>
+                            <div t-else="" class="text-center text-muted">
+                                <i class="fa fa-info-circle fa-2x mb-2 d-block"/>
+                                <div class="small">No source attribution on active leads.<br/>Add UTM source to track campaign ROI.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salesperson Performance -->
             <div class="row g-3 px-3 pb-4">
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="card o_dash_card">
                         <div class="card-header">
                             <h6 class="mb-0 fw-semibold"><i class="fa fa-user-secret me-2" style="color:#C7A23A;"/>Salesperson Performance</h6>
@@ -473,47 +511,6 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card o_dash_card mb-3">
-                        <div class="card-header">
-                            <h6 class="mb-0 fw-semibold"><i class="fa fa-users me-2" style="color:#F4B740;"/>Teams</h6>
-                        </div>
-                        <div class="card-body">
-                            <t t-foreach="state.teams" t-as="t" t-key="t.name">
-                                <div class="o_team_row d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="o_team_name" t-esc="t.name"/>
-                                        <div class="o_team_stats">
-                                            <span t-esc="formatNumber(t.leads)"/> leads
-                                            <t t-if="t.won > 0"> · <span style="color:#C7A23A;" t-esc="formatNumber(t.won)"/> won</t>
-                                        </div>
-                                    </div>
-                                    <t t-if="t.target > 0">
-                                        <span class="badge bg-primary-subtle o_team_target" t-esc="formatCurrency(t.target)"/>
-                                    </t>
-                                </div>
-                            </t>
-                        </div>
-                    </div>
-
-                    <!-- Objection Ranking -->
-                    <div class="card o_dash_card">
-                        <div class="card-header">
-                            <h6 class="mb-0 fw-semibold"><i class="fa fa-exclamation-triangle me-2" style="color:#FF5A5F;"/>Top Objections</h6>
-                        </div>
-                        <div class="card-body">
-                            <t t-if="state.objection_ranking.length === 0">
-                                <div class="small" style="opacity:0.5;">No objections recorded</div>
-                            </t>
-                            <t t-foreach="state.objection_ranking" t-as="obj" t-key="obj.objection">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small fw-medium text-truncate" style="max-width:75%;" t-esc="obj.objection"/>
-                                    <span class="badge rounded-pill" style="background:#FF5A5F;color:#fff;" t-esc="formatNumber(obj.count)"/>
-                                </div>
-                            </t>
                         </div>
                     </div>
                 </div>
