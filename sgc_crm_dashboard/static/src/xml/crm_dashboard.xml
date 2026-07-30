@@ -206,7 +206,7 @@
             <!-- KPI Scorecard — 10 cards in two rows of 5 -->
             <!-- Row 1: In Pipeline · New Leads Today · Moved Out of New Today · Won · Lost -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-pipeline h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -221,7 +221,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-new-today h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -237,7 +237,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-moved-out h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -253,7 +253,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-won h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -268,7 +268,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-lost h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -287,7 +287,7 @@
 
             <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked · Revenue -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-follow-up h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -302,7 +302,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -317,7 +317,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -332,7 +332,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-booked h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -347,7 +347,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col-6 px-2" style="flex: 0 0 20%; max-width: 20%;">
                     <div class="card o_kpi_card o_kpi-revenue h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
