@@ -150,14 +150,20 @@ def _resolve_date_range(filter_dict):
     return today - timedelta(days=29), today, 'Last 30 Days'
 
 
-def _build_domain(filter_dict, date_field='create_date'):
+def _build_domain(filter_dict, date_field='create_date', include_inactive=False):
     """Build a complete crm.lead domain from the filter dict.
 
     The ``date_field`` parameter allows the same helper to filter on
     ``create_date`` (lead creation), ``date_open`` (became opportunity),
     or ``date_closed`` (won/lost).
+
+    ``include_inactive`` skips the ``active = True`` clause. This is
+    needed for any "lost" calculation: in this pipeline a lead is
+    marked lost by archiving it (``active=False, probability=0``) --
+    there is no dedicated "Lost" stage -- so the default active-only
+    domain would silently make every lost count zero.
     """
-    domain = [('active', '=', True)]
+    domain = [] if include_inactive else [('active', '=', True)]
 
     # Company filter
     if filter_dict.get('company_id'):
@@ -255,10 +261,14 @@ class CrmDashboardKpi(models.TransientModel):
         """
         result = {
             'kpi': self._compute_kpi_overview(filter_dict),
+            # Kept computed (feeds the 'no_activity' alert rule type in
+            # crm.dashboard.alert.rule) even though it's no longer the
+            # primary rendered engagement section -- see 'disposition'.
             'activity': self._compute_activity_analytics(filter_dict),
+            'disposition': self._compute_disposition_analytics(filter_dict),
             'productivity': self._compute_productivity(filter_dict),
             'startup': self._compute_startup_metrics(filter_dict),
-            'lead_analytics': self._compute_lead_analytics(filter_dict),
+            'owner_analytics': self._compute_owner_analytics(filter_dict),
             'funnel': self._compute_sales_funnel(filter_dict),
             'alerts': self._compute_alerts(filter_dict),
             'charts': self._compute_chart_data(filter_dict),
@@ -323,13 +333,20 @@ class CrmDashboardKpi(models.TransientModel):
         open_opps = Lead.search_count(opp_domain + [('date_closed', '=', False)])
 
         won_stage_ids = self._get_won_stage_ids()
-        lost_stage_ids = self._get_lost_stage_ids()
 
         won_opps = Lead.search_count(
             opp_domain + [('stage_id', 'in', won_stage_ids)]
         )
+        # "Lost" has no dedicated stage in this pipeline -- Odoo's real
+        # signal is an archived (active=False) opportunity with
+        # probability=0. Use the same date_open cohort as won_opps so
+        # the two are comparable, but without the active=True clause.
         lost_opps = Lead.search_count(
-            opp_domain + [('stage_id', 'in', lost_stage_ids)]
+            _build_domain(filter_dict, 'date_open', include_inactive=True) + [
+                ('type', '=', 'opportunity'),
+                ('active', '=', False),
+                ('probability', '=', 0),
+            ]
         )
         opps_today = Lead.search_count(
             _build_domain({'period': 'today'}, 'date_open') + [('type', '=', 'opportunity')]
@@ -541,6 +558,77 @@ class CrmDashboardKpi(models.TransientModel):
         }
 
     # ===================================================================
+    # SECTION 2B — DISPOSITION ANALYTICS (real engagement signal)
+    # ===================================================================
+
+    @api.model
+    def _compute_disposition_analytics(self, filter_dict):
+        """How opportunities are actually being worked in this pipeline.
+
+        The scheduled-activity model (``mail.activity``: calls/meetings/
+        emails/to-dos) has ~220 records against 7,500+ opportunities in
+        this database -- this team disposition leads by moving their
+        CRM stage (New -> Follow Up / No Answer / Not Interested / ...)
+        rather than logging scheduled tasks, so the activity-based
+        section reads as permanently near-zero. This computes the
+        equivalent signal from stage movement instead: how many
+        opportunities have left the entry stage, and how many were
+        moved in the selected period (a throughput proxy, using
+        ``write_date`` since there's no dedicated stage-change log
+        field on crm.lead).
+
+        The entry stage is found structurally (lowest ``sequence``)
+        rather than by name match, since stage names are user-defined
+        and, in this database, are stored with inconsistent
+        translations across languages.
+        """
+        Lead = self.env['crm.lead']
+        stages = self.env['crm.stage'].search([], order='sequence asc')
+        if not stages:
+            return {
+                'entry_stage_id': None, 'total_active': 0, 'in_entry_stage': 0,
+                'contact_rate': 0.0, 'worked_period': 0, 'by_stage': [],
+                'trend': {'labels': [], 'datasets': []},
+            }
+        entry_stage_id = stages[0].id
+        won_stage_ids = self._get_won_stage_ids()
+
+        active_domain = [('type', '=', 'opportunity'), ('active', '=', True)]
+        total_active = Lead.search_count(active_domain)
+
+        stage_groups = Lead.read_group(active_domain, fields=['id'], groupby='stage_id', lazy=False)
+        by_stage = []
+        for g in stage_groups:
+            sid = g['stage_id'][0] if g['stage_id'] else None
+            sname = g['stage_id'][1] if g['stage_id'] else _('No Stage')
+            by_stage.append({
+                'stage_id': sid, 'name': sname, 'count': g['__count'],
+                'is_entry': sid == entry_stage_id, 'is_won': sid in won_stage_ids,
+            })
+        by_stage.sort(key=lambda s: (0 if s['is_entry'] else (2 if s['is_won'] else 1), -s['count']))
+
+        in_entry = next((s['count'] for s in by_stage if s['is_entry']), 0)
+        contact_rate = round((total_active - in_entry) / total_active * 100.0, 2) if total_active else 0.0
+
+        worked_domain = _build_domain(filter_dict, 'write_date') + [
+            ('type', '=', 'opportunity'), ('stage_id', '!=', entry_stage_id),
+        ]
+        worked_period = Lead.search_count(worked_domain)
+
+        trend_groups = Lead.read_group(worked_domain, fields=['id'], groupby='write_date:day', lazy=False)
+        trend = self._normalize_trend(trend_groups, 'write_date:day', _('Opportunities Worked'))
+
+        return {
+            'entry_stage_id': entry_stage_id,
+            'total_active': total_active,
+            'in_entry_stage': in_entry,
+            'contact_rate': contact_rate,
+            'worked_period': worked_period,
+            'by_stage': by_stage,
+            'trend': trend,
+        }
+
+    # ===================================================================
     # SECTION 3 — PRODUCTIVITY DASHBOARD
     # ===================================================================
 
@@ -709,34 +797,53 @@ class CrmDashboardKpi(models.TransientModel):
             return (today_dt - d).days
 
         # --- Growth metrics -------------------------------------------
-        def _count_leads_in_window(start_offset_days):
-            start = today - timedelta(days=start_offset_days)
-            end = today - timedelta(days=start_offset_days // 2) if start_offset_days > 0 else today
+        # Two clean, non-overlapping trailing windows of equal length,
+        # compared directly. (The previous implementation built windows
+        # with mismatched, overlapping ranges and then subtracted
+        # unrelated counts, which could -- and did -- produce nonsense
+        # or negative "previous period" figures.)
+        #
+        # Counted on ``type='opportunity'`` rather than ``type='lead'``:
+        # this pipeline creates records straight as opportunities (2
+        # 'lead'-type records exist in total), so a lead-based growth
+        # metric would always read ~0 regardless of real activity.
+        def _count_created_in_range(days_ago_start, days_ago_end):
+            start = today - timedelta(days=days_ago_start)
+            end = today - timedelta(days=days_ago_end)
             return Lead.search_count([
-                ('type', '=', 'lead'),
+                ('type', '=', 'opportunity'),
                 ('create_date', '>=', fields.Datetime.to_string(datetime.combine(start, datetime.min.time()))),
                 ('create_date', '<=', fields.Datetime.to_string(datetime.combine(end, datetime.max.time()))),
             ])
 
-        def _count_revenue_in_window(start_offset_days):
-            start = today - timedelta(days=start_offset_days)
-            end = today - timedelta(days=start_offset_days // 2) if start_offset_days > 0 else today
-            rev = self._sum_field([
+        def _revenue_won_in_range(days_ago_start, days_ago_end):
+            start = today - timedelta(days=days_ago_start)
+            end = today - timedelta(days=days_ago_end)
+            return self._sum_field([
                 ('type', '=', 'opportunity'),
                 ('stage_id', 'in', won_stage_ids),
                 ('date_closed', '>=', fields.Datetime.to_string(datetime.combine(start, datetime.min.time()))),
                 ('date_closed', '<=', fields.Datetime.to_string(datetime.combine(end, datetime.max.time()))),
             ], 'expected_revenue')
-            return rev
 
-        # Last 7 days vs previous 7 days
-        leads_this_week = _count_leads_in_window(7)
-        leads_prev_week = _count_leads_in_window(14) - leads_this_week
-        weekly_growth = ((leads_this_week - leads_prev_week) / leads_prev_week * 100.0) if leads_prev_week else 0.0
+        def _growth_pct(this_period, prev_period):
+            return ((this_period - prev_period) / prev_period * 100.0) if prev_period else 0.0
 
-        rev_this_week = _count_revenue_in_window(7)
-        rev_prev_week = _count_revenue_in_window(14) - rev_this_week
-        revenue_growth = ((rev_this_week - rev_prev_week) / rev_prev_week * 100.0) if rev_prev_week else 0.0
+        leads_this_week = _count_created_in_range(6, 0)
+        leads_prev_week = _count_created_in_range(13, 7)
+        weekly_growth = _growth_pct(leads_this_week, leads_prev_week)
+
+        leads_this_month = _count_created_in_range(29, 0)
+        leads_prev_month = _count_created_in_range(59, 30)
+        monthly_growth = _growth_pct(leads_this_month, leads_prev_month)
+
+        leads_this_quarter = _count_created_in_range(89, 0)
+        leads_prev_quarter = _count_created_in_range(179, 90)
+        quarterly_growth = _growth_pct(leads_this_quarter, leads_prev_quarter)
+
+        rev_this_week = _revenue_won_in_range(6, 0)
+        rev_prev_week = _revenue_won_in_range(13, 7)
+        revenue_growth = _growth_pct(rev_this_week, rev_prev_week)
 
         # --- Pipeline health ------------------------------------------
         open_opps_domain = [
@@ -796,8 +903,8 @@ class CrmDashboardKpi(models.TransientModel):
             },
             'growth': {
                 'weekly_growth': round(weekly_growth, 2),
-                'monthly_growth': 0.0,  # could be expanded similarly
-                'quarterly_growth': 0.0,
+                'monthly_growth': round(monthly_growth, 2),
+                'quarterly_growth': round(quarterly_growth, 2),
                 'revenue_growth': round(revenue_growth, 2),
                 'lead_growth': round(weekly_growth, 2),
             },
@@ -818,59 +925,76 @@ class CrmDashboardKpi(models.TransientModel):
         }
 
     # ===================================================================
-    # SECTION 5 — LEAD ANALYTICS
+    # SECTION 5 — OWNER / COVERAGE ANALYTICS
     # ===================================================================
 
     @api.model
-    def _compute_lead_analytics(self, filter_dict):
-        """Lead source analysis: leads / conversion / revenue by source."""
+    def _compute_owner_analytics(self, filter_dict):
+        """Pipeline ownership and coverage, by salesperson.
+
+        This replaces a lead-source breakdown: ``source_id`` is blank
+        on the overwhelming majority of records in this pipeline (bulk
+        imports and AI-assisted outreach don't set a UTM source), so a
+        source-based chart is almost entirely an "Undefined" bucket
+        and carries no signal. ``user_id`` (owner), by contrast, is
+        set on every record and directly answers the more actionable
+        question here: how much of the pipeline is actually assigned
+        to and being worked by a real rep.
+        """
         Lead = self.env['crm.lead']
-        base_domain = _build_domain(filter_dict, 'create_date')
+        base_domain = _build_domain(filter_dict, 'create_date') + [('type', '=', 'opportunity')]
         won_stage_ids = self._get_won_stage_ids()
 
-        # Group by source
-        source_groups = Lead.read_group(
+        owner_groups = Lead.read_group(
             base_domain,
             fields=['id', 'expected_revenue'],
-            groupby='source_id',
+            groupby='user_id',
             lazy=False,
         )
-
-        # Won by source (one extra query)
-        won_by_source_groups = Lead.read_group(
+        won_by_owner_groups = Lead.read_group(
             base_domain + [('stage_id', 'in', won_stage_ids)],
-            fields=['id', 'expected_revenue'],
-            groupby='source_id',
+            fields=['id'],
+            groupby='user_id',
             lazy=False,
         )
-        won_by_source = {g['source_id'][0]: g for g in won_by_source_groups if g['source_id']}
+        won_by_owner = {g['user_id'][0]: g['__count'] for g in won_by_owner_groups if g['user_id']}
+        lost_by_owner_groups = Lead.read_group(
+            _build_domain(filter_dict, 'create_date', include_inactive=True) + [
+                ('type', '=', 'opportunity'), ('active', '=', False), ('probability', '=', 0),
+            ],
+            fields=['id'],
+            groupby='user_id',
+            lazy=False,
+        )
+        lost_by_owner = {g['user_id'][0]: g['__count'] for g in lost_by_owner_groups if g['user_id']}
 
-        sources = []
-        for g in source_groups:
-            sid = g['source_id'][0] if g['source_id'] else None
-            sname = g['source_id'][1] if g['source_id'] else 'Undefined'
-            total = g['__count']
-            revenue = g['expected_revenue']
-            won_g = won_by_source.get(sid, {})
-            won_count = won_g.get('__count', 0)
-            won_revenue = won_g.get('expected_revenue', 0.0)
-            conversion = (won_count / total * 100.0) if total else 0.0
-            sources.append({
-                'source_id': sid,
-                'name': sname,
-                'leads': total,
-                'conversion_rate': round(conversion, 2),
-                'revenue': round(won_revenue, 2),
+        owners = []
+        total = 0
+        for g in owner_groups:
+            oid = g['user_id'][0] if g['user_id'] else None
+            oname = g['user_id'][1] if g['user_id'] else _('Unassigned')
+            count = g['__count']
+            total += count
+            won_count = won_by_owner.get(oid, 0)
+            lost_count = lost_by_owner.get(oid, 0)
+            win_rate = (won_count / (won_count + lost_count) * 100.0) if (won_count + lost_count) else 0.0
+            owners.append({
+                'user_id': oid,
+                'name': oname,
+                'opportunities': count,
+                'pipeline_value': round(g['expected_revenue'], 2),
+                'won': won_count,
+                'win_rate': round(win_rate, 2),
             })
+        owners.sort(key=lambda o: o['opportunities'], reverse=True)
 
-        # Best performer
-        best = max(sources, key=lambda s: s['revenue']) if sources else None
-        best_performer = best['name'] if best else 'N/A'
+        top_owner = owners[0] if owners else None
+        top_owner_share = round(top_owner['opportunities'] / total * 100.0, 2) if (total and top_owner) else 0.0
 
         return {
-            'sources': sorted(sources, key=lambda s: s['leads'], reverse=True),
-            'best_performer': best_performer,
-            'total_sources': len(sources),
+            'owners': owners,
+            'total': total,
+            'top_owner_share': top_owner_share,
         }
 
     # ===================================================================
@@ -945,6 +1069,47 @@ class CrmDashboardKpi(models.TransientModel):
         startup = self._compute_startup_metrics(filter_dict)
 
         alerts = []
+
+        # --- Stale pipeline backlog (headline) -------------------------
+        # The single most actionable finding in this pipeline: a large
+        # bulk import left most open opportunities sitting untouched.
+        # Promoted to the front of the alert list rather than buried in
+        # a chart further down the page.
+        aging = self._aging_buckets(filter_dict)
+        stale_count = aging['61-90 days']['count'] + aging['90+ days']['count']
+        stale_value = aging['61-90 days']['value'] + aging['90+ days']['value']
+        total_open = sum(b['count'] for b in aging.values())
+        stale_share = (stale_count / total_open * 100.0) if total_open else 0.0
+        if stale_count > 0:
+            alerts.append({
+                'level': 'danger' if stale_share >= 50 else 'warning',
+                'title': _('Stale Pipeline Backlog'),
+                'message': _(
+                    '%(count)s open opportunities (%(share).0f%% of open pipeline, '
+                    'worth %(value)s) have been open for more than 60 days without closing.'
+                ) % {
+                    'count': stale_count, 'share': stale_share,
+                    'value': f'{stale_value:,.0f}',
+                },
+                'icon': 'fa-hourglass-end',
+            })
+
+        # --- Pipeline concentration risk --------------------------------
+        owner_analytics = self._compute_owner_analytics(filter_dict)
+        if owner_analytics['owners'] and owner_analytics['top_owner_share'] >= 50:
+            top = owner_analytics['owners'][0]
+            alerts.append({
+                'level': 'danger' if owner_analytics['top_owner_share'] >= 75 else 'warning',
+                'title': _('Pipeline Concentration Risk'),
+                'message': _(
+                    '%(name)s holds %(share).0f%% of active pipeline (%(count)s of '
+                    '%(total)s opportunities) -- review team assignment coverage.'
+                ) % {
+                    'name': top['name'], 'share': owner_analytics['top_owner_share'],
+                    'count': top['opportunities'], 'total': owner_analytics['total'],
+                },
+                'icon': 'fa-users',
+            })
 
         if kpi['leads']['new_today'] == 0:
             alerts.append({
@@ -1049,11 +1214,14 @@ class CrmDashboardKpi(models.TransientModel):
         Lead = self.env['crm.lead']
         won_stage_ids = self._get_won_stage_ids()
 
-        # --- 1-3: Lead trends (daily / weekly / monthly) -------------
-        lead_domain = _build_domain(filter_dict, 'create_date') + [('type', '=', 'lead')]
-        lead_trend = self._trend_data(lead_domain, 'create_date:day', 'Leads')
-        weekly_trend = self._trend_data_week(lead_domain, 'create_date', 'Leads')
-        monthly_trend = self._trend_data_month(lead_domain, 'create_date', 'Leads')
+        # --- 1-3: Opportunity creation trends (daily / weekly / monthly)
+        # Filtered on type='opportunity', not 'lead': this pipeline
+        # creates records straight as opportunities (2 'lead'-type rows
+        # exist in total), so a lead-filtered trend is always empty.
+        lead_domain = _build_domain(filter_dict, 'create_date') + [('type', '=', 'opportunity')]
+        lead_trend = self._trend_data(lead_domain, 'create_date:day', 'Opportunities Created')
+        weekly_trend = self._trend_data_week(lead_domain, 'create_date', 'Opportunities Created')
+        monthly_trend = self._trend_data_month(lead_domain, 'create_date', 'Opportunities Created')
 
         # --- 4: Opportunity trend ------------------------------------
         opp_domain = _build_domain(filter_dict, 'date_open') + [('type', '=', 'opportunity')]
@@ -1070,10 +1238,13 @@ class CrmDashboardKpi(models.TransientModel):
         # Win rate over time
         conv_trend = self._trend_conversion(filter_dict)
 
-        # --- 7: Activity trend ---------------------------------------
-        Activity = self.env['mail.activity']
-        act_domain = _build_domain(filter_dict, 'create_date') + [('res_model', '=', 'crm.lead')]
-        act_trend = self._trend_activities(act_domain, 'create_date:day')
+        # --- 7: Disposition (engagement) trend ------------------------
+        # Replaces the mail.activity-based trend (~220 rows against
+        # 7,500+ opportunities -> effectively flat). Built from the
+        # same stage-movement signal as the Disposition Analytics
+        # section, so the chart and the section agree.
+        disposition = self._compute_disposition_analytics(filter_dict)
+        disposition_trend = disposition['trend']
 
         # --- 8: Sales funnel -----------------------------------------
         funnel = self._compute_sales_funnel(filter_dict)
@@ -1083,39 +1254,48 @@ class CrmDashboardKpi(models.TransientModel):
             'values': [s['value'] for s in funnel['stages']],
         }
 
-        # --- 9: Lead source pie --------------------------------------
-        source_analytics = self._compute_lead_analytics(filter_dict)
-        source_chart = {
-            'labels': [s['name'] for s in source_analytics['sources']],
-            'data': [s['leads'] for s in source_analytics['sources']],
+        # --- 9: Pipeline by owner --------------------------------------
+        # Replaces the lead-source pie: source_id is blank on 99.97% of
+        # records here, owner is set on all of them and is the
+        # actionable breakdown (coverage risk, not marketing attribution).
+        owner_analytics = self._compute_owner_analytics(filter_dict)
+        owner_chart = {
+            'labels': [o['name'] for o in owner_analytics['owners'][:10]],
+            'datasets': [{
+                'label': _('Opportunities'),
+                'data': [o['opportunities'] for o in owner_analytics['owners'][:10]],
+            }],
         }
 
         # --- 10: Team performance bar --------------------------------
         productivity = self._compute_productivity(filter_dict)
         team_chart = {
             'labels': [t['name'] for t in productivity['teams']],
-            'data': [t['pipeline'] for t in productivity['teams']],
+            'datasets': [{
+                'label': _('Pipeline'),
+                'data': [t['pipeline'] for t in productivity['teams']],
+            }],
         }
 
         # --- 11: Revenue forecast (open pipeline by month) -----------
         forecast_chart = self._revenue_forecast_chart(filter_dict)
 
-        # --- 12: Pipeline aging --------------------------------------
+        # --- 12: Pipeline aging (promoted -- see Executive Alert Center)
         aging_chart = self._pipeline_aging_chart(filter_dict)
 
         return {
-            'lead_trend_daily': lead_trend,
-            'lead_trend_weekly': weekly_trend,
-            'lead_trend_monthly': monthly_trend,
+            'pipeline_aging': aging_chart,
+            'opportunity_trend_daily': lead_trend,
+            'opportunity_trend_weekly': weekly_trend,
+            'opportunity_trend_monthly': monthly_trend,
             'opportunity_trend': opp_trend,
             'revenue_trend': rev_trend,
             'conversion_trend': conv_trend,
-            'activity_trend': act_trend,
+            'disposition_trend': disposition_trend,
             'funnel': funnel_chart,
-            'lead_source_pie': source_chart,
+            'owner_pipeline': owner_chart,
             'team_performance': team_chart,
             'revenue_forecast': forecast_chart,
-            'pipeline_aging': aging_chart,
         }
 
     @api.model
@@ -1159,9 +1339,10 @@ class CrmDashboardKpi(models.TransientModel):
         """Daily win rate (won / (won+lost)) for opportunities."""
         Lead = self.env['crm.lead']
         won_stage_ids = self._get_won_stage_ids()
-        lost_stage_ids = self._get_lost_stage_ids()
 
         base = _build_domain(filter_dict, 'date_closed') + [('type', '=', 'opportunity')]
+        base_incl_inactive = _build_domain(filter_dict, 'date_closed', include_inactive=True) + [
+            ('type', '=', 'opportunity')]
 
         won_groups = Lead.read_group(
             base + [('stage_id', 'in', won_stage_ids)],
@@ -1170,7 +1351,7 @@ class CrmDashboardKpi(models.TransientModel):
             lazy=False,
         )
         lost_groups = Lead.read_group(
-            base + [('stage_id', 'in', lost_stage_ids)],
+            base_incl_inactive + [('active', '=', False), ('probability', '=', 0)],
             fields=['id'],
             groupby='date_closed:day',
             lazy=False,
@@ -1187,12 +1368,6 @@ class CrmDashboardKpi(models.TransientModel):
             labels.append(k)
             data.append(round(rate, 2))
         return {'labels': labels, 'datasets': [{'label': 'Win Rate %', 'data': data}]}
-
-    @api.model
-    def _trend_activities(self, domain, groupby):
-        Activity = self.env['mail.activity']
-        groups = Activity.read_group(domain, fields=['id'], groupby=groupby, lazy=False)
-        return self._normalize_trend(groups, groupby, 'Activities')
 
     @api.model
     def _revenue_forecast_chart(self, filter_dict):
@@ -1223,8 +1398,12 @@ class CrmDashboardKpi(models.TransientModel):
         }
 
     @api.model
-    def _pipeline_aging_chart(self, filter_dict):
-        """Open opportunities bucketed by age in days."""
+    def _aging_buckets(self, filter_dict):
+        """Open opportunities bucketed by age in days.
+
+        Shared by the aging chart and the stale-pipeline alert, so
+        both report the same numbers from a single query.
+        """
         Lead = self.env['crm.lead']
         today_dt = fields.Datetime.now()
         open_opps = Lead.search(
@@ -1256,10 +1435,26 @@ class CrmDashboardKpi(models.TransientModel):
                 k = '90+ days'
             buckets[k]['count'] += 1
             buckets[k]['value'] += o['expected_revenue']
+        return buckets
+
+    @api.model
+    def _pipeline_aging_chart(self, filter_dict):
+        """Open opportunities bucketed by age, as a Chart.js-ready bar chart.
+
+        (Previously returned ``{labels, count_data, value_data}`` --
+        every other chart in this engine returns ``{labels, datasets}``,
+        which is the only shape the frontend's generic chart renderer
+        actually reads. The mismatch meant this chart silently rendered
+        as an empty canvas.)
+        """
+        buckets = self._aging_buckets(filter_dict)
+        labels = list(buckets.keys())
         return {
-            'labels': list(buckets.keys()),
-            'count_data': [buckets[k]['count'] for k in buckets],
-            'value_data': [round(buckets[k]['value'], 2) for k in buckets],
+            'labels': labels,
+            'datasets': [
+                {'label': _('Count'), 'data': [buckets[k]['count'] for k in labels]},
+            ],
+            'value_data': [round(buckets[k]['value'], 2) for k in labels],
         }
 
     # ===================================================================
@@ -1308,12 +1503,6 @@ class CrmDashboardKpi(models.TransientModel):
     def _get_won_stage_ids(self):
         """Return list of stage ids flagged as won. Cached for the request."""
         return self.env['crm.stage'].search([('is_won', '=', True)]).ids
-
-    @api.model
-    def _get_lost_stage_ids(self):
-        """Heuristic: stages with 'Lost' in the name and not is_won."""
-        stages = self.env['crm.stage'].search([('is_won', '=', False)])
-        return [s.id for s in stages if 'lost' in (s.name or '').lower()]
 
     @api.model
     def _sum_field(self, domain, field_name):
@@ -1405,13 +1594,18 @@ class CrmDashboardKpi(models.TransientModel):
 
     @api.model
     def _compute_avg_conversion_days(self, filter_dict):
-        """Average days from lead creation to opportunity close (won/lost)."""
+        """Average days from lead creation to opportunity close (won/lost).
+
+        "Closed" here means ``date_closed`` is set, regardless of stage --
+        that covers both won opportunities (still active) and lost ones
+        (archived with probability=0). Filtering by stage_id membership
+        in a "lost stages" list previously excluded every lost deal
+        (since no stage is actually named "Lost" in this pipeline).
+        """
         Lead = self.env['crm.lead']
-        won = self._get_won_stage_ids() + self._get_lost_stage_ids()
         opps = Lead.search(
-            _build_domain(filter_dict, 'date_closed') + [
+            _build_domain(filter_dict, 'date_closed', include_inactive=True) + [
                 ('type', '=', 'opportunity'),
-                ('stage_id', 'in', won),
                 ('date_closed', '!=', False),
             ]
         ).read(['create_date', 'date_closed'])

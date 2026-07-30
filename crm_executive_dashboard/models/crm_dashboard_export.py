@@ -211,12 +211,12 @@ class CrmDashboardExport(models.TransientModel):
             _row(s.get('name'), s.get('count'), s.get('value'),
                  s.get('conversion'), s.get('drop_off'))
 
-        # --- Section 3: Lead Source -------------------------------
-        _section("Lead Source Analysis")
-        _row("Source", "Leads", "Conversion %", "Revenue")
-        for s in payload.get('lead_analytics', {}).get('sources', []):
-            _row(s.get('name'), s.get('leads'),
-                 s.get('conversion_rate'), s.get('revenue'))
+        # --- Section 3: Pipeline by Owner --------------------------
+        _section("Pipeline by Owner")
+        _row("Owner", "Opportunities", "Pipeline Value", "Won", "Win Rate %")
+        for o in payload.get('owner_analytics', {}).get('owners', []):
+            _row(o.get('name'), o.get('opportunities'),
+                 o.get('pipeline_value'), o.get('won'), o.get('win_rate'))
 
         # --- Section 4: Productivity ------------------------------
         _section("Productivity")
@@ -363,14 +363,15 @@ class CrmDashboardExport(models.TransientModel):
             ws.cell(row=i, column=5, value=s.get('drop_off'))
         _auto_width(ws)
 
-        # --- Sheet 3: Lead Sources ---------------------------------
-        ws = wb.create_sheet("Lead Sources")
-        _header_row(ws, 1, ["Source", "Leads", "Conversion %", "Revenue"])
-        for i, s in enumerate(payload.get('lead_analytics', {}).get('sources', []), start=2):
-            ws.cell(row=i, column=1, value=s.get('name'))
-            ws.cell(row=i, column=2, value=s.get('leads'))
-            ws.cell(row=i, column=3, value=s.get('conversion_rate'))
-            ws.cell(row=i, column=4, value=s.get('revenue'))
+        # --- Sheet 3: Pipeline by Owner -----------------------------
+        ws = wb.create_sheet("Pipeline by Owner")
+        _header_row(ws, 1, ["Owner", "Opportunities", "Pipeline Value", "Won", "Win Rate %"])
+        for i, o in enumerate(payload.get('owner_analytics', {}).get('owners', []), start=2):
+            ws.cell(row=i, column=1, value=o.get('name'))
+            ws.cell(row=i, column=2, value=o.get('opportunities'))
+            ws.cell(row=i, column=3, value=o.get('pipeline_value'))
+            ws.cell(row=i, column=4, value=o.get('won'))
+            ws.cell(row=i, column=5, value=o.get('win_rate'))
         _auto_width(ws)
 
         # --- Sheet 4: Productivity ---------------------------------

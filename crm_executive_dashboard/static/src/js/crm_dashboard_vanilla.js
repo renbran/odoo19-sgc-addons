@@ -263,24 +263,25 @@
         );
     }
 
-    function renderLeads(la) {
-        if (!la || !la.sources || !la.sources.length) return "";
-        var rows = la.sources.slice(0, 8).map(function (s) {
+    function renderOwnerBreakdown(oa) {
+        if (!oa || !oa.owners || !oa.owners.length) return "";
+        var rows = oa.owners.slice(0, 10).map(function (o) {
             return (
                 '<tr>' +
-                '<td>' + escapeHtml(s.name) + '</td>' +
-                '<td>' + formatNumber(s.leads) + '</td>' +
-                '<td>' + formatPercent(s.conversion_rate) + '</td>' +
-                '<td>' + formatCurrency(s.revenue) + '</td>' +
+                '<td>' + escapeHtml(o.name) + '</td>' +
+                '<td>' + formatNumber(o.opportunities) + '</td>' +
+                '<td>' + formatCurrency(o.pipeline_value) + '</td>' +
+                '<td>' + formatNumber(o.won) + '</td>' +
+                '<td>' + formatPercent(o.win_rate) + '</td>' +
                 '</tr>'
             );
         }).join("");
         return (
             '<section class="ced-section">' +
-            '<h2 class="ced-section__title">Lead Source Analysis</h2>' +
+            '<h2 class="ced-section__title">Pipeline by Owner</h2>' +
             '<div class="ced-leads-card">' +
             '<table>' +
-            '<thead><tr><th>Source</th><th>Leads</th><th>Conversion</th><th>Revenue</th></tr></thead>' +
+            '<thead><tr><th>Owner</th><th>Opportunities</th><th>Pipeline</th><th>Won</th><th>Win Rate</th></tr></thead>' +
             '<tbody>' + rows + '</tbody>' +
             '</table>' +
             '</div>' +
@@ -314,25 +315,37 @@
         );
     }
 
-    function renderActivity(act) {
-        if (!act) return "";
-        var m = act.monthly || {};
-        var d = act.daily || {};
-        var p = act.performance || {};
+    function renderDisposition(disp) {
+        if (!disp) return "";
+        var byStage = disp.by_stage || [];
+        var rows = byStage.map(function (s) {
+            var badge = s.is_entry ? "ced-alert--warning" : (s.is_won ? "ced-alert--success" : "ced-alert--info");
+            return (
+                '<tr>' +
+                '<td>' + escapeHtml(s.name) +
+                (s.is_entry ? ' <span class="badge ' + badge + '">untouched</span>' : '') +
+                '</td>' +
+                '<td>' + formatNumber(s.count) + '</td>' +
+                '</tr>'
+            );
+        }).join("");
         return (
             '<section class="ced-section">' +
-            '<h2 class="ced-section__title">Sales Activity (This Month)</h2>' +
+            '<h2 class="ced-section__title">Disposition &amp; Engagement</h2>' +
             '<div class="ced-kpi-grid">' +
-            renderKpiCard("Calls", m.calls, "fa-phone", "info", "number") +
-            renderKpiCard("Meetings", m.meetings, "fa-handshake", "info", "number") +
-            renderKpiCard("Emails", m.emails, "fa-envelope", "info", "number") +
-            renderKpiCard("Other", m.other, "fa-tasks", "default", "number") +
-            renderKpiCard("Completed", m.completed, "fa-check-circle", "success", "number") +
-            renderKpiCard("Scheduled", m.scheduled, "fa-calendar", "info", "number") +
-            renderKpiCard("Completion Rate", p.completion_rate, "fa-percentage", "success", "percent") +
-            renderKpiCard("Overdue", p.overdue, "fa-exclamation-triangle",
-                p.overdue > 5 ? "danger" : "warning", "number") +
+            renderKpiCard("Contact Rate", disp.contact_rate, "fa-phone", "info", "percent") +
+            renderKpiCard("Worked This Period", disp.worked_period, "fa-hand-pointer-o", "success", "number") +
+            renderKpiCard("Still Untouched (New)", disp.in_entry_stage, "fa-inbox",
+                disp.in_entry_stage > 0 ? "warning" : "success", "number") +
+            renderKpiCard("Active Opportunities", disp.total_active, "fa-briefcase", "default", "number") +
             '</div>' +
+            (rows ?
+                '<div class="ced-leads-card">' +
+                '<table>' +
+                '<thead><tr><th>Current Stage</th><th>Count</th></tr></thead>' +
+                '<tbody>' + rows + '</tbody>' +
+                '</table>' +
+                '</div>' : '') +
             '</section>'
         );
     }
@@ -481,17 +494,17 @@
     function renderChartsSection(charts) {
         if (!charts) charts = {};
         var sections = [
-            { id: "chart-lead-daily", title: "Lead Trend (Daily)", type: "line", data: charts.lead_trend_daily },
-            { id: "chart-lead-weekly", title: "Lead Trend (Weekly)", type: "bar", data: charts.lead_trend_weekly },
-            { id: "chart-lead-monthly", title: "Lead Trend (Monthly)", type: "bar", data: charts.lead_trend_monthly },
+            { id: "chart-aging", title: "Pipeline Aging — Stale Opportunities", type: "bar", data: charts.pipeline_aging },
             { id: "chart-opp-trend", title: "Opportunity Trend", type: "line", data: charts.opportunity_trend },
+            { id: "chart-opp-daily", title: "Opportunities Created (Daily)", type: "line", data: charts.opportunity_trend_daily },
+            { id: "chart-opp-weekly", title: "Opportunities Created (Weekly)", type: "bar", data: charts.opportunity_trend_weekly },
+            { id: "chart-opp-monthly", title: "Opportunities Created (Monthly)", type: "bar", data: charts.opportunity_trend_monthly },
             { id: "chart-revenue", title: "Revenue Trend", type: "line", data: charts.revenue_trend },
             { id: "chart-conv", title: "Conversion Trend", type: "line", data: charts.conversion_trend },
-            { id: "chart-activity", title: "Activity Trend", type: "bar", data: charts.activity_trend },
+            { id: "chart-disposition", title: "Opportunities Worked Trend", type: "bar", data: charts.disposition_trend },
+            { id: "chart-owner", title: "Pipeline by Owner", type: "bar", data: charts.owner_pipeline },
             { id: "chart-team", title: "Team Performance", type: "bar", data: charts.team_performance },
             { id: "chart-forecast", title: "Revenue Forecast", type: "bar", data: charts.revenue_forecast },
-            { id: "chart-aging", title: "Pipeline Aging", type: "bar", data: charts.pipeline_aging },
-            { id: "chart-sources", title: "Lead Sources", type: "doughnut", data: charts.lead_source_pie },
         ];
 
         var html = sections.map(function (s) {
@@ -524,17 +537,17 @@
             return;
         }
         var defs = [
-            { id: "chart-lead-daily", type: "line", data: charts.lead_trend_daily },
-            { id: "chart-lead-weekly", type: "bar", data: charts.lead_trend_weekly },
-            { id: "chart-lead-monthly", type: "bar", data: charts.lead_trend_monthly },
+            { id: "chart-aging", type: "bar", data: charts.pipeline_aging },
             { id: "chart-opp-trend", type: "line", data: charts.opportunity_trend },
+            { id: "chart-opp-daily", type: "line", data: charts.opportunity_trend_daily },
+            { id: "chart-opp-weekly", type: "bar", data: charts.opportunity_trend_weekly },
+            { id: "chart-opp-monthly", type: "bar", data: charts.opportunity_trend_monthly },
             { id: "chart-revenue", type: "line", data: charts.revenue_trend },
             { id: "chart-conv", type: "line", data: charts.conversion_trend },
-            { id: "chart-activity", type: "bar", data: charts.activity_trend },
+            { id: "chart-disposition", type: "bar", data: charts.disposition_trend },
+            { id: "chart-owner", type: "bar", data: charts.owner_pipeline },
             { id: "chart-team", type: "bar", data: charts.team_performance },
             { id: "chart-forecast", type: "bar", data: charts.revenue_forecast },
-            { id: "chart-aging", type: "bar", data: charts.pipeline_aging },
-            { id: "chart-sources", type: "doughnut", data: charts.lead_source_pie },
         ];
         defs.forEach(function (d) { makeChart(d.id, d.type, d.data); });
     }
@@ -549,9 +562,9 @@
             renderKpiOverview(payload.kpi || {}) +
             renderAlerts(payload.alerts || []) +
             renderStartup(payload.startup) +
-            renderActivity(payload.activity) +
+            renderDisposition(payload.disposition) +
             renderProductivity(payload.productivity) +
-            renderLeads(payload.lead_analytics) +
+            renderOwnerBreakdown(payload.owner_analytics) +
             renderFunnel(payload.funnel) +
             renderChartsSection(payload.charts) +
             renderExportBar() +
