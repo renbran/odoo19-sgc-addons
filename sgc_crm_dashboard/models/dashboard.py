@@ -128,6 +128,41 @@ class CRMDashboard(models.AbstractModel):
         for o in order.search([("state", "=", "sale")]):
             confirmed_revenue += o.amount_total
 
+        # ─── Stage-flow KPIs (the New-stage pipeline monitor) ────────────
+        # 1) New Leads Today: leads created today (they enter the
+        #    "New" stage by default). This is the input side.
+        # 2) Moved Out of New Today: leads that were moved OUT of the
+        #    "New" stage today. The user wants to monitor whether the
+        #    team is working the top-of-funnel backlog. We approximate
+        #    via write_date::date = today AND current stage != New.
+        new_stage_id = self.env["crm.stage"].search(
+            [("sequence", "=", 0)], limit=1
+        ).id  # New = sequence 0 in this DB
+        new_leads_today = lead.search_count([
+            ("create_date", ">=", fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )),
+        ])
+        moved_out_of_new_today = 0
+        if new_stage_id:
+            moved_user_filter = ""
+            moved_params = []
+            if user_id:
+                moved_user_filter = "AND user_id = %s"
+                moved_params.append(user_id)
+            elif not is_admin:
+                moved_user_filter = "AND user_id IN %s"
+                moved_params.append(tuple(target_ids))
+            cr.execute(f"""
+                SELECT COUNT(*)
+                FROM crm_lead
+                WHERE active = true
+                  AND stage_id != %s
+                  AND write_date::date = CURRENT_DATE
+                  {moved_user_filter}
+            """, [new_stage_id] + moved_params)
+            moved_out_of_new_today = cr.fetchone()[0] or 0
+
         # Funnel: ordered stages (kept for the existing Conversion Funnel widget)
         funnel_stages = []
         for s in self.env["crm.stage"].search([], order="sequence"):
@@ -352,6 +387,8 @@ class CRMDashboard(models.AbstractModel):
             "kpi": {
                 "total_leads": total_leads,
                 "pipeline": pipeline,
+                "new_leads_today": new_leads_today,
+                "moved_out_of_new_today": moved_out_of_new_today,
                 "won": won,
                 "lost": lost,
                 "follow_up": follow_up,
