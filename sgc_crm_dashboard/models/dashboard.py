@@ -209,8 +209,9 @@ class CRMDashboard(models.AbstractModel):
         ]
 
         # ─── Pipeline by Source (replaces meaningless Teams widget) ──────
-        lang = self.env.user.lang or "en_US"
-        source_params = [lang]
+        # NOTE: utm_source.name is varchar (not jsonb like crm_stage.name),
+        # so do NOT use the ->> operator — read it directly.
+        source_params = []
         source_user_filter = ""
         if user_id:
             source_user_filter = "AND l.user_id = %s"
@@ -220,7 +221,7 @@ class CRMDashboard(models.AbstractModel):
             source_params.append(tuple(target_ids))
         cr.execute("""
             SELECT
-              COALESCE(NULLIF(s.name->>%s, ''), 'Unassigned') as source_name,
+              COALESCE(NULLIF(s.name, ''), 'Unassigned') as source_name,
               COUNT(l.id) as cnt
             FROM crm_lead l
             LEFT JOIN utm_source s ON l.source_id = s.id
