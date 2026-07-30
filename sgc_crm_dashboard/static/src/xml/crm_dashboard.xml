@@ -203,9 +203,10 @@
                 </div>
             </t>
 
-            <!-- KPI Cards Row -->
+            <!-- KPI Scorecard — 10 cards in two rows of 5 -->
+            <!-- Row 1: Total Leads · In Pipeline · Won · Lost · Today's Activity -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-md-3">
+                <div class="col-6 col-md-2 col-lg">
                     <div class="card o_kpi_card o_kpi-leads h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -220,7 +221,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-2 col-lg">
                     <div class="card o_kpi_card o_kpi-pipeline h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -235,7 +236,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-2 col-lg">
                     <div class="card o_kpi_card o_kpi-won h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -250,7 +251,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-6 col-md-2 col-lg">
                     <div class="card o_kpi_card o_kpi-lost h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -262,76 +263,10 @@
                                     <i class="fa fa-times-circle fa-lg" style="color:#FF5A5F;"/>
                                 </div>
                             </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-            <!-- Follow Up / Research Done / Outreach Email / Meeting Booked / Daily Activity Row -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-3">
-                    <div class="card o_kpi_card o_kpi-follow-up h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Follow Up</div>
-                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.follow_up)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(244,183,64,0.15);">
-                                    <i class="fa fa-bell fa-lg" style="color:#F4B740;"/>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Research Done</div>
-                                    <div class="o_kpi_value" style="color:#00B67A;" t-esc="formatNumber(state.kpi.research_done)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(0,182,122,0.15);">
-                                    <i class="fa fa-search fa-lg" style="color:#00B67A;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Email Outreach</div>
-                                    <div class="o_kpi_value" style="color:#4DA3FF;" t-esc="formatNumber(state.kpi.outreach_email)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
-                                    <i class="fa fa-envelope fa-lg" style="color:#4DA3FF;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card o_kpi_card o_kpi-booked h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="o_kpi_label">Meeting Booked</div>
-                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.booked)"/>
-                                </div>
-                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
-                                    <i class="fa fa-calendar-check fa-lg" style="color:#C7A23A;"/>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-2 col-lg">
                     <div class="card o_kpi_card o_kpi-activity h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -349,29 +284,80 @@
                 </div>
             </div>
 
-            <!-- Sales Orders Row -->
+            <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked · Revenue -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Total Orders</div>
-                            <div class="o_kpi_value" t-esc="formatNumber(state.kpi.total_orders)"/>
+                <div class="col-6 col-md-2 col-lg">
+                    <div class="card o_kpi_card o_kpi-follow-up h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Follow Up</div>
+                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.follow_up)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(244,183,64,0.15);">
+                                    <i class="fa fa-bell fa-lg" style="color:#F4B740;"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Confirmed Orders</div>
-                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatNumber(state.kpi.confirmed_orders)"/>
+                <div class="col-6 col-md-2 col-lg">
+                    <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Research Done</div>
+                                    <div class="o_kpi_value" style="color:#00B67A;" t-esc="formatNumber(state.kpi.research_done)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(0,182,122,0.15);">
+                                    <i class="fa fa-search fa-lg" style="color:#00B67A;"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card o_dash_card h-100">
-                        <div class="card-body text-center">
-                            <div class="o_kpi_label">Revenue</div>
-                            <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatCurrency(state.kpi.confirmed_revenue)"/>
+                <div class="col-6 col-md-2 col-lg">
+                    <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Email Outreach</div>
+                                    <div class="o_kpi_value" style="color:#4DA3FF;" t-esc="formatNumber(state.kpi.outreach_email)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
+                                    <i class="fa fa-envelope fa-lg" style="color:#4DA3FF;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 col-lg">
+                    <div class="card o_kpi_card o_kpi-booked h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Meeting Booked</div>
+                                    <div class="o_kpi_value" t-esc="formatNumber(state.kpi.booked)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
+                                    <i class="fa fa-calendar-check fa-lg" style="color:#C7A23A;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 col-lg">
+                    <div class="card o_kpi_card o_kpi-revenue h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="o_kpi_label">Revenue</div>
+                                    <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatCurrency(state.kpi.confirmed_revenue)"/>
+                                </div>
+                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
+                                    <i class="fa fa-money fa-lg" style="color:#C7A23A;"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
