@@ -241,6 +241,40 @@ class CalendarEvent(models.Model):
         }
 
     # ------------------------------------------------------------------
+    # Shared Google Meet organizer for CRM/SDR customer meetings
+    # ------------------------------------------------------------------
+    def _sgc_get_meet_organizer(self):
+        """Odoo user whose connected Google Calendar should generate the
+        real Meet room for CRM meetings, so individual SDRs don't each
+        need their own Google OAuth connection. Configurable via
+        ir.config_parameter 'sgc_meeting_ai.meet_organizer_login'.
+        """
+        login = self.env["ir.config_parameter"].sudo().get_param(
+            "sgc_meeting_ai.meet_organizer_login"
+        )
+        if not login:
+            return self.env["res.users"]
+        return self.env["res.users"].sudo().search([("login", "=", login)], limit=1)
+
+    def _sgc_apply_meet_organizer(self):
+        """Reassign the organizer of CRM/SDR customer meetings to the
+        shared Meet organizer, keeping the actual salesperson as an
+        attendee, so the meeting gets a real Google Meet room without
+        requiring every SDR to connect their own Google account.
+        """
+        organizer = self._sgc_get_meet_organizer()
+        if not organizer:
+            return
+        for event in self:
+            if event.user_id == organizer:
+                continue
+            attendee_partners = event.partner_ids | event.user_id.partner_id
+            event.with_context(sgc_applying_meet_organizer=True).write({
+                "partner_ids": [(6, 0, attendee_partners.ids)],
+                "user_id": organizer.id,
+            })
+
+    # ------------------------------------------------------------------
     # Auto-registration when a salesperson books a meeting
     # ------------------------------------------------------------------
     def _sgc_register_meeting(self):
@@ -248,6 +282,14 @@ class CalendarEvent(models.Model):
         for event in self:
             if not event.opportunity_id:
                 continue
+            if not self.env.context.get("sgc_applying_meet_organizer"):
+                try:
+                    event._sgc_apply_meet_organizer()
+                except Exception:
+                    _logger.exception(
+                        "Failed to apply shared Meet organizer for event %s",
+                        event.id,
+                    )
             if not event.sgc_booking_id:
                 try:
                     event.action_create_resource_booking()
