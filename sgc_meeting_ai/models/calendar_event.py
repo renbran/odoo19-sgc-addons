@@ -282,14 +282,11 @@ class CalendarEvent(models.Model):
         for event in self:
             if not event.opportunity_id:
                 continue
-            if not self.env.context.get("sgc_applying_meet_organizer"):
-                try:
-                    event._sgc_apply_meet_organizer()
-                except Exception:
-                    _logger.exception(
-                        "Failed to apply shared Meet organizer for event %s",
-                        event.id,
-                    )
+            # Resource booking/session must use the *real* salesperson so
+            # each SDR keeps their own always-available resource. Swapping
+            # the Meet organizer first would make every CRM meeting share
+            # crm@sgctech.ai's single resource (and its limited working
+            # hours), causing "no resource valid" booking failures.
             if not event.sgc_booking_id:
                 try:
                     event.action_create_resource_booking()
@@ -304,6 +301,16 @@ class CalendarEvent(models.Model):
                 except Exception:
                     _logger.exception(
                         "Failed to create AI meeting session for event %s",
+                        event.id,
+                    )
+            # Applied last: only touches this event's own organizer/attendees,
+            # not the resource booking, so it can't affect resource validity.
+            if not self.env.context.get("sgc_applying_meet_organizer"):
+                try:
+                    event._sgc_apply_meet_organizer()
+                except Exception:
+                    _logger.exception(
+                        "Failed to apply shared Meet organizer for event %s",
                         event.id,
                     )
 
