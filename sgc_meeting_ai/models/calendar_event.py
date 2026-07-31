@@ -57,7 +57,13 @@ class CalendarEvent(models.Model):
 
     @api.onchange("sgc_provider_id")
     def _onchange_sgc_provider_id(self):
-        if self.sgc_provider_id and self.sgc_provider_id.link_pattern:
+        # Leave videocall_location empty for google_meet so google_calendar's
+        # sync creates a real Meet room instead of a fabricated pattern link.
+        if (
+            self.sgc_provider_id
+            and self.sgc_provider_id.code != "google_meet"
+            and self.sgc_provider_id.link_pattern
+        ):
             self.videocall_location = self.sgc_provider_id.link_pattern
 
     # ------------------------------------------------------------------

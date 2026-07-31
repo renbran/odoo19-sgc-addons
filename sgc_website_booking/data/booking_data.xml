@@ -7,27 +7,22 @@
     -->
     <data noupdate="1">
 
-        <!-- Working-hours calendar for online sessions (UAE: Mon-Fri, 09:00-18:00) -->
+        <!-- Working-hours calendar for online sessions (Mon-Fri, 10:00-17:00) -->
         <record id="online_session_calendar" model="resource.calendar">
             <field name="name">SGC Online Sessions Hours</field>
             <field name="tz">Asia/Dubai</field>
             <!--
                 Define attendances inline so Odoo does NOT auto-add its default
-                40h/week set on top. Mon(0)..Fri(4), 09:00-13:00 and 14:00-18:00
-                (lunch 13:00-14:00 excluded). Hours are in the calendar tz.
+                40h/week set on top. Mon(0)..Fri(4), single 10:00-17:00 block.
+                Hours are in the calendar tz.
             -->
             <field name="attendance_ids" eval="[
                 (5, 0, 0),
-                (0, 0, {'name': 'Monday Morning',      'dayofweek': '0', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Monday Afternoon',    'dayofweek': '0', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Tuesday Morning',     'dayofweek': '1', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Tuesday Afternoon',   'dayofweek': '1', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Wednesday Morning',   'dayofweek': '2', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Thursday Morning',    'dayofweek': '3', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Thursday Afternoon',  'dayofweek': '3', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
-                (0, 0, {'name': 'Friday Morning',      'dayofweek': '4', 'hour_from': 9.0,  'hour_to': 13.0, 'day_period': 'morning'}),
-                (0, 0, {'name': 'Friday Afternoon',    'dayofweek': '4', 'hour_from': 14.0, 'hour_to': 18.0, 'day_period': 'afternoon'}),
+                (0, 0, {'name': 'Monday',    'dayofweek': '0', 'hour_from': 10.0, 'hour_to': 17.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Tuesday',   'dayofweek': '1', 'hour_from': 10.0, 'hour_to': 17.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Wednesday', 'dayofweek': '2', 'hour_from': 10.0, 'hour_to': 17.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Thursday',  'dayofweek': '3', 'hour_from': 10.0, 'hour_to': 17.0, 'day_period': 'morning'}),
+                (0, 0, {'name': 'Friday',    'dayofweek': '4', 'hour_from': 10.0, 'hour_to': 17.0, 'day_period': 'morning'}),
             ]"/>
         </record>
 

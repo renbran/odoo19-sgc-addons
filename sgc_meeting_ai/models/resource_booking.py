@@ -35,7 +35,16 @@ class ResourceBooking(models.Model):
     def _prepare_meeting_vals(self):
         vals = super()._prepare_meeting_vals()
         provider = self.sgc_meeting_provider_id or self.type_id.sgc_meeting_provider_id
-        if provider and provider.link_pattern and not vals.get("videocall_location"):
+        # google_meet is left untouched here: videocall_location must stay
+        # empty so google_calendar's own sync generates a *real* Meet room
+        # (conferenceData) for the organizer. Only fabricate a pattern-based
+        # link for providers Odoo can't create a real room for itself.
+        if (
+            provider
+            and provider.code != "google_meet"
+            and provider.link_pattern
+            and not vals.get("videocall_location")
+        ):
             import secrets
 
             placeholder_id = secrets.token_urlsafe(8).replace("-", "")[:11]
