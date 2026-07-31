@@ -28,7 +28,6 @@ the call and produces notes.
         'resource_booking',
         'sgc_meeting_ai',
         'crm',
-        'website_sgctech_ai',
     ],
 
     'data': [
