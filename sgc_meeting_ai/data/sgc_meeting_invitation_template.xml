@@ -79,18 +79,38 @@
             </p>
 
             <!-- ============ MEETING LINK ============ -->
-            <table t-if="event.videocall_location" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
+            <!-- Always render — falls back to the per-attendee calendar view
+                 URL when videocall_location is not yet populated (typical case:
+                 initial invitation sent BEFORE google_calendar sync writes
+                 the real meet.google.com URL). The second-email resend via
+                 _sgc_resend_meet_invitation will then deliver the direct Meet
+                 link. Until then the recipient always sees a working CTA. -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
             <tr><td align="center" style="padding:6px 0;">
-                <a t-att-href="event.videocall_location" target="_blank"
-                   t-attf-style="display:inline-block; padding:14px 34px; font-family:{{ sans }}; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
-                    <t t-if="is_discuss">Join the Meeting</t><t t-else="">Join the Video Meeting</t>
-                </a>
+                <t t-if="event.videocall_location">
+                    <a t-att-href="event.videocall_location" target="_blank"
+                       t-attf-style="display:inline-block; padding:14px 34px; font-family:{{ sans }}; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
+                        <t t-if="is_discuss">Join the Meeting</t><t t-else="">Join the Video Meeting</t>
+                    </a>
+                </t>
+                <t t-else="">
+                    <a t-attf-href="{{ base_url }}/calendar/meeting/view?token={{ token }}&amp;id={{ event.id }}"
+                       target="_blank"
+                       t-attf-style="display:inline-block; padding:14px 34px; font-family:{{ sans }}; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#5F6775; border:1px solid #B79554;">
+                        Open Meeting Details
+                    </a>
+                </t>
             </td></tr>
             </table>
-            <p t-if="event.videocall_location" t-attf-style="margin:0 0 22px 0; text-align:center; font-family:{{ sans }}; font-size:11px; color:#5F6775; word-break:break-all; line-height:1.6;">
+            <p t-attf-style="margin:0 0 22px 0; text-align:center; font-family:{{ sans }}; font-size:11px; color:#5F6775; word-break:break-all; line-height:1.6;">
                 <span style="letter-spacing:2px; text-transform:uppercase;">Meeting Link</span><br/>
-                <a t-att-href="event.videocall_location" target="_blank" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"
-                   t-out="event.videocall_location">https://sgctech.ai/calendar/join_videocall/9f2c1a4b7e</a>
+                <t t-if="event.videocall_location">
+                    <a t-att-href="event.videocall_location" target="_blank" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"
+                       t-out="event.videocall_location">https://sgctech.ai/calendar/join_videocall/9f2c1a4b7e</a>
+                </t>
+                <t t-else="">
+                    <span style="color:#5F6775;">The video link will appear here once Google Calendar finishes sync. <a t-attf-href="{{ base_url }}/calendar/meeting/view?token={{ token }}&amp;id={{ event.id }}" target="_blank" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;">Open this meeting page</a> to refresh and see it.</span>
+                </t>
             </p>
 
             <!-- ============ DETAILS ============ -->
