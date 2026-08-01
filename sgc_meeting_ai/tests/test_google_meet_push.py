@@ -36,7 +36,8 @@ class TestCustomerMeetingDetection(TransactionCase):
             "name": "Portal Contact",
             "login": "sgc_test_portal",
             "email": "portal@acme.example",
-            "groups_id": [(6, 0, [cls.env.ref("base.group_portal").id])],
+            # Odoo 19 renamed res.users.groups_id -> group_ids.
+            "group_ids": [(6, 0, [cls.env.ref("base.group_portal").id])],
         })
 
     def _make_event(self, partners, opportunity=None):
