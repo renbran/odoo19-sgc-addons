@@ -2,6 +2,7 @@
 # Part of SGC TECH AI. See LICENSE file for full copyright and licensing details.
 # Copyright (c) 2026 SGC TECH AI (https://sgctech.ai)
 
+from . import sgc_xlsx_mixin
 from . import sgc_balance_sheet_xlsx
 from . import sgc_profit_loss_xlsx
 from . import sgc_cash_flow_xlsx

@@ -45,18 +45,35 @@
         "report_xlsx",
         "web",
         "analytic",
+        "mail",
     ],
     "data": [
         "security/sgc_access_rights.xml",
         "security/ir.model.access.csv",
         "data/sgc_account_type_data.xml",
-        "views/sgc_wizard_views.xml",
         "data/sgc_report_actions.xml",
         "views/sgc_report_templates.xml",
+        "views/scheduled_report_views.xml",
+        "views/budget_views.xml",
+        "data/scheduled_report_data.xml",
     ],
     "demo": [],
     "assets": {
         "web.assets_backend": [
+            "sgc_dynamic_financial_report/static/src/scss/sgc_financial_report.scss",
+            "sgc_dynamic_financial_report/static/src/scss/enterprise_filter_bar.scss",
+            "sgc_dynamic_financial_report/static/src/js/enterprise_filter_bar.js",
+            "sgc_dynamic_financial_report/static/src/js/enterprise_filter_bar.xml",
+            "sgc_dynamic_financial_report/static/src/js/sgc_report_client_action.js",
+            "sgc_dynamic_financial_report/static/src/js/sgc_report_client_action.xml",
+            "sgc_dynamic_financial_report/static/src/js/drilldown_handler.js",
+        ],
+        # PDF export renders via wkhtmltopdf, which only ever loads the
+        # `web.report_assets_common` bundle - NOT `web.assets_backend`.
+        # Without this entry the PDF gets zero custom CSS (no borders,
+        # no brand colors, no print rules), which is why it rendered as
+        # unstyled/raw HTML.
+        "web.report_assets_common": [
             "sgc_dynamic_financial_report/static/src/scss/sgc_financial_report.scss",
         ],
     },

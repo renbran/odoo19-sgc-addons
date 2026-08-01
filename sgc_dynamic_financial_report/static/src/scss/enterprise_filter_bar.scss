@@ -1,0 +1,157 @@
+// ─────────────────────────────────────────────────────────────────────
+// SGC Dynamic Financial Reports – Enterprise Filter Bar
+// ─────────────────────────────────────────────────────────────────────
+// Desktop: single horizontal row, full Bootstrap 12-column width.
+// Tablet: only the action buttons (Generate/Export/Reset) may wrap.
+// Mobile: filters collapse into a vertical drawer.
+// ─────────────────────────────────────────────────────────────────────
+
+.o_sgc_enterprise_filter_bar {
+    .o_sgc_filter_bar_row {
+        row-gap: 0.5rem;
+    }
+
+    .o_sgc_filter_widget {
+        min-width: 140px;
+
+        .o_sgc_filter_label {
+            display: block;
+        }
+    }
+
+    .o_sgc_search_dropdown {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        min-width: 220px;
+        max-height: 260px;
+        overflow-y: auto;
+        z-index: 1050;
+    }
+
+    .o_sgc_more_filters_panel {
+        top: 100%;
+        right: 0;
+        z-index: 1040;
+        min-width: 320px;
+    }
+
+    .o_sgc_tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    // ── Tablet: filters stay on one row where possible, but action
+    // buttons are allowed to wrap onto their own row. ──────────────────
+    @media (max-width: 991.98px) {
+        .o_sgc_filter_actions {
+            flex-basis: 100%;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+    }
+
+    // ── Mobile: collapse into a vertical drawer — every filter widget
+    // takes the full row width, stacked. ───────────────────────────────
+    @media (max-width: 575.98px) {
+        .o_sgc_filter_bar_row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .o_sgc_filter_widget {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .o_sgc_filter_more,
+        .o_sgc_filter_actions {
+            width: 100%;
+        }
+
+        .o_sgc_more_filters_panel {
+            position: static;
+            width: 100%;
+        }
+
+        .o_sgc_filter_actions {
+            margin-top: 0.5rem;
+
+            .btn {
+                flex: 1;
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Collapsed pill toolbar — filters expand on click instead of sprawling
+// across the full header width.
+// ─────────────────────────────────────────────────────────────────────
+.o_sgc_enterprise_filter_bar {
+    .o_sgc_toolbar {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+    }
+
+    .o_sgc_toolbar__pills {
+        min-width: 0;
+
+        .dropdown-toggle {
+            white-space: nowrap;
+            border-radius: 999px;
+        }
+    }
+
+    .o_sgc_pill_value {
+        font-weight: 400;
+        opacity: 0.85;
+    }
+
+    .o_sgc_chip {
+        font-size: 11px;
+        font-weight: 500;
+        border-radius: 999px;
+        padding: 0.35em 0.65em;
+    }
+
+    @media (max-width: 575.98px) {
+        .o_sgc_toolbar__actions {
+            width: 100%;
+            margin-top: 0.5rem;
+
+            .btn {
+                flex: 1 1 auto;
+            }
+        }
+    }
+}
+
+// The Dropdown component portals its menu outside the filter bar, so these
+// must stay top-level selectors rather than nested under the bar.
+.o_sgc_filter_panel {
+    min-width: 260px;
+    max-width: 380px;
+
+    .o_sgc_filter_widget {
+        min-width: 0;
+    }
+
+    // Inside a portalled menu an absolutely-positioned result list escapes
+    // the panel, so keep the inline search results in normal flow.
+    .o_sgc_search_dropdown {
+        position: static;
+        display: block;
+        max-height: 200px;
+    }
+}
+
+.o_sgc_filter_panel--wide {
+    min-width: 320px;
+    max-height: 420px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sgc_dynamic_financial_report.SgcReportClientAction">
+        <div class="o_sgc_report_client_action p-2" t-ref="reportRoot">
+            <EnterpriseFilterBar
+                reportType="reportType"
+                onGenerate="(values) => this.onGenerate(values)"
+                onExport="(values) => this.onExport(values)"
+                onExportPdf="(values) => this.onExportPdf(values)"/>
+
+            <div t-if="state.error" class="alert alert-danger" role="alert">
+                <t t-esc="state.error"/>
+            </div>
+
+            <div t-if="state.generating" class="text-muted small p-2">
+                Generating report…
+            </div>
+
+            <div class="o_sgc_report_container" t-out="state.reportHtml"/>
+        </div>
+    </t>
+
+</templates>

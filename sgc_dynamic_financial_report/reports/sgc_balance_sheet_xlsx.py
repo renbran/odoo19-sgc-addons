@@ -6,14 +6,54 @@ from odoo import models
 
 
 class SgcBalanceSheetXlsx(models.AbstractModel):
-    """XLSX renderer for the SGC Balance Sheet report."""
+    """XLSX renderer for the SGC Balance Sheet report.
+
+    The workbook deliberately carries the same figures in two different
+    shapes, because the two audiences want opposite things:
+
+    * "Balance Sheet"  - presentation/print sheet. Only the columns a
+      reader actually needs (code, name, balance), fitted to one page
+      wide with the column header repeated on every printed page. This
+      is the sheet you hand to someone.
+    * "Working Data"   - reconciliation sheet. Every column including
+      Financial Section / Debit / Credit, plus freeze panes and an
+      autofilter, so it can be sorted, filtered and tied out. This is
+      the sheet you work in.
+    """
 
     _name = "report.sgc_dynamic_financial_report.sgc_balance_sheet_xlsx"
     _description = "SGC Balance Sheet XLSX Report"
-    _inherit = "report.report_xlsx.abstract"
+    _inherit = [
+        "report.report_xlsx.abstract",
+        "report.sgc_dynamic_financial_report.xlsx_mixin",
+    ]
+
+    SECTION_ORDER = ["assets", "liabilities", "equity"]
+    SECTION_LABELS = {
+        "assets": "ASSETS",
+        "liabilities": "LIABILITIES",
+        "equity": "EQUITY",
+    }
 
     def _get_report_name(self):
         return "SGC_Balance_Sheet"
+
+    # ── helpers ────────────────────────────────────────────────────────
+
+    def _sgc_bs_section_rows(self, rows, section_key):
+        return [r for r in rows if r.get("financial_section") == section_key]
+
+    def _sgc_bs_section_total(self, section_rows):
+        """Subtotal for one section.
+
+        ``totals`` only carries combined "assets" / "liabilities_equity"
+        keys (see _build_balance_sheet's return shape) - there is no
+        separate "liabilities" or "equity" key, so summing this section's
+        own rows is the only correct way to get its subtotal.
+        """
+        return sum(float(r.get("natural_balance") or 0.0) for r in section_rows)
+
+    # ── entry point ────────────────────────────────────────────────────
 
     def generate_xlsx_report(self, workbook, data, wizard):
         """Generate the Balance Sheet Excel file.
@@ -23,103 +63,110 @@ class SgcBalanceSheetXlsx(models.AbstractModel):
             data: Dict passed from the wizard.
             wizard: ``sgc.financial.report.wizard`` recordset.
         """
-        # ── Fetch data from the report engine ───────────────────────
         engine = wizard.env["sgc.financial.report.engine"]
         result = engine._generate_report(wizard)
         report_data = result.get("data", {})
         rows = report_data.get("rows", [])
         totals = report_data.get("totals", {})
 
-        # ── Date range formatting ───────────────────────────────────
-        date_from = wizard.date_from or ""
-        date_to = wizard.date_to or ""
-        date_range = f"From {date_from} to {date_to}"
+        formats = self._sgc_xlsx_build_formats(workbook)
 
-        # ── Formats ─────────────────────────────────────────────────
-        fmt_title = workbook.add_format({
-            "bold": True,
-            "size": 14,
-            "valign": "vcenter",
-        })
-        fmt_date = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_col_header = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "bg_color": "#4472C4",
-            "font_color": "#FFFFFF",
-            "border": 1,
-            "text_wrap": True,
-            "valign": "vcenter",
-            "align": "center",
-        })
-        fmt_section_header = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "bg_color": "#D9E2F3",
-            "border": 1,
-            "valign": "vcenter",
-        })
-        fmt_normal = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_money = workbook.add_format({
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-        fmt_subtotal = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "top": 2,
-            "valign": "vcenter",
-        })
-        fmt_subtotal_money = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "top": 2,
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-        fmt_grand_total = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "top": 2,
-            "bottom": 2,
-            "valign": "vcenter",
-        })
-        fmt_grand_total_money = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "top": 2,
-            "bottom": 2,
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
+        self._sgc_bs_write_presentation_sheet(workbook, wizard, formats, rows, totals)
+        self._sgc_bs_write_working_sheet(workbook, wizard, formats, rows, totals)
 
-        # ── Sheet setup ─────────────────────────────────────────────
+    # ── sheet 1: presentation / print ──────────────────────────────────
+
+    def _sgc_bs_write_presentation_sheet(self, workbook, wizard, formats, rows, totals):
+        """Clean, print-ready sheet: code, name, balance only.
+
+        Debit/Credit are intentionally omitted here - on a balance sheet
+        they are zero for almost every line, so they add two dead columns
+        and push the report onto a second printed page without telling
+        the reader anything. They remain available on the Working Data
+        sheet for anyone reconciling.
+        """
+        col_count = 3
         sheet = workbook.add_worksheet("Balance Sheet")
+        self._sgc_xlsx_apply_page_setup(sheet, orientation="portrait")
 
-        # Column widths: A=Code, B=Name, C=Section, D=Debit, E=Credit, F=Balance
-        sheet.set_column("A:A", 18)
-        sheet.set_column("B:B", 45)
-        sheet.set_column("C:C", 22)
-        sheet.set_column("D:D", 18)
-        sheet.set_column("E:E", 18)
-        sheet.set_column("F:F", 18)
+        # Print behaviour: one page wide, as many pages tall as needed,
+        # with the column header repeated at the top of each page.
+        sheet.fit_to_pages(1, 0)
+        sheet.hide_gridlines(2)
 
-        # ── Report header ───────────────────────────────────────────
-        row = 0
-        sheet.write(row, 0, wizard.company_id.name or "", fmt_title)
+        sheet.set_column("A:A", 16)   # Account Code
+        sheet.set_column("B:B", 56)   # Account Name
+        sheet.set_column("C:C", 22)   # Balance
+
+        header_row = self._sgc_xlsx_write_header_block(
+            sheet, workbook, wizard, "Balance Sheet", formats, column_count=col_count,
+        )
+
+        col_headers = ["Account Code", "Account Name", "Balance"]
+        for col_idx, header in enumerate(col_headers):
+            sheet.write(header_row, col_idx, header, formats["col_header"])
+        sheet.set_row(header_row, 26)
+        sheet.repeat_rows(header_row)
+
+        row = header_row + 1
+        for section_key in self.SECTION_ORDER:
+            label = self.SECTION_LABELS.get(section_key, section_key.title())
+            section_rows = self._sgc_bs_section_rows(rows, section_key)
+
+            for col_idx in range(col_count):
+                sheet.write(row, col_idx, label if col_idx == 0 else "",
+                            formats["section_header"])
+            row += 1
+
+            for account in section_rows:
+                zebra = (row - header_row) % 2 == 0
+                fmt_text = self._sgc_xlsx_zebra_format(formats, zebra)
+                fmt_money = self._sgc_xlsx_zebra_format(formats, zebra, money=True)
+
+                sheet.write(row, 0, account.get("code") or "", fmt_text)
+                sheet.write(row, 1, account.get("name") or "", fmt_text)
+                sheet.write(row, 2, float(account.get("balance") or 0.0), fmt_money)
+                row += 1
+
+            sheet.write(row, 0, "", formats["subtotal"])
+            sheet.write(row, 1, f"Total {label}", formats["subtotal"])
+            sheet.write(row, 2, self._sgc_bs_section_total(section_rows),
+                        formats["subtotal_money"])
+            row += 2  # subtotal + blank separator
+
+        for caption, value in (
+            ("TOTAL ASSETS", float(totals.get("assets", 0.0))),
+            ("TOTAL LIABILITIES + EQUITY", float(totals.get("liabilities_equity", 0.0))),
+        ):
+            sheet.write(row, 0, "", formats["grand_total"])
+            sheet.write(row, 1, caption, formats["grand_total"])
+            sheet.write(row, 2, value, formats["grand_total_money"])
+            sheet.set_row(row, 22)
+            row += 1
+
         row += 1
-        sheet.write(row, 0, "Balance Sheet", fmt_title)
-        row += 1
-        sheet.write(row, 0, date_range, fmt_date)
-        row += 2  # blank row at row 3
+        self._sgc_xlsx_write_footer_block(sheet, formats, row, col_count)
 
-        # ── Column headers (row 4) ──────────────────────────────────
+    # ── sheet 2: working / reconciliation ──────────────────────────────
+
+    def _sgc_bs_write_working_sheet(self, workbook, wizard, formats, rows, totals):
+        """Full-detail sheet for reconciling: every column, filterable."""
+        col_count = 6
+        sheet = workbook.add_worksheet("Working Data")
+        self._sgc_xlsx_apply_page_setup(sheet, orientation="landscape")
+
+        sheet.set_column("A:A", 18)   # Account Code
+        sheet.set_column("B:B", 45)   # Account Name
+        sheet.set_column("C:C", 22)   # Financial Section
+        sheet.set_column("D:D", 18)   # Debit
+        sheet.set_column("E:E", 18)   # Credit
+        sheet.set_column("F:F", 18)   # Balance
+
+        header_row = self._sgc_xlsx_write_header_block(
+            sheet, workbook, wizard, "Balance Sheet - Working Data", formats,
+            column_count=col_count,
+        )
+
         col_headers = [
             "Account Code",
             "Account Name",
@@ -129,84 +176,58 @@ class SgcBalanceSheetXlsx(models.AbstractModel):
             "Balance",
         ]
         for col_idx, header in enumerate(col_headers):
-            sheet.write(row, col_idx, header, fmt_col_header)
-        row += 1
+            sheet.write(header_row, col_idx, header, formats["col_header"])
+        sheet.set_row(header_row, 26)
 
-        # ── Group rows by financial_section and write sections ──────
-        section_order = ["assets", "liabilities", "equity"]
-        section_labels = {
-            "assets": "ASSETS",
-            "liabilities": "LIABILITIES",
-            "equity": "EQUITY",
-        }
-        section_running = {
-            "assets": 0.0,
-            "liabilities": 0.0,
-            "equity": 0.0,
-        }
+        self._sgc_xlsx_apply_freeze(sheet, header_row=header_row)
+        self._sgc_xlsx_apply_autofilter(
+            sheet, header_row, header_row, len(col_headers) - 1,
+        )
 
-        for section_key in section_order:
-            label = section_labels.get(section_key, section_key.title())
-            section_rows = [
-                r for r in rows if r.get("financial_section") == section_key
-            ]
+        row = header_row + 1
+        for section_key in self.SECTION_ORDER:
+            label = self.SECTION_LABELS.get(section_key, section_key.title())
+            section_rows = self._sgc_bs_section_rows(rows, section_key)
 
-            # Section header row
-            sheet.write(row, 0, label, fmt_section_header)
-            sheet.write(row, 1, "", fmt_section_header)
-            sheet.write(row, 2, "", fmt_section_header)
-            sheet.write(row, 3, "", fmt_section_header)
-            sheet.write(row, 4, "", fmt_section_header)
-            sheet.write(row, 5, "", fmt_section_header)
+            for col_idx in range(col_count):
+                sheet.write(row, col_idx, label if col_idx == 0 else "",
+                            formats["section_header"])
             row += 1
 
-            # Data rows for this section
-            section_total = 0.0
             for account in section_rows:
-                balance = float(account.get("balance") or 0.0)
-                debit = float(account.get("debit") or 0.0)
-                credit = float(account.get("credit") or 0.0)
-                section_total += balance
+                zebra = (row - header_row) % 2 == 0
+                fmt_text = self._sgc_xlsx_zebra_format(formats, zebra)
+                fmt_money = self._sgc_xlsx_zebra_format(formats, zebra, money=True)
 
-                sheet.write(row, 0, account.get("code") or "", fmt_normal)
-                sheet.write(row, 1, account.get("name") or "", fmt_normal)
-                sheet.write(row, 2, account.get("financial_section") or "", fmt_normal)
-                sheet.write(row, 3, debit, fmt_money)
-                sheet.write(row, 4, credit, fmt_money)
-                sheet.write(row, 5, balance, fmt_money)
+                sheet.write(row, 0, account.get("code") or "", fmt_text)
+                sheet.write(row, 1, account.get("name") or "", fmt_text)
+                sheet.write(row, 2, account.get("financial_section") or "", fmt_text)
+                sheet.write(row, 3, float(account.get("debit") or 0.0), fmt_money)
+                sheet.write(row, 4, float(account.get("credit") or 0.0), fmt_money)
+                sheet.write(row, 5, float(account.get("balance") or 0.0), fmt_money)
                 row += 1
 
-            section_running[section_key] = section_total
+            sheet.write(row, 0, "", formats["subtotal"])
+            sheet.write(row, 1, f"Total {label}", formats["subtotal"])
+            sheet.write(row, 2, "", formats["subtotal"])
+            sheet.write(row, 3, "", formats["subtotal_money"])
+            sheet.write(row, 4, "", formats["subtotal_money"])
+            sheet.write(row, 5, self._sgc_bs_section_total(section_rows),
+                        formats["subtotal_money"])
+            row += 2  # subtotal + blank separator
 
-            # Subtotal row (use engine total if available, otherwise computed)
-            engine_section_total = float(
-                totals.get(section_key, section_total)
-            )
-            subtotal_label = f"Total {label}"
-            sheet.write(row, 0, "", fmt_subtotal)
-            sheet.write(row, 1, subtotal_label, fmt_subtotal)
-            sheet.write(row, 2, "", fmt_subtotal)
-            sheet.write(row, 3, "", fmt_subtotal_money)
-            sheet.write(row, 4, "", fmt_subtotal_money)
-            sheet.write(row, 5, engine_section_total, fmt_subtotal_money)
+        for caption, value in (
+            ("TOTAL ASSETS", float(totals.get("assets", 0.0))),
+            ("TOTAL LIABILITIES + EQUITY", float(totals.get("liabilities_equity", 0.0))),
+        ):
+            sheet.write(row, 0, "", formats["grand_total"])
+            sheet.write(row, 1, caption, formats["grand_total"])
+            sheet.write(row, 2, "", formats["grand_total"])
+            sheet.write(row, 3, "", formats["grand_total_money"])
+            sheet.write(row, 4, "", formats["grand_total_money"])
+            sheet.write(row, 5, value, formats["grand_total_money"])
+            sheet.set_row(row, 22)
             row += 1
-            row += 1  # blank separator row
 
-        # ── Grand totals ────────────────────────────────────────────
-        total_assets = float(totals.get("assets", 0.0))
-        total_liabilities_equity = float(totals.get("liabilities_equity", 0.0))
-
-        sheet.write(row, 0, "", fmt_grand_total)
-        sheet.write(row, 1, "TOTAL ASSETS", fmt_grand_total)
-        sheet.write(row, 2, "", fmt_grand_total)
-        sheet.write(row, 3, "", fmt_grand_total_money)
-        sheet.write(row, 4, "", fmt_grand_total_money)
-        sheet.write(row, 5, total_assets, fmt_grand_total_money)
         row += 1
-
-        sheet.write(row, 0, "", fmt_grand_total)
-        sheet.write(row, 1, "TOTAL LIABILITIES + EQUITY", fmt_grand_total)
-        sheet.write(row, 2, "", fmt_grand_total)
-        sheet.write(row, 3, "", fmt_grand_total_money)
-        sheet.write(row, 4, "", fmt_grand_total_money)
-        sheet.write(row, 5, total_liabilities_equity, fmt_grand_total_money)
+        self._sgc_xlsx_write_footer_block(sheet, formats, row, col_count)

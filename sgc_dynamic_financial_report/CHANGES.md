@@ -1,5 +1,62 @@
 # SGC Dynamic Financial Reports - Changelog
 
+## Version 19.0.1.0.0 (2026-07-20) - Enterprise uplift pass (static review)
+
+Enterprise-grade uplift adding multi-company consolidation, budget-vs-actual,
+drill-down, scheduled reports, audit trail, analytic breakdowns, BI API, and
+polished XLSX formatting. Applied via static review and automated code generation
+only — pending live Docker verification in the next pass.
+
+### Added
+- **Multi-company consolidated reporting** (`sgc_financial_report_engine.py`):
+  New consolidate toggle + currency conversion (`_get_target_currency()`,
+  `_get_currency_conversion_rate()`, `_apply_currency_conversion()`). Company
+  hierarchy walking via `_get_company_ids()`. Consolidated currency column
+  shown in report output. Backward-compatible: existing single-company reports
+  unchanged when toggle off.
+- **Budget vs Actual comparison**: New `sgc.dfr.budget` and
+  `sgc.dfr.budget.line` models (`dfr_budget.py`) with 12-period monthly
+  tracking per account/company/analytic. Engine integration via
+  `_query_budget_vs_actual_sql()`, `_compute_budget_vs_actual()`,
+  `_budget_columns()`, `_budget_row_cells()`, `_build_budget_vs_actual()`.
+  Revenue/expense net variance computed. Budget views, menu, and ACLs created.
+- **Drill-down capability**: `_get_drilldown_data()` in engine returns opening
+  balance, period lines (date, ref, partner, memo, debit, credit, balance),
+  and running balance. Controller route `/sgc/dfr/drilldown/<wizard_id>/<account_id>`
+  with same group/company access control as existing preview endpoint.
+- **Scheduled reports** (`dfr_scheduled_report.py`): `sgc.dfr.scheduled.report`
+  model with full report parameter set, auto-create/update/unlink of ir.cron,
+  email delivery via mail.template + mail.mail fallback, preview action,
+  `_run_on_cron()` method. Views, menu, ACLs created. Data file seeds a
+  `report_xlsx` mail template.
+- **Audit trail** (`dfr_report_log.py`): `sgc.dfr.report.log` model capturing
+  every generated report — wizard reference, all parameters, generated_by,
+  generated_at, compressed HTML snapshot (zlib + base64) with size tracking.
+  Factory method `create_from_wizard()`. Views, menu, ACLs created.
+- **Analytic dimension breakdowns**: `analytic_breakdown` toggle on wizard,
+  `_build_analytic_breakdown_columns()` in engine generates per-analytic columns
+  dynamically. Updated `_build_html_table()` to render analytic columns.
+  Backward-compatible when toggle off.
+- **BI API endpoint**: `GET /sgc/dfr/api/report/<wizard_id>` (no CSRF) returns
+  full report data as JSON dict with `_meta` block. Same 3-tier group access
+  control and company isolation as preview.
+- **Polished XLSX formatting**: New `reports/sgc_xlsx_mixin.py` with shared
+  format builders (header, subheader, data, currency, percentage, total, negative,
+  section), page setup, repeat rows, freeze panes, auto-filter, header/footer,
+  zebra striping, auto-size columns. Hooked into all 9 XLSX report generators.
+
+### Security
+- All 4 new models (`sgc.dfr.report.log`, `sgc.dfr.scheduled.report`,
+  `sgc.dfr.budget`, `sgc.dfr.budget.line`) have 3-tier ACLs (User/Manager/Admin)
+  matching existing module security model.
+- BI API and drill-down endpoints apply the same group + company access checks
+  used in the existing preview endpoint.
+
+### Known follow-ups
+- Live Docker install+test verification pending (D: drive unavailable this pass)
+- Multi-company `parent_of` hierarchy in raw-SQL engine (previous follow-up, still open)
+- `static/description/icon.png` branding-kit provenance (previous follow-up, still open)
+
 ## Version 19.0.1.0.0 (2026-07-19) - Rebranding pass (SGC-BRAND.md compliance)
 
 Brought the module into compliance with the `branding/SGC-BRAND.md` contract,

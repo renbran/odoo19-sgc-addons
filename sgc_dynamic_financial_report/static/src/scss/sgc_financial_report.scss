@@ -16,7 +16,14 @@
 }
 
 // ── Report Table ─────────────────────────────────────────────────────
+// table-layout: fixed + explicit per-column widths (not content-based
+// auto-sizing) so every section's table (Assets, Liabilities, Equity, ...)
+// computes identical column boundaries and lines up vertically, even
+// though each section renders as its own separate <table> with its own
+// row content. Without this, two tables on the same page with different
+// text lengths end up with visibly different, unaligned column widths.
 .o_sgc_report_table {
+    table-layout: fixed;
     border-collapse: collapse;
     width: 100%;
     margin-bottom: 1rem;
@@ -28,10 +35,12 @@
         border: 1px solid #dee2e6;
         text-align: right;
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     th {
-        background-color: #007bff;
+        background-color: #0f2c4c;
         color: #ffffff;
         font-weight: 600;
         position: sticky;
@@ -39,33 +48,73 @@
         z-index: 1;
     }
 
+    // First column (Code / Date / Partner ref, etc.): short, fixed-length
+    // content - a tight fixed width instead of whatever space auto-layout
+    // happened to leave it.
     td:first-child,
     th:first-child {
         text-align: left;
+        width: 90px;
+    }
+
+    // Text columns (account codes/names/descriptions), auto-detected
+    // server-side by _text_columns() from actual cell content - not a fixed
+    // column position, since the same column index is text in one report
+    // and a numeric amount in another (e.g. the grand-total row). The
+    // second such column (Account Name/Description) gets the lion's share
+    // of the row; numeric columns split whatever's left evenly.
+    td.sgc-col-text,
+    th.sgc-col-text {
+        text-align: left;
+    }
+
+    td.sgc-col-text:not(:first-child),
+    th.sgc-col-text:not(:first-child) {
+        width: 32%;
     }
 
     // Section header rows (group by account type, partner, etc.)
     tr.section-header td {
-        background-color: #e9ecef;
+        background-color: rgba(15, 44, 76, 0.06);
         font-weight: 700;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
 
-    // Total / subtotal rows
+    // Total / subtotal rows - matches the PDF export's established SGC
+    // brand treatment (navy #0F2C4C / gold #C9A227, see .sgc_pdf_document
+    // below) instead of the generic Bootstrap blue this on-screen view
+    // previously used.
     tr.total-row td {
-        background-color: #d1ecf1;
+        background-color: #f2ede0;
         font-weight: 700;
-        border-top: 2px solid #0c5460;
+        border-top: 2px solid #0f2c4c;
+    }
+
+    // The "Total Revenue" / "Total Expenses" label sits in column 2
+    // (Account Name) of each section table, with column 1 (Code) empty
+    // in total rows. Without indentation it visually butts up against
+    // the empty col-1 cell and looks like it might be in col 1. Push
+    // it right by the col-1 width so it clearly sits under "Account
+    // Name" rather than next to the empty code cell.
+    tr.total-row td.sgc-col-text:not(:first-child) {
+        padding-left: 110px;
     }
 
     // Grand total row
     tr.grand-total td {
-        background-color: #cce5ff;
+        background-color: #0f2c4c;
+        color: #ffffff;
         font-weight: 700;
-        border-top: 3px double #004085;
+        border-top: 3px double #c9a227;
         font-size: 14px;
+    }
+
+    // Same indent applies to the grand-total label cell (e.g. the
+    // single label that opens a stand-alone "TOTAL ASSETS" table).
+    tr.grand-total td.sgc-col-text:not(:first-child) {
+        padding-left: 110px;
     }
 
     // Negative amounts
@@ -86,7 +135,7 @@
 
     // Hover effect
     tbody tr:hover {
-        background-color: rgba(0, 123, 255, 0.05);
+        background-color: rgba(15, 44, 76, 0.05);
     }
 
     // Indentation for hierarchy
@@ -94,6 +143,192 @@
     td.indent-2 { padding-left: 2.5rem; }
     td.indent-3 { padding-left: 3.5rem; }
     td.indent-4 { padding-left: 4.5rem; }
+
+    // The grand-total summary table (label + value only, e.g. "TOTAL
+    // ASSETS") is a single standalone table, not one of several sections
+    // that need to line up with each other - it doesn't need the fixed
+    // cross-table column widths above, which would otherwise truncate a
+    // long label like "TOTAL ASSETS" into a 90px first column.
+    &.o_sgc_grand_total_table {
+        table-layout: auto;
+
+        td:first-child {
+            width: auto;
+        }
+    }
+}
+
+// ── Section Title Bar (filled header) ────────────────────────────
+// REVENUE / EXPENSES / NET INCOME - emitted by the engine as a
+// stand-alone <h4 class="sgc_section_title"> (NOT inside <details> -
+// see .sgc_collapsible_section > summary below for that case). Match
+// the filled navy/white treatment of the column-header row so each
+// section reads as a continuation of the same visual rhythm: dark
+// fill, white type, gold accent under the bar.
+.o_sgc_report_container > h4.sgc_section_title {
+    background-color: #0f2c4c;
+    color: #ffffff;
+    padding: 0.55rem 0.85rem;
+    margin: 1.25rem 0 0.4rem;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    border-bottom: 3px solid #c9a227;
+    border-radius: 4px 4px 0 0;
+}
+
+// ── Per-Account Drill-Down (click to expand) ───────────────────────
+// Every account data row carries a data-account-id attribute (added in
+// _build_html_table), so the OWL client-action JS delegates a single
+// click handler on the report container and reacts to any tr matching
+// that selector. These are the visual cues that make the row look
+// clickable on hover, plus the styling for the expanded drill table
+// that gets injected right below the clicked row.
+.o_sgc_report_container {
+    tr[data-account-id] {
+        cursor: pointer;
+        transition: background-color 120ms ease;
+
+        // Subtle chevron at the start of the row, a la tree-toggle buttons
+        // - lets users see at a glance which rows are drillable. The chevron
+        // is rendered with a CSS pseudo-element on the first cell, so no
+        // engine change is needed and old reports still get the affordance.
+        > td:first-child::before {
+            content: "▸";
+            display: inline-block;
+            margin-right: 0.4rem;
+            color: #0f2c4c;
+            opacity: 0.55;
+            transition: transform 120ms ease;
+            font-size: 11px;
+            vertical-align: 1px;
+        }
+
+        &:hover {
+            background-color: rgba(15, 44, 76, 0.05);
+        }
+    }
+
+    // Row is currently expanded - rotate the chevron, deepen the highlight.
+    tr.sgc-row-expanded {
+        background-color: rgba(15, 44, 76, 0.08);
+
+        > td:first-child::before {
+            transform: rotate(90deg);
+            opacity: 1;
+        }
+    }
+
+    // The drill-down row that the JS injects right under a clicked row.
+    // Spans full table width (colgroup-independent via colspan=99) and
+    // re-uses the SGC navy accent on the left border to tie it visually
+    // back to the brand.
+    tr.sgc-drilldown-row > td.sgc-drilldown-cell {
+        background-color: #fafafa;
+        border-left: 3px solid #0f2c4c;
+        padding: 0.85rem 1rem;
+
+        .sgc-drilldown-table {
+            font-size: 12px;
+            margin-bottom: 0;
+
+            thead th {
+                background-color: #e9ecef;
+                color: #212529;
+                font-weight: 600;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            td.sgc-drilldown-num {
+                font-variant-numeric: tabular-nums;
+            }
+        }
+
+        .sgc-drilldown-summary {
+            font-variant-numeric: tabular-nums;
+        }
+    }
+}
+
+// ── Analytic Breakdown Columns ───────────────────────────────────
+// Engine emits a "Analytic Breakdown" colspan header row + per-line
+// analytic amount cells with the .analytic-cell class.
+.analytic-cell {
+    background-color: rgba(13, 110, 253, 0.06);
+    font-style: italic;
+    color: #0d6efd;
+}
+
+tfoot .analytic-total {
+    background-color: rgba(13, 110, 253, 0.04);
+    border-top: 1px dotted #0d6efd;
+}
+
+.analytic-breakdown-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    margin-left: 0.5rem;
+    border-radius: 4px;
+    background-color: #cff4fc;
+    color: #055160;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+// ── Multi-Company / Currency Hint ────────────────────────────────
+// Used by the wizard to surface the multi-company + currency hint
+// when the consolidate_companies checkbox is on.
+.o_sgc_multi_company_hint {
+    margin-top: 0.25rem;
+    padding: 0.35rem 0.6rem;
+    background-color: #fff3cd;
+    border-left: 3px solid #ffc107;
+    border-radius: 0 4px 4px 0;
+    font-size: 12px;
+    color: #664d03;
+}
+
+// ── Schedule Block ───────────────────────────────────────────────
+// Status indicators on the wizard's Schedule section.
+.o_sgc_schedule_status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background-color: #e2f3fc;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #055160;
+
+    &.scheduled {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+}
+
+.o_sgc_field_schedule_cron_id {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+// ── Budget vs Actual / Analytic Breakdown indicator badges ───────
+// Shown next to the report title in the result view when these flags
+// were used during generation.
+.o_sgc_flag_pills {
+    display: inline-flex;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+
+    .o_sgc_flag_pill {
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        background-color: #e7f1ff;
+        color: #084298;
+        font-size: 11px;
+        font-weight: 600;
+    }
 }
 
 // ── Report Header / Footer ──────────────────────────────────────────
@@ -101,7 +336,7 @@
     text-align: center;
     margin-bottom: 1.5rem;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid #007bff;
+    border-bottom: 2px solid #0f2c4c;
 
     h2 {
         font-size: 18px;
@@ -162,10 +397,67 @@
     }
 }
 
+// ── Collapsible Report Sections ─────────────────────────────────────
+// Native <details>/<summary> — no JS/OWL involved. Collapsed by default;
+// the "Expand All / Collapse All" bar operates on these via plain
+// onclick handlers built in _build_collapse_toggle_bar().
+.sgc_collapse_toggle_bar {
+    margin: 0.5rem 0;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.sgc_collapsible_section {
+    margin-bottom: 0.75rem;
+
+    > summary.sgc_section_title {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 0.35rem 0;
+        list-style-position: outside;
+
+        &:hover {
+            color: #0f2c4c;
+        }
+    }
+
+    // First table right after the summary shouldn't add extra top gap.
+    > summary.sgc_section_title + * {
+        margin-top: 0.25rem;
+    }
+}
+
 // ── Print Styles ────────────────────────────────────────────────────
 @media print {
     .sgc_report_toolbar {
         display: none !important;
+    }
+
+    .sgc_collapse_toggle_bar {
+        display: none !important;
+    }
+
+    // Force every collapsible section fully visible on print/PDF export
+    // regardless of its on-screen open/closed state — printing can't
+    // "click", so collapse state must never affect exported output.
+    // (Defense-in-depth: the PDF path already generates every ``<details>``
+    // pre-``open`` in Python via ``sgc_dfr_for_print`` - see
+    // ``_wrap_collapsible`` - because not every wkhtmltopdf build honors
+    // ``@media print`` consistently. This CSS is a second line of defense,
+    // and also removes the on-screen disclosure marker.)
+    .sgc_collapsible_section {
+        > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        > summary::marker {
+            content: "";
+        }
+    }
+
+    .sgc_collapsible_section:not([open]) > *:not(summary) {
+        display: block !important;
     }
 
     .o_sgc_report_table {
@@ -180,5 +472,168 @@
     .sgc_report_header h2,
     .sgc_report_header h3 {
         color: #000 !important;
+    }
+}
+
+// ── PDF Document (print-only report layout) ─────────────────────────
+// Scoped to the QWeb PDF template's `.sgc_pdf_document` wrapper only -
+// does not affect the on-screen enterprise preview, which keeps its own
+// look. Uses SGC brand colors (navy #0F2C4C / gold #C9A227) instead of
+// the generic Bootstrap blue used for the on-screen preview, and drops
+// interaction-only affordances (hover states, sticky headers, collapse
+// toggle bar) that have no meaning in a static, printed document.
+.sgc_pdf_document {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+
+    .sgc_report_header {
+        border-bottom-color: #0f2c4c;
+
+        h2 {
+            color: #0f2c4c;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        h3 {
+            color: #0f2c4c;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        p {
+            color: #55606b;
+        }
+    }
+
+    .sgc_section_title {
+        color: #0f2c4c;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #c9a227;
+        padding-bottom: 0.2rem;
+        margin-bottom: 0.4rem;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &::marker {
+            content: "";
+        }
+    }
+
+    // Print rendering uses plain <div><h4> section blocks instead of
+    // <details> (see _wrap_collapsible's `sgc_dfr_for_print` branch) -
+    // wkhtmltopdf's bundled WebKit does not reliably render <details>
+    // content. Same spacing as the on-screen collapsible sections.
+    .sgc_section_block {
+        margin-bottom: 0.75rem;
+    }
+
+    .o_sgc_report_table {
+        font-size: 11px;
+        margin-bottom: 1rem;
+
+        th {
+            background-color: #0f2c4c !important;
+            color: #ffffff !important;
+            font-size: 10px;
+            position: static; // sticky header is meaningless on a static page
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        td,
+        th {
+            padding: 0.35rem 0.6rem;
+        }
+
+        tbody tr:hover {
+            background-color: transparent; // no hover state on a printed page
+        }
+
+        tr.total-row td {
+            background-color: #f2ede0 !important;
+            border-top: 1.5px solid #0f2c4c;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        // Avoid a row's content splitting across a page boundary.
+        tr {
+            page-break-inside: avoid;
+        }
+    }
+
+    .o_sgc_grand_total_table {
+        margin-top: 0.5rem;
+
+        tr.grand-total td {
+            background-color: #0f2c4c !important;
+            color: #ffffff !important;
+            border-top: 2px solid #c9a227;
+            font-size: 13px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+
+    .sgc_report_footer {
+        color: #8a949e;
+    }
+}
+// ─────────────────────────────────────────────────────────────────────
+// PDF print density — keeps a full balance sheet on a single page.
+// This file is loaded into web.report_assets_common (see __manifest__),
+// so these rules reach wkhtmltopdf, not just the on-screen preview.
+// ─────────────────────────────────────────────────────────────────────
+.sgc_pdf_document {
+    font-size: 8.5pt;
+    line-height: 1.25;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 6px;
+    }
+
+    th,
+    td {
+        padding: 1.5px 5px !important;
+        line-height: 1.25;
+        vertical-align: middle;
+    }
+
+    th {
+        font-size: 8pt;
+        font-weight: 600;
+    }
+
+    // Keep a row intact, but allow a long table to flow across pages.
+    tr {
+        page-break-inside: avoid;
+    }
+
+    // A <tfoot> is repeated on every printed page by wkhtmltopdf, which
+    // both duplicated "Total Liabilities" and reserved space that forced
+    // an early page break. Print it once, in flow with the body.
+    tfoot {
+        display: table-row-group;
+    }
+
+    // Figures should read as a column: identical glyph widths, right aligned.
+    td:not(:first-child):not(:nth-child(2)),
+    th:not(:first-child):not(:nth-child(2)) {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+    }
+
+    h1, h2, h3, h4, h5, p {
+        margin: 0 0 2px;
     }
 }

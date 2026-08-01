@@ -6,27 +6,31 @@
     <!-- ════════════════════════════════════════════════════════════════ -->
     <!-- PDF QWEB TEMPLATE – base template for PDF export                 -->
     <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Odoo 19 passes the records to render as ``docs`` (not ``object``
+         as older releases did) via ``ir.actions.report``'s render path.
+         ``docs`` is the recordset of wizard instances - we expect the
+         wizard to call ``report_action`` for a single record, so use
+         ``docs[0]`` for the body.
+
+         No separate title block here: ``docs[0].result_html`` (built by
+         ``_build_report_header_html`` in the engine) already renders its
+         own company name / report title / date range / currency line -
+         adding another one here duplicated that block verbatim in the
+         PDF. ``web.external_layout`` still supplies Odoo's own
+         logo/address header and page-number footer around it. -->
     <template id="sgc_financial_report_template">
-        <t t-call="web.external_layout">
-            <t t-set="title">SGC Financial Report</t>
-            <div class="page">
-                <div class="sgc_report_header">
-                    <h2 t-esc="object.company_id.name"/>
-                    <h3 t-esc="object.report_type.replace('_', ' ').title()"/>
-                    <p>
-                        <span>From </span>
-                        <span t-esc="object.date_from"/>
-                        <span> to </span>
-                        <span t-esc="object.date_to"/>
-                    </p>
+        <t t-call="web.html_container">
+            <t t-call="web.basic_layout">
+                <t t-set="title">SGC Financial Report</t>
+                <div class="page sgc_pdf_document">
+                    <div class="sgc_report_body">
+                        <t t-raw="docs[0].result_html"/>
+                    </div>
+                    <div class="sgc_report_footer" t-if="docs[0].company_id.sgc_dfr_report_footer">
+                        <p t-esc="docs[0].company_id.sgc_dfr_report_footer"/>
+                    </div>
                 </div>
-                <div class="sgc_report_body">
-                    <t t-raw="object.result_html"/>
-                </div>
-                <div class="sgc_report_footer" t-if="object.company_id.sgc_dfr_report_footer">
-                    <p t-esc="object.company_id.sgc_dfr_report_footer"/>
-                </div>
-            </div>
+            </t>
         </t>
     </template>
 

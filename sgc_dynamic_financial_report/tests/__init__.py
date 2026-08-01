@@ -3,3 +3,4 @@
 # Copyright (c) 2026 SGC TECH AI (https://sgctech.ai)
 
 from . import test_financial_reports
+from . import test_regression

@@ -2,6 +2,8 @@
 # Part of SGC TECH AI. See LICENSE file for full copyright and licensing details.
 # Copyright (c) 2026 SGC TECH AI (https://sgctech.ai)
 
+import html
+import re
 import pytz
 from datetime import datetime, timedelta
 
@@ -76,6 +78,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
             "aged_receivable": self._build_aged_receivable,
             "aged_payable": self._build_aged_payable,
             "tax_report": self._build_tax_report,
+            "budget_vs_actual": self._build_budget_vs_actual,
         }
         builder = dispatch.get(wizard.report_type)
         if not builder:
@@ -148,45 +151,171 @@ class SgcFinancialReportEngine(models.AbstractModel):
 
     # ── Raw SQL helpers (performance-critical) ────────────────────────
 
-    def _query_account_balances_sql(self, wizard, include_comparison=False):
+    def _query_account_balances_sql(self, wizard, include_comparison=False, cumulative_all=False):
         """Execute raw SQL to get account-level debit/credit/balance.
 
         Returns list of dicts:
-            [{account_id, code, name, account_type, financial_section,
-              debit, credit, balance, comp_debit, comp_credit, comp_balance}]
+            [{account_id, company_id, company_name, code, name,
+              account_type, financial_section,
+              debit, credit, balance, comp_debit, comp_credit, comp_balance,
+              natural_balance, comp_natural_balance,
+              currency_rate, original_currency_id}]
 
-        This uses raw SQL for performance with large datasets.
+        ``cumulative_all``: when True, every account (not just BS-section
+        ones) is cumulative-to-``date_to`` with no ``date_from`` cutoff.
+        Trial Balance needs this — it lists every account together and its
+        own debit=credit invariant only holds when ALL accounts share one
+        scope; mixing "cumulative BS, period-filtered P&L" (the default,
+        correct for Balance Sheet / Profit & Loss) breaks that invariant
+        for Trial Balance specifically, since revenue/expense move lines
+        outside the period would be excluded while their offsetting
+        asset/liability entries remain included.
+
+        When ``wizard.consolidate_companies`` is True the SQL aggregates
+        across the wizard's company plus every child company (the
+        ``child_of`` hierarchy via ``res.company.parent_id``).  In that
+        case the GROUP BY includes ``aml.company_id`` so each
+        ``(account, company)`` pair is a distinct row — required to apply
+        per-company currency conversion after the fetch.  Single-company
+        callers get the original one-row-per-account shape and the
+        amounts are returned unchanged.
+
+        All SQL parameters are bound through psycopg2 placeholders so
+        user-controlled values (dates, ids, bucket strings, etc.) can
+        never reach the SQL text.
         """
+        company_ids = self._get_company_ids(wizard)
+        target_currency = self._get_target_currency(wizard)
+        company_id_str = str(wizard.company_id.id)
+        lang = self.env.lang or "en_US"
+        consolidating = len(company_ids) > 1
+
+        # BS-section accounts (assets/liabilities/equity) are point-in-time
+        # cumulative balances - a real balance sheet only cuts off at
+        # date_to, it never excludes pre-period history via date_from.
+        # Revenue/expense accounts are period flows and correctly keep the
+        # date_from/date_to window. Since the account->financial_section
+        # mapping is data (sgc_dfr_account_type), not a hardcoded account_type
+        # list, it's resolved once via a CTE so the aml join's ON clause can
+        # branch on it per-account.
+        #
+        # target_move mirrors _get_base_domain()'s existing semantics
+        # ('posted' / 'draft' / unset-meaning-all) - this query previously
+        # ignored it entirely, silently including draft entries in every
+        # "final" balance sheet / P&L / trial balance figure.
+        target_move_filter = wizard.target_move if wizard.target_move in ("posted", "draft") else None
+
         # account.account.name is translate=True (JSONB, keyed by lang code)
         # and .code is a compute over code_store, a company_dependent field
         # (JSONB keyed by company id as string) - both need JSON extraction
         # rather than plain column access.
-        company_id_str = str(wizard.company_id.id)
-        lang = self.env.lang or "en_US"
-        self.env.cr.execute("""
-            SELECT
-                a.id AS account_id,
-                a.code_store ->> %s AS code,
-                COALESCE(a.name ->> %s, a.name ->> 'en_US') AS name,
-                a.account_type AS account_type,
-                COALESCE(m.financial_section, 'other') AS financial_section,
-                COALESCE(SUM(aml.debit), 0.0) AS debit,
-                COALESCE(SUM(aml.credit), 0.0) AS credit,
-                COALESCE(SUM(aml.debit - aml.credit), 0.0) AS balance
-            FROM account_account a
-            JOIN account_account_res_company_rel acr ON acr.account_account_id = a.id
-                AND acr.res_company_id = %s
-            LEFT JOIN account_move_line aml ON aml.account_id = a.id
-                AND aml.date >= %s
-                AND aml.date <= %s
-                AND aml.company_id = %s
-            LEFT JOIN sgc_dfr_account_type m ON m.account_type = a.account_type
-                AND m.active = TRUE
-                AND (m.company_id IS NULL OR m.company_id = %s)
-            GROUP BY a.id, a.code_store, a.name, a.account_type, m.financial_section
-            ORDER BY a.code_store ->> %s
-        """, (company_id_str, lang, wizard.company_id.id, wizard.date_from, wizard.date_to,
-              wizard.company_id.id, wizard.company_id.id, company_id_str))
+        if consolidating:
+            # Per-(account, company) rows so currency conversion is exact
+            # — mixing different currencies inside a single SUM() is the
+            # classic consolidation bug.
+            self.env.cr.execute("""
+                WITH acct_sections AS (
+                    SELECT
+                        a.id AS account_id,
+                        a.code_store AS code_store,
+                        a.name AS name,
+                        a.account_type AS account_type,
+                        COALESCE(m.financial_section, 'other') AS financial_section
+                    FROM account_account a
+                    JOIN account_account_res_company_rel acr ON acr.account_account_id = a.id
+                        AND acr.res_company_id = ANY(%s)
+                    LEFT JOIN sgc_dfr_account_type m ON m.account_type = a.account_type
+                        AND m.active = TRUE
+                        AND (m.company_id IS NULL OR m.company_id = %s)
+                )
+                SELECT
+                    acct_sections.account_id AS account_id,
+                    aml_company.id AS company_id,
+                    aml_company.name AS company_name,
+                    rc_cur.id AS source_currency_id,
+                    rc_cur.name AS source_currency_name,
+                    acct_sections.code_store ->> %s AS code,
+                    COALESCE(acct_sections.name ->> %s, acct_sections.name ->> 'en_US') AS name,
+                    acct_sections.account_type AS account_type,
+                    acct_sections.financial_section AS financial_section,
+                    COALESCE(SUM(aml.debit), 0.0) AS debit,
+                    COALESCE(SUM(aml.credit), 0.0) AS credit,
+                    COALESCE(SUM(aml.debit - aml.credit), 0.0) AS balance
+                FROM acct_sections
+                LEFT JOIN account_move_line aml ON aml.account_id = acct_sections.account_id
+                    AND aml.company_id = ANY(%s)
+                    AND aml.date <= %s
+                    AND (
+                        %s
+                        OR acct_sections.financial_section IN ('assets', 'liabilities', 'equity')
+                        OR aml.date >= %s
+                    )
+                    AND (%s::text IS NULL OR aml.parent_state = %s)
+                LEFT JOIN res_company aml_company ON aml_company.id = aml.company_id
+                LEFT JOIN res_currency rc_cur ON rc_cur.id = aml_company.currency_id
+                GROUP BY acct_sections.account_id, aml_company.id, aml_company.name,
+                         rc_cur.id, rc_cur.name,
+                         acct_sections.code_store, acct_sections.name,
+                         acct_sections.account_type, acct_sections.financial_section
+                ORDER BY acct_sections.code_store ->> %s, aml_company.name
+            """, (list(company_ids), wizard.company_id.id,
+                  company_id_str, lang,
+                  list(company_ids), wizard.date_to, cumulative_all, wizard.date_from,
+                  target_move_filter, target_move_filter,
+                  company_id_str))
+        else:
+            # Single-company path - same acct_sections CTE, without the
+            # multi-company/currency-conversion columns.
+            company_id = company_ids[0]
+            self.env.cr.execute("""
+                WITH acct_sections AS (
+                    SELECT
+                        a.id AS account_id,
+                        a.code_store AS code_store,
+                        a.name AS name,
+                        a.account_type AS account_type,
+                        COALESCE(m.financial_section, 'other') AS financial_section
+                    FROM account_account a
+                    JOIN account_account_res_company_rel acr ON acr.account_account_id = a.id
+                        AND acr.res_company_id = %s
+                    LEFT JOIN sgc_dfr_account_type m ON m.account_type = a.account_type
+                        AND m.active = TRUE
+                        AND (m.company_id IS NULL OR m.company_id = %s)
+                )
+                SELECT
+                    acct_sections.account_id AS account_id,
+                    rc.id AS company_id,
+                    rc.name AS company_name,
+                    rc.currency_id AS source_currency_id,
+                    cur.name AS source_currency_name,
+                    acct_sections.code_store ->> %s AS code,
+                    COALESCE(acct_sections.name ->> %s, acct_sections.name ->> 'en_US') AS name,
+                    acct_sections.account_type AS account_type,
+                    acct_sections.financial_section AS financial_section,
+                    COALESCE(SUM(aml.debit), 0.0) AS debit,
+                    COALESCE(SUM(aml.credit), 0.0) AS credit,
+                    COALESCE(SUM(aml.debit - aml.credit), 0.0) AS balance
+                FROM acct_sections
+                LEFT JOIN account_move_line aml ON aml.account_id = acct_sections.account_id
+                    AND aml.company_id = %s
+                    AND aml.date <= %s
+                    AND (
+                        %s
+                        OR acct_sections.financial_section IN ('assets', 'liabilities', 'equity')
+                        OR aml.date >= %s
+                    )
+                    AND (%s::text IS NULL OR aml.parent_state = %s)
+                LEFT JOIN res_company rc ON rc.id = %s
+                LEFT JOIN res_currency cur ON cur.id = rc.currency_id
+                GROUP BY acct_sections.account_id, rc.id, rc.name, rc.currency_id, cur.name,
+                         acct_sections.code_store, acct_sections.name,
+                         acct_sections.account_type, acct_sections.financial_section
+                ORDER BY acct_sections.code_store ->> %s
+            """, (company_id, company_id,
+                  company_id_str, lang,
+                  company_id, wizard.date_to, cumulative_all, wizard.date_from,
+                  target_move_filter, target_move_filter,
+                  company_id, company_id_str))
 
         rows = self.env.cr.dictfetchall()
 
@@ -194,20 +323,25 @@ class SgcFinancialReportEngine(models.AbstractModel):
             self.env.cr.execute("""
                 SELECT
                     aml.account_id AS account_id,
+                    aml.company_id AS company_id,
                     COALESCE(SUM(aml.debit), 0.0) AS comp_debit,
                     COALESCE(SUM(aml.credit), 0.0) AS comp_credit,
                     COALESCE(SUM(aml.debit - aml.credit), 0.0) AS comp_balance
                 FROM account_move_line aml
                 WHERE aml.date >= %s
                   AND aml.date <= %s
-                  AND aml.company_id = %s
-                GROUP BY aml.account_id
+                  AND aml.company_id = ANY(%s)
+                GROUP BY aml.account_id, aml.company_id
             """, (wizard.comparison_date_from, wizard.comparison_date_to,
-                  wizard.company_id.id))
+                  list(company_ids)))
 
-            comp_map = {r["account_id"]: r for r in self.env.cr.dictfetchall()}
+            comp_rows = self.env.cr.dictfetchall()
+            # Map (account_id, company_id) -> comparison row so multi-
+            # company rows stay distinguishable during conversion.
+            comp_map = {(r["account_id"], r["company_id"]): r for r in comp_rows}
             for row in rows:
-                comp = comp_map.get(row["account_id"], {})
+                key = (row["account_id"], row.get("company_id"))
+                comp = comp_map.get(key, {})
                 row["comp_debit"] = comp.get("comp_debit", 0.0)
                 row["comp_credit"] = comp.get("comp_credit", 0.0)
                 row["comp_balance"] = comp.get("comp_balance", 0.0)
@@ -227,7 +361,186 @@ class SgcFinancialReportEngine(models.AbstractModel):
             row["natural_balance"] = row["balance"] * sign
             row["comp_natural_balance"] = row["comp_balance"] * sign
 
+        # Currency conversion is applied last so the natural-balance sign
+        # flip above stays arithmetically correct (multiplying by the
+        # rate is the only post-sign operation).  When target == source
+        # and there's only one company this is a 1.0 pass-through.
+        self._apply_currency_conversion(rows, wizard, target_currency)
+
         return rows
+
+    def _compute_current_year_earnings(self, wizard, as_of_date=None):
+        """Return cumulative Revenue - Expenses since inception through
+        ``as_of_date`` (defaults to ``wizard.date_to``) - never filtered by
+        ``date_from``.
+
+        This is the retained-earnings component the Equity section needs
+        so Assets = Liabilities + Equity holds (standard double-entry
+        requirement). This module has no fiscal-year-close/rollover
+        concept, so "current year earnings" here means "all undistributed
+        net income since the ledger's first entry as of this date", not
+        strictly the current calendar year - there is no other correct
+        cutover point without adding fiscal-year-close machinery this
+        module doesn't model.
+        """
+        as_of_date = as_of_date or wizard.date_to
+        company_ids = self._get_company_ids(wizard)
+        target_move_filter = wizard.target_move if wizard.target_move in ("posted", "draft") else None
+
+        self.env.cr.execute("""
+            SELECT m.financial_section AS financial_section,
+                   COALESCE(SUM(aml.debit - aml.credit), 0.0) AS balance
+            FROM account_move_line aml
+            JOIN account_account a ON a.id = aml.account_id
+            JOIN sgc_dfr_account_type m ON m.account_type = a.account_type
+                AND m.active = TRUE
+                AND (m.company_id IS NULL OR m.company_id = %s)
+            WHERE aml.company_id = ANY(%s)
+              AND aml.date <= %s
+              AND (%s::text IS NULL OR aml.parent_state = %s)
+              AND m.financial_section IN ('revenue', 'expenses')
+            GROUP BY m.financial_section
+        """, (wizard.company_id.id, list(company_ids), as_of_date,
+              target_move_filter, target_move_filter))
+
+        totals = {"revenue": 0.0, "expenses": 0.0}
+        for row in self.env.cr.dictfetchall():
+            totals[row["financial_section"]] = row["balance"]
+
+        # Sign flip to natural, matching _query_account_balances_sql's
+        # convention: revenue is credit-normal (sign -1), expenses stay
+        # debit-normal (sign +1).
+        revenue_natural = -totals["revenue"]
+        expenses_natural = totals["expenses"]
+        net_income = revenue_natural - expenses_natural
+
+        target_currency = self._get_target_currency(wizard)
+        company_currency = wizard.company_id.currency_id
+        if target_currency != company_currency:
+            rate = self._get_currency_conversion_rate(
+                company_currency, target_currency, as_of_date,
+            )
+            net_income *= rate
+
+        return net_income
+
+    def _get_company_ids(self, wizard):
+        """Return the list of company ids the engine should aggregate.
+
+        When ``wizard.consolidate_companies`` is True this is the wizard's
+        company plus every descendant under it (the ``child_of`` operator
+        walks ``res.company.parent_id``).  Otherwise it's just the
+        wizard's single company.
+
+        The ORM search respects the current user's access rights — a user
+        who cannot read a child company will simply not see its data.
+        """
+        if wizard.consolidate_companies:
+            children = self.env["res.company"].search([
+                ("id", "child_of", wizard.company_id.id),
+            ])
+            return children.ids
+        return [wizard.company_id.id]
+
+    def _get_target_currency(self, wizard):
+        """Return the ``res.currency`` the engine should report amounts in."""
+        return wizard.currency_id or wizard.company_id.currency_id
+
+    def _get_currency_conversion_rate(self, source_currency, target_currency, date):
+        """Return the rate to multiply ``source_currency`` amounts by to
+        obtain ``target_currency`` amounts on ``date``.
+
+        Returns 1.0 when the two currencies match or when conversion
+        isn't possible (no rate defined, currency archived, ...) so the
+        caller never has to special-case the no-op path.
+        """
+        if (not source_currency or not target_currency
+                or source_currency == target_currency):
+            return 1.0
+        if not source_currency.active:
+            return 1.0
+        try:
+            return source_currency._convert(
+                1.0, target_currency, self.env.company, date, round=False,
+            )
+        except Exception:  # noqa: BLE001 - defensive guard for missing rates
+            _logger.warning(
+                "SGC DFR: currency conversion %s -> %s on %s failed; "
+                "falling back to 1.0",
+                source_currency.name, target_currency.name, date,
+            )
+            return 1.0
+
+    def _apply_currency_conversion(self, rows, wizard, target_currency):
+        """Convert each row's amounts into ``target_currency``.
+
+        Single-company, same-currency callers take the no-op path so the
+        historical amounts are byte-identical to the legacy report.
+
+        The original amounts are preserved as ``*_original`` for audit,
+        and ``currency_rate`` plus ``original_currency_id`` are stamped
+        on every row.
+        """
+        target_id = target_currency.id
+        root_currency_id = wizard.company_id.currency_id.id
+        needs_conversion = bool(
+            wizard.consolidate_companies
+            or (wizard.currency_id and wizard.currency_id.id != root_currency_id)
+        )
+
+        if not needs_conversion:
+            for row in rows:
+                row["currency_rate"] = 1.0
+                row["original_currency_id"] = target_id
+                row["debit_original"] = row["debit"]
+                row["credit_original"] = row["credit"]
+                row["balance_original"] = row["balance"]
+                if "comp_balance" in row:
+                    row["comp_balance_original"] = row["comp_balance"]
+            return
+
+        company_currency_cache = {}
+        rate_cache = {}
+
+        def _currency_for_company(company_id):
+            if company_id not in company_currency_cache:
+                company = self.env["res.company"].sudo().browse(company_id)
+                currency = (
+                    company.currency_id if company.exists()
+                    else wizard.company_id.currency_id
+                )
+                company_currency_cache[company_id] = currency
+            return company_currency_cache[company_id]
+
+        for row in rows:
+            row_company_id = row.get("company_id")
+            if row_company_id:
+                src_currency = _currency_for_company(row_company_id)
+            else:
+                # No move lines joined - fall back to the wizard's root
+                # company so the rate is at least internally consistent.
+                src_currency = wizard.company_id.currency_id
+
+            cache_key = (src_currency.id, target_id)
+            if cache_key not in rate_cache:
+                rate_cache[cache_key] = self._get_currency_conversion_rate(
+                    src_currency, target_currency, wizard.date_from,
+                )
+            rate = rate_cache[cache_key]
+
+            row["currency_rate"] = rate
+            row["original_currency_id"] = src_currency.id
+            row["debit_original"] = row["debit"]
+            row["credit_original"] = row["credit"]
+            row["balance_original"] = row["balance"]
+            row["debit"] = row["debit"] * rate
+            row["credit"] = row["credit"] * rate
+            row["balance"] = row["balance"] * rate
+            if "comp_balance" in row:
+                row["comp_balance_original"] = row["comp_balance"]
+                row["comp_debit"] = row["comp_debit"] * rate
+                row["comp_credit"] = row["comp_credit"] * rate
+                row["comp_balance"] = row["comp_balance"] * rate
 
     def _query_partner_balances_sql(self, wizard):
         """Execute raw SQL to get partner-level balances.
@@ -467,6 +780,39 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "balance": aml.balance,
             })
 
+        # Full account mapping: every account belonging to the company
+        # always appears in the summary (explicitly showing 0), never
+        # omitted for zero activity. The loop above only ever creates an
+        # entry for accounts with at least one period line, so an account
+        # with zero period activity (whether or not it carries an opening
+        # balance) needs to be filled in here.
+        lang = self.env.lang or "en_US"
+        self.env.cr.execute("""
+            SELECT a.id AS account_id,
+                   a.code_store ->> %s AS code,
+                   COALESCE(a.name ->> %s, a.name ->> 'en_US') AS name
+            FROM account_account a
+            JOIN account_account_res_company_rel acr ON acr.account_account_id = a.id
+                AND acr.res_company_id = %s
+        """, (str(wizard.company_id.id), lang, wizard.company_id.id))
+        for r in self.env.cr.dictfetchall():
+            if r["account_id"] not in accounts_data:
+                opening = opening_map.get(r["account_id"], {
+                    "opening_debit": 0.0, "opening_credit": 0.0, "opening_balance": 0.0
+                })
+                accounts_data[r["account_id"]] = {
+                    "account_id": r["account_id"],
+                    "account_code": r["code"],
+                    "account_name": r["name"],
+                    "opening_debit": opening.get("opening_debit", 0.0),
+                    "opening_credit": opening.get("opening_credit", 0.0),
+                    "opening_balance": opening.get("opening_balance", 0.0),
+                    "period_debit": 0.0,
+                    "period_credit": 0.0,
+                    "period_balance": 0.0,
+                    "final_balance": 0.0,
+                }
+
         # Compute final balances
         for acc in accounts_data.values():
             acc["period_balance"] = acc["period_debit"] - acc["period_credit"]
@@ -475,6 +821,313 @@ class SgcFinancialReportEngine(models.AbstractModel):
         return {
             "accounts": sorted(accounts_data.values(), key=lambda x: x["account_code"]),
             "lines": lines_data,
+        }
+
+    # ── Drill-down helpers (BI / AJAX) ───────────────────────────────
+
+    def _get_drilldown_data(self, wizard, account_id):
+        """Return structured drill-down data for a single account.
+
+        Reuses the same opening-balance + period-line logic as
+        ``_query_general_ledger_sql`` but scoped to one account.  Designed
+        for AJAX/BI drill-down endpoints that need machine-readable data
+        (not HTML).
+
+        Args:
+            wizard: ``sgc.financial.report.wizard`` recordset (size 1).
+                Provides ``date_from``, ``date_to``, ``company_id`` and
+                (optionally) ``target_move`` / filter fields.
+            account_id: ``account.account`` ID to scope the query to.
+
+        Returns:
+            dict with the following keys (or ``None`` if the account does
+            not belong to the wizard's company):
+
+            * ``account_id``, ``account_code``, ``account_name``,
+              ``account_type``
+            * ``opening_debit``, ``opening_credit``, ``opening_balance``
+            * ``period_debit``, ``period_credit``, ``period_balance``,
+              ``final_balance``
+            * ``move_lines``: list of dicts, each with ``move_line_id``,
+              ``date``, ``ref``, ``move_id``, ``partner_id``,
+              ``partner_name``, ``label``, ``account_id``,
+              ``account_code``, ``debit``, ``credit``, ``balance``.
+        """
+        account_id = int(account_id)
+
+        # Validate account belongs to the wizard's company (defence-in-depth
+        # in addition to the controller's group/company check).
+        account = self.env["account.account"].with_company(
+            wizard.company_id
+        ).browse(account_id)
+        if not account.exists() or wizard.company_id not in account.company_ids:
+            return None
+
+        # Opening balance: posted lines strictly before date_from, scoped
+        # to this account and the wizard's company.  Mirrors the prefix
+        # query in _query_general_ledger_sql.
+        self.env.cr.execute(
+            """
+            SELECT
+                COALESCE(SUM(aml.debit), 0.0) AS opening_debit,
+                COALESCE(SUM(aml.credit), 0.0) AS opening_credit,
+                COALESCE(SUM(aml.debit - aml.credit), 0.0) AS opening_balance
+            FROM account_move_line aml
+            WHERE aml.account_id = %s
+              AND aml.date < %s
+              AND aml.company_id = %s
+              AND aml.parent_state = 'posted'
+            """,
+            (account_id, wizard.date_from, wizard.company_id.id),
+        )
+        opening_row = self.env.cr.dictfetchone() or {
+            "opening_debit": 0.0,
+            "opening_credit": 0.0,
+            "opening_balance": 0.0,
+        }
+
+        # Period lines: reuse _get_base_domain and just narrow by account.
+        domain = self._get_base_domain(wizard)
+        domain.append(("account_id", "=", account_id))
+        domain.append(("parent_state", "=", "posted"))
+        aml_ids = self.env["account.move.line"].search(
+            domain, order="date, move_name, id"
+        )
+
+        lines_data = []
+        period_debit = 0.0
+        period_credit = 0.0
+        running_balance = opening_row.get("opening_balance", 0.0) or 0.0
+
+        for aml in aml_ids:
+            period_debit += aml.debit
+            period_credit += aml.credit
+            running_balance += aml.debit - aml.credit
+            lines_data.append({
+                "move_line_id": aml.id,
+                "date": fields.Date.to_string(aml.date) if aml.date else False,
+                "ref": aml.move_id.name or "",
+                "move_id": aml.move_id.id,
+                "partner_id": aml.partner_id.id or False,
+                "partner_name": aml.partner_id.name or "",
+                "label": aml.name or "",
+                "account_id": aml.account_id.id,
+                "account_code": aml.account_id.code or "",
+                "debit": aml.debit,
+                "credit": aml.credit,
+                "balance": running_balance,
+            })
+
+        period_balance = period_debit - period_credit
+        final_balance = (opening_row.get("opening_balance", 0.0) or 0.0) + period_balance
+
+        return {
+            "account_id": account_id,
+            "account_code": account.code or "",
+            "account_name": account.name or "",
+            "account_type": account.account_type or "",
+            "opening_debit": opening_row.get("opening_debit", 0.0) or 0.0,
+            "opening_credit": opening_row.get("opening_credit", 0.0) or 0.0,
+            "opening_balance": opening_row.get("opening_balance", 0.0) or 0.0,
+            "period_debit": period_debit,
+            "period_credit": period_credit,
+            "period_balance": period_balance,
+            "final_balance": final_balance,
+            "move_lines": lines_data,
+        }
+
+    # ── Budget vs Actual ──────────────────────────────────────────────
+
+    def _query_budget_vs_actual_sql(self, wizard):
+        """Return ``{account_id: budget_amount}`` for the wizard's period.
+
+        Joins ``sgc_dfr_budget`` filtered by the multi-company set and the
+        fiscal year extracted from ``wizard.date_from``.  When the header
+        ``amount`` is set, that's used; otherwise the engine sums the
+        matching ``sgc_dfr.budget.line`` rows as a fallback (lets users
+        enter per-month budgets without touching the yearly header).
+
+        Conversion to ``wizard.currency_id`` happens here so the BS/PL
+        builders can compare apples to apples.  All parameters are bound
+        through psycopg2 placeholders - even the fiscal_year string is
+        parameterised so a crafted wizard value cannot reach the SQL text.
+        """
+        company_ids = self._get_company_ids(wizard)
+        target_currency = self._get_target_currency(wizard)
+        fiscal_year = str(wizard.date_from.year)
+
+        # COALESCE the line subquery with 0 so a header with unset
+        # amount + no lines still yields 0 (not NULL) in the SUM below.
+        self.env.cr.execute("""
+            SELECT
+                b.account_id AS account_id,
+                b.currency_id AS source_currency_id,
+                COALESCE(SUM(
+                    CASE WHEN COALESCE(b.amount, 0.0) != 0.0
+                         THEN b.amount
+                         ELSE COALESCE((
+                             SELECT SUM(bl.amount)
+                             FROM sgc_dfr_budget_line bl
+                             WHERE bl.budget_id = b.id
+                         ), 0.0)
+                    END
+                ), 0.0) AS budget_amount
+            FROM sgc_dfr_budget b
+            WHERE b.company_id = ANY(%s)
+              AND b.fiscal_year = %s
+            GROUP BY b.account_id, b.currency_id
+        """, (list(company_ids), fiscal_year))
+
+        rows = self.env.cr.dictfetchall()
+
+        result = {}
+        for r in rows:
+            src_currency = self.env["res.currency"].browse(r["source_currency_id"])
+            rate = self._get_currency_conversion_rate(
+                src_currency, target_currency, wizard.date_from,
+            )
+            converted = r["budget_amount"] * rate
+            result[r["account_id"]] = result.get(r["account_id"], 0.0) + converted
+
+        return result
+
+    def _compute_budget_vs_actual(self, wizard, rows):
+        """Stamp each row with budget / variance data in place.
+
+        ``natural_balance`` is the canonical "actual" figure for BS/PL
+        (debit-credit flipped for credit-normal sections).  For accounts
+        with no budget line, every field is 0.0 so the calling builder
+        can render an empty budget column without special-casing.
+        """
+        budgets = self._query_budget_vs_actual_sql(wizard)
+        for row in rows:
+            budget_amount = budgets.get(row["account_id"], 0.0)
+            actual_amount = row.get("natural_balance", row.get("balance", 0.0))
+            variance = actual_amount - budget_amount
+            variance_pct = (variance / budget_amount * 100.0) if budget_amount else 0.0
+            row["budget_amount"] = budget_amount
+            row["variance"] = variance
+            row["variance_pct"] = variance_pct
+        return rows
+
+    def _budget_columns(self):
+        """Return the standard budget column header list."""
+        return ["Budget", "Actual", "Variance", "Variance %"]
+
+    def _budget_row_cells(self, row, wizard):
+        """Return the four-cell map for the budget columns of a single row."""
+        return {
+            "Budget": self._fmt(row.get("budget_amount", 0.0), wizard),
+            "Actual": self._fmt(row.get("natural_balance", 0.0), wizard),
+            "Variance": self._fmt(row.get("variance", 0.0), wizard),
+            "Variance %": (
+                f"{row.get('variance_pct', 0.0):.2f}%"
+                if row.get("budget_amount") else ""
+            ),
+        }
+
+    def _build_budget_vs_actual(self, wizard):
+        """Build the Budget vs Actual report.
+
+        Reuses ``_query_account_balances_sql`` so multi-company and
+        currency-conversion behavior is identical to the rest of the
+        suite.  Returns the same ``{html, data}`` shape as every other
+        builder so the wizard / XLSX controllers don't need to know
+        which report type they got back.
+        """
+        _logger.info(
+            "SGC DFR: Generating Budget vs Actual for company %s",
+            wizard.company_id.name,
+        )
+        rows = self._query_account_balances_sql(wizard, include_comparison=False)
+
+        pl_sections = {"revenue", "expenses"}
+        pl_rows = [r for r in rows if r.get("financial_section") in pl_sections]
+
+        budgets = self._query_budget_vs_actual_sql(wizard)
+        if not wizard.show_zero_balance:
+            pl_rows = [
+                r for r in pl_rows
+                if abs(r.get("balance", 0)) > 0.001
+                or abs(budgets.get(r["account_id"], 0.0)) > 0.001
+            ]
+
+        self._compute_budget_vs_actual(wizard, pl_rows)
+        pl_rows.sort(key=lambda r: (
+            SECTION_ORDER.get(r.get("financial_section"), 99),
+            r.get("code") or "",
+        ))
+
+        html = self._build_report_header_html(wizard, "Budget vs Actual")
+        columns = ["Code", "Account Name"] + self._budget_columns()
+
+        section_totals = {
+            section_key: {"budget": 0.0, "actual": 0.0, "variance": 0.0}
+            for section_key in pl_sections
+        }
+
+        for section_key in sorted(pl_sections, key=lambda x: SECTION_ORDER.get(x, 99)):
+            section_rows = [r for r in pl_rows if r["financial_section"] == section_key]
+            if not section_rows:
+                continue
+            html += (
+                f'<h4 class="sgc_section_title">'
+                f'{SECTION_LABELS.get(section_key, section_key.title())}</h4>'
+            )
+            display_rows = []
+            for row in section_rows:
+                display_row = {
+                    "Code": row.get("code") or "",
+                    "Account Name": row.get("name") or "",
+                }
+                display_row.update(self._budget_row_cells(row, wizard))
+                if row.get("variance", 0.0) < 0:
+                    display_row["css_class"] = "negative"
+                elif row.get("variance", 0.0) > 0:
+                    display_row["css_class"] = "positive"
+                display_rows.append(display_row)
+                section_totals[section_key]["budget"] += row.get("budget_amount", 0.0)
+                section_totals[section_key]["actual"] += row.get("natural_balance", 0.0)
+                section_totals[section_key]["variance"] += row.get("variance", 0.0)
+
+            totals = {
+                "Code": f"Total {SECTION_LABELS.get(section_key, section_key.title())}",
+                "Account Name": "",
+            }
+            totals.update(self._budget_row_cells(
+                {
+                    "budget_amount": section_totals[section_key]["budget"],
+                    "natural_balance": section_totals[section_key]["actual"],
+                    "variance": section_totals[section_key]["variance"],
+                },
+                wizard,
+            ))
+            html += self._build_html_table(columns, display_rows, totals, wizard=wizard)
+
+        net_variance = (
+            section_totals["revenue"]["variance"]
+            - section_totals["expenses"]["variance"]
+        )
+        net_actual = (
+            section_totals["revenue"]["actual"]
+            - section_totals["expenses"]["actual"]
+        )
+        net_budget = (
+            section_totals["revenue"]["budget"]
+            - section_totals["expenses"]["budget"]
+        )
+        html += self._build_grand_total_html([
+            ("NET VARIANCE (Actual - Budget)", self._fmt(net_variance, wizard)),
+            ("Net Actual / Net Budget", self._fmt(net_actual, wizard), self._fmt(net_budget, wizard)),
+        ])
+
+        return {
+            "html": html,
+            "data": {
+                "rows": pl_rows,
+                "sections": section_totals,
+                "net_variance": net_variance,
+            },
         }
 
     # ── HTML rendering helpers ────────────────────────────────────────
@@ -486,12 +1139,146 @@ class SgcFinancialReportEngine(models.AbstractModel):
         precision = 2
         if wizard and wizard.company_id.sgc_dfr_decimal_precision:
             precision = wizard.company_id.sgc_dfr_decimal_precision
+        # Normalize IEEE-754 negative zero (e.g. 0.0 * -1 in the sign-flip
+        # for credit-normal sections) so full account mapping shows "0.00"
+        # for zero-balance rows, never the confusing "-0.00".
+        if amount == 0:
+            amount = 0.0
         formatted = f"{amount:,.{precision}f}"
         if amount < 0 and wizard and wizard.company_id.sgc_dfr_negative_format == "parentheses":
             formatted = f"({formatted[1:]})"
         return formatted
 
-    def _build_html_table(self, columns, rows, totals=None, css_class=""):
+    def _strip_html_tags(self, value):
+        """Strip markup from free-text fields (e.g. ``account.tax.description``)
+        that may contain stray HTML from a rich-text source, so reports show
+        clean text instead of literal tags."""
+        if not value:
+            return value
+        text = re.sub(r"<[^>]+>", "", value)
+        text = html.unescape(text)
+        return text.strip()
+
+    def _wrap_collapsible(self, title, body_html, open_by_default=False):
+        """Wrap a report section (title + table) in a native, JS-free
+        collapsible ``<details>`` element.
+
+        ``open_by_default`` controls only the initial on-screen state.
+        When rendering for print/PDF (``sgc_dfr_for_print`` in context,
+        set by ``action_print_pdf`` via ``action_generate_report(for_print=True)``),
+        every section is forced open here at generation time — a PDF has
+        no click events, so collapse state has to be correct in the raw
+        HTML itself rather than relying on ``@media print`` CSS to force
+        it visible, which is not something every wkhtmltopdf build/version
+        honors consistently.
+
+        ``title`` is escaped here (not by the caller) since section titles
+        are frequently built from user data (partner names, tax names) —
+        the same class of untrusted string that caused the ``html`` module
+        shadowing bug this file was already fixed for.
+        """
+        safe_title = html.escape(str(title))
+        if self.env.context.get("sgc_dfr_for_print"):
+            # wkhtmltopdf's bundled Qt WebKit does not reliably render
+            # <details> content even with the `open` attribute present
+            # (verified live: PDF rendered only the <summary> titles with
+            # every section's table missing entirely). A PDF never needs
+            # collapse behavior anyway, so print rendering skips <details>
+            # altogether and emits a plain, always-visible section block.
+            return (
+                f'<div class="sgc_section_block">'
+                f'<h4 class="sgc_section_title">{safe_title}</h4>'
+                f'{body_html}'
+                f'</div>'
+            )
+        open_attr = " open" if open_by_default else ""
+        return (
+            f'<details class="sgc_collapsible_section"{open_attr}>'
+            f'<summary class="sgc_section_title">{safe_title}</summary>'
+            f'{body_html}'
+            f'</details>'
+        )
+
+    def _build_collapse_toggle_bar(self):
+        """Return the 'Expand All / Collapse All' control shown once per
+        report, above its collapsible sections.
+
+        Omitted entirely when rendering for print (``sgc_dfr_for_print``)
+        since the PDF has no click events and every section is already
+        forced open by ``_wrap_collapsible`` - showing dead buttons in a
+        static document would look broken, not just unnecessary.
+
+        Plain inline ``onclick`` handlers (not a ``<script>`` tag) are used
+        deliberately: this HTML string is injected via ``t-out``/``t-raw``,
+        which sets it through ``innerHTML`` — browsers do not execute
+        ``<script>`` tags inserted that way, but element attributes like
+        ``onclick`` still bind normally. Unscoped ``document.querySelectorAll``
+        is safe here because only one report's HTML is ever mounted into the
+        page at a time (the OWL client action replaces the whole container
+        on every Generate click; a PDF export renders exactly one report
+        with no JS execution at all).
+        """
+        if self.env.context.get("sgc_dfr_for_print"):
+            return ""
+        return (
+            '<div class="sgc_collapse_toggle_bar">'
+            '<button type="button" class="btn btn-sm btn-outline-secondary sgc_expand_all_btn" '
+            'onclick="document.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
+            '.forEach(function(d){d.open=true;})">Expand All</button> '
+            '<button type="button" class="btn btn-sm btn-outline-secondary sgc_collapse_all_btn" '
+            'onclick="document.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
+            '.forEach(function(d){d.open=false;})">Collapse All</button>'
+            '</div>'
+        )
+
+    def _build_grand_total_html(self, rows):
+        """Build a clean summary table for report grand totals.
+
+        ``rows`` is a list of ``(label, *value_strings)`` tuples. Unlike
+        the old inline f-string tables, this only ever emits as many
+        ``<td>`` cells as each row actually has values for — the previous
+        code padded every grand-total row out to a fixed column count
+        with empty ``<td></td>`` cells (to visually "align" with the
+        wider account table above it), which rendered as a row of dangling
+        blank boxes in the PDF export where that alignment doesn't matter.
+        """
+        html_parts = ['<div class="sgc-report sgc_grand_total">',
+                      '<table class="table table-bordered table-sm o_sgc_report_table o_sgc_grand_total_table">']
+        for row in rows:
+            label, values = row[0], row[1:]
+            html_parts.append('<tr class="grand-total">')
+            html_parts.append(f"<td><strong>{label}</strong></td>")
+            for val in values:
+                html_parts.append(f"<td><strong>{val}</strong></td>")
+            html_parts.append("</tr>")
+        html_parts.append("</table></div>")
+        return "".join(html_parts)
+
+    _NUMERIC_CELL_RE = re.compile(r"^\(?-?[\d,]+(\.\d+)?\)?$")
+
+    def _text_columns(self, columns, rows, totals=None):
+        """Decide which columns hold text (account codes/names/descriptions,
+        left-aligned) vs formatted numbers (right-aligned, the default).
+
+        A column is "text" if any of its actual values (across body rows and
+        the totals row) don't look like a formatted number - e.g. "1,234.56"
+        or "(500.00)". Columns with no values default to numeric/right-align,
+        matching prior behaviour. This inspects real content instead of
+        assuming column position, since the same column index means
+        different things across this file's report layouts (e.g. column 2
+        is "Account Name" in the balance sheet but a dollar amount in some
+        grand-total rows).
+        """
+        text_columns = set()
+        for col in columns:
+            values = [row.get(col) for row in rows if row.get(col) not in ("", None)]
+            if totals and totals.get(col) not in ("", None):
+                values.append(totals.get(col))
+            if values and not all(self._NUMERIC_CELL_RE.match(str(v).strip()) for v in values):
+                text_columns.add(col)
+        return text_columns
+
+    def _build_html_table(self, columns, rows, totals=None, css_class="", wizard=None):
         """Build an HTML table string for report display.
 
         Args:
@@ -499,50 +1286,109 @@ class SgcFinancialReportEngine(models.AbstractModel):
             rows: list of dicts, each keyed by column name.
             totals: optional dict of column -> total value.
             css_class: extra CSS class for the table.
+            wizard: optional ``sgc.financial.report.wizard`` recordset used
+                to drive rendering flags (``analytic_breakdown``).
 
         Returns:
             str: HTML string.
         """
-        html = [f'<div class="sgc-report {css_class}">']
-        html.append('<table class="table table-bordered table-sm o_sgc_report_table">')
+        analytic_columns = self._build_analytic_breakdown_columns(wizard)
+        text_columns = self._text_columns(columns, rows, totals)
+
+        html_parts = [f'<div class="sgc-report {css_class}">']
+        html_parts.append('<table class="table table-bordered table-sm o_sgc_report_table">')
 
         # Header
-        html.append('<thead><tr class="table-primary">')
+        html_parts.append('<thead><tr class="table-primary">')
         for col in columns:
-            html.append(f'<th>{col}</th>')
-        html.append('</tr></thead>')
+            th_class = ' class="sgc-col-text"' if col in text_columns else ""
+            html_parts.append(f"<th{th_class}>{col}</th>")
+        if analytic_columns:
+            html_parts.append('<th colspan="%d" class="text-center">Analytic Breakdown</th>' % len(analytic_columns))
+            html_parts.append('</tr><tr class="table-primary">')
+            for col in columns:
+                html_parts.append(f'<th></th>')
+            for col in analytic_columns:
+                html_parts.append(f'<th>{col}</th>')
+        html_parts.append('</tr></thead>')
 
         # Body
-        html.append('<tbody>')
+        html_parts.append('<tbody>')
         for row in rows:
             row_class = row.pop("css_class", "")
+            analytic_values = row.pop("_analytic_values", None)
+            # Drill-down wiring: every account row gets a data-account-id
+            # attribute so the OWL client-action JS can fetch and render
+            # /sgc/dfr/drilldown/<wid>/<aid> move lines inline when the
+            # row is clicked. Rows without account_id (e.g. partner
+            # aggregations or <tfoot> section totals) get no attribute,
+            # so they stay non-clickable.
+            row_attrs = []
+            _acct_id = row.get("account_id")
+            if _acct_id:
+                row_attrs.append("data-account-id=\"" + str(int(_acct_id)) + "\"")
+            attrs_str = (" " + " ".join(row_attrs)) if row_attrs else ""
             if row_class:
-                html.append(f'<tr class="{row_class}">')
+                html_parts.append("<tr class=\"" + row_class + "\"" + attrs_str + ">")
+            elif attrs_str:
+                html_parts.append("<tr" + attrs_str + ">")
             else:
-                html.append("<tr>")
+                html_parts.append("<tr>")
             for col in columns:
                 val = row.get(col, "")
                 if isinstance(val, float):
                     val = self._fmt(val)
+                if isinstance(val, str):
+                    val = html.escape(val)
+                cell_class = "sgc-col-text" if col in text_columns else ""
                 if val and isinstance(val, (int, float)) and val < 0:
-                    html.append(f'<td class="negative">{val}</td>')
+                    cell_class = f"{cell_class} negative".strip()
+                if cell_class:
+                    html_parts.append(f'<td class="{cell_class}">{val}</td>')
                 else:
-                    html.append(f"<td>{val}</td>")
-            html.append("</tr>")
-        html.append("</tbody>")
+                    html_parts.append(f"<td>{val}</td>")
+            if analytic_columns:
+                if analytic_values is None:
+                    analytic_values = [0.0] * len(analytic_columns)
+                for val in analytic_values:
+                    formatted = self._fmt(val, wizard) if val else ""
+                    if val and val < 0:
+                        html_parts.append(f'<td class="negative analytic-cell">{formatted}</td>')
+                    else:
+                        html_parts.append(f'<td class="analytic-cell">{formatted}</td>')
+            html_parts.append("</tr>")
+        html_parts.append("</tbody>")
 
         # Totals
         if totals:
-            html.append('<tfoot><tr class="total-row">')
+            html_parts.append('<tfoot><tr class="total-row">')
             for col in columns:
                 val = totals.get(col, "")
                 if isinstance(val, float):
                     val = self._fmt(val)
-                html.append(f"<td>{val}</td>")
-            html.append("</tr></tfoot>")
+                td_class = ' class="sgc-col-text"' if col in text_columns else ""
+                html_parts.append(f"<td{td_class}>{val}</td>")
+            if analytic_columns:
+                for col in analytic_columns:
+                    html_parts.append('<td class="analytic-total"></td>')
+            html_parts.append('</tr></tfoot>')
 
-        html.append("</table></div>")
-        return "\n".join(html)
+        html_parts.append("</table></div>")
+        return "\n".join(html_parts)
+
+    def _build_analytic_breakdown_columns(self, wizard):
+        """Return the list of analytic-column headers for an HTML table.
+
+        Returns an empty list when ``analytic_breakdown`` is False or no
+        analytic accounts are available; the caller appends zero such
+        columns and the table is rendered exactly as before.
+        """
+        if not wizard or not getattr(wizard, "analytic_breakdown", False):
+            return []
+        analytic_accounts = wizard.analytic_account_ids
+        if analytic_accounts:
+            return [a.name or a.code or f"Account {a.id}" for a in analytic_accounts]
+        return ["Analytic"]  # placeholder column when no filter is set
 
     def _build_report_header_html(self, wizard, title):
         """Build the report header HTML block."""
@@ -558,6 +1404,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
         if company.sgc_dfr_show_currency_symbol:
             html += f'<p>All amounts in {currency.name} ({currency.symbol})</p>'
         html += "</div>"
+        html += self._build_collapse_toggle_bar()
         return html
 
     def _parse_aging_buckets(self, buckets_str):
@@ -565,9 +1412,12 @@ class SgcFinancialReportEngine(models.AbstractModel):
 
         Returns list of dicts: [{'label': '0-30', 'min': 0, 'max': 30}, ...]
         """
+        import re
         buckets = []
         for part in buckets_str.split(","):
             part = part.strip()
+            if not re.match(r"^(?:\d+-\d+|>\d+)$", part):
+                continue
             if part.startswith(">"):
                 min_val = int(part[1:])
                 buckets.append({"label": part, "min": min_val, "max": None})
@@ -594,16 +1444,45 @@ class SgcFinancialReportEngine(models.AbstractModel):
               - Retained Earnings, Share Capital, etc.
 
         Comparison columns are added when enable_comparison is True.
+        Budget columns are added when show_budget_vs_actual is True.
         """
         _logger.info("SGC DFR: Generating Balance Sheet for company %s", wizard.company_id.name)
         rows = self._query_account_balances_sql(wizard, include_comparison=True)
 
         # Filter to BS sections only (assets, liabilities, equity)
         bs_sections = {"assets", "liabilities", "equity"}
+        # Full account mapping: every account mapped to a BS section always
+        # renders (explicitly showing 0), never omitted for a zero balance -
+        # the underlying query already LEFT JOINs from account_account, so
+        # every mapped account is present in `rows` regardless of activity.
         bs_rows = [r for r in rows if r.get("financial_section") in bs_sections]
 
-        if not wizard.show_zero_balance:
-            bs_rows = [r for r in bs_rows if abs(r.get("balance", 0)) > 0.001]
+        has_comparison = wizard.enable_comparison and wizard.comparison_date_from
+
+        # Current Year Earnings (Revenue - Expenses since inception through
+        # date_to) is a synthetic Equity line, not a real GL account -
+        # without it Assets never equals Liabilities + Equity for any
+        # period with trading activity, a core double-entry requirement.
+        current_year_earnings = self._compute_current_year_earnings(wizard)
+        cye_comp_balance = 0.0
+        if has_comparison:
+            cye_comp_balance = self._compute_current_year_earnings(
+                wizard, as_of_date=wizard.comparison_date_to,
+            )
+        bs_rows.append({
+            "account_id": None,
+            "code": "",
+            "name": _("Current Year Earnings"),
+            "financial_section": "equity",
+            "debit": 0.0 if current_year_earnings >= 0 else -current_year_earnings,
+            "credit": current_year_earnings if current_year_earnings >= 0 else 0.0,
+            "natural_balance": current_year_earnings,
+            "comp_natural_balance": cye_comp_balance,
+        })
+
+        budget_active = bool(wizard.show_budget_vs_actual)
+        if budget_active:
+            self._compute_budget_vs_actual(wizard, bs_rows)
 
         # Group by financial section
         sections = {}
@@ -615,14 +1494,13 @@ class SgcFinancialReportEngine(models.AbstractModel):
 
         # Build HTML
         html = self._build_report_header_html(wizard, "Balance Sheet")
-        has_comparison = wizard.enable_comparison and wizard.comparison_date_from
 
         for section_key in sorted(bs_sections, key=lambda x: SECTION_ORDER.get(x, 99)):
             section_rows = sections.get(section_key, [])
             if not section_rows:
                 continue
 
-            html += f'<h4 class="sgc_section_title">{SECTION_LABELS.get(section_key, section_key.title())}</h4>'
+            section_label = SECTION_LABELS.get(section_key, section_key.title())
 
             columns = ["Code", "Account Name"]
             if has_comparison:
@@ -630,11 +1508,15 @@ class SgcFinancialReportEngine(models.AbstractModel):
             columns += ["Debit", "Credit", "Balance"]
             if has_comparison:
                 columns.append("Variance")
+            if budget_active:
+                columns += self._budget_columns()
 
             display_rows = []
             section_total = {"debit": 0.0, "credit": 0.0, "balance": 0.0}
             if has_comparison:
                 section_total["comp_balance"] = 0.0
+            if budget_active:
+                section_total["budget"] = 0.0
 
             for row in section_rows:
                 display_row = {
@@ -652,6 +1534,10 @@ class SgcFinancialReportEngine(models.AbstractModel):
                         display_row["css_class"] = "positive" if variance > 0 else "negative"
                     section_total["comp_balance"] += row["comp_natural_balance"]
 
+                if budget_active:
+                    display_row.update(self._budget_row_cells(row, wizard))
+                    section_total["budget"] += row.get("budget_amount", 0.0)
+
                 section_total["debit"] += row["debit"]
                 section_total["credit"] += row["credit"]
                 section_total["balance"] += row["natural_balance"]
@@ -667,28 +1553,25 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 totals["Comp. Balance"] = self._fmt(section_total["comp_balance"], wizard)
                 variance = section_total["balance"] - section_total["comp_balance"]
                 totals["Variance"] = self._fmt(variance, wizard)
+            if budget_active:
+                totals.update(self._budget_row_cells(
+                    {
+                        "budget_amount": section_total["budget"],
+                        "natural_balance": section_total["balance"],
+                    },
+                    wizard,
+                ))
 
-            html += self._build_html_table(columns, display_rows, totals)
+            section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+            html += self._wrap_collapsible(section_label, section_table_html)
 
         # Grand total: Assets = Liabilities + Equity
         assets_total = sum(r["natural_balance"] for r in bs_rows if r["financial_section"] == "assets")
         liab_eq_total = sum(r["natural_balance"] for r in bs_rows if r["financial_section"] in ("liabilities", "equity"))
-        html += f"""
-        <div class="sgc-report">
-            <table class="table table-bordered table-sm o_sgc_report_table">
-                <tr class="grand-total">
-                    <td><strong>TOTAL ASSETS</strong></td>
-                    <td><strong>{self._fmt(assets_total, wizard)}</strong></td>
-                    <td></td><td></td><td></td>
-                </tr>
-                <tr class="grand-total">
-                    <td><strong>TOTAL LIABILITIES + EQUITY</strong></td>
-                    <td><strong>{self._fmt(liab_eq_total, wizard)}</strong></td>
-                    <td></td><td></td><td></td>
-                </tr>
-            </table>
-        </div>
-        """
+        html += self._build_grand_total_html([
+            ("TOTAL ASSETS", self._fmt(assets_total, wizard)),
+            ("TOTAL LIABILITIES + EQUITY", self._fmt(liab_eq_total, wizard)),
+        ])
 
         return {
             "html": html,
@@ -708,15 +1591,20 @@ class SgcFinancialReportEngine(models.AbstractModel):
             EXPENSES
               - Expense accounts
             NET INCOME = Revenue Total - Expense Total
+
+        Budget columns are added when show_budget_vs_actual is True.
         """
         _logger.info("SGC DFR: Generating Profit & Loss for company %s", wizard.company_id.name)
         rows = self._query_account_balances_sql(wizard, include_comparison=True)
 
         pl_sections = {"revenue", "expenses"}
+        # Full account mapping: every revenue/expense account always
+        # renders (explicitly showing 0), never omitted for zero activity.
         pl_rows = [r for r in rows if r.get("financial_section") in pl_sections]
 
-        if not wizard.show_zero_balance:
-            pl_rows = [r for r in pl_rows if abs(r.get("balance", 0)) > 0.001]
+        budget_active = bool(wizard.show_budget_vs_actual)
+        if budget_active:
+            self._compute_budget_vs_actual(wizard, pl_rows)
 
         sections = {}
         for row in pl_rows:
@@ -729,21 +1617,28 @@ class SgcFinancialReportEngine(models.AbstractModel):
         has_comparison = wizard.enable_comparison and wizard.comparison_date_from
 
         grand_totals = {"revenue": 0.0, "expenses": 0.0}
+        if budget_active:
+            grand_totals = {k: {"balance": 0.0, "budget": 0.0, "variance": 0.0}
+                            for k in grand_totals}
 
         for section_key in sorted(pl_sections, key=lambda x: SECTION_ORDER.get(x, 99)):
             section_rows = sections.get(section_key, [])
             if not section_rows:
                 continue
 
-            html += f'<h4 class="sgc_section_title">{SECTION_LABELS.get(section_key, section_key.title())}</h4>'
+            section_label = SECTION_LABELS.get(section_key, section_key.title())
 
             columns = ["Code", "Account Name"]
             if has_comparison:
                 columns.append("Comp. Balance")
             columns += ["Debit", "Credit", "Balance"]
+            if budget_active:
+                columns += self._budget_columns()
 
             display_rows = []
             section_total = {"debit": 0.0, "credit": 0.0, "balance": 0.0}
+            if budget_active:
+                section_total["budget"] = 0.0
 
             for row in section_rows:
                 display_row = {
@@ -755,13 +1650,24 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 }
                 if has_comparison:
                     display_row["Comp. Balance"] = self._fmt(row["comp_natural_balance"], wizard)
+                if budget_active:
+                    display_row.update(self._budget_row_cells(row, wizard))
 
                 section_total["debit"] += row["debit"]
                 section_total["credit"] += row["credit"]
                 section_total["balance"] += row["natural_balance"]
+                if budget_active:
+                    section_total["budget"] += row.get("budget_amount", 0.0)
                 display_rows.append(display_row)
 
-            grand_totals[section_key] = section_total["balance"]
+            if budget_active:
+                grand_totals[section_key]["balance"] = section_total["balance"]
+                grand_totals[section_key]["budget"] = section_total["budget"]
+                grand_totals[section_key]["variance"] = (
+                    section_total["balance"] - section_total["budget"]
+                )
+            else:
+                grand_totals[section_key] = section_total["balance"]
 
             totals = {
                 "Code": f"Total {SECTION_LABELS.get(section_key, section_key.title())}",
@@ -771,21 +1677,39 @@ class SgcFinancialReportEngine(models.AbstractModel):
             }
             if has_comparison:
                 totals["Comp. Balance"] = ""
+            if budget_active:
+                totals.update(self._budget_row_cells(
+                    {
+                        "budget_amount": section_total["budget"],
+                        "natural_balance": section_total["balance"],
+                    },
+                    wizard,
+                ))
 
-            html += self._build_html_table(columns, display_rows, totals)
+            section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+            html += self._wrap_collapsible(section_label, section_table_html)
 
-        net_income = grand_totals["revenue"] - grand_totals["expenses"]
-        html += f"""
-        <div class="sgc-report">
-            <table class="table table-bordered table-sm o_sgc_report_table">
-                <tr class="grand-total">
-                    <td><strong>NET {'INCOME' if net_income >= 0 else 'LOSS'}</strong></td>
-                    <td><strong>{self._fmt(net_income, wizard)}</strong></td>
-                    <td></td><td></td><td></td>
-                </tr>
-            </table>
-        </div>
-        """
+        if budget_active:
+            net_income = (
+                grand_totals["revenue"]["balance"] - grand_totals["expenses"]["balance"]
+            )
+            net_budget = (
+                grand_totals["revenue"]["budget"] - grand_totals["expenses"]["budget"]
+            )
+            net_variance = net_income - net_budget
+            html += self._build_grand_total_html([
+                (
+                    "NET INCOME" if net_income >= 0 else "NET LOSS",
+                    self._fmt(net_income, wizard),
+                    f"Budget: {self._fmt(net_budget, wizard)}",
+                    f"Variance: {self._fmt(net_variance, wizard)}",
+                ),
+            ])
+        else:
+            net_income = grand_totals["revenue"] - grand_totals["expenses"]
+            html += self._build_grand_total_html([
+                ("NET INCOME" if net_income >= 0 else "NET LOSS", self._fmt(net_income, wizard)),
+            ])
 
         return {
             "html": html,
@@ -859,8 +1783,8 @@ class SgcFinancialReportEngine(models.AbstractModel):
             activity = classification_map.get(acct_type)
             if not activity:
                 continue
-            if not wizard.show_zero_balance and abs(row["balance"]) < 0.001:
-                continue
+            # Full account mapping: every classified account always renders
+            # (explicitly showing 0), never omitted for zero activity.
             change = row["balance"]
             comp = comp_map.get(row["account_id"], {})
             if comp:
@@ -886,7 +1810,6 @@ class SgcFinancialReportEngine(models.AbstractModel):
         for activity_name, activity_rows in activities.items():
             if not activity_rows:
                 continue
-            html += f'<h4 class="sgc_section_title">{activity_name}</h4>'
             display_rows = []
             for r in activity_rows:
                 display_rows.append({
@@ -899,20 +1822,13 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Description": "",
                 "Amount": self._fmt(activity_totals[activity_name], wizard),
             }
-            html += self._build_html_table(columns, display_rows, totals)
+            section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+            html += self._wrap_collapsible(activity_name, section_table_html)
 
         net_cash = sum(activity_totals.values())
-        html += f"""
-        <div class="sgc-report">
-            <table class="table table-bordered table-sm o_sgc_report_table">
-                <tr class="grand-total">
-                    <td><strong>NET CHANGE IN CASH</strong></td>
-                    <td><strong>{self._fmt(net_cash, wizard)}</strong></td>
-                    <td></td>
-                </tr>
-            </table>
-        </div>
-        """
+        html += self._build_grand_total_html([
+            ("NET CHANGE IN CASH", self._fmt(net_cash, wizard)),
+        ])
 
         return {
             "html": html,
@@ -924,14 +1840,22 @@ class SgcFinancialReportEngine(models.AbstractModel):
 
         Shows all accounts with debit, credit, and balance.
         Validates that total debits = total credits.
+        Budget columns are added when show_budget_vs_actual is True.
         """
         _logger.info("SGC DFR: Generating Trial Balance for company %s", wizard.company_id.name)
-        rows = self._query_account_balances_sql(wizard, include_comparison=True)
-
-        if not wizard.show_zero_balance:
-            rows = [r for r in rows if abs(r.get("balance", 0)) > 0.001]
+        # cumulative_all=True: Trial Balance lists every account together,
+        # and its own debit=credit invariant only holds when every account
+        # (BS and P&L alike) shares one scope - see
+        # _query_account_balances_sql's cumulative_all docstring.
+        rows = self._query_account_balances_sql(wizard, include_comparison=True, cumulative_all=True)
+        # Full account mapping: every account always renders (explicitly
+        # showing 0), never omitted for zero activity - removing zero rows
+        # is a no-op on the debit=credit total either way.
 
         has_comparison = wizard.enable_comparison and wizard.comparison_date_from
+        budget_active = bool(wizard.show_budget_vs_actual)
+        if budget_active:
+            self._compute_budget_vs_actual(wizard, rows)
 
         html = self._build_report_header_html(wizard, "Trial Balance")
 
@@ -939,11 +1863,14 @@ class SgcFinancialReportEngine(models.AbstractModel):
         if has_comparison:
             columns.append("Comp. Balance")
         columns += ["Debit", "Credit", "Balance"]
+        if budget_active:
+            columns += self._budget_columns()
 
         display_rows = []
         total_debit = 0.0
         total_credit = 0.0
         total_balance = 0.0
+        total_budget = 0.0
 
         for row in rows:
             display_row = {
@@ -956,10 +1883,14 @@ class SgcFinancialReportEngine(models.AbstractModel):
             }
             if has_comparison:
                 display_row["Comp. Balance"] = self._fmt(row["comp_balance"], wizard)
+            if budget_active:
+                display_row.update(self._budget_row_cells(row, wizard))
 
             total_debit += row["debit"]
             total_credit += row["credit"]
             total_balance += row["balance"]
+            if budget_active:
+                total_budget += row.get("budget_amount", 0.0)
             display_rows.append(display_row)
 
         totals = {
@@ -972,8 +1903,17 @@ class SgcFinancialReportEngine(models.AbstractModel):
         }
         if has_comparison:
             totals["Comp. Balance"] = ""
+        if budget_active:
+            totals.update(self._budget_row_cells(
+                {
+                    "budget_amount": total_budget,
+                    "natural_balance": total_balance,
+                },
+                wizard,
+            ))
 
-        html += self._build_html_table(columns, display_rows, totals)
+        section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+        html += self._wrap_collapsible("Account Balances", section_table_html)
 
         # Difference check
         diff = total_debit - total_credit
@@ -984,7 +1924,12 @@ class SgcFinancialReportEngine(models.AbstractModel):
             "html": html,
             "data": {
                 "rows": rows,
-                "totals": {"debit": total_debit, "credit": total_credit, "balance": total_balance},
+                "totals": {
+                    "debit": total_debit,
+                    "credit": total_credit,
+                    "balance": total_balance,
+                    "budget": total_budget,
+                },
             },
         }
 
@@ -996,13 +1941,13 @@ class SgcFinancialReportEngine(models.AbstractModel):
         html = self._build_report_header_html(wizard, "General Ledger")
         columns = ["Date", "Journal Entry", "Description", "Partner", "Debit", "Credit", "Balance"]
 
-        # Summary by account
-        html += '<h4 class="sgc_section_title">Account Summary</h4>'
+        # Summary by account. Full account mapping: every account always
+        # renders (explicitly showing 0), never omitted for zero activity -
+        # _query_general_ledger_sql already guarantees every company
+        # account has an entry in data["accounts"].
         summary_cols = ["Account Code", "Account Name", "Opening Bal.", "Period Debit", "Period Credit", "Period Bal.", "Final Balance"]
         summary_rows = []
         for acc in data["accounts"]:
-            if not wizard.show_zero_balance and abs(acc["final_balance"]) < 0.001 and abs(acc["period_balance"]) < 0.001:
-                continue
             summary_rows.append({
                 "Account Code": acc["account_code"],
                 "Account Name": acc["account_name"],
@@ -1012,10 +1957,10 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Period Bal.": self._fmt(acc["period_balance"], wizard),
                 "Final Balance": self._fmt(acc["final_balance"], wizard),
             })
-        html += self._build_html_table(summary_cols, summary_rows)
+        summary_table_html = self._build_html_table(summary_cols, summary_rows, wizard=wizard)
+        html += self._wrap_collapsible("Account Summary", summary_table_html)
 
         # Detail lines
-        html += '<h4 class="sgc_section_title">Journal Entry Details</h4>'
         detail_rows = []
         for line in data["lines"]:
             detail_rows.append({
@@ -1027,7 +1972,8 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Credit": self._fmt(line["credit"], wizard),
                 "Balance": self._fmt(line["balance"], wizard),
             })
-        html += self._build_html_table(columns, detail_rows)
+        detail_table_html = self._build_html_table(columns, detail_rows, wizard=wizard)
+        html += self._wrap_collapsible("Journal Entry Details", detail_table_html)
 
         return {
             "html": html,
@@ -1088,7 +2034,6 @@ class SgcFinancialReportEngine(models.AbstractModel):
         html = self._build_report_header_html(wizard, "Partner Ledger")
 
         # Summary table
-        html += '<h4 class="sgc_section_title">Partner Summary</h4>'
         summary_cols = ["Partner", "Ref", "Debit", "Credit", "Balance"]
         summary_rows = []
         for pb in partner_balances:
@@ -1106,16 +2051,15 @@ class SgcFinancialReportEngine(models.AbstractModel):
             "Credit": self._fmt(sum(p["credit"] for p in partner_balances), wizard),
             "Balance": self._fmt(sum(p["balance"] for p in partner_balances), wizard),
         }
-        html += self._build_html_table(summary_cols, summary_rows, totals)
+        summary_table_html = self._build_html_table(summary_cols, summary_rows, totals, wizard=wizard)
+        html += self._wrap_collapsible("Partner Summary", summary_table_html)
 
         # Detail per partner
-        html += '<h4 class="sgc_section_title">Transaction Details</h4>'
         detail_cols = ["Date", "Journal Entry", "Description", "Account", "Debit", "Credit"]
         for pid, pdata in sorted(partner_lines.items(), key=lambda x: x[1]["partner_name"]):
-            html += f'<h5 class="sgc_section_title">{pdata["partner_name"]}'
+            partner_title = pdata["partner_name"]
             if pdata["partner_ref"]:
-                html += f' ({pdata["partner_ref"]})'
-            html += '</h5>'
+                partner_title += f' ({pdata["partner_ref"]})'
             detail_rows = []
             for line in pdata["lines"]:
                 detail_rows.append({
@@ -1134,7 +2078,8 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Debit": self._fmt(pdata["total_debit"], wizard),
                 "Credit": self._fmt(pdata["total_credit"], wizard),
             }
-            html += self._build_html_table(detail_cols, detail_rows, partner_totals)
+            partner_table_html = self._build_html_table(detail_cols, detail_rows, partner_totals, wizard=wizard)
+            html += self._wrap_collapsible(partner_title, partner_table_html)
 
         return {
             "html": html,
@@ -1182,7 +2127,8 @@ class SgcFinancialReportEngine(models.AbstractModel):
             totals[bucket["label"]] = self._fmt(grand_total[bucket["label"]], wizard)
         totals["Total Balance"] = self._fmt(grand_total["total_balance"], wizard)
 
-        html += self._build_html_table(columns, display_rows, totals)
+        section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+        html += self._wrap_collapsible("Aging Detail", section_table_html)
 
         return {
             "html": html,
@@ -1226,7 +2172,8 @@ class SgcFinancialReportEngine(models.AbstractModel):
             totals[bucket["label"]] = self._fmt(grand_total[bucket["label"]], wizard)
         totals["Total Balance"] = self._fmt(grand_total["total_balance"], wizard)
 
-        html += self._build_html_table(columns, display_rows, totals)
+        section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+        html += self._wrap_collapsible("Aging Detail", section_table_html)
 
         return {
             "html": html,
@@ -1263,14 +2210,13 @@ class SgcFinancialReportEngine(models.AbstractModel):
         for tax_type, (label, taxes) in tax_types.items():
             if not taxes:
                 continue
-            html += f'<h4 class="sgc_section_title">{label}</h4>'
             display_rows = []
             section_net = 0.0
             section_tax = 0.0
             for t in taxes:
                 display_rows.append({
                     "Tax Name": t["tax_name"],
-                    "Description": t["tax_description"],
+                    "Description": self._strip_html_tags(t["tax_description"]),
                     "Rate %": f"{t['tax_rate']:.2f}%",
                     "Net Amount": self._fmt(t["net_amount"], wizard),
                     "Tax Amount": self._fmt(t["tax_amount"], wizard),
@@ -1288,21 +2234,17 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Net Amount": self._fmt(section_net, wizard),
                 "Tax Amount": self._fmt(section_tax, wizard),
             }
-            html += self._build_html_table(columns, display_rows, totals)
+            section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
+            html += self._wrap_collapsible(label, section_table_html)
 
         net_tax_due = grand_tax
-        html += f"""
-        <div class="sgc-report">
-            <table class="table table-bordered table-sm o_sgc_report_table">
-                <tr class="grand-total">
-                    <td><strong>TOTAL TAX</strong></td>
-                    <td><strong>Net: {self._fmt(grand_net, wizard)}</strong></td>
-                    <td><strong>Tax: {self._fmt(grand_tax, wizard)}</strong></td>
-                    <td></td><td></td>
-                </tr>
-            </table>
-        </div>
-        """
+        html += self._build_grand_total_html([
+            (
+                "TOTAL TAX",
+                f"Net: {self._fmt(grand_net, wizard)}",
+                f"Tax: {self._fmt(grand_tax, wizard)}",
+            ),
+        ])
 
         return {
             "html": html,

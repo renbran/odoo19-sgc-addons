@@ -10,20 +10,15 @@ class SgcCashFlowXlsx(models.AbstractModel):
 
     _name = "report.sgc_dynamic_financial_report.sgc_cash_flow_xlsx"
     _description = "SGC Cash Flow XLSX Report"
-    _inherit = "report.report_xlsx.abstract"
+    _inherit = [
+        "report.report_xlsx.abstract",
+        "report.sgc_dynamic_financial_report.xlsx_mixin",
+    ]
 
     def _get_report_name(self):
         return "SGC_Cash_Flow"
 
     def generate_xlsx_report(self, workbook, data, wizard):
-        """Generate the Cash Flow Statement Excel file.
-
-        Args:
-            workbook: xlsxwriter Workbook instance.
-            data: Dict passed from the wizard.
-            wizard: ``sgc.financial.report.wizard`` recordset.
-        """
-        # ── Fetch data from the report engine ───────────────────────
         engine = wizard.env["sgc.financial.report.engine"]
         result = engine._generate_report(wizard)
         report_data = result.get("data", {})
@@ -31,99 +26,30 @@ class SgcCashFlowXlsx(models.AbstractModel):
         activity_totals = report_data.get("totals", {})
         net_cash = float(report_data.get("net_cash", 0.0))
 
-        # ── Date range formatting ───────────────────────────────────
-        date_from = wizard.date_from or ""
-        date_to = wizard.date_to or ""
-        date_range = f"From {date_from} to {date_to}"
-
-        # ── Formats ─────────────────────────────────────────────────
-        fmt_title = workbook.add_format({
-            "bold": True,
-            "size": 14,
-            "valign": "vcenter",
-        })
-        fmt_date = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_col_header = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "bg_color": "#4472C4",
-            "font_color": "#FFFFFF",
-            "border": 1,
-            "text_wrap": True,
-            "valign": "vcenter",
-            "align": "center",
-        })
-        fmt_section_header = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "bg_color": "#D9E2F3",
-            "border": 1,
-            "valign": "vcenter",
-        })
-        fmt_normal = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_money = workbook.add_format({
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-        fmt_subtotal = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "top": 2,
-            "valign": "vcenter",
-        })
-        fmt_subtotal_money = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "top": 2,
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-        fmt_grand_total = workbook.add_format({
-            "bold": True,
-            "size": 12,
-            "top": 2,
-            "bottom": 2,
-            "valign": "vcenter",
-        })
-        fmt_grand_total_money = workbook.add_format({
-            "bold": True,
-            "size": 12,
-            "top": 2,
-            "bottom": 2,
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-
-        # ── Sheet setup ─────────────────────────────────────────────
+        formats = self._sgc_xlsx_build_formats(workbook)
         sheet = workbook.add_worksheet("Cash Flow")
+        self._sgc_xlsx_apply_page_setup(sheet, orientation="portrait")
 
-        # Column widths: A=Code, B=Description, C=Amount
-        sheet.set_column("A:A", 18)
-        sheet.set_column("B:B", 50)
-        sheet.set_column("C:C", 20)
+        sheet.set_column("A:A", 18)   # Code
+        sheet.set_column("B:B", 50)   # Description
+        sheet.set_column("C:C", 20)   # Amount
 
-        # ── Report header ───────────────────────────────────────────
-        row = 0
-        sheet.write(row, 0, wizard.company_id.name or "", fmt_title)
-        row += 1
-        sheet.write(row, 0, "Cash Flow Statement", fmt_title)
-        row += 1
-        sheet.write(row, 0, date_range, fmt_date)
-        row += 2  # blank row at row 3
+        header_row = self._sgc_xlsx_write_header_block(
+            sheet, workbook, wizard, "Cash Flow Statement",
+            formats, column_count=3,
+        )
 
-        # ── Column headers (row 4) ──────────────────────────────────
         col_headers = ["Code", "Description", "Amount"]
         for col_idx, header in enumerate(col_headers):
-            sheet.write(row, col_idx, header, fmt_col_header)
-        row += 1
+            sheet.write(header_row, col_idx, header, formats["col_header"])
+        sheet.set_row(header_row, 26)
 
-        # ── Activity sections ───────────────────────────────────────
+        self._sgc_xlsx_apply_freeze(sheet, header_row=header_row)
+        self._sgc_xlsx_apply_autofilter(
+            sheet, header_row, header_row, len(col_headers) - 1,
+        )
+
+        row = header_row + 1
         activity_order = [
             "Operating Activities",
             "Investing Activities",
@@ -133,31 +59,34 @@ class SgcCashFlowXlsx(models.AbstractModel):
         for activity_name in activity_order:
             lines = activities.get(activity_name, [])
 
-            # Section header row
-            sheet.write(row, 0, activity_name.upper(), fmt_section_header)
-            sheet.write(row, 1, "", fmt_section_header)
-            sheet.write(row, 2, "", fmt_section_header)
+            sheet.write(row, 0, activity_name.upper(), formats["section_header"])
+            sheet.write(row, 1, "", formats["section_header"])
+            sheet.write(row, 2, "", formats["section_header"])
             row += 1
 
-            # Data rows for this activity
             for line in lines:
                 amount = float(line.get("amount") or 0.0)
+                zebra = (row - header_row) % 2 == 0
+                fmt_text = self._sgc_xlsx_zebra_format(formats, zebra)
+                fmt_money = self._sgc_xlsx_zebra_format(formats, zebra, money=True)
 
-                sheet.write(row, 0, line.get("code") or "", fmt_normal)
-                sheet.write(row, 1, line.get("name") or "", fmt_normal)
+                sheet.write(row, 0, line.get("code") or "", fmt_text)
+                sheet.write(row, 1, line.get("name") or "", fmt_text)
                 sheet.write(row, 2, amount, fmt_money)
                 row += 1
 
-            # Net amount row for this activity
             activity_total = float(activity_totals.get(activity_name, 0.0))
             net_label = f"Net {activity_name}"
-            sheet.write(row, 0, "", fmt_subtotal)
-            sheet.write(row, 1, net_label, fmt_subtotal)
-            sheet.write(row, 2, activity_total, fmt_subtotal_money)
+            sheet.write(row, 0, "", formats["subtotal"])
+            sheet.write(row, 1, net_label, formats["subtotal"])
+            sheet.write(row, 2, activity_total, formats["subtotal_money"])
             row += 1
             row += 1  # blank separator row
 
-        # ── Grand total: NET CHANGE IN CASH ─────────────────────────
-        sheet.write(row, 0, "", fmt_grand_total)
-        sheet.write(row, 1, "NET CHANGE IN CASH", fmt_grand_total)
-        sheet.write(row, 2, net_cash, fmt_grand_total_money)
+        sheet.write(row, 0, "", formats["grand_total"])
+        sheet.write(row, 1, "NET CHANGE IN CASH", formats["grand_total"])
+        sheet.write(row, 2, net_cash, formats["grand_total_money"])
+        sheet.set_row(row, 22)
+        row += 2
+
+        self._sgc_xlsx_write_footer_block(sheet, formats, row, 3)

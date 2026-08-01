@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sgc_dynamic_financial_report.DfrFilterWidget">
+        <div class="o_sgc_filter_widget" t-att-data-filter-key="props.filterDef.key">
+            <label class="o_sgc_filter_label small text-muted mb-0">
+                <t t-esc="props.filterDef.label"/>
+            </label>
+
+            <!-- many2one: searchable dropdown -->
+            <div t-if="widget === 'many2one'" class="o_sgc_m2o position-relative">
+                <input type="text" class="form-control form-control-sm"
+                       t-att-placeholder="props.filterDef.label"
+                       t-model="state.searchTerm"
+                       t-on-input="onSearchInput"/>
+                <div t-if="state.searchOpen and state.searchResults.length"
+                     class="o_sgc_search_dropdown dropdown-menu show">
+                    <t t-foreach="state.searchResults" t-as="option" t-key="option.id">
+                        <a class="dropdown-item" href="#"
+                           t-on-click.prevent="() => this.selectMany2One(option)">
+                            <t t-esc="option.display_name"/>
+                        </a>
+                    </t>
+                </div>
+            </div>
+
+            <!-- many2many_tags: searchable multi-select with removable tags -->
+            <div t-if="widget === 'many2many_tags'" class="o_sgc_m2m position-relative">
+                <div class="o_sgc_tag_list d-flex flex-wrap gap-1 mb-1">
+                    <t t-foreach="props.value || []" t-as="tagId" t-key="tagId">
+                        <span class="badge text-bg-secondary o_sgc_tag">
+                            <t t-esc="tagId"/>
+                            <i class="fa fa-times ms-1" role="button"
+                               t-on-click="() => this.removeMany2ManyTag(tagId)"/>
+                        </span>
+                    </t>
+                </div>
+                <input type="text" class="form-control form-control-sm"
+                       t-att-placeholder="props.filterDef.label"
+                       t-model="state.searchTerm"
+                       t-on-input="onSearchInput"/>
+                <div t-if="state.searchOpen and state.searchResults.length"
+                     class="o_sgc_search_dropdown dropdown-menu show">
+                    <t t-foreach="state.searchResults" t-as="option" t-key="option.id">
+                        <a class="dropdown-item" href="#"
+                           t-on-click.prevent="() => this.selectMany2ManyTag(option)">
+                            <t t-esc="option.display_name"/>
+                        </a>
+                    </t>
+                </div>
+            </div>
+
+            <!-- date_range: compact popup calendar (native date inputs) -->
+            <div t-if="widget === 'date_range'" class="o_sgc_date_range d-flex gap-1">
+                <input type="date" class="form-control form-control-sm"
+                       t-att-value="props.value ? props.value[0] : ''"
+                       t-on-change="onDateFromChange"/>
+                <span class="align-self-center small text-muted">to</span>
+                <input type="date" class="form-control form-control-sm"
+                       t-att-value="props.value ? props.value[1] : ''"
+                       t-on-change="onDateToChange"/>
+            </div>
+
+            <!-- compare: boolean toggle + date range, only expanded when on -->
+            <div t-if="widget === 'boolean_with_date_range'" class="o_sgc_compare">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox"
+                           t-att-checked="props.value"
+                           t-on-change="onBooleanToggle"/>
+                </div>
+                <div t-if="props.value" class="o_sgc_date_range d-flex gap-1 mt-1">
+                    <input type="date" class="form-control form-control-sm"/>
+                    <span class="align-self-center small text-muted">to</span>
+                    <input type="date" class="form-control form-control-sm"/>
+                </div>
+            </div>
+
+            <!-- boolean toggle -->
+            <div t-if="widget === 'boolean' or widget === 'boolean_with_many2many'"
+                 class="form-check form-switch">
+                <input class="form-check-input" type="checkbox"
+                       t-att-checked="props.value"
+                       t-on-change="onBooleanToggle"/>
+            </div>
+
+            <!-- selection dropdown -->
+            <select t-if="widget === 'selection'" class="form-select form-select-sm"
+                    t-on-change="onSelectionChange">
+                <t t-foreach="props.filterDef.options" t-as="opt" t-key="opt[0]">
+                    <option t-att-value="opt[0]" t-att-selected="props.value === opt[0]">
+                        <t t-esc="opt[1]"/>
+                    </option>
+                </t>
+            </select>
+
+            <!-- read-only company setting (e.g. aging buckets) -->
+            <div t-if="widget === 'readonly_company_setting'" class="small text-muted fst-italic">
+                Configured in Company Settings
+            </div>
+        </div>
+    </t>
+
+    <t t-name="sgc_dynamic_financial_report.EnterpriseFilterBar">
+        <div class="o_sgc_enterprise_filter_bar card mb-2">
+            <div t-if="state.loading" class="o_sgc_filter_bar_loading p-2 text-muted small">
+                Loading filters…
+            </div>
+            <!-- Single compact row: every filter collapses into a pill whose
+                 label shows its current value, expanding only on click. -->
+            <div t-else="" class="o_sgc_toolbar d-flex flex-wrap align-items-center gap-2 px-3 py-2"
+                 role="toolbar" aria-label="Report filters and actions">
+
+                <div class="o_sgc_toolbar__pills d-flex align-items-center flex-wrap gap-2 flex-grow-1">
+                    <t t-foreach="toolbarFilterDefs" t-as="filterDef" t-key="filterDef.key">
+                        <Dropdown>
+                            <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                    t-att-aria-label="filterDef.label">
+                                <span class="fw-semibold"><t t-esc="filterDef.label"/>:</span>
+                                <span class="ms-1 o_sgc_pill_value"><t t-esc="summaryFor(filterDef)"/></span>
+                            </button>
+                            <t t-set-slot="content">
+                                <div class="o_sgc_filter_panel p-3">
+                                    <DfrFilterWidget
+                                        filterDef="filterDef"
+                                        value="state.values[filterDef.key]"
+                                        onChange="(value) => this.onFilterValueChange(filterDef.key, value)"/>
+                                    <button class="btn btn-primary btn-sm w-100 mt-3"
+                                            t-on-click="onGenerateClick">Apply</button>
+                                </div>
+                            </t>
+                        </Dropdown>
+                    </t>
+
+                    <Dropdown t-if="moreFilterDefs.length">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                aria-label="More filters">
+                            More Filters
+                            <span t-if="moreFilterActiveCount"
+                                  class="badge rounded-pill text-bg-secondary ms-1"
+                                  t-esc="moreFilterActiveCount"/>
+                        </button>
+                        <t t-set-slot="content">
+                            <div class="o_sgc_filter_panel o_sgc_filter_panel--wide p-3">
+                                <t t-foreach="moreFilterDefs" t-as="filterDef" t-key="filterDef.key">
+                                    <div class="mb-2">
+                                        <DfrFilterWidget
+                                            filterDef="filterDef"
+                                            value="state.values[filterDef.key]"
+                                            onChange="(value) => this.onFilterValueChange(filterDef.key, value)"/>
+                                    </div>
+                                </t>
+                                <button class="btn btn-primary btn-sm w-100 mt-2"
+                                        t-on-click="onGenerateClick">Apply</button>
+                            </div>
+                        </t>
+                    </Dropdown>
+                </div>
+
+                <div class="o_sgc_toolbar__actions ms-auto flex-shrink-0 btn-group btn-group-sm"
+                     role="group" aria-label="Report actions">
+                    <button class="btn btn-primary" t-att-disabled="!canGenerate"
+                            t-on-click="onGenerateClick">
+                        <i class="fa fa-refresh me-1"/>Refresh
+                    </button>
+                    <button class="btn btn-outline-secondary" t-on-click="onExportClick">
+                        <i class="fa fa-file-excel-o me-1"/>Export
+                    </button>
+                    <button t-if="props.onExportPdf" class="btn btn-outline-secondary"
+                            t-on-click="onExportPdfClick">
+                        <i class="fa fa-file-pdf-o me-1"/>PDF
+                    </button>
+                    <button class="btn btn-outline-secondary" t-on-click="onResetClick">
+                        <i class="fa fa-undo me-1"/>Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active filters at a glance, so collapsing never hides state -->
+            <div t-if="!state.loading and activeChips.length"
+                 class="o_sgc_toolbar__chips d-flex flex-wrap gap-1 px-3 pb-2">
+                <t t-foreach="activeChips" t-as="chip" t-key="chip.key">
+                    <span class="badge bg-light text-dark border o_sgc_chip">
+                        <t t-esc="chip.label"/>: <t t-esc="chip.value"/>
+                    </span>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

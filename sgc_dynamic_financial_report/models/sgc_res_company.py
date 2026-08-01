@@ -2,7 +2,7 @@
 # Part of SGC TECH AI. See LICENSE file for full copyright and licensing details.
 # Copyright (c) 2026 SGC TECH AI (https://sgctech.ai)
 
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class ResCompany(models.Model):
@@ -73,5 +73,5 @@ class ResCompany(models.Model):
             or self.sgc_dfr_decimal_precision > 6
         ):
             raise models.ValidationError(
-                "Decimal precision must be between 0 and 6."
+                _("Decimal precision must be between 0 and 6.")
             )

@@ -10,20 +10,15 @@ class SgcAgedReceivableXlsx(models.AbstractModel):
 
     _name = "report.sgc_dynamic_financial_report.sgc_aged_receivable_xlsx"
     _description = "SGC Aged Receivable XLSX Report"
-    _inherit = "report.report_xlsx.abstract"
+    _inherit = [
+        "report.report_xlsx.abstract",
+        "report.sgc_dynamic_financial_report.xlsx_mixin",
+    ]
 
     def _get_report_name(self):
         return "SGC_Aged_Receivable"
 
     def generate_xlsx_report(self, workbook, data, wizard):
-        """Generate the Aged Receivable Excel file.
-
-        Args:
-            workbook: xlsxwriter Workbook instance.
-            data: Dict passed from the wizard.
-            wizard: ``sgc.financial.report.wizard`` recordset.
-        """
-        # ── Fetch data from the report engine ───────────────────────
         engine = wizard.env["sgc.financial.report.engine"]
         result = engine._generate_report(wizard)
         report_data = result.get("data", {})
@@ -31,98 +26,50 @@ class SgcAgedReceivableXlsx(models.AbstractModel):
         buckets = report_data.get("buckets", [])
         totals = report_data.get("totals", {})
 
-        # ── Date range formatting ───────────────────────────────────
-        date_from = wizard.date_from or ""
-        date_to = wizard.date_to or ""
-        date_range = f"From {date_from} to {date_to}"
-
-        # ── Formats ─────────────────────────────────────────────────
-        fmt_title = workbook.add_format({
-            "bold": True,
-            "size": 14,
-            "valign": "vcenter",
-        })
-        fmt_date = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_col_header = workbook.add_format({
-            "bold": True,
-            "size": 10,
-            "bg_color": "#4472C4",
-            "font_color": "#FFFFFF",
-            "border": 1,
-            "text_wrap": True,
-            "valign": "vcenter",
-            "align": "center",
-        })
-        fmt_normal = workbook.add_format({
-            "size": 10,
-            "valign": "vcenter",
-        })
-        fmt_money = workbook.add_format({
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-        fmt_total = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "top": 2,
-            "bottom": 2,
-            "valign": "vcenter",
-        })
-        fmt_total_money = workbook.add_format({
-            "bold": True,
-            "size": 11,
-            "top": 2,
-            "bottom": 2,
-            "num_format": "#,##0.00",
-            "valign": "vcenter",
-        })
-
-        # ── Sheet setup ─────────────────────────────────────────────
+        formats = self._sgc_xlsx_build_formats(workbook)
         sheet = workbook.add_worksheet("Aged Receivable")
+        self._sgc_xlsx_apply_page_setup(sheet, orientation="landscape")
 
-        # Static columns: Partner(0), Ref(1), # Invoices(2)
-        # Then dynamic bucket columns, then Total Balance
         num_buckets = len(buckets)
-        total_col = 3 + num_buckets  # column index for Total Balance
+        total_col = 3 + num_buckets
+        total_col_count = total_col + 1
 
-        # Column widths
-        sheet.set_column("A:A", 35)   # Partner
-        sheet.set_column("B:B", 18)   # Ref
-        sheet.set_column("C:C", 14)   # # Invoices
+        sheet.set_column("A:A", 35)
+        sheet.set_column("B:B", 18)
+        sheet.set_column("C:C", 14)
         for i in range(num_buckets):
-            col_letter = chr(68 + i) if (68 + i) <= 90 else (
-                "A" + chr(65 + (68 + i) - 91)
-            )
+            col_letter = self._sgc_xlsx_col_letter(3 + i)
             sheet.set_column(f"{col_letter}:{col_letter}", 16)
-        # Total Balance column
-        total_col_letter = chr(65 + total_col) if (65 + total_col) <= 90 else (
-            "A" + chr(65 + (65 + total_col) - 91)
-        )
+        total_col_letter = self._sgc_xlsx_col_letter(total_col)
         sheet.set_column(f"{total_col_letter}:{total_col_letter}", 18)
 
-        # ── Report header (rows 0-2) ────────────────────────────────
-        sheet.write(0, 0, wizard.company_id.name or "", fmt_title)
-        sheet.write(1, 0, "Aged Receivable Report", fmt_title)
-        sheet.write(2, 0, date_range, fmt_date)
+        header_row = self._sgc_xlsx_write_header_block(
+            sheet, workbook, wizard, "Aged Receivable Report",
+            formats, column_count=total_col_count,
+        )
 
-        # ── Column headers (row 4) ──────────────────────────────────
-        row = 4
         col_headers = ["Partner", "Ref", "# Invoices"]
         for bucket in buckets:
             col_headers.append(bucket.get("label", ""))
         col_headers.append("Total Balance")
         for col_idx, header in enumerate(col_headers):
-            sheet.write(row, col_idx, header, fmt_col_header)
-        row += 1
+            sheet.write(header_row, col_idx, header, formats["col_header"])
+        sheet.set_row(header_row, 26)
 
-        # ── Partner rows (row 5+) ───────────────────────────────────
+        self._sgc_xlsx_apply_freeze(sheet, header_row=header_row)
+        self._sgc_xlsx_apply_autofilter(
+            sheet, header_row, header_row, len(col_headers) - 1,
+        )
+
+        row = header_row + 1
         for partner_row in rows:
-            sheet.write(row, 0, partner_row.get("partner_name") or "", fmt_normal)
-            sheet.write(row, 1, partner_row.get("partner_ref") or "", fmt_normal)
-            sheet.write(row, 2, partner_row.get("invoice_count", 0), fmt_normal)
+            zebra = (row - header_row) % 2 == 0
+            fmt_text = self._sgc_xlsx_zebra_format(formats, zebra)
+            fmt_money = self._sgc_xlsx_zebra_format(formats, zebra, money=True)
+
+            sheet.write(row, 0, partner_row.get("partner_name") or "", fmt_text)
+            sheet.write(row, 1, partner_row.get("partner_ref") or "", fmt_text)
+            sheet.write(row, 2, partner_row.get("invoice_count", 0), fmt_text)
 
             for b_idx, bucket in enumerate(buckets):
                 label = bucket.get("label", "")
@@ -133,13 +80,18 @@ class SgcAgedReceivableXlsx(models.AbstractModel):
             sheet.write(row, total_col, total_balance, fmt_money)
             row += 1
 
-        # ── Totals row ──────────────────────────────────────────────
-        sheet.write(row, 0, "", fmt_total)
-        sheet.write(row, 1, "", fmt_total)
-        sheet.write(row, 2, "", fmt_total)
+        zebra = (row - header_row) % 2 == 0
+        fmt_total_text = self._sgc_xlsx_zebra_format(formats, zebra, money=True)
+        sheet.write(row, 0, "", fmt_total_text)
+        sheet.write(row, 1, "", fmt_total_text)
+        sheet.write(row, 2, "", fmt_total_text)
         for b_idx, bucket in enumerate(buckets):
             label = bucket.get("label", "")
             value = float(totals.get(label, 0.0))
-            sheet.write(row, 3 + b_idx, value, fmt_total_money)
+            sheet.write(row, 3 + b_idx, value, formats["grand_total_money"])
         grand_total = float(totals.get("total_balance", 0.0))
-        sheet.write(row, total_col, grand_total, fmt_total_money)
+        sheet.write(row, total_col, grand_total, formats["grand_total_money"])
+        sheet.set_row(row, 22)
+        row += 2
+
+        self._sgc_xlsx_write_footer_block(sheet, formats, row, total_col_count)

@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- SEARCH VIEW – sgc.dfr.scheduled.report                          -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_scheduled_report_view_search" model="ir.ui.view">
+        <field name="name">sgc.dfr.scheduled.report.view.search</field>
+        <field name="model">sgc.dfr.scheduled.report</field>
+        <field name="arch" type="xml">
+            <search string="Search Scheduled Reports">
+                <field name="name"/>
+                <field name="report_type"/>
+                <field name="company_id"/>
+                <field name="user_id"/>
+                <field name="cron_id"/>
+                <separator/>
+                <filter string="Active" name="filter_active"
+                        domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive"
+                        domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Daily" name="filter_daily"
+                        domain="[('interval_type', '=', 'daily')]"/>
+                <filter string="Weekly" name="filter_weekly"
+                        domain="[('interval_type', '=', 'weekly')]"/>
+                <filter string="Monthly" name="filter_monthly"
+                        domain="[('interval_type', '=', 'monthly')]"/>
+                <filter string="Quarterly" name="filter_quarterly"
+                        domain="[('interval_type', '=', 'quarterly')]"/>
+                <filter string="Yearly" name="filter_yearly"
+                        domain="[('interval_type', '=', 'yearly')]"/>
+                <separator/>
+                <filter string="Has Email Recipients" name="filter_has_recipients"
+                        domain="[('recipient_ids', '!=', False)]"/>
+                <group>
+                    <filter string="Company" name="group_company"
+                            context="{'group_by': 'company_id'}"/>
+                    <filter string="Report Type" name="group_report_type"
+                            context="{'group_by': 'report_type'}"/>
+                    <filter string="Interval" name="group_interval"
+                            context="{'group_by': 'interval_type'}"/>
+                    <filter string="Run As User" name="group_user"
+                            context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- LIST VIEW – sgc.dfr.scheduled.report                            -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_scheduled_report_view_list" model="ir.ui.view">
+        <field name="name">sgc.dfr.scheduled.report.view.list</field>
+        <field name="model">sgc.dfr.scheduled.report</field>
+        <field name="arch" type="xml">
+            <list string="Scheduled Reports"
+                  decoration-danger="not active"
+                  decoration-muted="not active">
+                <field name="name"/>
+                <field name="report_type"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="interval_type"/>
+                <field name="next_run"/>
+                <field name="last_run"/>
+                <field name="user_id"/>
+                <field name="active" widget="boolean_toggle"/>
+                <field name="cron_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- FORM VIEW – sgc.dfr.scheduled.report                            -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_scheduled_report_view_form" model="ir.ui.view">
+        <field name="name">sgc.dfr.scheduled.report.view.form</field>
+        <field name="model">sgc.dfr.scheduled.report</field>
+        <field name="arch" type="xml">
+            <form string="Scheduled Report">
+                <header>
+                    <button name="action_preview"
+                            string="Run Once"
+                            type="object"
+                            class="oe_highlight"
+                            icon="fa-play"
+                            help="Generate this report now (without waiting for the cron) and view the result."/>
+                    <field name="active" widget="boolean_toggle"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Monthly Balance Sheet"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group name="basics" string="Basics">
+                            <field name="report_type"/>
+                            <field name="company_id"
+                                   options="{'no_create': True}"
+                                   groups="base.group_multi_company"/>
+                            <field name="user_id"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group name="schedule" string="Schedule">
+                            <field name="interval_type"/>
+                            <field name="next_run"/>
+                            <field name="last_run"/>
+                            <field name="cron_id"
+                                   readonly="1"
+                                   groups="base.group_no_one"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="parameters" string="Parameters">
+                            <group>
+                                <group name="dates" string="Date Range">
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="enable_comparison"/>
+                                    <field name="target_move" widget="radio"/>
+                                </group>
+                                <group name="display" string="Display">
+                                    <field name="show_hierarchy"/>
+                                    <field name="show_zero_balance"/>
+                                    <field name="hide_parent_hierarchy"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group name="accounts" string="Accounts">
+                                    <field name="account_ids"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </group>
+                                <group name="partners" string="Partners">
+                                    <field name="partner_ids"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group name="analytic" string="Analytic">
+                                    <field name="analytic_account_ids"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </group>
+                                <group name="journals" string="Journals">
+                                    <field name="journal_ids"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page name="delivery" string="Email Delivery">
+                            <group>
+                                <group>
+                                    <field name="mail_template_id"
+                                           options="{'no_create': True}"/>
+                                </group>
+                                <group>
+                                    <field name="recipient_ids"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}"
+                                           placeholder="Add partner recipients..."/>
+                                </group>
+                            </group>
+                            <div class="text-muted mt-2">
+                                <p>
+                                    When both a template and at least one recipient are set,
+                                    each scheduled run will email a copy of the rendered
+                                    report. Without a template, a default plain-text summary
+                                    is sent instead.
+                                </p>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- ACTION – Scheduled Reports                                      -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_action_scheduled_report" model="ir.actions.act_window">
+        <field name="name">Scheduled Reports</field>
+        <field name="res_model">sgc.dfr.scheduled.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sgc_dfr_scheduled_report_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No scheduled reports yet
+            </p>
+            <p>
+                Create a scheduled report to automatically run an SGC Dynamic
+                Financial Report on a recurring basis (daily, weekly, monthly,
+                quarterly, or yearly). Generated reports are stored in the
+                audit log and can optionally be emailed to selected recipients.
+            </p>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- SEARCH VIEW – sgc.dfr.report.log (audit trail)                  -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_report_log_view_search" model="ir.ui.view">
+        <field name="name">sgc.dfr.report.log.view.search</field>
+        <field name="model">sgc.dfr.report.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Report Log">
+                <field name="report_type"/>
+                <field name="company_id"/>
+                <field name="generated_by"/>
+                <field name="source"/>
+                <field name="scheduled_report_id"/>
+                <separator/>
+                <filter string="Manual" name="filter_manual"
+                        domain="[('source', '=', 'manual')]"/>
+                <filter string="Scheduled" name="filter_scheduled"
+                        domain="[('source', '=', 'scheduled')]"/>
+                <filter string="Preview" name="filter_preview"
+                        domain="[('source', '=', 'preview')]"/>
+                <group>
+                    <filter string="Report Type" name="group_report_type"
+                            context="{'group_by': 'report_type'}"/>
+                    <filter string="Company" name="group_company"
+                            context="{'group_by': 'company_id'}"/>
+                    <filter string="Generated By" name="group_generated_by"
+                            context="{'group_by': 'generated_by'}"/>
+                    <filter string="Generated At" name="group_generated_at"
+                            context="{'group_by': 'generated_at'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- LIST VIEW – sgc.dfr.report.log                                   -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_report_log_view_list" model="ir.ui.view">
+        <field name="name">sgc.dfr.report.log.view.list</field>
+        <field name="model">sgc.dfr.report.log</field>
+        <field name="arch" type="xml">
+            <list string="Report Generation Log"
+                  create="0"
+                  delete="0"
+                  edit="0">
+                <field name="display_name" string="Report"/>
+                <field name="report_type"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="generated_by"/>
+                <field name="generated_at"/>
+                <field name="source"
+                       widget="badge"
+                       decoration-info="source == 'manual'"
+                       decoration-success="source == 'scheduled'"
+                       decoration-warning="source == 'preview'"/>
+                <field name="scheduled_report_id"
+                       optional="hide"/>
+                <field name="report_data_size"
+                       optional="hide"
+                       string="Snapshot Size"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- FORM VIEW – sgc.dfr.report.log                                   -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_report_log_view_form" model="ir.ui.view">
+        <field name="name">sgc.dfr.report.log.view.form</field>
+        <field name="model">sgc.dfr.report.log</field>
+        <field name="arch" type="xml">
+            <form string="Report Generation Log"
+                  create="0"
+                  delete="0"
+                  edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="identification" string="Identification">
+                            <field name="report_type"/>
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="source"
+                                   widget="badge"
+                                   decoration-info="source == 'manual'"
+                                   decoration-success="source == 'scheduled'"
+                                   decoration-warning="source == 'preview'"/>
+                            <field name="wizard_id"
+                                   invisible="not wizard_id"/>
+                            <field name="scheduled_report_id"
+                                   invisible="not scheduled_report_id"/>
+                        </group>
+                        <group name="audit" string="Audit">
+                            <field name="generated_by"/>
+                            <field name="generated_at"/>
+                            <field name="report_data_size"
+                                   string="Snapshot Size (bytes)"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="period" string="Period">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="comparison_enabled"/>
+                            <field name="comparison_period"
+                                   invisible="not comparison_enabled"/>
+                            <field name="target_move"/>
+                        </group>
+                        <group name="filters" string="Filters">
+                            <field name="account_ids"
+                                   readonly="1"
+                                   placeholder="All accounts"/>
+                            <field name="partner_ids"
+                                   readonly="1"
+                                   placeholder="All partners"/>
+                            <field name="analytic_account_ids"
+                                   readonly="1"
+                                   placeholder="No analytic filter"/>
+                            <field name="journal_ids"
+                                   readonly="1"
+                                   placeholder="All journals"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="options" string="Display Options">
+                            <field name="options" widget="text" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="summary" string="Result Summary">
+                            <field name="result_summary"
+                                   nolabel="1"
+                                   readonly="1"
+                                   widget="text"
+                                   placeholder="(rendered HTML preview not stored in summary)"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="snapshot" string="Data Snapshot">
+                            <field name="report_data_snapshot"
+                                   filename="False"
+                                   readonly="1"
+                                   widget="binary"
+                                   options="{'accepted_file_extensions': 'json,bin'}"/>
+                            <div class="text-muted">
+                                <p>
+                                    zlib-compressed JSON payload of the engine's
+                                    result data. Download and decode to audit the
+                                    exact figures that were produced.
+                                </p>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- ACTION – Report Generation Log                                   -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_action_report_log" model="ir.actions.act_window">
+        <field name="name">Report Generation Log</field>
+        <field name="res_model">sgc.dfr.report.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="sgc_dfr_report_log_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No reports generated yet
+            </p>
+            <p>
+                Each SGC Dynamic Financial Report generation - manual or
+                scheduled - creates an audit row here. Use this view to track
+                who ran which report, when, and to download the original
+                result data snapshot.
+            </p>
+        </field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- MENUITEMS – Scheduled Reports & Audit Log                       -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <menuitem
+        id="sgc_dfr_menu_scheduled_reports"
+        name="Scheduled Reports"
+        parent="sgc_dynamic_financial_report.sgc_dfr_menu_root"
+        action="sgc_dfr_action_scheduled_report"
+        sequence="100"
+        groups="sgc_dynamic_financial_report.sgc_dfr_group_manager"/>
+    <menuitem
+        id="sgc_dfr_menu_report_log"
+        name="Report Generation Log"
+        parent="sgc_dynamic_financial_report.sgc_dfr_menu_root"
+        action="sgc_dfr_action_report_log"
+        sequence="110"
+        groups="sgc_dynamic_financial_report.sgc_dfr_group_user"/>
+
+</odoo>

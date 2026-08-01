@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2026 SGC TECH AI (https://sgctech.ai) -->
+<!-- License OPL-1 -->
+<odoo noupdate="1">
+
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <!-- Deactivated ir.cron template for SGC DFR scheduled reports.     -->
+    <!--                                                                 -->
+    <!-- This record is intentionally created with ``active=0`` so the  -->
+    <!-- Odoo cron worker ignores it on every install. It exists so     -->
+    <!-- administrators can inspect / clone a canonical configuration   -->
+    <!-- (model, code expression, interval defaults, sudo user) without  -->
+    <!-- having to dig through the live crons created by individual     -->
+    <!-- ``sgc.dfr.scheduled.report`` rows.                              -->
+    <!--                                                                 -->
+    <!-- The live cron record for each scheduled report is created and  -->
+    <!-- managed by ``SgcDfrScheduledReport._create_cron`` - this        -->
+    <!-- template is purely documentary and never auto-triggers.        -->
+    <!-- ════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_dfr_cron_template" model="ir.cron">
+        <field name="name">SGC DFR: Scheduled Report Template (inactive)</field>
+        <field name="model_id" ref="model_sgc_dfr_scheduled_report"/>
+        <field name="state">code</field>
+        <!-- Cron ``code`` is a string of Python executed inside an
+             ``env`` whose ``model`` is set above; ``model`` here is the
+             SGC DFR scheduled-report recordset. ``model.browse(<id>)``
+             is therefore equivalent to ``env[<model>].browse(<id>)``
+             and lets the cron worker dispatch into the per-record
+             ``_run_on_cron`` handler. -->
+        <field name="code">model.browse(0)._run_on_cron()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <!-- nextcall is a placeholder date far in the future; combined
+             with ``active=0`` below this guarantees the worker will
+             never trigger the template. 10 years out, computed with
+             plain datetime arithmetic (relativedelta is not in the
+             XML eval namespace). -->
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=3650)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="active" eval="False"/>
+        <field name="priority">5</field>
+    </record>
+
+</odoo>

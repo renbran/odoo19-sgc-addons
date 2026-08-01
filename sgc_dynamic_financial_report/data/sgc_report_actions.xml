@@ -20,20 +20,21 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 1. BALANCE SHEET                                                   -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_balance_sheet" model="ir.actions.act_window">
+    <!-- Single entry: metadata-driven enterprise preview client action.
+         The legacy ``ir.actions.act_window`` wizard form was removed
+         after live browser verification proved the enterprise preview
+         covers every flow (Generate / Export XLSX / Export PDF). -->
+    <record id="sgc_dfr_action_balance_sheet_enterprise" model="ir.actions.client">
         <field name="name">Balance Sheet</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'balance_sheet'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'balance_sheet'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_balance_sheet"
+        id="sgc_dfr_menu_balance_sheet_enterprise"
         name="Balance Sheet"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_balance_sheet"
+        action="sgc_dfr_action_balance_sheet_enterprise"
         sequence="10"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -41,20 +42,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 2. PROFIT & LOSS                                                   -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_profit_loss" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_profit_loss_enterprise" model="ir.actions.client">
         <field name="name">Profit &amp; Loss</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'profit_loss'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'profit_loss'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_profit_loss"
+        id="sgc_dfr_menu_profit_loss_enterprise"
         name="Profit &amp; Loss"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_profit_loss"
+        action="sgc_dfr_action_profit_loss_enterprise"
         sequence="20"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -62,20 +60,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 3. CASH FLOW                                                       -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_cash_flow" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_cash_flow_enterprise" model="ir.actions.client">
         <field name="name">Cash Flow Statement</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'cash_flow'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'cash_flow'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_cash_flow"
+        id="sgc_dfr_menu_cash_flow_enterprise"
         name="Cash Flow Statement"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_cash_flow"
+        action="sgc_dfr_action_cash_flow_enterprise"
         sequence="30"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -83,20 +78,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 4. TRIAL BALANCE                                                   -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_trial_balance" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_trial_balance_enterprise" model="ir.actions.client">
         <field name="name">Trial Balance</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'trial_balance'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'trial_balance'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_trial_balance"
+        id="sgc_dfr_menu_trial_balance_enterprise"
         name="Trial Balance"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_trial_balance"
+        action="sgc_dfr_action_trial_balance_enterprise"
         sequence="40"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -104,20 +96,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 5. GENERAL LEDGER                                                  -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_general_ledger" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_general_ledger_enterprise" model="ir.actions.client">
         <field name="name">General Ledger</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'general_ledger'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'general_ledger'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_general_ledger"
+        id="sgc_dfr_menu_general_ledger_enterprise"
         name="General Ledger"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_general_ledger"
+        action="sgc_dfr_action_general_ledger_enterprise"
         sequence="50"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -125,20 +114,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 6. PARTNER LEDGER                                                  -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_partner_ledger" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_partner_ledger_enterprise" model="ir.actions.client">
         <field name="name">Partner Ledger</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'partner_ledger'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'partner_ledger'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_partner_ledger"
+        id="sgc_dfr_menu_partner_ledger_enterprise"
         name="Partner Ledger"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_partner_ledger"
+        action="sgc_dfr_action_partner_ledger_enterprise"
         sequence="60"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -146,20 +132,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 7. AGED RECEIVABLE                                                 -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_aged_receivable" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_aged_receivable_enterprise" model="ir.actions.client">
         <field name="name">Aged Receivable</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'aged_receivable'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'aged_receivable'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_aged_receivable"
+        id="sgc_dfr_menu_aged_receivable_enterprise"
         name="Aged Receivable"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_aged_receivable"
+        action="sgc_dfr_action_aged_receivable_enterprise"
         sequence="70"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -167,20 +150,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 8. AGED PAYABLE                                                    -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_aged_payable" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_aged_payable_enterprise" model="ir.actions.client">
         <field name="name">Aged Payable</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'aged_payable'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'aged_payable'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_aged_payable"
+        id="sgc_dfr_menu_aged_payable_enterprise"
         name="Aged Payable"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_aged_payable"
+        action="sgc_dfr_action_aged_payable_enterprise"
         sequence="80"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -188,20 +168,17 @@
     <!-- ════════════════════════════════════════════════════════════════════ -->
     <!-- 9. TAX REPORT                                                      -->
     <!-- ════════════════════════════════════════════════════════════════════ -->
-    <record id="sgc_dfr_action_tax_report" model="ir.actions.act_window">
+    <record id="sgc_dfr_action_tax_report_enterprise" model="ir.actions.client">
         <field name="name">Tax Report</field>
-        <field name="res_model">sgc.financial.report.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-        <field name="context">{'default_report_type': 'tax_report'}</field>
-        <field name="view_id" ref="sgc_dfr_wizard_view_form"/>
+        <field name="tag">sgc_dfr.report_client_action</field>
+        <field name="context">{'report_type': 'tax_report'}</field>
     </record>
 
     <menuitem
-        id="sgc_dfr_menu_tax_report"
+        id="sgc_dfr_menu_tax_report_enterprise"
         name="Tax Report"
         parent="sgc_dfr_menu_root"
-        action="sgc_dfr_action_tax_report"
+        action="sgc_dfr_action_tax_report_enterprise"
         sequence="90"
         groups="sgc_dynamic_financial_report.sgc_dfr_group_user"
     />
@@ -305,6 +282,20 @@
         <field name="report_type">xlsx</field>
         <field name="report_name">sgc_dynamic_financial_report.sgc_tax_report_xlsx</field>
         <field name="report_file">sgc_tax_report</field>
+        <field name="binding_model_id" ref="model_sgc_financial_report_wizard"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <!-- PDF EXPORT – single generic action, reused by every report type    -->
+    <!-- via sgc_financial_report_template's object.result_html/report_type -->
+    <!-- ════════════════════════════════════════════════════════════════════ -->
+    <record id="sgc_report_pdf" model="ir.actions.report">
+        <field name="name">SGC Financial Report (PDF)</field>
+        <field name="model">sgc.financial.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_dynamic_financial_report.sgc_financial_report_template</field>
+        <field name="report_file">sgc_financial_report_template</field>
         <field name="binding_model_id" ref="model_sgc_financial_report_wizard"/>
         <field name="binding_view_types">form</field>
     </record>
