@@ -5,3 +5,4 @@ from . import sgc_meeting_transcript
 from . import sgc_meeting_notes
 from . import calendar_event
 from . import resource_booking
+from . import calendar_attendee
