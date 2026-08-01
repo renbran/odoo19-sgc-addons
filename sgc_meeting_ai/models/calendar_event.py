@@ -5,6 +5,7 @@ import logging
 from uuid import uuid4
 
 from odoo import _, api, fields, models
+from odoo.tools import email_normalize
 
 _logger = logging.getLogger(__name__)
 
@@ -522,6 +523,53 @@ class CalendarEvent(models.Model):
     # ------------------------------------------------------------------
     # Auto-registration when a salesperson books a meeting
     # ------------------------------------------------------------------
+    def _sgc_get_opportunity_attendee(self):
+        """The customer who should be invited to this opportunity's meeting.
+
+        Odoo only auto-invites ``lead.partner_id``
+        (``crm_lead.action_schedule_meeting``), so an opportunity that was
+        never converted to a linked contact invites nobody -- the salesperson
+        has to remember to add the customer by hand every single time, on a
+        form that already knows exactly who the customer is. On this database
+        that is not an edge case: 7050 of 7527 opportunities have an
+        ``email_from`` but no ``partner_id``.
+
+        So fall back to the opportunity's own email. An existing contact with
+        that address is reused; only when there is none is one created, which
+        is what converting the lead would have done anyway and is the minimum
+        needed for the customer to be able to receive an invitation at all.
+
+        Deliberately does NOT write ``partner_id`` back onto the opportunity:
+        linking a customer is a CRM decision with pipeline consequences, not a
+        side effect of booking a meeting. The email lookup makes the next
+        booking find this same contact, so no duplicates accumulate.
+        """
+        self.ensure_one()
+        lead = self.opportunity_id
+        if not lead:
+            return self.env["res.partner"]
+        if lead.partner_id:
+            return lead.partner_id
+        email = (lead.email_from or "").strip()
+        normalized = email_normalize(email)
+        if not normalized:
+            return self.env["res.partner"]
+        Partner = self.env["res.partner"].sudo()
+        existing = Partner.search([("email_normalized", "=", normalized)], limit=1)
+        if existing:
+            return existing
+        partner = Partner.create({
+            "name": lead.contact_name or lead.partner_name or email,
+            "email": email,
+            "phone": lead.phone or False,
+        })
+        _logger.info(
+            "Created contact %s (%s) from opportunity %s so the customer can "
+            "be invited to meeting %s",
+            partner.id, normalized, lead.id, self.id,
+        )
+        return partner
+
     def _sgc_is_customer_meeting(self):
         """True for meetings that should get a shared Google Meet room.
 
@@ -561,6 +609,22 @@ class CalendarEvent(models.Model):
             # for every externally-attended meeting in the database.
             if not event.opportunity_id:
                 continue
+            # Invite the customer the meeting is *about*. Booking from an
+            # opportunity form and then having to type the customer's name in
+            # by hand is the kind of papercut that gets forgotten, and a
+            # forgotten attendee means the customer never learns about their
+            # own meeting.
+            try:
+                customer = event._sgc_get_opportunity_attendee()
+                if customer and customer not in event.partner_ids:
+                    event.with_context(
+                        sgc_applying_meet_organizer=True
+                    ).partner_ids = [(4, customer.id)]
+            except Exception:
+                _logger.exception(
+                    "Failed to add the opportunity's customer to event %s",
+                    event.id,
+                )
             # Resource booking/session must use the *real* salesperson so
             # each SDR keeps their own always-available resource. Swapping
             # the Meet organizer first would make every CRM meeting share

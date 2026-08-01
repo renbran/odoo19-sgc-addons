@@ -167,6 +167,85 @@ class TestResourceBookingRecursion(TransactionCase):
 
 
 @tagged("post_install", "-at_install", "sgc_meeting_ai")
+class TestOpportunityCustomerIsInvited(TransactionCase):
+    """Odoo only auto-invites lead.partner_id, so an opportunity that was
+    never converted to a linked contact invites nobody — the salesperson has
+    to add the customer by hand on a form that already knows who they are.
+    On production 7050 of 7527 opportunities are in exactly that shape."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Event = cls.env["calendar.event"]
+        cls.Lead = cls.env["crm.lead"]
+
+    def _meeting_for(self, lead):
+        start = fields.Datetime.now() + timedelta(days=6)
+        return self.Event.create({
+            "name": "Customer Invite Test",
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "opportunity_id": lead.id,
+        })
+
+    def test_linked_contact_is_invited(self):
+        contact = self.env["res.partner"].create(
+            {"name": "Linked Contact", "email": "linked@acme.example"}
+        )
+        lead = self.Lead.create({
+            "name": "Linked opportunity", "type": "opportunity",
+            "partner_id": contact.id,
+        })
+        event = self._meeting_for(lead)
+        self.assertIn(contact, event.partner_ids)
+
+    def test_unlinked_opportunity_invites_via_email_from(self):
+        lead = self.Lead.create({
+            "name": "Unlinked opportunity", "type": "opportunity",
+            "email_from": "prospect@acme.example",
+            "partner_name": "Acme Holdings",
+        })
+        event = self._meeting_for(lead)
+        emails = event.partner_ids.mapped("email_normalized")
+        self.assertIn("prospect@acme.example", emails)
+
+    def test_an_existing_contact_is_reused_not_duplicated(self):
+        existing = self.env["res.partner"].create(
+            {"name": "Already Known", "email": "known@acme.example"}
+        )
+        lead = self.Lead.create({
+            "name": "Reuse opportunity", "type": "opportunity",
+            "email_from": "KNOWN@acme.example",  # different case on purpose
+        })
+        event = self._meeting_for(lead)
+        self.assertIn(existing, event.partner_ids)
+        self.assertEqual(
+            self.env["res.partner"].search_count(
+                [("email_normalized", "=", "known@acme.example")]
+            ),
+            1,
+            "an existing contact must be reused, not duplicated",
+        )
+
+    def test_opportunity_partner_id_is_left_alone(self):
+        # Linking a customer is a CRM decision with pipeline consequences,
+        # not a side effect of booking a meeting.
+        lead = self.Lead.create({
+            "name": "No writeback opportunity", "type": "opportunity",
+            "email_from": "nowriteback@acme.example",
+        })
+        self._meeting_for(lead)
+        self.assertFalse(lead.partner_id)
+
+    def test_opportunity_without_any_email_is_handled_quietly(self):
+        lead = self.Lead.create(
+            {"name": "Emailless opportunity", "type": "opportunity"}
+        )
+        event = self._meeting_for(lead)  # must not raise
+        self.assertTrue(event.exists())
+
+
+@tagged("post_install", "-at_install", "sgc_meeting_ai")
 class TestBrandedInvitationSurvivesGoogleSync(TransactionCase):
     """google_calendar suppresses Odoo's own invitation mails whenever the
     organizer has a live Google connection. Every customer meeting is routed
