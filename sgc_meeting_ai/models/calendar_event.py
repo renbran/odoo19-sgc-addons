@@ -280,6 +280,7 @@ class CalendarEvent(models.Model):
                 "get a real Google Meet room until it is re-authorized.",
                 login,
             )
+        organizer._sgc_ensure_google_sync_enabled()
         return organizer
 
     def _sgc_apply_meet_organizer(self):
