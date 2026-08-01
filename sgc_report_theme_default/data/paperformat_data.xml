@@ -29,12 +29,30 @@
         <field name="default" eval="False"/>
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">45</field>
-        <field name="margin_bottom">20</field>
+        <!--
+            2026-08-01 correction, measured rather than estimated.
+
+            First pass used margin_top=45 / header_spacing=38 on the theory
+            that header_spacing was a gap subtracted from margin_top. It is
+            not: Odoo's stock A4 (base.paperformat_euro) runs margin_top=30
+            with header_spacing=40 - spacing HIGHER than the margin - and
+            that combination is what produced a correctly tight header here.
+
+            margin_top=45 therefore pushed the body 15mm below where stock
+            puts it, which at 96 dpi is ~57px of dead white between the
+            letterhead rule and the customer address block. Confirmed
+            against a live render.
+
+            margin_top is now stock's 30. Side margins stay at 12 (stock's 5
+            crowds the page edge) and header_line stays off because
+            sgc_report_documents.scss draws the gold hairline itself.
+        -->
+        <field name="margin_top">30</field>
+        <field name="margin_bottom">16</field>
         <field name="margin_left">12</field>
         <field name="margin_right">12</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">38</field>
+        <field name="header_spacing">40</field>
         <!-- Matches the px-based sizing in sgc_report_documents.scss so the
              browser preview and the PDF agree. -->
         <field name="dpi">96</field>

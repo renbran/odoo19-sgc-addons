@@ -79,6 +79,24 @@
         line-height: 1.45;
         color: $sgc-charcoal;
 
+        // Odoo generates .o_company_<id>_layout rules from
+        // res.company.primary_color (#0F213D here) and paints body text with
+        // it, so every description and payment-terms paragraph rendered navy
+        // and read like a page of hyperlinks. Restating the colour on the
+        // text containers puts prose back to charcoal.
+        //
+        // Deliberately NOT applied to span/strong: res.company.secondary_color
+        // (#B79554) colours the metadata labels - "Your Reference",
+        // "Quotation Date" - and that gold accent is wanted. Headings keep
+        // navy via the h2 rule below.
+        p,
+        li,
+        td,
+        address,
+        .address {
+            color: $sgc-charcoal;
+        }
+
         // Document title ("Quotation # ...", "Invoice ...").
         h2 {
             font-family: $sgc-font-serif;
