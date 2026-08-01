@@ -167,6 +167,82 @@ class TestResourceBookingRecursion(TransactionCase):
 
 
 @tagged("post_install", "-at_install", "sgc_meeting_ai")
+class TestBrandedInvitationSurvivesGoogleSync(TransactionCase):
+    """google_calendar suppresses Odoo's own invitation mails whenever the
+    organizer has a live Google connection. Every customer meeting is routed
+    through crm@sgctech.ai, which always does -- so repairing sync silently
+    swapped the SGC template for Google's plain invite, and an invitation
+    still arrived, just the wrong one."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Event = cls.env["calendar.event"]
+        cls.customer = cls.env["res.partner"].create(
+            {"name": "Branding Test Customer", "email": "branding@acme.example"}
+        )
+        cls.employee = cls.env["res.users"].create({
+            "name": "Branding Internal",
+            "login": "sgc_test_branding_internal",
+            "email": "internal@sgctech.example",
+        })
+
+    def _event(self, partners):
+        start = fields.Datetime.now() + timedelta(days=5)
+        return self.Event.create({
+            "name": "Branding Test meeting",
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "partner_ids": [(6, 0, partners.ids)],
+        })
+
+    def test_customer_meeting_still_sends_the_sgc_invitation(self):
+        event = self._event(self.customer)
+        self.assertFalse(
+            event._skip_send_mail_status_update(),
+            "a customer meeting must always send the SGC invitation, even "
+            "while the organizer's Google calendar is syncing",
+        )
+
+    def test_internal_meeting_keeps_upstream_behaviour(self):
+        event = self._event(self.employee.partner_id)
+        # Not asserting a fixed value: upstream's answer depends on whether the
+        # organizer has a live Google connection. What matters is that we do
+        # not override it for internal meetings.
+        self.assertEqual(
+            event._skip_send_mail_status_update(),
+            super(type(event), event)._skip_send_mail_status_update(),
+        )
+
+    def test_a_location_no_longer_costs_the_meet_room(self):
+        if "google_id" not in self.Event._fields:
+            self.skipTest("google_calendar is not installed")
+        event = self._event(self.customer)
+        event.location = "Online Meeting"
+        values = event._google_values()
+        self.assertTrue(
+            (values.get("conferenceData") or {}).get("createRequest"),
+            "Google must still be asked for a Meet room when Location is set",
+        )
+        self.assertEqual(
+            values.get("location"), "Online Meeting",
+            "the salesperson's Location text must be preserved, not discarded",
+        )
+
+    def test_a_deliberate_videocall_link_is_not_overridden(self):
+        if "google_id" not in self.Event._fields:
+            self.skipTest("google_calendar is not installed")
+        event = self._event(self.customer)
+        event.location = "Online Meeting"
+        event.videocall_location = "https://zoom.us/j/12345"
+        values = event._google_values()
+        self.assertFalse(
+            (values.get("conferenceData") or {}).get("createRequest"),
+            "a deliberate Zoom/Teams link must not be replaced by a Meet room",
+        )
+
+
+@tagged("post_install", "-at_install", "sgc_meeting_ai")
 class TestMeetUrlExtraction(TransactionCase):
     """Google returns the Meet room on the insert response. Upstream throws it
     away; capturing it is what turns a ~24h wait into seconds."""

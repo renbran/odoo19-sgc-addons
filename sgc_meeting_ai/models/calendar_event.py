@@ -2,6 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
+from uuid import uuid4
 
 from odoo import _, api, fields, models
 
@@ -394,6 +395,51 @@ class CalendarEvent(models.Model):
             meet_url = self._sgc_extract_meet_url(google_values)
             if meet_url:
                 values["videocall_location"] = meet_url
+        return values
+
+    def _skip_send_mail_status_update(self):
+        """Keep sending the SGC invitation even while Google sync is active.
+
+        google_calendar suppresses Odoo's *own* invitation emails whenever the
+        organizer has a working Google connection, on the assumption that
+        Google will invite the attendees instead
+        (``google_calendar/models/calendar.py::_skip_send_mail_status_update``).
+
+        For SGC that silently defeats the entire branded-invitation feature:
+        every customer meeting is deliberately routed through crm@sgctech.ai,
+        which by design *always* has a live Google connection. So the moment
+        sync was repaired, attendees stopped receiving the SGC template and got
+        Google's plain "Invitation to ..." mail instead. The two features
+        undo each other, and the loser is the one nobody notices, because an
+        invitation still arrives -- just the wrong one.
+        """
+        if self and self._sgc_is_customer_meeting():
+            return False
+        return super()._skip_send_mail_status_update()
+
+    def _google_values(self):
+        """Ask Google for a Meet room even when the meeting has a Location.
+
+        Google only auto-creates a conference when ``videocall_location`` and
+        ``location`` are BOTH empty, so a salesperson typing anything sensible
+        into Location -- "Online Meeting", "Zoom", "Client office" -- silently
+        costs the meeting its Meet room, with no error anywhere. Requesting the
+        conference explicitly makes Location a free-text note again instead of
+        a hidden switch that disables video.
+
+        Only for customer meetings, only on first insert, and never when a
+        deliberate videocall link is already set.
+        """
+        values = super()._google_values()
+        if (
+            "google_id" in self._fields
+            and not self.google_id
+            and not self.videocall_location
+            and self.location
+            and not values.get("conferenceData")
+            and self._sgc_is_customer_meeting()
+        ):
+            values["conferenceData"] = {"createRequest": {"requestId": uuid4().hex}}
         return values
 
     def _sgc_push_to_google(self):
