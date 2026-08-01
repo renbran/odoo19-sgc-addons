@@ -714,7 +714,7 @@ class BackendCaseMisc(BackendCaseBase):
         self.assertEqual(
             rb.display_name,
             "some customer - Test resource booking type "
-            "- 03/01/2021 at (08:00:00 To 08:30:00) (UTC)",
+            "- 03/01/2021 at (08:00:00 AM To 08:30:00 AM) (UTC)",
         )
         self.assertEqual(
             rb.with_context(using_portal=True).display_name, "# %d" % rb.id
