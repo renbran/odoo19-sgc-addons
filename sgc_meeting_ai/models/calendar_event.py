@@ -168,7 +168,22 @@ class CalendarEvent(models.Model):
         )
 
         attendees = self.partner_ids or organizer.partner_id
-        booking = self.env["resource.booking"].create({
+        # resource.booking.start is a *settable* stored field computed from
+        # meeting_id.start, so a default_start left in the context by whatever
+        # view the salesperson booked from silently seeds it. _sync_meeting()
+        # then sees a booking with a start but no meeting_id and lazily creates
+        # a SECOND calendar.event, which re-enters our create() override and
+        # books again -- the loop behind triplicated meetings and the
+        # "Cannot schedule these bookings" wall of duplicates. Passing the
+        # context positionally *replaces* it rather than merging, dropping
+        # every default_* key in one go.
+        booking_context = {
+            key: value
+            for key, value in self.env.context.items()
+            if not key.startswith("default_")
+        }
+        booking_context["sgc_skip_meeting_register"] = True
+        booking = self.env["resource.booking"].with_context(booking_context).create({
             "type_id": booking_type.id,
             "partner_ids": [(6, 0, attendees.ids)],
             "combination_id": combination.id,
@@ -479,6 +494,13 @@ class CalendarEvent(models.Model):
     def _sgc_register_meeting(self):
         """Register opportunity meetings for resource booking + AI recording,
         and route every customer meeting through the shared Meet organizer."""
+        # Second layer of the recursion guard: even if resource_booking does
+        # lazily spawn its own calendar.event, that event must not turn around
+        # and book again. Belt and braces on purpose -- the failure mode is an
+        # unbounded create loop that surfaces to the user as a validation error
+        # listing the same booking N times.
+        if self.env.context.get("sgc_skip_meeting_register"):
+            return
         for event in self:
             # Resource booking + AI session stay strictly CRM-scoped: they key
             # off the opportunity and would otherwise spawn bookings/sessions

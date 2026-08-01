@@ -14,6 +14,8 @@ reached Google, and the credential checks kept reporting healthy. So the
 assertions are deliberately about the decisions, not about exceptions.
 """
 
+from datetime import timedelta
+
 from odoo import fields
 from odoo.tests import TransactionCase, tagged
 
@@ -81,6 +83,60 @@ class TestCustomerMeetingDetection(TransactionCase):
         # so counting them would make every meeting look external.
         event = self._make_event(self.env.user.partner_id)
         self.assertFalse(event._sgc_is_customer_meeting())
+
+
+@tagged("post_install", "-at_install", "sgc_meeting_ai")
+class TestResourceBookingRecursion(TransactionCase):
+    """resource.booking.start is a settable stored field, so a stray
+    default_start in the context made _sync_meeting lazily create a second
+    calendar.event, which re-entered create() and booked again. That loop
+    produced triplicated meetings and a validation error listing the same
+    booking three times."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.customer = cls.env["res.partner"].create(
+            {"name": "Recursion Test Customer", "email": "recursion@acme.example"}
+        )
+        cls.opportunity = cls.env["crm.lead"].create(
+            {"name": "Recursion Test opportunity", "type": "opportunity"}
+        )
+
+    def _book(self, context=None):
+        Event = self.env["calendar.event"]
+        if context:
+            Event = Event.with_context(**context)
+        start = fields.Datetime.now() + timedelta(days=3)
+        return Event.create({
+            "name": "Recursion Test meeting",
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "partner_ids": [(6, 0, self.customer.ids)],
+            "opportunity_id": self.opportunity.id,
+        })
+
+    def _events_named(self, name):
+        return self.env["calendar.event"].search([("name", "=", name)])
+
+    def test_booking_a_crm_meeting_creates_exactly_one_event(self):
+        self._book()
+        self.assertEqual(len(self._events_named("Recursion Test meeting")), 1)
+
+    def test_a_stray_default_start_does_not_duplicate_the_meeting(self):
+        # The exact trigger: booking from a view that leaves default_start in
+        # the context. Before the fix this produced extra events and bookings.
+        stray = fields.Datetime.now() + timedelta(days=3)
+        self._book(context={"default_start": stray, "default_duration": 0.5})
+        self.assertEqual(len(self._events_named("Recursion Test meeting")), 1)
+
+    def test_register_is_skipped_under_the_recursion_guard(self):
+        event = self._book(context={"sgc_skip_meeting_register": True})
+        self.assertFalse(
+            event.sgc_booking_id,
+            "sgc_skip_meeting_register must stop a resource_booking-spawned "
+            "event from booking again",
+        )
 
 
 @tagged("post_install", "-at_install", "sgc_meeting_ai")
