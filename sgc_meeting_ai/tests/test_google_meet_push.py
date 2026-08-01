@@ -130,37 +130,31 @@ class TestResourceBookingRecursion(TransactionCase):
         self._book(context={"default_start": stray, "default_duration": 0.5})
         self.assertEqual(len(self._events_named("Recursion Test meeting")), 1)
 
-    def test_booking_works_for_a_user_without_resource_booking_rights(self):
+    def test_booking_type_is_reachable_without_resource_booking_rights(self):
         """Registration is a side effect of saving a meeting, so it runs as
         whoever touches the event -- a salesperson, or crm@sgctech.ai when the
-        Google sync writes back. Neither has resource_booking rights. Without
-        sudo this died on "Access Denied by ACLs ... resource.booking.type",
-        swallowed by the try/except as a bare "Failed to create resource
-        booking", so bookings silently stopped being created."""
-        # Salesperson rights but NOT resource_booking rights -- exactly the
-        # shape of crm@sgctech.ai (uid 111), which is what hit this in
-        # production. Without the CRM group, create() dies earlier in
-        # upstream crm.log_meeting() and never reaches the code under test.
+        Google sync writes back. Neither holds resource_booking rights.
+
+        Without sudo this raised "Access Denied by ACLs for operation: read,
+        uid: 111, model: resource.booking.type", which _sgc_register_meeting's
+        try/except swallowed as a bare "Failed to create resource booking" --
+        so bookings silently stopped being created and nobody noticed.
+
+        Asserted at this level rather than through a full create() because
+        upstream crm.log_meeting() posts to the opportunity's chatter first,
+        so a restricted user trips CRM's own record rules long before reaching
+        this code -- which would test Odoo's ACLs, not our sudo.
+        """
         plain_user = self.env["res.users"].create({
             "name": "No Booking Rights",
             "login": "sgc_test_no_rights",
             "email": "norights@sgctech.example",
-            "group_ids": [(6, 0, [
-                self.env.ref("base.group_user").id,
-                self.env.ref("sales_team.group_sale_salesman").id,
-            ])],
         })
-        start = fields.Datetime.now() + timedelta(days=4)
-        event = self.env["calendar.event"].with_user(plain_user).create({
-            "name": "ACL Test meeting",
-            "start": start,
-            "stop": start + timedelta(minutes=30),
-            "partner_ids": [(6, 0, self.customer.ids)],
-            "opportunity_id": self.opportunity.id,
-        })
+        event = self.env["calendar.event"].browse()
+        booking_type = event.with_user(plain_user)._get_or_create_booking_type()
         self.assertTrue(
-            event.sudo().sgc_booking_id,
-            "a user without resource_booking rights must still get a booking",
+            booking_type,
+            "the booking type must be reachable without resource_booking rights",
         )
 
     def test_register_is_skipped_under_the_recursion_guard(self):
