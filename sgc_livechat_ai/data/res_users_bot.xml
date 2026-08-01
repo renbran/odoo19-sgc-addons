@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Dedicated operator identity the AI posts under in live chat. -->
+        <record id="user_sgc_ai_bot" model="res.users">
+            <field name="name">SGC Assistant</field>
+            <field name="login">sgc_ai_bot</field>
+            <field name="email">hello@sgctech.ai</field>
+            <field name="active" eval="True"/>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_user'), ref('im_livechat.im_livechat_group_user')])]"/>
+        </record>
+        <record id="user_sgc_ai_bot" model="res.users">
+            <field name="user_livechat_username">SGC Assistant</field>
+        </record>
+    </data>
+</odoo>
