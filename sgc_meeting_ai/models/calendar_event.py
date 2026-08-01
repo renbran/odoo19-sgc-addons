@@ -403,7 +403,7 @@ class CalendarEvent(models.Model):
         res = super().write(vals)
         if resend_events:
             try:
-                resend_events.attendance_ids._send_invitation_emails()
+                resend_events.attendee_ids._send_invitation_emails()
             except Exception:
                 _logger.exception(
                     "Failed to re-send CRM invitation with Meet link for events %s",
