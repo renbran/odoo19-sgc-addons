@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Registers the SGC TECH AI layout in the Document Layout picker.
+
+    This single record is the entire mechanism. Stock web.external_layout
+    resolves the company's chosen layout by KEY:
+
+        <t t-call="{{company.external_report_layout_id.sudo().key
+                     or 'web.external_layout_standard'}}">
+
+    so pointing res.company.external_report_layout_id at
+    sgc_report_theme_core.external_layout_sgc is sufficient to brand every
+    report - with web.external_layout left completely unmodified.
+
+    external_layout_sgc is safe to reach by BOTH routes. It primary-inherits
+    web.external_layout_standard and re-creates the dispatcher's own `o` /
+    `company` setup, guarded by `t-if="not company"`. Called via the
+    dispatcher (this record's path) those variables are already set and the
+    guard is a no-op; called directly by a bridge module it sets them up
+    itself. Neither route double-assigns.
+
+    noupdate is left at the default (0) so that `-u sgc_report_theme_default`
+    re-asserts the record, keeping the database in sync with this file rather
+    than letting hand-edits drift - which is exactly how production ended up
+    with an unowned, SQL-inserted layout row that blocked a module uninstall.
+-->
+<odoo>
+
+    <record id="report_layout_sgc_tech_ai" model="report.layout">
+        <field name="name">SGC TECH AI</field>
+        <field name="view_id" ref="sgc_report_theme_core.external_layout_sgc"/>
+        <!--
+            Stock layouts (web.report_layout_striped ... _folder) ship without
+            an explicit sequence and fall back to the model default, so a low
+            value here surfaces the house layout at the front of the picker
+            without reordering or otherwise touching the stock records.
+        -->
+        <field name="sequence">1</field>
+    </record>
+
+</odoo>
