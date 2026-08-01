@@ -1,0 +1,173 @@
+// SGC Report Theme - Core: signature decorative elements.
+//
+// Brand Guidelines v3.0, Chapter 07 (Signature Elements). These are the
+// "visual DNA" motifs (gold corner geometry, micro-grid overlays, circuit
+// pattern lines, navigation rail, coordinate label) - all pure CSS/vector,
+// deliberately built without any raster image assets so they ship today.
+// The 8 UAE landmark watermark photographs described in the same chapter
+// are NOT included here - those are real photography that does not exist
+// anywhere in this codebase yet and must be sourced/commissioned separately
+// (see the report framework plan, §1.4/§15). block_watermark in
+// report_blocks.xml remains the placeholder for that follow-up.
+//
+// None of these classes are applied automatically by external_layout_sgc -
+// a bridge or template opts in explicitly by adding the class, matching
+// the framework's additive-only guarantee (nothing here can change the
+// render of a report that doesn't ask for it).
+//
+// wkhtmltopdf-safe: gradients and position:fixed only (the same technique
+// sgc_report_blocks.scss already uses for .o_sgc_watermark) - no flexbox/
+// grid, no CSS custom properties in selectors QtWebKit may not repaint.
+
+.o_sgc_report {
+
+    // ---- Gold corner geometry ---------------------------------------------
+    // Three nested L-shaped brackets per corner at decreasing weight/opacity,
+    // approximating the guideline's "perspective-like depth" effect. True
+    // diagonal tertiary lines are not attempted here (QtWebKit's border-image
+    // diagonal rendering is unreliable under wkhtmltopdf) - the tertiary
+    // line is instead a third, more deeply inset L-bracket at lower opacity,
+    // which reads the same visual cue (receding frame) without depending on
+    // untested diagonal rendering.
+    .o_sgc_corner {
+        position: fixed;
+        width: 24mm;
+        height: 24mm;
+        pointer-events: none;
+        z-index: 0;
+
+        &::before, &::after, .o_sgc_corner_tertiary {
+            content: "";
+            position: absolute;
+            border-color: $sgc-gold;
+            border-style: solid;
+        }
+
+        // Primary bracket
+        &::before {
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-width: 0.5px 0 0 0.5px;
+        }
+        // Secondary bracket, inset
+        &::after {
+            top: 4mm; left: 4mm; right: 4mm; bottom: 4mm;
+            border-width: 0.3px 0 0 0.3px;
+            opacity: 0.7;
+        }
+        // Tertiary bracket, further inset + lower opacity
+        .o_sgc_corner_tertiary {
+            top: 8mm; left: 8mm; right: 8mm; bottom: 8mm;
+            border-width: 0.2px 0 0 0.2px;
+            opacity: 0.45;
+        }
+
+        &.o_sgc_corner_tl { top: 0;    left: 0; }
+        &.o_sgc_corner_tr { top: 0;    right: 0; transform: scaleX(-1); }
+        &.o_sgc_corner_bl { bottom: 0; left: 0;  transform: scaleY(-1); }
+        &.o_sgc_corner_br { bottom: 0; right: 0; transform: scale(-1, -1); }
+    }
+
+    // ---- Micro-grid overlay -------------------------------------------
+    // 0.15px lines at 20px intervals, gold, 8% opacity - engineering
+    // pattern/blueprint reference. Applied to a fixed-position block sized
+    // by the caller (e.g. a corner or margin strip), not the whole page,
+    // per the guideline ("placed at page corners or margins").
+    .o_sgc_micro_grid {
+        position: fixed;
+        pointer-events: none;
+        z-index: 0;
+        background-image:
+            repeating-linear-gradient(
+                to right,
+                rgba($sgc-gold, 0.08) 0,
+                rgba($sgc-gold, 0.08) 0.15px,
+                transparent 0.15px,
+                transparent 20px
+            ),
+            repeating-linear-gradient(
+                to bottom,
+                rgba($sgc-gold, 0.08) 0,
+                rgba($sgc-gold, 0.08) 0.15px,
+                transparent 0.15px,
+                transparent 20px
+            );
+    }
+
+    // ---- Circuit pattern lines ------------------------------------------
+    // Thin h/v traces with node dots at intersections - technical/AI
+    // sections only (guideline Ch.07). Node dots are a radial-gradient
+    // background layered on top of the same line spacing so dots land
+    // exactly at intersections without needing per-dot markup.
+    .o_sgc_circuit_pattern {
+        position: fixed;
+        pointer-events: none;
+        z-index: 0;
+        $circuit-spacing: 28px;
+        background-image:
+            radial-gradient(
+                circle at center,
+                rgba($sgc-gold, 0.5) 0.6px,
+                transparent 0.6px
+            ),
+            repeating-linear-gradient(
+                to right,
+                rgba($sgc-gold, 0.15) 0,
+                rgba($sgc-gold, 0.15) 0.2px,
+                transparent 0.2px,
+                transparent $circuit-spacing
+            ),
+            repeating-linear-gradient(
+                to bottom,
+                rgba($sgc-gold, 0.15) 0,
+                rgba($sgc-gold, 0.15) 0.2px,
+                transparent 0.2px,
+                transparent $circuit-spacing
+            );
+        background-size: $circuit-spacing $circuit-spacing, 100% 100%, 100% 100%;
+    }
+
+    // ---- Navigation rail -------------------------------------------------
+    // 0.3px gold vertical line along the left or right margin, tick marks
+    // at intervals. Add .o_sgc_nav_rail_left or _right for placement.
+    .o_sgc_nav_rail {
+        position: fixed;
+        top: $sgc-grid-margin-mm;
+        bottom: $sgc-grid-margin-mm;
+        width: 6px;
+        pointer-events: none;
+        z-index: 0;
+        border-left: 0.3px solid rgba($sgc-gold, 0.6);
+        background-image: repeating-linear-gradient(
+            to bottom,
+            rgba($sgc-gold, 0.6) 0,
+            rgba($sgc-gold, 0.6) 1px,
+            transparent 1px,
+            transparent 24px
+        );
+        background-position: -1px 0;
+        background-repeat: repeat-y;
+        background-size: 6px 24px;
+
+        &.o_sgc_nav_rail_left  { left: $sgc-grid-margin-mm; }
+        &.o_sgc_nav_rail_right { right: $sgc-grid-margin-mm; }
+    }
+
+    // ---- Coordinate label --------------------------------------------
+    // Dubai coordinates, monospace, 7px, 25% gold opacity. Cover/hero
+    // pages only per the guideline - not part of every page's footer.
+    .o_sgc_coordinate_label {
+        position: fixed;
+        font-family: "Courier New", monospace;
+        font-size: 7px;
+        letter-spacing: 0.5px;
+        color: rgba($sgc-gold, 0.25);
+        pointer-events: none;
+        z-index: 0;
+
+        // Plain ASCII separator, not a middot: this instance's wkhtmltopdf
+        // pipeline renders both a raw U+00B7 and the &#183; entity as
+        // mojibake (confirmed empirically elsewhere in this module, see
+        // report_blocks.xml's block_footer) - sidestep it entirely.
+        &::before { content: "25.2048 N | 55.2708 E"; }
+    }
+}

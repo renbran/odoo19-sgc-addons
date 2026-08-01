@@ -6,6 +6,20 @@
     paperformat_id to one of these for it to take effect on that report.
 -->
 
+    <!--
+        Brand Guidelines v3.0 (Chapter 05 - Page Architecture) specifies
+        20mm margins on all sides for both portrait and landscape. Left/
+        right corrected here to 20mm (were 12mm/14mm). margin_top/bottom
+        are left as previously set: they interact with header_spacing in
+        wkhtmltopdf's own layout model (the header/footer running content
+        needs room, not just a pure design margin), and this paperformat
+        is currently unused by any bridge - sgc_report_theme_default ships
+        its own paperformat_sgc_documents, tuned from a real measured
+        header/title overlap defect. Verify top/bottom empirically with an
+        actual PDF render before wiring this paperformat to a report,
+        rather than assuming 20mm top/bottom is safe untested (see the
+        report framework plan's Responsive Print Rules, §13).
+    -->
     <record id="paperformat_sgc_a4_portrait" model="report.paperformat">
         <field name="name">SGC A4 Portrait</field>
         <field name="default" eval="False"/>
@@ -13,8 +27,8 @@
         <field name="orientation">Portrait</field>
         <field name="margin_top">28</field>
         <field name="margin_bottom">22</field>
-        <field name="margin_left">12</field>
-        <field name="margin_right">12</field>
+        <field name="margin_left">20</field>
+        <field name="margin_right">20</field>
         <field name="header_line" eval="False"/>
         <field name="header_spacing">24</field>
         <field name="dpi">96</field>
@@ -27,8 +41,8 @@
         <field name="orientation">Landscape</field>
         <field name="margin_top">20</field>
         <field name="margin_bottom">18</field>
-        <field name="margin_left">14</field>
-        <field name="margin_right">14</field>
+        <field name="margin_left">20</field>
+        <field name="margin_right">20</field>
         <field name="header_line" eval="False"/>
         <field name="header_spacing">20</field>
         <field name="dpi">96</field>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="assistant_sgc_website" model="llm.assistant">
+            <field name="name">SGC Website Assistant</field>
+            <field name="code">sgc_website</field>
+            <field name="provider_id" ref="provider_freellmapi"/>
+            <field name="model_id" ref="model_freellmapi_auto"/>
+            <field name="prompt_id" ref="prompt_sgc_website"/>
+            <field name="is_public" eval="True"/>
+            <field name="tool_calls_max">4</field>
+            <!-- No DB tools by default: this agent serves the PUBLIC website.
+                 Add read-only, record-rule-scoped tools deliberately if needed. -->
+            <field name="tool_ids" eval="[(6, 0, [])]"/>
+        </record>
+    </data>
+</odoo>

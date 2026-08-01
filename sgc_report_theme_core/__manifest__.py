@@ -58,12 +58,21 @@ re-points.
         "web.report_assets_common": [
             "sgc_report_theme_core/static/src/scss/sgc_report_fonts.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_tokens.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_grid.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_blocks.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_signature.scss",
+            # 2026-07-28 print typography + content-aware density. Loaded LAST
+            # so its rules win on equal specificity against the older block
+            # styles it supersedes.
+            "sgc_report_theme_core/static/src/scss/sgc_report.scss",
         ],
         "web.report_assets_pdf": [
             "sgc_report_theme_core/static/src/scss/sgc_report_fonts.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_tokens.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_grid.scss",
             "sgc_report_theme_core/static/src/scss/sgc_report_blocks.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report_signature.scss",
+            "sgc_report_theme_core/static/src/scss/sgc_report.scss",
         ],
     },
     "installable": True,

@@ -1,0 +1,183 @@
+// SGC report theme — print typography & content-aware spacing
+// Loaded into web.report_assets_common (PDF + on-screen HTML preview).
+//
+// Registered in web.report_assets_pdf as well as web.report_assets_common.
+// This module's manifest documents the empirical finding: report_assets_pdf
+// does NOT inline custom-module contributions to report_assets_common - they
+// compile as separate, independent bundles, and wkhtmltopdf only loads
+// report_assets_pdf. Registering in report_assets_common alone would style
+// the on-screen HTML preview and leave the actual PDF unstyled.
+//
+// Deliberately float/table-safe: no flexbox, CSS grid or custom properties,
+// because wkhtmltopdf's QtWebKit renders them inconsistently.
+//
+// 2026-08-02 correction: this file previously hardcoded its own local
+// palette (Inter font, #0f3d5c "accent" blue, #1f2933 "ink", etc.) instead
+// of consuming sgc_report_tokens.scss. Because it is loaded LAST in both
+// asset bundles, its `.o_sgc_report { font-family: "Inter" }` rule won the
+// specificity tie-break against sgc_report_blocks.scss's IBM Plex Sans
+// declaration (same specificity, later source wins) - every report using
+// this layout was rendering in Inter, not the sanctioned brand typeface.
+// Fixed by consuming the shared $sgc-* tokens throughout. All structural
+// rules (density engine, table header/zebra/repeat-header, totals, terms
+// block, footer, page-break handling) are unchanged - only the values now
+// come from one source of truth instead of a second, competing palette.
+
+$sgc-rule-soft:   rgba($sgc-slate, 0.3);     // hairlines (header/footer/meta borders)
+$sgc-rule-strong: $sgc-charcoal;             // table header/totals borders - matches
+                                              // sgc_report_blocks.scss's .o_sgc_table
+                                              // convention (th border-bottom: $sgc-charcoal)
+$sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" surface
+
+.o_sgc_report {
+    color: $sgc-charcoal;
+    font-family: $sgc-font-sans;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+
+    // ---- density: driven by sgc_density on the wrapper -------------------
+    &.sgc-airy    { font-size: 10pt;  line-height: 1.6;  }
+    &.sgc-regular { font-size: 9.5pt; line-height: 1.45; }
+    &.sgc-tight   { font-size: 8.75pt; line-height: 1.3; }
+
+    h1, h2, h3, h4 {
+        color: $sgc-navy;
+        font-weight: 600;
+        letter-spacing: .01em;
+        margin-bottom: .35rem;
+        page-break-after: avoid;   // never strand a heading at page bottom
+    }
+    h2 { font-size: 15pt; }
+    h3 { font-size: 11.5pt; }
+
+    strong, b { font-weight: 600; }
+    p { margin-bottom: .45rem; orphans: 3; widows: 3; }
+    small, .text-muted { color: $sgc-slate !important; }
+}
+
+// ---- Header -------------------------------------------------------------
+.o_sgc_header {
+    padding-bottom: 6px;
+    border-bottom: 1px solid $sgc-rule-soft;
+
+    img.o_company_logo, .o_company_logo img { max-height: 46px; width: auto; }
+    .o_company_address, address { font-size: 8.5pt; line-height: 1.35; color: $sgc-slate; }
+    address { font-style: normal; }
+}
+
+// ---- Document meta block (Ref / Issued / Expiration / Salesperson) -------
+.o_sgc_body {
+    #informations, .o_sgc_meta {
+        border-top: 1px solid $sgc-rule-soft;
+        border-bottom: 1px solid $sgc-rule-soft;
+        padding: 6px 0;
+        margin-bottom: 14px;
+
+        strong, .o_label { display: block; color: $sgc-slate; font-size: 7.75pt;
+                           text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+    }
+}
+
+// ---- Line table ---------------------------------------------------------
+.o_sgc_report table.o_main_table,
+.o_sgc_report table.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead { display: table-header-group; }   // repeat header on every page
+    tfoot { display: table-row-group; }
+    tr, td, th { page-break-inside: avoid; }
+
+    thead th {
+        background: $sgc-zebra;
+        border-top: 1px solid $sgc-rule-strong;
+        border-bottom: 1px solid $sgc-rule-strong;
+        color: $sgc-navy;
+        font-size: 7.75pt;
+        font-weight: 600;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        padding: 6px 7px;
+        vertical-align: bottom;
+    }
+
+    tbody td {
+        border-bottom: 1px solid $sgc-rule-soft;
+        padding: 7px;
+        vertical-align: top;
+    }
+
+    // Description column: let it take the slack, keep author line breaks,
+    // and break long refs like SGC-TFX-2026-IMPL-05-T1 instead of overflowing.
+    tbody td:first-child, thead th:first-child {
+        width: 46%;
+        white-space: pre-line;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+        hyphens: auto;
+    }
+
+    // Numeric columns: never wrap, aligned digits.
+    td.text-end, th.text-end,
+    td.text-right, th.text-right {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum" 1;
+        padding-left: 14px;
+    }
+
+    // Section / note rows inside the table
+    tr.is-subtotal td, td.o_line_section, .o_line_section td {
+        background: $sgc-zebra;
+        font-weight: 600;
+        border-bottom: 1px solid $sgc-rule-strong;
+    }
+    .o_line_note td { color: $sgc-slate; font-style: italic; }
+}
+
+.sgc-airy  table.o_main_table tbody td { padding: 9px 7px; }
+.sgc-tight table.o_main_table tbody td { padding: 4.5px 6px; }
+
+// ---- Totals -------------------------------------------------------------
+.o_sgc_report #total {
+    page-break-inside: avoid;
+    margin-top: 10px;
+
+    table { width: 100%; }
+    td { padding: 3px 7px; border: 0; }
+    .o_total, tr.o_total td, .border-black {
+        border-top: 1px solid $sgc-rule-strong !important;
+        border-bottom: 2px solid $sgc-navy !important;
+        font-size: 11pt;
+        font-weight: 700;
+        color: $sgc-navy;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}
+
+// ---- Terms / narration block --------------------------------------------
+.o_sgc_report .o_sgc_terms,
+.o_sgc_report #total ~ p,
+.o_sgc_report [name="comment"], .o_sgc_report [name="payment_term"] {
+    page-break-inside: avoid;        // keep the installment schedule intact
+    margin-top: 16px;
+    padding: 10px 12px;
+    background: $sgc-zebra;
+    border-left: 3px solid $sgc-navy;
+    font-size: 8.75pt;
+    line-height: 1.5;
+    white-space: pre-line;           // preserves the 3 installment lines
+}
+
+// ---- Footer -------------------------------------------------------------
+.o_sgc_footer {
+    border-top: 1px solid $sgc-rule-soft;
+    padding-top: 5px;
+    font-size: 7.75pt;
+    line-height: 1.35;
+    color: $sgc-slate;
+
+    .text-center, .o_footer_page { letter-spacing: .02em; }
+}

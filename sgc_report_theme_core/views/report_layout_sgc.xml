@@ -76,18 +76,34 @@
                     <t t-set="company" t-value="res_company"/>
                 </t>
             </t>
+
+            <!-- 2026-07-28 content-aware density: pick a vertical rhythm from the
+                 real line count, so a 3-line pro-forma breathes and a 30-line one
+                 compresses instead of spilling onto page 2 with two orphan rows.
+                 Works for invoices/pro-formas (invoice_line_ids) and quotations
+                 (order_line); anything else falls back to the regular rhythm.
+                 Section and note rows are excluded so they cannot inflate the
+                 count and wrongly tighten a short document. -->
+            <t t-set="sgc_lines"
+               t-value="(o.invoice_line_ids if o and 'invoice_line_ids' in o
+                         else (o.order_line if o and 'order_line' in o else []))"/>
+            <t t-set="sgc_lines"
+               t-value="sgc_lines.filtered(lambda l: l.display_type not in ('line_section', 'line_note')) if sgc_lines else []"/>
+            <t t-set="sgc_count" t-value="len(sgc_lines)"/>
+            <t t-set="sgc_density"
+               t-value="'sgc-airy' if sgc_count &lt;= 5 else ('sgc-tight' if sgc_count &gt; 12 else 'sgc-regular')"/>
         </xpath>
 
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]" position="attributes">
-            <attribute name="t-attf-class">o_sgc_report header o_company_#{company.id}_layout</attribute>
+            <attribute name="t-attf-class">o_sgc_report o_sgc_header #{sgc_density} header o_company_#{company.id}_layout</attribute>
         </xpath>
 
         <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]" position="attributes">
-            <attribute name="t-attf-class">o_sgc_report article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
+            <attribute name="t-attf-class">o_sgc_report o_sgc_body #{sgc_density} article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
         </xpath>
 
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="attributes">
-            <attribute name="t-attf-class">o_sgc_report footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}</attribute>
+            <attribute name="t-attf-class">o_sgc_report o_sgc_footer #{sgc_density} footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}</attribute>
         </xpath>
 
     </template>

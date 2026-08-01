@@ -9,32 +9,43 @@
 // Palette is restricted to the sanctioned SGC TECH AI palette. Never invent
 // a color outside this list (palette lint enforces this in CI).
 
-// --- Primary ---
-$sgc-ivory:      #FAF7F0;
-$sgc-navy:       #0B1F3A;
-$sgc-gold:       #B8912F;
-$sgc-charcoal:   #22262B;
-$sgc-slate:      #4B5563;
+// --- Primary (Brand Guidelines v3.0, Chapter 03 - Color System) ---
+$sgc-ivory:      #F7F4EE;
+$sgc-navy:       #0F213D;
+$sgc-gold:       #B79554;
+$sgc-charcoal:   #1C2430;
+$sgc-slate:      #5F6775;
 
-// --- Supporting ---
-$sgc-champagne:  #E8DCC4;
-$sgc-parchment:  #F1EADD;
-$sgc-midnight:   #060D1A;
-$sgc-emerald:    #1B4332;
-$sgc-amber:      #B8860B;
-$sgc-wine:       #5C1A1B;
+// --- Supporting & semantic (Brand Guidelines v3.0, Chapter 03) ---
+$sgc-champagne:  #D9C08A;
+$sgc-parchment:  #ECE7DF;
+$sgc-midnight:   #091528;
+$sgc-emerald:    #2C6654;
+$sgc-amber:      #C78F2B;
+$sgc-wine:       #A24949;
 
 // --- Typography ---
 $sgc-font-sans:  'IBM Plex Sans', Arial, sans-serif;
 $sgc-font-serif: 'IBM Plex Serif', Georgia, serif;
 
 // --- Spacing / layout (luxury whitespace, large margins) ---
+// Existing semantic names kept at their original values - sgc_report_blocks.scss
+// and sgc_report_documents.scss already consume md/lg/2xl expecting these exact
+// pixel values. Do not renumber these; add new steps alongside instead.
 $sgc-space-xs:   4px;
 $sgc-space-sm:   8px;
 $sgc-space-md:   16px;
 $sgc-space-lg:   24px;
 $sgc-space-xl:   40px;
 $sgc-space-2xl:  64px;
+
+// --- Full Brand Guidelines v3.0 spacing scale (4/8/12/16/20/24/32/40/48/64) ---
+// Supplementary numeric-named steps for new components (§12 of the report
+// framework plan) that need finer granularity than the semantic scale above.
+$sgc-space-12:   12px;
+$sgc-space-20:   20px;
+$sgc-space-32:   32px;
+$sgc-space-48:   48px;
 
 $sgc-divider-color: $sgc-slate;
 $sgc-divider-weight: 0.5px;

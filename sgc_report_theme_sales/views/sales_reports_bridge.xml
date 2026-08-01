@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Re-points the stock Quotation/Sales Order report onto
+    sgc_report_theme_core.external_layout_sgc. Same pattern proven in
+    sgc_report_theme_business/_statement: changes ONLY the t-call target
+    attribute, no t-esc/t-field value expression touched anywhere.
+-->
+
+    <template id="report_saleorder_document_sgc"
+              inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+</odoo>

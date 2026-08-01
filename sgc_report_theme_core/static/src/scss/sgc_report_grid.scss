@@ -1,0 +1,81 @@
+// SGC Report Theme - Core: page grid system.
+//
+// Brand Guidelines v3.0, Chapter 05 (Page Architecture):
+//   Portrait A4 (210x297mm): 12-column grid, 20mm margins, 15mm safe zone.
+//   Landscape A4 (297x210mm): 16-column grid, 4mm gutter, 20mm margins,
+//     15mm safe zone, 257mm content width.
+//
+// wkhtmltopdf's bundled QtWebKit renders flexbox/CSS-grid page-break
+// behaviour inconsistently (see sgc_report_blocks.scss's own note on this),
+// so columns here are float + box-sizing, the same technique already used
+// safely elsewhere in this codebase - not display:flex/grid.
+//
+// Every ruleset stays scoped under .o_sgc_report per the D1 architecture
+// rule (sgc_report_tokens.scss) - no bare selector that could leak onto
+// markup in stock, not-yet-bridged reports sharing this asset bundle.
+
+$sgc-grid-columns-portrait:  12;
+$sgc-grid-columns-landscape: 16;
+$sgc-grid-margin-mm:         20mm;
+$sgc-grid-safe-zone-mm:      15mm;
+$sgc-grid-gutter-landscape:  4mm;
+
+// Widths are precomputed static percentages, not Sass/CSS division at
+// compile or render time. Two reasons: (1) `/` for arithmetic is
+// deprecated in current Dart Sass and Odoo's bundled compiler version is
+// unknown, (2) CSS calc() support in wkhtmltopdf's aging bundled QtWebKit
+// is unverified and this codebase has already hit real, confirmed
+// rendering bugs from assuming a CSS feature "just works" under this
+// specific engine (see sgc_report.scss's font-family tie-break and the
+// middot mojibake fix in report_blocks.xml). A plain percentage list has
+// no such risk - it's the exact same output percentage() would produce.
+$sgc-col-widths-12: 8.3333%, 16.6667%, 25%, 33.3333%, 41.6667%, 50%,
+                     58.3333%, 66.6667%, 75%, 83.3333%, 91.6667%, 100%;
+$sgc-col-widths-16: 6.25%, 12.5%, 18.75%, 25%, 31.25%, 37.5%, 43.75%, 50%,
+                     56.25%, 62.5%, 68.75%, 75%, 81.25%, 87.5%, 93.75%, 100%;
+
+.o_sgc_report {
+    // ---- Row / column primitives (portrait, 12-col) ----------------------
+    // Usage: <div class="o_sgc_row"><div class="o_sgc_col-8">...</div>
+    //   <div class="o_sgc_col-4">...</div></div> for the brand guide's
+    // documented 8+4 sidebar pattern; 4+4+4 triptych; 6+6 dual column;
+    // 3+3+3+3 quad column.
+    .o_sgc_row {
+        display: block;
+        width: 100%;
+
+        &::after { content: ""; display: table; clear: both; }
+    }
+
+    @for $i from 1 through $sgc-grid-columns-portrait {
+        .o_sgc_col-#{$i} {
+            float: left;
+            box-sizing: border-box;
+            width: nth($sgc-col-widths-12, $i);
+        }
+    }
+
+    // ---- Landscape variant (16-col), scoped under a wrapper class the
+    // bridge adds to the article div when a report renders in landscape
+    // (see the orientation engine, plan §10) --------------------------------
+    &.o_sgc_landscape {
+        @for $i from 1 through $sgc-grid-columns-landscape {
+            .o_sgc_col-lg-#{$i} {
+                float: left;
+                box-sizing: border-box;
+                width: nth($sgc-col-widths-16, $i);
+                padding-left: 2mm;
+                padding-right: 2mm;
+            }
+        }
+    }
+
+    // ---- Safe-zone helper: a visual debug aid only (never shipped in a
+    // production render) - useful during development to confirm content
+    // never enters the 15mm safety zone. Not applied unless the
+    // .o_sgc_debug_safezone class is added explicitly. -------------------
+    &.o_sgc_debug_safezone {
+        outline: 1px dashed rgba($sgc-wine, 0.5);
+        outline-offset: -$sgc-grid-safe-zone-mm;
+    }
+}
