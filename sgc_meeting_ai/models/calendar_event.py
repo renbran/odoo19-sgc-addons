@@ -253,8 +253,34 @@ class CalendarEvent(models.Model):
             "sgc_meeting_ai.meet_organizer_login"
         )
         if not login:
+            _logger.warning(
+                "sgc_meeting_ai.meet_organizer_login is not set: CRM meetings "
+                "keep their own organizer and will NOT get a real Google Meet "
+                "room. Set it to the login of a user with a connected Google "
+                "Calendar."
+            )
             return self.env["res.users"]
-        return self.env["res.users"].sudo().search([("login", "=", login)], limit=1)
+        organizer = self.env["res.users"].sudo().search(
+            [("login", "=", login)], limit=1
+        )
+        if not organizer:
+            _logger.warning(
+                "sgc_meeting_ai.meet_organizer_login is set to %r but no such "
+                "user exists: CRM meetings will NOT get a real Google Meet room.",
+                login,
+            )
+            return organizer
+        # Fail *visibly* rather than silently: without a Google token the
+        # reassignment still happens and nothing errors, but no Meet room is
+        # ever created -- historically the hardest symptom here to diagnose.
+        if "google_calendar_rtoken" in organizer._fields and not organizer.sudo().google_calendar_rtoken:
+            _logger.warning(
+                "Meet organizer %r has no connected Google Calendar "
+                "(no refresh token): meetings will be reassigned but will NOT "
+                "get a real Google Meet room until it is re-authorized.",
+                login,
+            )
+        return organizer
 
     def _sgc_apply_meet_organizer(self):
         """Reassign the organizer of CRM/SDR customer meetings to the
