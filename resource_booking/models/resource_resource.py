@@ -30,6 +30,6 @@ class ResourceResource(models.Model):
         result = self.calendar_id.with_context(
             analyzing_booking=-1
         )._work_intervals_batch(
-            start_dt, end_dt, resources=[self], domain=domain, tz=tz
+            start_dt, end_dt, resources=self, domain=domain, tz=tz
         )[self.id]
         return _availability_is_fitting(result, start_dt, end_dt)
