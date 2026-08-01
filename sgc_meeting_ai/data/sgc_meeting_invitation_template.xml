@@ -2,7 +2,7 @@
 <odoo>
     <data noupdate="0">
         <record id="mail_template_meeting_invitation_sgc" model="mail.template">
-            <field name="name">SGC: Meeting Invitation</field>
+            <field name="name">Active Meeting Invitation (SGC)</field>
             <field name="model_id" ref="calendar.model_calendar_attendee"/>
             <field name="subject">Invitation · {{ object.event_id.name }} · {{ format_datetime(dt=object.event_id.start, tz=object.mail_tz, dt_format='EEE d MMM y, HH:mm', lang_code=object.env.lang) }}</field>
             <field name="email_from">{{ (object.event_id.user_id.email_formatted or user.email_formatted or '') }}</field>
