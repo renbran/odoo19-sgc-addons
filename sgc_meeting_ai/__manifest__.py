@@ -3,7 +3,7 @@
 {
     "name": "SGC Meeting AI",
     "summary": "AI meeting notes pipeline: transcription (Whisper) + LLM summarization, posted to chatter",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "development_status": "Beta",
     "category": "Productivity",
     "website": "https://sgctech.ai",
@@ -24,6 +24,7 @@
         "security/ir.model.access.csv",
         "data/sgc_meeting_data.xml",
         "data/mail_templates.xml",
+        "data/sgc_meeting_invitation_template.xml",
         "views/actions.xml",
         "views/meeting_provider_views.xml",
         "views/meeting_recording_views.xml",

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="mail_template_meeting_invitation_sgc" model="mail.template">
+            <field name="name">SGC: Meeting Invitation</field>
+            <field name="model_id" ref="calendar.model_calendar_attendee"/>
+            <field name="subject">Invitation · {{ object.event_id.name }} · {{ format_datetime(dt=object.event_id.start, tz=object.mail_tz, dt_format='EEE d MMM y, HH:mm', lang_code=object.env.lang) }}</field>
+            <field name="email_from">{{ (object.event_id.user_id.email_formatted or user.email_formatted or '') }}</field>
+            <field name="email_to" eval="False"/>
+            <field name="partner_to" eval="False"/>
+            <field name="use_default_to" eval="True"/>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="description">SGC-branded meeting invitation with videocall link, agenda and RSVP</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+<div style="margin:0; padding:0; background-color:#F7F4EE;">
+
+    <!-- ============ CONTEXT ============ -->
+    <t t-set="event" t-value="object.event_id"/>
+    <t t-set="organizer" t-value="event.user_id"/>
+    <t t-set="tz" t-value="object.mail_tz or object.partner_id.tz or 'UTC'"/>
+    <t t-set="base_url" t-value="object.get_base_url()"/>
+    <t t-set="token" t-value="object.access_token"/>
+    <t t-set="is_discuss" t-value="event.videocall_source == 'discuss'"/>
+    <t t-set="recurrent" t-value="object.recurrence_id and not ctx.get('calendar_template_ignore_recurrence')"/>
+    <t t-set="serif" t-value="&quot;'IBM Plex Serif', Georgia, 'Times New Roman', serif&quot;"/>
+    <t t-set="sans" t-value="&quot;'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif&quot;"/>
+    <t t-set="state_colors" t-value="{'accepted': '#2C6654', 'declined': '#A24949', 'tentative': '#C78F2B', 'needsAction': '#5F6775'}"/>
+    <t t-set="state_labels" t-value="{'accepted': 'Accepted', 'declined': 'Declined', 'tentative': 'Tentative', 'needsAction': 'Awaiting reply'}"/>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F4EE;">
+<tr><td align="center" style="padding:28px 12px;">
+
+    <!-- COORDINATE MARK · NORTH -->
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+        <tr>
+            <td t-attf-style="padding:0 2px 8px 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">25.2048 N</td>
+            <td align="right" t-attf-style="padding:0 2px 8px 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">55.2708 E</td>
+        </tr>
+    </table>
+
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
+           style="width:600px; max-width:600px; background-color:#FFFFFF; border:1px solid #ECE7DF;">
+
+        <!-- ============ NAVY MASTHEAD ============ -->
+        <tr>
+        <td style="background-color:#0F213D; padding:26px 32px 22px 32px; border-bottom:2px solid #B79554;">
+            <div t-attf-style="font-family:{{ sans }}; font-size:11px; font-weight:600; letter-spacing:5px; color:#D9C08A; text-transform:uppercase;">S G C&#160;&#160;T E C H&#160;&#160;A I</div>
+            <div t-attf-style="font-family:{{ sans }}; font-size:9px; letter-spacing:3px; color:#5F6775; text-transform:uppercase; padding-top:8px;">Meeting Invitation</div>
+        </td>
+        </tr>
+
+        <!-- ============ GOLD CORNER GEOMETRY · TOP ============ -->
+        <tr><td style="padding:22px 32px 0 32px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="26" style="width:26px; height:18px; border-top:1px solid #B79554; border-left:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                    <td style="font-size:0; line-height:0;">&#160;</td>
+                    <td width="26" style="width:26px; height:18px; border-top:1px solid #B79554; border-right:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                </tr>
+            </table>
+        </td></tr>
+
+        <!-- ============ BODY ============ -->
+        <tr>
+        <td t-attf-style="padding:10px 32px 8px 32px; font-family:{{ sans }}; font-size:14px; color:#1C2430; line-height:1.7;">
+
+            <h1 t-attf-style="margin:0 0 6px 0; font-family:{{ serif }}; font-size:28px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+                <t t-out="event.name or ''">Follow-up for Project proposal</t>
+            </h1>
+            <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+
+            <p style="margin:0 0 20px 0; color:#1C2430;">
+                <span style="display:block; margin-bottom:8px;">Dear <t t-out="object.common_name or ''">Wood Corner</t>,</span>
+                <t t-if="organizer">
+                    <strong t-out="organizer.partner_id.name or ''">Colleen Diaz</strong> invites you to the meeting detailed below.
+                </t>
+                <t t-else="">You have been invited to the meeting detailed below.</t>
+            </p>
+
+            <!-- ============ MEETING LINK ============ -->
+            <table t-if="event.videocall_location" role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
+            <tr><td align="center" style="padding:6px 0;">
+                <a t-att-href="event.videocall_location" target="_blank"
+                   t-attf-style="display:inline-block; padding:14px 34px; font-family:{{ sans }}; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
+                    <t t-if="is_discuss">Join the Meeting</t><t t-else="">Join the Video Meeting</t>
+                </a>
+            </td></tr>
+            </table>
+            <p t-if="event.videocall_location" t-attf-style="margin:0 0 22px 0; text-align:center; font-family:{{ sans }}; font-size:11px; color:#5F6775; word-break:break-all; line-height:1.6;">
+                <span style="letter-spacing:2px; text-transform:uppercase;">Meeting Link</span><br/>
+                <a t-att-href="event.videocall_location" target="_blank" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"
+                   t-out="event.videocall_location">https://sgctech.ai/calendar/join_videocall/9f2c1a4b7e</a>
+            </p>
+
+            <!-- ============ DETAILS ============ -->
+            <div t-attf-style="font-family:{{ sans }}; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:26px 0 10px 0;">Meeting Details</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #ECE7DF;">
+                <tr>
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Date &amp; Time</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430; vertical-align:top;">
+                        <strong t-out="format_datetime(dt=event.start, tz=tz if not event.allday else None, dt_format='EEEE d MMMM y', lang_code=object.env.lang) or ''">Tuesday 4 May 2021</strong>
+                        <t t-if="not event.allday">
+                            <span style="display:block; color:#5F6775; font-size:13px;">
+                                <t t-out="format_time(time=event.start, tz=tz, time_format='short', lang_code=object.env.lang) or ''">11:00 AM</t>
+                                &#8212;
+                                <t t-out="format_time(time=event.stop, tz=tz, time_format='short', lang_code=object.env.lang) or ''">11:30 AM</t>
+                                <span style="font-size:11px;">(<t t-out="tz or ''">Asia/Dubai</t>)</span>
+                            </span>
+                        </t>
+                        <t t-else=""><span style="display:block; color:#5F6775; font-size:13px;">All day</span></t>
+                    </td>
+                </tr>
+                <tr t-if="not event.allday and event.duration">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Duration</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;"><t t-out="('%dH%02d' % (event.duration, round(event.duration * 60) % 60)) or ''">0H30</t></td>
+                </tr>
+                <tr t-if="recurrent">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Recurrence</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;"><t t-out="object.recurrence_id.get_recurrence_name() or ''">Every 1 Weeks, for 3 events</t></td>
+                </tr>
+                <tr t-if="event.videocall_location">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Format</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;">
+                        <a t-att-href="event.videocall_location" target="_blank" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;">
+                            <t t-if="is_discuss">Online &#8212; Odoo Discuss</t><t t-else="">Online &#8212; Video meeting</t>
+                        </a>
+                    </td>
+                </tr>
+                <tr t-if="event.location">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Location</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;">
+                        <t t-out="event.location or ''">DIFC, Dubai, UAE</t>
+                        <a target="_blank" t-attf-href="https://maps.google.com/maps?oi=map&amp;q={{ event.location }}"
+                           style="margin-left:10px; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;">View Map</a>
+                    </td>
+                </tr>
+                <tr t-if="organizer">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Organizer</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;">
+                        <t t-out="organizer.partner_id.name or ''">Colleen Diaz</t>
+                        <span t-if="organizer.email" style="display:block; font-size:12px;">
+                            <a t-attf-href="mailto:{{ organizer.email }}" style="color:#5F6775; text-decoration:none;" t-out="organizer.email">colleen@sgctech.ai</a>
+                            <t t-if="organizer.partner_id.phone"> &#8226; <t t-out="organizer.partner_id.phone">+971 4 000 0000</t></t>
+                        </span>
+                    </td>
+                </tr>
+                <tr t-if="event.categ_ids">
+                    <td width="130" t-attf-style="width:130px; padding:11px 12px 11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775; vertical-align:top;">Tags</td>
+                    <td t-attf-style="padding:11px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:14px; color:#1C2430;"><t t-out="', '.join(event.categ_ids.mapped('name'))">Client Meeting</t></td>
+                </tr>
+            </table>
+
+            <!-- ============ RSVP ============ -->
+            <div t-attf-style="font-family:{{ sans }}; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:30px 0 12px 0;">Your Response</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td align="center">
+                <a t-attf-href="{{ base_url }}/calendar/meeting/accept?token={{ token }}&amp;id={{ event.id }}"
+                   t-attf-style="display:inline-block; padding:10px 22px; margin:0 3px 8px 3px; font-family:{{ sans }}; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#FFFFFF; text-decoration:none; background-color:#2C6654;">Accept</a>
+                <a t-attf-href="{{ base_url }}/calendar/meeting/decline?token={{ token }}&amp;id={{ event.id }}"
+                   t-attf-style="display:inline-block; padding:10px 22px; margin:0 3px 8px 3px; font-family:{{ sans }}; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#FFFFFF; text-decoration:none; background-color:#A24949;">Decline</a>
+                <a t-attf-href="{{ base_url }}/calendar/meeting/view?token={{ token }}&amp;id={{ event.id }}"
+                   t-attf-style="display:inline-block; padding:10px 22px; margin:0 3px 8px 3px; font-family:{{ sans }}; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#1C2430; text-decoration:none; background-color:#ECE7DF;">View Details</a>
+                <p t-if="recurrent" t-attf-style="margin:6px 0 0 0; font-family:{{ sans }}; font-size:11px; color:#5F6775;">
+                    Respond for the full series:
+                    <a t-attf-href="{{ base_url }}/calendar/recurrence/accept?token={{ token }}&amp;id={{ event.id }}" style="color:#B79554; text-decoration:none;">Accept all</a> ·
+                    <a t-attf-href="{{ base_url }}/calendar/recurrence/decline?token={{ token }}&amp;id={{ event.id }}" style="color:#B79554; text-decoration:none;">Decline all</a>
+                </p>
+            </td></tr>
+            </table>
+
+            <!-- ============ ATTENDEES ============ -->
+            <div t-attf-style="font-family:{{ sans }}; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:30px 0 10px 0;">
+                Attendees (<t t-out="len(event.attendee_ids)">3</t>)
+            </div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #ECE7DF;">
+                <tr t-foreach="event.attendee_ids" t-as="attendee">
+                    <td t-attf-style="padding:9px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:13px; color:#1C2430;">
+                        <span t-attf-style="color:{{ state_colors.get(attendee.state, '#5F6775') }}; font-size:15px; line-height:1;">&#9679;</span>
+                        <span style="margin-left:8px;">
+                            <t t-if="attendee == object"><strong>You</strong></t>
+                            <t t-else=""><t t-out="attendee.common_name or ''">Mitchell Admin</t></t>
+                        </span>
+                    </td>
+                    <td align="right" t-attf-style="padding:9px 0; border-bottom:1px solid #ECE7DF; font-family:{{ sans }}; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:#5F6775;">
+                        <t t-out="state_labels.get(attendee.state, '')">Awaiting reply</t>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- ============ AGENDA ============ -->
+            <t t-if="not is_html_empty(event.description)">
+                <div t-attf-style="font-family:{{ sans }}; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:30px 0 10px 0;">Agenda</div>
+                <div t-attf-style="background-color:#F7F4EE; border-left:2px solid #B79554; padding:16px 18px; font-family:{{ sans }}; font-size:13px; color:#1C2430; line-height:1.7;">
+                    <t t-out="event.description">Review of the AI transformation roadmap and Q4 delivery milestones.</t>
+                </div>
+            </t>
+
+            <p t-attf-style="margin:26px 0 0 0; font-family:{{ sans }}; font-size:10px; letter-spacing:1px; color:#5F6775; line-height:1.6;">
+                An <strong style="color:#1C2430;">.ICS</strong> file is attached &#8212; open it to add this meeting to your calendar.
+            </p>
+
+            <p t-attf-style="margin:22px 0 0 0; font-family:{{ sans }}; font-size:14px; color:#1C2430;">
+                With regards,
+                <t t-if="organizer.signature">
+                    <span style="display:block; margin-top:8px;"><t t-out="organizer.signature or ''">Colleen Diaz</t></span>
+                </t>
+            </p>
+        </td>
+        </tr>
+
+        <!-- ============ GOLD CORNER GEOMETRY · BOTTOM ============ -->
+        <tr><td style="padding:0 32px 22px 32px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td width="26" style="width:26px; height:18px; border-bottom:1px solid #B79554; border-left:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                    <td style="font-size:0; line-height:0;">&#160;</td>
+                    <td width="26" style="width:26px; height:18px; border-bottom:1px solid #B79554; border-right:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                </tr>
+            </table>
+        </td></tr>
+
+        <!-- ============ FOOTER BAND ============ -->
+        <tr>
+        <td t-attf-style="background-color:#091528; padding:18px 32px; font-family:{{ sans }}; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5F6775; text-align:center; line-height:1.9;">
+            <span style="color:#D9C08A;">SGC TECH AI</span><br/>
+            DIFC, Dubai, UAE &#8226; INFO@SGCTECH.AI
+        </td>
+        </tr>
+    </table>
+
+    <!-- COORDINATE MARK · EAST -->
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+        <tr>
+            <td t-attf-style="padding:10px 2px 0 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">DUBAI &#8226; 2025</td>
+            <td align="right" t-attf-style="padding:10px 2px 0 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">55.2708 E</td>
+        </tr>
+    </table>
+
+</td></tr>
+</table>
+</div>
+            </field>
+        </record>
+    </data>
+</odoo>
