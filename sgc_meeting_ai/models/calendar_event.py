@@ -385,6 +385,29 @@ class CalendarEvent(models.Model):
         return events
 
     def write(self, vals):
+        # Detect when google_calendar sync populates a real Google Meet URL
+        # AFTER the initial invitation was already sent (with empty/Discuss
+        # videocall_location). Re-send the invitation so attendees get the
+        # Meet link that didn't exist at first send. Capture pre-write state
+        # BEFORE super().write() so we can detect the transition.
+        resend_events = self.env["calendar.event"]
+        if "videocall_location" in vals:
+            new_loc = vals.get("videocall_location") or ""
+            if "meet.google.com" in new_loc:
+                for event in self:
+                    if not event.opportunity_id:
+                        continue
+                    old_loc = event._origin.videocall_location or ""
+                    if "meet.google.com" not in old_loc:
+                        resend_events |= event
         res = super().write(vals)
+        if resend_events:
+            try:
+                resend_events.attendance_ids._send_invitation_emails()
+            except Exception:
+                _logger.exception(
+                    "Failed to re-send CRM invitation with Meet link for events %s",
+                    resend_events.ids,
+                )
         self._sgc_register_meeting()
         return res
