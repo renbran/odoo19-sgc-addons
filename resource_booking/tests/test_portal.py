@@ -252,7 +252,7 @@ class PortalCase(HttpCase):
         self.assertTrue(
             portal_page.cssselect(
                 'div:contains("Dates:")'
-                ':contains("03/01/2021 at (10:30:00 To 11:30:00) (UTC)")'
+                ':contains("03/01/2021 at (10:30:00 AM To 11:30:00 AM) (UTC)")'
             )
         )
         # Portal guy cancels

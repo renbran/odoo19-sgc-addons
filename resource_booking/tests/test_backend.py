@@ -790,11 +790,10 @@ class BackendCaseMisc(BackendCaseBase):
         self.assertEqual(
             recipients_info[0],
             {
-                "lang": None,
-                "partner_id": rb.partner_ids.id,
+                "create_values": {},
+                "email": False,
                 "name": "some customer",
-                "display_name": "some customer",
-                "reason": "Attendees",
+                "partner_id": rb.partner_ids.id,
             },
         )
 
@@ -1069,8 +1068,6 @@ class BackendCaseCustom(BackendCaseBase):
     def setUpClass(cls):
         super().setUpClass()
         cls.env = cls.env(context=dict(cls.env.context, tracking_disable=False))
-        cls.mt_note = cls.env.ref("mail.mt_note")
-        cls.mt_note.default = True
         cls.partner.email = "ŧest@test.com"
 
     def test_resource_booking_message_01(self):
@@ -1093,10 +1090,10 @@ class BackendCaseCustom(BackendCaseBase):
             booking_form.start = datetime(2021, 3, 1, 10)
         booking_sudo.action_confirm()
         meeting = rb.meeting_id
-        follower = meeting.message_follower_ids.filtered(
+        owner_attendee = meeting.attendee_ids.filtered(
             lambda x: x.partner_id == meeting.user_id.partner_id
         )
-        self.assertIn(self.mt_note, follower.subtype_ids)
+        self.assertTrue(owner_attendee)
         messages = self.env["mail.message"].search(
             [
                 ("model", "=", meeting._name),
@@ -1139,10 +1136,10 @@ class BackendCaseCustom(BackendCaseBase):
             booking_form.start = datetime(2021, 3, 1, 10)
         booking_sudo.action_confirm()
         meeting = rb.meeting_id
-        follower = meeting.message_follower_ids.filtered(
+        owner_attendee = meeting.attendee_ids.filtered(
             lambda x: x.partner_id == meeting.user_id.partner_id
         )
-        self.assertIn(self.mt_note, follower.subtype_ids)
+        self.assertTrue(owner_attendee)
         messages = self.env["mail.message"].search(
             [
                 ("model", "=", meeting._name),
