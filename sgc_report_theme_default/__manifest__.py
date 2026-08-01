@@ -81,12 +81,29 @@ required, and no template is ever in an inconsistent state.
     # web supplies the report.layout model and the dispatcher we rely on.
     "depends": ["web", "sgc_report_theme_core"],
     "data": [
+        "data/paperformat_data.xml",
         "data/report_layout_data.xml",
     ],
-    # No assets: all report styling already ships from sgc_report_theme_core,
-    # declared in BOTH web.report_assets_common and web.report_assets_pdf.
-    # Re-declaring it here would compile the same SCSS into the same bundles
-    # twice.
+    # sgc_report_theme_core already ships the fonts, tokens and block styles.
+    # This module adds ONLY document-level refinements (header compaction,
+    # line-item table, totals) in sgc_report_documents.scss.
+    #
+    # Declared in BOTH bundles for the reason sgc_report_theme_core documents
+    # empirically: web.report_assets_pdf does not inline custom-module
+    # contributions to web.report_assets_common - they compile as separate,
+    # independent bundles, and wkhtmltopdf only loads report_assets_pdf.
+    # Because each bundle compiles independently, this file must land AFTER
+    # core's sgc_report_tokens.scss in each; module dependency order
+    # (sgc_report_theme_core -> this module) guarantees that, which is what
+    # keeps $sgc-navy and friends in scope here.
+    "assets": {
+        "web.report_assets_common": [
+            "sgc_report_theme_default/static/src/scss/sgc_report_documents.scss",
+        ],
+        "web.report_assets_pdf": [
+            "sgc_report_theme_default/static/src/scss/sgc_report_documents.scss",
+        ],
+    },
     "installable": True,
     "application": False,
     "auto_install": False,

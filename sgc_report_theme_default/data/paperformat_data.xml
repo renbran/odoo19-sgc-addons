@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Paperformat sized for the real SGC document header.
+
+    Why a new record rather than sgc_report_theme_core's "SGC A4 Portrait":
+    that one reserves margin_top=28 / header_spacing=24, which is TIGHTER
+    than Odoo's stock euro format (40/35). The live 2026-08-01 quotation
+    overlapped its title at the stock size already, so adopting the core
+    paperformat would have made the collision worse, not better. The core
+    record is left untouched - other bridges may legitimately want a compact
+    header for short-form documents.
+
+    Sizing rationale: wkhtmltopdf draws the header inside the top margin and
+    then leaves the body to start at margin_top; if the rendered header is
+    taller than that reservation it is painted over the body, which is
+    exactly the "United Arab Emirates" / "Quotation #" overlap. The SGC
+    header is logo + company address + customer address + tagline, which
+    measures roughly 25mm once sgc_report_documents.scss compacts it. 38mm
+    of header space with body starting at 45mm leaves substantial headroom,
+    so a company with a longer postal address still cannot collide.
+
+    header_line is off deliberately - sgc_report_documents.scss already draws
+    a gold rule under the header, and wkhtmltopdf's own line would double it.
+-->
+<odoo noupdate="0">
+
+    <record id="paperformat_sgc_documents" model="report.paperformat">
+        <field name="name">SGC Documents A4</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">45</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">12</field>
+        <field name="margin_right">12</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">38</field>
+        <!-- Matches the px-based sizing in sgc_report_documents.scss so the
+             browser preview and the PDF agree. -->
+        <field name="dpi">96</field>
+    </record>
+
+</odoo>

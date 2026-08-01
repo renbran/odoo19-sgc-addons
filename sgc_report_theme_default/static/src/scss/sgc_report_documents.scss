@@ -1,0 +1,194 @@
+// SGC Report Theme - Document refinements.
+//
+// Everything here is scoped under .o_sgc_report, the class
+// sgc_report_theme_core's external_layout_sgc adds to the header/article/
+// footer divs. Nothing applies until a company selects the SGC TECH AI
+// document layout, so stock reports sharing this asset bundle are provably
+// unaffected - the same guarantee sgc_report_blocks.scss is built on.
+//
+// This file exists to fix two concrete defects observed on the live
+// 2026-08-01 quotation render (SGC-TFX-2026-IMPL-05):
+//
+//   1. The company address block collided with the document title -
+//      "United Arab Emirates" was overprinted by "Quotation #...".
+//      Root cause: the header (logo + company address + customer address +
+//      tagline) rendered taller than the reserved top margin, so wkhtmltopdf
+//      overlaid it onto the body. Fixed from both directions: a paperformat
+//      with enough margin_top (data/paperformat_data.xml) AND the compact
+//      header metrics below, so the header cannot outgrow its reservation.
+//
+//   2. Line-item descriptions broke mid-phrase onto ragged lines
+//      ("local\nbackup solution", "patching,"), because long unbroken
+//      strings forced awkward wrapping in a column with no width control.
+//
+// Sizes are deliberately expressed in px at 96 dpi to match the paperformat's
+// dpi=96, so what renders in the browser preview matches the PDF.
+
+.o_sgc_report {
+
+    // ------------------------------------------------------------------
+    // Header - compact by construction
+    // ------------------------------------------------------------------
+    // The header must stay comfortably shorter than the paperformat's
+    // reserved margin_top. Tightening line-height and font-size here is what
+    // keeps defect (1) fixed even for companies with a long postal address.
+    &.header {
+        font-size: 9px;
+        line-height: 1.35;
+        padding-bottom: $sgc-space-sm;
+
+        // Brand rule instead of the stock grey divider.
+        border-bottom: 1px solid $sgc-gold;
+
+        // Odoo emits the address as <address> / <div class="address">; both
+        // carry Bootstrap bottom margin that inflates header height.
+        address,
+        .address,
+        p {
+            margin-bottom: 0;
+        }
+
+        // Cap the logo so an oversized upload cannot push the header past
+        // the reserved margin and re-introduce the overlap.
+        img {
+            max-height: 44px;
+            width: auto;
+        }
+
+        .o_company_tagline {
+            font-family: $sgc-font-serif;
+            font-size: 9px;
+            font-style: italic;
+            color: $sgc-gold;
+            text-transform: none;   // stock uppercases this; too shouty at 9px
+            letter-spacing: 0.2px;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Article
+    // ------------------------------------------------------------------
+    &.article {
+        font-size: 10px;
+        line-height: 1.45;
+        color: $sgc-charcoal;
+
+        // Document title ("Quotation # ...", "Invoice ...").
+        h2 {
+            font-family: $sgc-font-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: $sgc-navy;
+            letter-spacing: 0.2px;
+            margin-top: 0;
+            margin-bottom: $sgc-space-lg;
+        }
+
+        // The reference / date / expiration / salesperson strip. Stock
+        // renders these as <strong> labels above values; the label styling
+        // below is what turns it into a quiet, aligned metadata row.
+        strong {
+            color: $sgc-navy;
+            font-weight: 600;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Line-item table
+    // ------------------------------------------------------------------
+    // Targets the stock table class rather than requiring bridge markup, so
+    // existing sale/invoice reports are styled without editing their
+    // templates. Still safe: the whole ruleset is inside .o_sgc_report.
+    table.o_main_table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: $sgc-space-md;
+
+        thead {
+            display: table-header-group;   // repeat across page breaks
+        }
+
+        th {
+            font-family: $sgc-font-sans;
+            font-size: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: $sgc-slate;
+            border-bottom: 1px solid $sgc-navy;
+            padding: $sgc-space-sm $sgc-space-xs;
+            background: transparent;
+        }
+
+        td {
+            font-size: 9.5px;
+            padding: $sgc-space-sm $sgc-space-xs;
+            border-bottom: $sgc-divider-weight solid $sgc-champagne;
+            vertical-align: top;
+        }
+
+        tr {
+            page-break-inside: avoid;      // no orphaned half-rows
+        }
+
+        // Defect (2): keep long descriptions readable. Break only when a
+        // token genuinely cannot fit, never mid-word for ordinary prose.
+        td:first-child {
+            overflow-wrap: break-word;
+            word-break: normal;
+            hyphens: none;
+        }
+
+        // Numeric columns read far cleaner right-aligned and tabular.
+        td.text-end,
+        th.text-end {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Totals
+    // ------------------------------------------------------------------
+    #total,
+    .o_sgc_total_block {
+        td {
+            font-size: 10px;
+            padding: $sgc-space-xs $sgc-space-sm;
+            font-variant-numeric: tabular-nums;
+        }
+
+        // The grand-total line: serif, navy, gold rule above it.
+        tr:last-child td,
+        .o_total td {
+            font-family: $sgc-font-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: $sgc-navy;
+            border-top: 1px solid $sgc-gold;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Payment terms / notes below the totals
+    // ------------------------------------------------------------------
+    .o_sgc_note_block,
+    p.o_sgc_terms {
+        font-size: 9px;
+        line-height: 1.5;
+        color: $sgc-slate;
+        margin-top: $sgc-space-lg;
+    }
+
+    // ------------------------------------------------------------------
+    // Footer
+    // ------------------------------------------------------------------
+    &.footer {
+        font-size: 8px;
+        line-height: 1.4;
+        color: $sgc-slate;
+        border-top: $sgc-divider-weight solid $sgc-champagne;
+        padding-top: $sgc-space-xs;
+    }
+}
