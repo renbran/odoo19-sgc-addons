@@ -37,8 +37,14 @@
         line-height: 1.35;
         padding-bottom: $sgc-space-sm;
 
-        // Brand rule instead of the stock grey divider.
-        border-bottom: 1px solid $sgc-gold;
+        // Premium letterhead rule: a true gold hairline, not a border.
+        //
+        // Specified in pt rather than px on purpose. wkhtmltopdf rasterises
+        // at the paperformat's dpi, and a 1px rule lands between device
+        // pixels there - it anti-aliases into a soft 2px smear that reads as
+        // cheap. 0.75pt resolves to a single crisp device pixel at 96 dpi,
+        // which is what gives the letterhead its polished edge.
+        border-bottom: 0.75pt solid $sgc-gold;
 
         // Odoo emits the address as <address> / <div class="address">; both
         // carry Bootstrap bottom margin that inflates header height.
@@ -108,17 +114,27 @@
             display: table-header-group;   // repeat across page breaks
         }
 
+        // Solid navy header band. theme_core sets print-color-adjust: exact
+        // on .o_sgc_report and all descendants, which is what stops
+        // wkhtmltopdf from dropping the fill the way browsers drop
+        // backgrounds when printing - without it this band renders white.
         th {
             font-family: $sgc-font-sans;
             font-size: 8px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.7px;
-            color: $sgc-slate;
-            border-bottom: 1px solid $sgc-navy;
-            padding: $sgc-space-sm $sgc-space-xs;
-            background: transparent;
+            background-color: $sgc-navy;
+            color: $sgc-ivory;
+            border: none;
+            padding: $sgc-space-sm;
+            white-space: nowrap;
         }
+
+        // Square the band's outer corners only, so the header reads as one
+        // continuous bar rather than per-cell blocks.
+        th:first-child { border-top-left-radius: $sgc-radius-sm; }
+        th:last-child  { border-top-right-radius: $sgc-radius-sm; }
 
         td {
             font-size: 9.5px;
