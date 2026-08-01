@@ -200,11 +200,31 @@
     // ------------------------------------------------------------------
     // Footer
     // ------------------------------------------------------------------
+    // Mirrors the letterhead: the same 0.75pt gold hairline closes the page
+    // that opens it. company.report_footer already carries the SGC line, so
+    // this is styling only - no content is injected here.
     &.footer {
         font-size: 8px;
-        line-height: 1.4;
+        line-height: 1.5;
         color: $sgc-slate;
-        border-top: $sgc-divider-weight solid $sgc-champagne;
-        padding-top: $sgc-space-xs;
+        border-top: 0.75pt solid $sgc-gold;
+        padding-top: $sgc-space-sm;
+        text-align: center;
+
+        // Odoo's stock footer wraps the company line in inline styles of its
+        // own; neutralise the size so it matches the page furniture instead
+        // of fighting it. Colour is left alone - it is company-configurable.
+        span,
+        div {
+            font-size: 8px;
+        }
+
+        // Page numbers ("1 / 2") sit in .text-end / .o_page_number.
+        .o_page_number,
+        .text-end {
+            font-family: $sgc-font-serif;
+            font-size: 8px;
+            color: $sgc-navy;
+        }
     }
 }
