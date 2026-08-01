@@ -748,22 +748,6 @@ class ResourceBooking(models.Model):
             )
         return result
 
-    def _message_get_suggested_recipients(self, reply_discussion=False, reply_message=None,
-                                          no_create=True, primary_email=False, additional_partners=None):
-        """Suggest related partners."""
-        recipients = super()._message_get_suggested_recipients(
-            reply_discussion=reply_discussion, reply_message=reply_message,
-            no_create=no_create, primary_email=primary_email, additional_partners=additional_partners,
-        )
-        for record in self:
-            for partner in record.partner_ids:
-                record._message_add_suggested_recipients(
-                    recipients,
-                    partner=partner,
-                    reason=self._fields["partner_ids"].string,
-                )
-        return recipients
-
     def action_schedule(self):
         """Redirect user to a simpler way to schedule this booking."""
         DurationParser = self.env["ir.qweb.field.duration"]
