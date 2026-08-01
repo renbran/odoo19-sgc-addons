@@ -20,9 +20,11 @@ import hmac
 import hashlib
 
 import requests
+from markupsafe import Markup
 
 from odoo import _, api, models
 from odoo.exceptions import UserError
+from odoo.tools import html_escape
 
 _logger = logging.getLogger(__name__)
 
@@ -73,10 +75,31 @@ Meeting metadata (for context only, may be empty):
 Title: {meeting_title}
 Date: {meeting_date}
 Attendees: {attendees}
-
+{gate_section}
 <transcript>
 {transcript}
 </transcript>
+"""
+
+    # Appended to the base prompt only when the meeting is linked to a CRM
+    # opportunity (sgc_sales_playbook's Verifiable Buyer Exit Criteria —
+    # playbook Phase 4). Kept out of the base prompt/schema so non-sales
+    # meetings never pay for it.
+    GATE_SECTION_TEMPLATE = """
+This meeting is linked to the sales opportunity "{opportunity_name}". Also
+include a "gate_answers" object in the JSON, extracting the 4 Verifiable
+Buyer Exit Criteria ONLY where the prospect actually addressed them in the
+transcript. Leave a sub-key as an empty string if it was not discussed —
+never invent an answer:
+
+{{
+  "gate_answers": {{
+    "problem": "The specific problem the prospect described, or empty string.",
+    "cost_of_inaction": "The cost of doing nothing, as stated, or empty string.",
+    "approver": "Who needs to approve this, as stated, or empty string.",
+    "timeline": "The stated timeline, or empty string."
+  }}
+}}
 """
 
     def _get_config(self):
@@ -96,10 +119,17 @@ Attendees: {attendees}
         meeting_date = (
             meeting.start.strftime("%Y-%m-%d %H:%M") if meeting.start else "(unknown)"
         )
+        gate_section = ""
+        opportunity = getattr(meeting, "opportunity_id", False)
+        if opportunity:
+            gate_section = self.GATE_SECTION_TEMPLATE.format(
+                opportunity_name=opportunity.name or "(unnamed opportunity)"
+            )
         return self.PROMPT_TEMPLATE.format(
             meeting_title=meeting.name or "(untitled meeting)",
             meeting_date=meeting_date,
             attendees=attendees,
+            gate_section=gate_section,
             transcript=transcript.text[:60_000],
         )
 
@@ -125,13 +155,37 @@ Attendees: {attendees}
                 raise UserError(
                     _("LLM returned invalid JSON: %s", text[:300])
                 ) from exc
+        gate_answers = data.get("gate_answers")
         return {
             "summary": data.get("summary", ""),
             "key_points": data.get("key_points", ""),
             "decisions": data.get("decisions", ""),
             "action_items": data.get("action_items", ""),
             "risks": data.get("risks", ""),
+            "gate_answers": gate_answers if isinstance(gate_answers, dict) else {},
         }
+
+    def _build_gate_answers_html(self, gate_answers):
+        """Render the 4 extracted gate answers as an Html snippet, or False
+        if none of them were actually addressed in the transcript. Returns
+        markupsafe.Markup, not a plain str — the content is already
+        html_escape()'d, so a plain str risks a downstream consumer
+        (Odoo's Html field sanitizer, any templating layer) re-escaping it
+        a second time; Markup marks it as already-safe HTML."""
+        labels = (
+            ("problem", "Problem"),
+            ("cost_of_inaction", "Cost of inaction"),
+            ("approver", "Approver"),
+            ("timeline", "Timeline"),
+        )
+        if not any((gate_answers.get(key) or "").strip() for key, _label in labels):
+            return False
+        items = "".join(
+            "<li><b>%s:</b> %s</li>"
+            % (html_escape(label), html_escape(gate_answers.get(key) or "(not discussed)"))
+            for key, label in labels
+        )
+        return Markup("<ul>%s</ul>") % Markup(items)
 
     def summarize(self, transcript):
         """Run the LLM notes pipeline on a transcript.
@@ -188,21 +242,28 @@ Attendees: {attendees}
             raise UserError(_("Orchestrator returned empty content."))
         parsed = self._parse_response(raw)
         usage = payload.get("usage", {})
-        notes = self.env["sgc.meeting.notes"].create(
-            {
-                "session_id": transcript.session_id.id,
-                "transcript_id": transcript.id,
-                "summary": parsed["summary"],
-                "key_points": parsed["key_points"],
-                "decisions": parsed["decisions"],
-                "action_items": parsed["action_items"],
-                "risks": parsed["risks"],
-                "model": cfg["model"],
-                "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-                "completion_tokens": int(usage.get("completion_tokens", 0)),
-                "tokens_used": int(usage.get("total_tokens", 0)),
-            }
-        )
+        notes_vals = {
+            "session_id": transcript.session_id.id,
+            "transcript_id": transcript.id,
+            "summary": parsed["summary"],
+            "key_points": parsed["key_points"],
+            "decisions": parsed["decisions"],
+            "action_items": parsed["action_items"],
+            "risks": parsed["risks"],
+            "model": cfg["model"],
+            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
+            "completion_tokens": int(usage.get("completion_tokens", 0)),
+            "tokens_used": int(usage.get("total_tokens", 0)),
+        }
+        gate_answers = parsed.get("gate_answers") or {}
+        gate_answers_html = self._build_gate_answers_html(gate_answers)
+        if gate_answers_html:
+            notes_vals["gate_answers_draft"] = gate_answers_html
+            notes_vals["gate_draft_problem"] = gate_answers.get("problem") or ""
+            notes_vals["gate_draft_cost_of_inaction"] = gate_answers.get("cost_of_inaction") or ""
+            notes_vals["gate_draft_approver"] = gate_answers.get("approver") or ""
+            notes_vals["gate_draft_timeline"] = gate_answers.get("timeline") or ""
+        notes = self.env["sgc.meeting.notes"].create(notes_vals)
         transcript.write({"notes_id": notes.id})
         transcript.session_id.write({"notes_id": notes.id, "state": "completed"})
         notes.action_post_to_chatter()

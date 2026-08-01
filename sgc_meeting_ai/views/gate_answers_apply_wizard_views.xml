@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_gate_answers_apply_wizard_form" model="ir.ui.view">
+        <field name="name">sgc.gate.answers.apply.wizard.form</field>
+        <field name="model">sgc.gate.answers.apply.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Review Gate Answers Before Applying">
+                <field name="notes_id" invisible="1"/>
+                <div class="alert alert-info mb-3" role="alert">
+                    These 4 answers were extracted by AI from the meeting transcript. Review
+                    and correct them before applying — nothing counts as answered on the
+                    opportunity until you confirm.
+                </div>
+                <group>
+                    <group string="Gate Answers (editable)">
+                        <field name="gate_problem" placeholder="What specific problem are we solving?"/>
+                        <field name="gate_cost_of_inaction" placeholder="What is the cost of doing nothing?"/>
+                        <field name="gate_approver" placeholder="Who needs to approve this?"/>
+                        <field name="gate_timeline" placeholder="What is the timeline?"/>
+                    </group>
+                    <group string="Source Transcript Excerpt">
+                        <field name="transcript_excerpt" nolabel="1" readonly="1"
+                               widget="text" class="o_sgc_transcript_excerpt"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Apply to Opportunity" name="action_confirm" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

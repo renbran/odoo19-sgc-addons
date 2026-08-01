@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="crm_lead_view_form_inherit_playbook" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.sgc.sales.playbook</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Gate status badge + override button in header -->
+            <xpath expr="//header" position="inside">
+                <field name="x_gate_status" invisible="1"/>
+                <field name="x_gate_answered_count" invisible="1"/>
+                <field name="x_is_sales_manager" invisible="1"/>
+                <span class="badge bg-success" invisible="x_gate_status != 'qualified'"
+                    title="Verifiable Buyer Exit Criteria">
+                    Gate: <field name="x_gate_answered_count"/>/4
+                </span>
+                <span class="badge bg-warning" invisible="x_gate_status != 'partial'"
+                    title="Verifiable Buyer Exit Criteria">
+                    Gate: <field name="x_gate_answered_count"/>/4
+                </span>
+                <span class="badge bg-secondary" invisible="x_gate_status not in ('qualified', 'partial')"
+                    title="Verifiable Buyer Exit Criteria">
+                    Gate: <field name="x_gate_answered_count"/>/4
+                </span>
+                <button name="action_open_gate_override_wizard" string="Override Gate" type="object"
+                        class="btn-secondary"
+                        invisible="x_gate_status == 'qualified' or not x_is_sales_manager"
+                        help="Sales Manager only: override the Proposal-stage qualification gate with a logged reason"/>
+            </xpath>
+
+            <!-- Pre-call research nudge banner (New / Valid Contact, not yet done) -->
+            <xpath expr="//sheet" position="before">
+                <field name="x_is_pre_call_stage" invisible="1"/>
+                <div class="alert alert-info mb-0" role="alert"
+                     invisible="x_research_done or not x_is_pre_call_stage">
+                    Complete the 3-minute pre-call research routine before dialing —
+                    fill in the Pain Tier and Signal fields on the Qualification tab.
+                </div>
+            </xpath>
+
+            <!-- Qualification tab: gate questions, research capture, existing BANT fields -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Qualification" name="sgc_qualification">
+                    <group>
+                        <group string="Verifiable Buyer Exit Criteria (Playbook Phase 4)">
+                            <field name="x_gate_problem" placeholder="What specific problem are we solving?"/>
+                            <field name="x_gate_problem_provenance" readonly="1" invisible="x_gate_problem_provenance != 'ai_confirmed'"/>
+                            <field name="x_gate_cost_of_inaction" placeholder="What is the cost of doing nothing?"/>
+                            <field name="x_gate_cost_of_inaction_provenance" readonly="1" invisible="x_gate_cost_of_inaction_provenance != 'ai_confirmed'"/>
+                            <field name="x_gate_approver" placeholder="Who needs to approve this?"/>
+                            <field name="x_gate_approver_provenance" readonly="1" invisible="x_gate_approver_provenance != 'ai_confirmed'"/>
+                            <field name="x_gate_timeline" placeholder="What is the timeline?"/>
+                            <field name="x_gate_timeline_provenance" readonly="1" invisible="x_gate_timeline_provenance != 'ai_confirmed'"/>
+                            <field name="x_gate_override_reason" readonly="1" invisible="not x_gate_override_reason"/>
+                        </group>
+                        <group string="Pre-Call Research (Playbook Phase 0)">
+                            <field name="x_research_done" readonly="1"/>
+                            <field name="x_research_pain_tier"/>
+                            <field name="x_research_pain_note" placeholder="The specific signal found: a review quote, a hiring post, listing count/areas..."/>
+                        </group>
+                    </group>
+                    <group string="BANT (optional)">
+                        <field name="x_bant_budget"/>
+                        <field name="x_bant_authority"/>
+                        <field name="x_bant_need"/>
+                        <field name="x_bant_timeline"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- Objections tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Objections" name="sgc_objections">
+                    <field name="x_objection_ids">
+                        <list editable="bottom">
+                            <field name="objection_type"/>
+                            <field name="reframe_used"/>
+                            <field name="resulted_in_meeting" widget="boolean_toggle"/>
+                            <button name="action_suggest_reframe" type="object"
+                                    string="Suggest Reframe" icon="fa-magic"
+                                    invisible="not objection_type"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

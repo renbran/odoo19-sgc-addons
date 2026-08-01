@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Mirrors crm.lead's own visibility model exactly (see
+             odoo/addons/crm/security/crm_security.xml: crm_rule_personal_lead
+             + crm_rule_all_lead) — an objection is visible/writable only to
+             users who can see the lead it's logged against. Without this,
+             ACLs alone let every CRM user read/write objection records on
+             leads they cannot otherwise see.
+
+             No company_id handling: confirmed via SQL against odoo19-sgc
+             that this database has exactly one res.company — a
+             multi-company rule would be dead code here, add one only if
+             this DB is ever split into multiple companies. -->
+
+        <record id="sgc_lead_objection_rule_personal" model="ir.rule">
+            <field name="name">SGC Lead Objection: Personal Leads Only</field>
+            <field name="model_id" ref="model_sgc_lead_objection"/>
+            <field name="domain_force">['|', ('lead_id.user_id', '=', user.id), ('lead_id.user_id', '=', False)]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        </record>
+
+        <record id="sgc_lead_objection_rule_all" model="ir.rule">
+            <field name="name">SGC Lead Objection: All Leads</field>
+            <field name="model_id" ref="model_sgc_lead_objection"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+        </record>
+
+    </data>
+</odoo>

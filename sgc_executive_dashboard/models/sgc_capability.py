@@ -62,12 +62,17 @@ _SGC_CAPABILITIES = {
         'company_field': 'company_id',
         'default_domain': [('type', '=', 'opportunity')],
         'date_fields': {'date_closed': 'datetime', 'create_date': 'datetime'},
-        'measures': {'expected_revenue': 'currency', 'probability': 'percent'},
-        'groups': ['stage_id', 'user_id', 'team_id', 'partner_id'],
+        'measures': {'expected_revenue': 'currency', 'probability': 'percent',
+                     'x_gate_answered_count': 'number'},
+        'groups': ['stage_id', 'user_id', 'team_id', 'partner_id',
+                   'x_gate_status', 'x_research_pain_tier'],
         'filters': [
             'active', 'stage_id', 'probability', 'date_closed', 'user_id',
             'team_id', 'partner_id',
             'stage_id.is_won',   # curated dotted literal
+            # sgc_sales_playbook fields — pruned automatically by
+            # _sgc_field_survives() if that module isn't installed.
+            'x_gate_status', 'x_gate_answered_count', 'x_research_pain_tier',
         ],
     },
     'sale.order': {

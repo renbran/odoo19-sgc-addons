@@ -274,6 +274,124 @@ class CRMDashboard(models.AbstractModel):
         if pipeline_by_source and pipeline_by_source[0]["name"] == "Unassigned" and len(pipeline_by_source) == 1:
             pipeline_by_source = []
 
+        # ─── Qualification & Gate Compliance (sgc_sales_playbook) ────────
+        # gate_pass_rate / stalled_deals_count / objection_conversion_rate
+        # need x_gate_status / sgc.lead.objection, which only exist once
+        # sgc_sales_playbook is installed (stalled_deals_count itself reads
+        # only stock date_last_stage_update, but is gated the same way for
+        # consistency with the rest of this panel) — this dashboard
+        # doesn't depend on that module, so gate on its install state rather
+        # than assuming the fields/model are present.
+        sgc_playbook_installed = bool(self.env["ir.module.module"].sudo().search_count([
+            ("name", "=", "sgc_sales_playbook"), ("state", "=", "installed"),
+        ]))
+        gate_pass_rate = None
+        gate_pass_rate_n = 0
+        gate_pass_rate_ai = None
+        gate_pass_rate_ai_n = 0
+        gate_pass_rate_human = None
+        gate_pass_rate_human_n = 0
+        stalled_deals_count = None
+        objection_conversion_rate = None
+        objection_conversion_rate_n = 0
+        gate_stage_configured = True
+        if sgc_playbook_installed:
+            # Surface a misconfigured gate_stage_id here rather than let the
+            # gate fail open silently in crm_lead.py — reps would otherwise
+            # have no visibility that Proposal-stage qualification isn't
+            # actually being enforced.
+            gate_stage_configured = bool(lead._get_gate_stage())
+
+            # gate_pass_rate: % of deals at/after Meeting Booked (stage
+            # sequence >= 7) with all 4 Verifiable Buyer Exit Criteria
+            # answered right now. Numerator: x_gate_status == 'qualified'.
+            # Denominator: all such deals, active only, respecting the
+            # current salesperson filter. Window: point-in-time snapshot —
+            # there is no historical gate-pass table, so this is not a
+            # date-ranged rate. Excludes non-opportunity leads and archived
+            # deals. None (not 0%) when the denominator is 0, so the UI can
+            # tell "no gateable deals yet" apart from "0% pass rate" — at
+            # n=4-5 (current Meeting Booked/Proposal volume) one record
+            # swings the percentage 20-25 points, so a bare number without
+            # n= is actively misleading (S5).
+            gateable_domain = (lead_domain_base or []) + [
+                ("active", "=", True), ("stage_id.sequence", ">=", 7),
+            ]
+            gate_pass_rate_n = lead.search_count(gateable_domain)
+            if gate_pass_rate_n:
+                qualified = lead.search_count(gateable_domain + [("x_gate_status", "=", "qualified")])
+                gate_pass_rate = round(qualified / gate_pass_rate_n * 100.0, 1)
+
+                # Split by provenance: were the 4 answers typed by the rep,
+                # or copied from an AI transcript summary (sgc_meeting_ai)?
+                # A gate that passes mostly on AI-inferred answers isn't
+                # measuring discovery discipline the way a rep-typed answer
+                # does. 'ai' = at least one of the 4 fields is AI-confirmed;
+                # 'human' = all 4 are manual — see
+                # crm.lead._get_gate_provenance_domain() for why these
+                # partition cleanly.
+                ai_domain = gateable_domain + lead._get_gate_provenance_domain("ai")
+                human_domain = gateable_domain + lead._get_gate_provenance_domain("human")
+                gate_pass_rate_ai_n = lead.search_count(ai_domain)
+                if gate_pass_rate_ai_n:
+                    ai_qualified = lead.search_count(ai_domain + [("x_gate_status", "=", "qualified")])
+                    gate_pass_rate_ai = round(ai_qualified / gate_pass_rate_ai_n * 100.0, 1)
+                gate_pass_rate_human_n = lead.search_count(human_domain)
+                if gate_pass_rate_human_n:
+                    human_qualified = lead.search_count(human_domain + [("x_gate_status", "=", "qualified")])
+                    gate_pass_rate_human = round(human_qualified / gate_pass_rate_human_n * 100.0, 1)
+
+            # stalled_deals_count: active opportunities (any stage, current
+            # salesperson filter applied) whose date_last_stage_update is
+            # 21+ days old. Always a raw count, not a percentage — no
+            # denominator to guard.
+            stall_cutoff = fields.Datetime.to_string(datetime.now() - timedelta(weeks=3))
+            stalled_deals_count = lead.search_count((lead_domain_base or []) + [
+                ("active", "=", True),
+                ("date_last_stage_update", "!=", False),
+                ("date_last_stage_update", "<=", stall_cutoff),
+            ])
+
+            # objection_conversion_rate: % of sgc.lead.objection records
+            # (all-time, current salesperson filter applied) where
+            # resulted_in_meeting is True. Numerator: resulted_in_meeting
+            # == True. Denominator: all logged objections. Excludes
+            # nothing else — every objection a rep logs counts. None when
+            # 0 objections logged, same N/A-vs-0% reasoning as above.
+            Objection = self.env["sgc.lead.objection"].sudo()
+            obj_domain = [("lead_id.user_id", "in", target_ids)] if (not user_id and not is_admin) else (
+                [("lead_id.user_id", "=", user_id)] if user_id else []
+            )
+            objection_conversion_rate_n = Objection.search_count(obj_domain)
+            if objection_conversion_rate_n:
+                won_objections = Objection.search_count(obj_domain + [("resulted_in_meeting", "=", True)])
+                objection_conversion_rate = round(
+                    won_objections / objection_conversion_rate_n * 100.0, 1
+                )
+
+        # Stale-lead count: parked 30+ days in No Answer(5)/Not Interested(7)
+        # with no lost_reason_id ever set. Uses only stock crm.lead fields,
+        # so it's meaningful with or without sgc_sales_playbook installed.
+        stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
+        stale_lead_filter = ""
+        stale_params = [stale_cutoff_dt]
+        if user_id:
+            stale_lead_filter = "AND user_id = %s"
+            stale_params.append(user_id)
+        elif not is_admin:
+            stale_lead_filter = "AND user_id IN %s"
+            stale_params.append(tuple(target_ids))
+        cr.execute(f"""
+            SELECT COUNT(*)
+            FROM crm_lead
+            WHERE active = true
+              AND stage_id IN (5, 7)
+              AND lost_reason_id IS NULL
+              AND write_date <= %s
+              {stale_lead_filter}
+        """, stale_params)
+        stale_lead_count = cr.fetchone()[0] or 0
+
         # Per-salesperson summary with days-since-booking
         cr = self.env.cr
         user_filter = ""
@@ -404,6 +522,21 @@ class CRMDashboard(models.AbstractModel):
             "pipeline_aging": pipeline_aging,
             "owner_pipeline": owner_pipeline,
             "pipeline_by_source": pipeline_by_source,
+            # ─── Qualification & Gate Compliance (sgc_sales_playbook) ───
+            "qualification": {
+                "enabled": sgc_playbook_installed,
+                "gate_stage_configured": gate_stage_configured,
+                "gate_pass_rate": gate_pass_rate,
+                "gate_pass_rate_n": gate_pass_rate_n,
+                "gate_pass_rate_ai": gate_pass_rate_ai,
+                "gate_pass_rate_ai_n": gate_pass_rate_ai_n,
+                "gate_pass_rate_human": gate_pass_rate_human,
+                "gate_pass_rate_human_n": gate_pass_rate_human_n,
+                "stalled_deals_count": stalled_deals_count,
+                "objection_conversion_rate": objection_conversion_rate,
+                "objection_conversion_rate_n": objection_conversion_rate_n,
+                "stale_lead_count": stale_lead_count,
+            },
             # ─── Kept widgets ──────────────────────────────────────────
             "funnel": funnel_stages,
             "stages": stages,
@@ -416,6 +549,7 @@ class CRMDashboard(models.AbstractModel):
         """Return detailed productivity data for a single salesperson."""
         cr = self.env.cr
 
+        won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
         won_stage_ids_sql = ",".join(map(str, won_stage_ids)) if won_stage_ids else "0"
         cr.execute(f"""
             SELECT

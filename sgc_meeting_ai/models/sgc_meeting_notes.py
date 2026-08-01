@@ -5,6 +5,7 @@ import logging
 import re
 
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -49,6 +50,34 @@ class SGCMeetingNotes(models.Model):
         default=False,
         help="Whether the notes were emailed to all attendees.",
     )
+    gate_answers_draft = fields.Html(
+        string="Gate Answers (Draft, from AI)",
+        help="The 4 Verifiable Buyer Exit Criteria as extracted by the LLM "
+        "from this meeting's transcript, when the meeting is linked to a "
+        "CRM opportunity. A draft only — review before applying; nothing "
+        "here counts as answered on the opportunity until "
+        "'Apply to Opportunity' is clicked.",
+    )
+    # Discrete plain-text counterparts of gate_answers_draft, written by the
+    # same summarize() call. The Html field above is for display in this
+    # view; these are what action_apply_gate_answers_to_opportunity() copies
+    # over, so applying never has to re-parse HTML back into text.
+    gate_draft_problem = fields.Text(string="Draft: Problem")
+    gate_draft_cost_of_inaction = fields.Text(string="Draft: Cost of Inaction")
+    gate_draft_approver = fields.Text(string="Draft: Approver")
+    gate_draft_timeline = fields.Text(string="Draft: Timeline")
+    gate_answers_applied = fields.Boolean(
+        default=False,
+        help="Whether these draft gate answers have already been copied to "
+        "the linked opportunity.",
+    )
+    opportunity_id = fields.Many2one(
+        "crm.lead",
+        string="Opportunity",
+        related="session_id.meeting_id.opportunity_id",
+        store=False,
+        readonly=True,
+    )
 
     @api.depends("session_id")
     def _compute_display_name(self):
@@ -85,6 +114,41 @@ class SGCMeetingNotes(models.Model):
         )
         self.posted_to_chatter = True
         return True
+
+    def action_apply_gate_answers_to_opportunity(self):
+        """Open a review wizard for the 4 AI-drafted gate answers instead
+        of copying them onto the opportunity directly (S1). An LLM
+        inferring "who approves" from a transcript satisfies the field
+        without satisfying the discipline the gate exists to enforce — the
+        wizard shows each value as an editable, required field alongside
+        the source transcript excerpt, so nothing counts as answered until
+        a rep has actually reviewed (and, if needed, corrected) it.
+
+        Requires sgc_sales_playbook to be installed (its x_gate_* fields on
+        crm.lead). Checked at runtime via a plain field-existence lookup —
+        not a model _inherit, so no manifest dependency is needed in this
+        direction; sgc_sales_playbook depends on sgc_executive_dashboard,
+        not the other way, and this module shouldn't have to depend on a
+        sales-process module just to write 4 text fields when present.
+        """
+        self.ensure_one()
+        if not self.opportunity_id:
+            raise UserError(_("This meeting isn't linked to a CRM opportunity."))
+        if "x_gate_problem" not in self.env["crm.lead"]._fields:
+            raise UserError(
+                _(
+                    "The Sales Playbook module (sgc_sales_playbook) isn't "
+                    "installed, so there's no gate to apply these answers to."
+                )
+            )
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Review Gate Answers Before Applying"),
+            "res_model": "sgc.gate.answers.apply.wizard",
+            "view_mode": "form",
+            "target": "new",
+            "context": {"default_notes_id": self.id},
+        }
 
     def action_email_attendees(self):
         """Email the notes summary to all attendees."""

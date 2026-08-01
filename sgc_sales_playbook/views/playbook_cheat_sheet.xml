@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_playbook_cheatsheet_wizard_form" model="ir.ui.view">
+        <field name="name">sgc.playbook.cheatsheet.wizard.form</field>
+        <field name="model">sgc.playbook.cheatsheet.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="content" nolabel="1"/>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sgc_playbook_cheatsheet" model="ir.actions.act_window">
+        <field name="name">Playbook Cheat Sheet</field>
+        <field name="res_model">sgc.playbook.cheatsheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_sgc_playbook_cheatsheet"
+              name="Playbook Cheat Sheet"
+              parent="crm.crm_menu_root"
+              action="action_sgc_playbook_cheatsheet"
+              sequence="100"/>
+</odoo>

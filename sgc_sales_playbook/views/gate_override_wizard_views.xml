@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_gate_override_wizard_form" model="ir.ui.view">
+        <field name="name">sgc.gate.override.wizard.form</field>
+        <field name="model">sgc.gate.override.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>
+                    This opportunity has answered
+                    <field name="gate_answered_count" readonly="1" class="oe_inline"/>/4
+                    of the Verifiable Buyer Exit Criteria. Overriding will move it to
+                    Proposal anyway and log this reason to the chatter.
+                </p>
+                <field name="lead_id" invisible="1"/>
+                <group>
+                    <field name="reason" placeholder="Why is this deal moving to Proposal without a complete gate?"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Override &amp; Move to Proposal" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

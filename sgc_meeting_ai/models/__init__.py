@@ -8,3 +8,7 @@ from . import resource_booking
 from . import calendar_attendee
 from . import res_users
 from . import resource_calendar
+# Must be imported or the model is never registered, and both
+# security/ir.model.access.csv and views/gate_answers_apply_wizard_views.xml
+# reference it -- so the module upgrade fails outright rather than degrading.
+from . import gate_answers_apply_wizard

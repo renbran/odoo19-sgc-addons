@@ -59,6 +59,26 @@ say whether it is deteriorating, and state the one action to take this week.</fi
 current revenue run-rate. Be direct about any shortfall.</field>
     </record>
 
+    <record id="preset_discovery_health" model="sgc.ai.preset">
+        <field name="name">Discovery &amp; Qualification Health</field>
+        <field name="code">discovery_health</field>
+        <field name="category">growth</field>
+        <field name="mode">narrative</field>
+        <field name="intent">metric</field>
+        <field name="icon">fa-check-square-o</field>
+        <field name="accent">violet</field>
+        <field name="sequence">45</field>
+        <!-- Emitted by sgc_sales_playbook's sgc.provider.pipeline.qualification.
+             Empty/absent if that module isn't installed — kpi_codes referencing
+             a not-installed provider's keys is safe, matching how other
+             presets already reference module-gated KPIs. -->
+        <field name="kpi_codes">gate_pass_rate,gate_pass_rate_ai,gate_pass_rate_human,stalled_deals_count,objection_conversion_rate</field>
+        <field name="prompt_template">Judge whether deals are being properly
+qualified before advancing, using gate pass rate and stalled-deal count. Call
+out any rep or stage where deals are advancing without answers to the 4 gate
+questions.</field>
+    </record>
+
     <record id="preset_revenue_drivers" model="sgc.ai.preset">
         <field name="name">Why Did Revenue Move?</field>
         <field name="code">revenue_drivers</field>

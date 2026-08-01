@@ -22,6 +22,7 @@ export class CrmDashboard extends Component {
             pipeline_aging: [],
             owner_pipeline: [],
             pipeline_by_source: [],
+            qualification: {},
             loading: true,
             selectedSalesperson: null,
             salespersonDetail: null,
@@ -65,6 +66,7 @@ export class CrmDashboard extends Component {
             this.state.pipeline_aging = data.pipeline_aging || [];
             this.state.owner_pipeline = data.owner_pipeline || [];
             this.state.pipeline_by_source = data.pipeline_by_source || [];
+            this.state.qualification = data.qualification || {};
             this.state.isAdmin = data.is_admin;
             this.state.allUsers = data.all_users || [];
             this.state.selectedUserId = data.selected_user_id || null;

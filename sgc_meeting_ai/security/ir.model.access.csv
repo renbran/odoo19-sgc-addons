@@ -9,3 +9,4 @@ sgc_meeting_notes_user,Meeting notes user,model_sgc_meeting_notes,base.group_use
 sgc_meeting_notes_manager,Meeting notes manager,model_sgc_meeting_notes,base.group_system,1,1,1,1
 sgc_meeting_session_user,Meeting session user,model_sgc_meeting_session,base.group_user,1,0,0,0
 sgc_meeting_session_manager,Meeting session manager,model_sgc_meeting_session,base.group_system,1,1,1,1
+sgc_gate_answers_apply_wizard_user,Gate answers apply wizard user,model_sgc_gate_answers_apply_wizard,base.group_user,1,1,1,0

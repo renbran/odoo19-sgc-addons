@@ -21,6 +21,13 @@
                         string="Email Attendees"
                         invisible="emailed_to_attendees"
                     />
+                    <button
+                        name="action_apply_gate_answers_to_opportunity"
+                        type="object"
+                        string="Apply Gate Answers to Opportunity"
+                        class="oe_highlight"
+                        invisible="not gate_answers_draft or gate_answers_applied or not opportunity_id"
+                    />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -43,14 +50,20 @@
                             <field name="transcript_id" />
                             <field name="provider_id" />
                             <field name="model" />
+                            <field name="opportunity_id" />
                         </group>
                         <group>
                             <field name="tokens_used" />
                             <field name="prompt_tokens" />
                             <field name="completion_tokens" />
+                            <field name="gate_answers_applied" invisible="not gate_answers_draft"/>
                         </group>
                     </group>
                     <notebook>
+                        <page name="gate_answers" string="Gate Answers"
+                              invisible="not gate_answers_draft">
+                            <field name="gate_answers_draft" widget="html" readonly="1" />
+                        </page>
                         <page name="summary" string="Summary">
                             <field name="summary" widget="html" />
                         </page>

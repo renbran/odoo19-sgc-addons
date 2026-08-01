@@ -15,9 +15,14 @@
         "calendar",
         "mail",
         "resource_booking",
+        # crm is required for calendar.event.opportunity_id, already relied
+        # on by _sgc_register_meeting() — formalized as an explicit
+        # dependency when sgc.meeting.notes.opportunity_id (a related field
+        # through that path) was added for the sgc_sales_playbook gate hook.
+        "crm",
     ],
     "external_dependencies": {
-        "python": ["requests"],
+        "python": ["requests", "markupsafe"],
     },
     "data": [
         "security/sgc_meeting_ai_security.xml",
@@ -29,6 +34,7 @@
         "views/meeting_provider_views.xml",
         "views/meeting_recording_views.xml",
         "views/meeting_notes_views.xml",
+        "views/gate_answers_apply_wizard_views.xml",
         "views/calendar_event_views.xml",
         "views/resource_booking_views.xml",
         "views/portal_templates.xml",

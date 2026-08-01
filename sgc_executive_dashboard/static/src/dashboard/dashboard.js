@@ -13,7 +13,7 @@ import { SgcAiResult } from "../ai/ai_result";
 export class SgcExecutiveDashboard extends Component {
     static template = "sgc_executive_dashboard.Dashboard";
     static components = { Layout, SgcKpiCard, SgcChartCard, SgcAppUniverse, SgcAiBar, SgcAiResult };
-    static props = ["*"];
+    static props = { ...Component.props, action: { type: Object, optional: true } };
 
     setup() {
         this.action = useService("action");

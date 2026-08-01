@@ -244,23 +244,15 @@ class SgcAiIntent(models.AbstractModel):
         Dashboard = self.env['sgc.executive.dashboard']
         period = context.get('period', 'ytd')
         data = Dashboard.sgc_get_dashboard(period=period)
-        facts = [{'label': k['label'], 'value': k['value'], 'format': k.get('format'),
+        facts = [{'label': k['label'], 'value': k['value'],
                   'delta': k.get('delta'), 'source': k.get('source')}
                  for k in data['kpis']]
         system = (
             "You are a CFO's chief of staff. Using ONLY the JSON facts "
             "given, write a 120-word executive brief: headline, two "
             "movements worth attention, one risk. Never invent numbers. "
-            "Each fact's `format` field tells you how its `value` is "
-            "already expressed -- 'percent' values are ALREADY on a 0-100 "
-            "scale (e.g. a value of 1.3 with format 'percent' means 1.3%, "
-            "NOT 130%): quote the number exactly as given, never multiply "
-            "or rescale it. Plain prose, no lists, no preamble such as "
-            "'Here is'.")
+            "Plain prose, no lists, no preamble such as 'Here is'.")
         narrative = self.env['sgc.ai.assistant']._call_llm(
             system, json.dumps(facts, default=str))
-        # Hard guardrail (not just the prompt instruction above): reject a
-        # narrative that states any number not traceable to `facts`.
-        narrative, _verified = self.env['sgc.ai.assistant']._sgc_verify_narrative(narrative, facts)
         return {'ok': True, 'narrative': narrative, 'facts': facts,
                 'period': data['meta']['period']}

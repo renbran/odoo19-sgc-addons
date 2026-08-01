@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_lead_objection_tree" model="ir.ui.view">
+        <field name="name">sgc.lead.objection.tree</field>
+        <field name="model">sgc.lead.objection</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="objection_type"/>
+                <field name="reframe_used"/>
+                <field name="resulted_in_meeting" widget="boolean_toggle"/>
+                <button name="action_suggest_reframe" type="object"
+                        string="Suggest Reframe" icon="fa-magic"
+                        invisible="not objection_type"/>
+            </list>
+        </field>
+    </record>
+</odoo>
