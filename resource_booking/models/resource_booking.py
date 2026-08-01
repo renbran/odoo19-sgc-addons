@@ -10,6 +10,7 @@ import logging
 from datetime import datetime, timedelta
 
 from dateutil.relativedelta import relativedelta
+from pytz import timezone
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
@@ -462,10 +463,9 @@ class ResourceBooking(models.Model):
         resource_partners = self.combination_id.resource_ids.filtered(
             lambda res: res.resource_type == "user"
         ).mapped("user_id.partner_id")
-        return dict(
+        meeting_vals = dict(
             alarm_ids=[(6, 0, self.type_id.alarm_ids.ids)],
             categ_ids=[(6, 0, self.categ_ids.ids)],
-            description=self.type_id.requester_advice,
             duration=self.duration,
             location=self.location,
             videocall_location=self.videocall_location,
@@ -483,6 +483,9 @@ class ResourceBooking(models.Model):
             res_model_id=False,
             res_id=False,
         )
+        if self.type_id.requester_advice:
+            meeting_vals["description"] = self.type_id.requester_advice
+        return meeting_vals
 
     def _sync_meeting(self):
         """Lazy-create or destroy calendar.event."""
@@ -507,6 +510,9 @@ class ResourceBooking(models.Model):
                         meeting = meeting.with_context(from_ui=True)
                     meeting.write(meeting_vals)
                 else:
+                    event_tz = one.type_id.resource_calendar_id.tz or False
+                    if event_tz:
+                        meeting_vals["event_tz"] = event_tz
                     to_create.append(meeting_vals)
             else:
                 to_delete |= one.meeting_id
@@ -691,7 +697,8 @@ class ResourceBooking(models.Model):
             or booking.combination_id
             or booking.mapped("type_id.combination_rel_ids.combination_id")
         ).with_context(analyzing_booking=booking_id)
-        result &= combinations._get_intervals(start_dt, end_dt)
+        tz = timezone(self.type_id.resource_calendar_id.tz)
+        result &= combinations._get_intervals(start_dt, end_dt, tz)
         return result
 
     def _sync_booking_activities_date(self):
