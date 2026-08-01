@@ -332,11 +332,156 @@ class CalendarEvent(models.Model):
             })
 
     # ------------------------------------------------------------------
+    # Immediate Google push (Meet room + Google Calendar entry)
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _sgc_extract_meet_url(google_values):
+        """Pull the Meet URL out of a Google event resource, if it has one."""
+        if not google_values:
+            return False
+        url = google_values.get("hangoutLink")
+        if url:
+            return url
+        conference = google_values.get("conferenceData") or {}
+        for entry in conference.get("entryPoints") or []:
+            if entry.get("entryPointType") == "video" and entry.get("uri"):
+                return entry["uri"]
+        return False
+
+    def _get_post_sync_values(self, request_values, google_values):
+        """Also store the Meet URL Google just created for this event.
+
+        Upstream throws ``google_values`` away apart from the event id, so the
+        ``hangoutLink`` that comes back from the ``conferenceData.createRequest``
+        we sent is discarded, and ``videocall_location`` is only ever filled on a
+        later Google -> Odoo pass. Since the sync cron on this database runs
+        every 12h, that meant attendees waited up to a *day* for the invitation
+        carrying the Meet link. Capturing the URL here puts it in the very same
+        write that stores ``google_id``, which fires the re-send hook in
+        ``write()`` below, so the branded invitation goes out with a working
+        Meet link seconds after the booking.
+
+        ``need_sync: False`` is already in ``values``, so adding a synced field
+        here does not flip ``need_sync`` back on (see ``google_sync.write()``)
+        and therefore cannot cause a patch loop back to Google.
+        """
+        values = super()._get_post_sync_values(request_values, google_values)
+        if not self.videocall_location:
+            meet_url = self._sgc_extract_meet_url(google_values)
+            if meet_url:
+                values["videocall_location"] = meet_url
+        return values
+
+    def _sgc_push_to_google(self):
+        """Insert CRM meetings into the Meet organizer's Google Calendar now.
+
+        ``google_sync.create()`` does attempt an insert, but it runs inside
+        ``super().create()`` -- i.e. *before* ``_sgc_apply_meet_organizer`` has
+        moved the event onto the shared Meet organizer and before
+        ``_sgc_clear_discuss_videocall`` has dropped the Discuss link. At that
+        moment the organizer is still the salesperson, who has no Google token,
+        so ``_google_insert`` silently does nothing. ``google_sync.write()``
+        then only ever *patches* records that already carry a ``google_id`` --
+        it never inserts -- so the now-correct event is left untouched until the
+        "Google Calendar: synchronization" cron sweeps it up, and that cron runs
+        only every 12 hours. That gap is why bookings appeared neither in Google
+        Calendar nor with a Meet link: nothing was pushing them.
+        """
+        if "google_id" not in self._fields:
+            return  # google_calendar is not installed
+        try:
+            from odoo.addons.google_calendar.utils.google_calendar import (
+                GoogleCalendarService,
+            )
+        except ImportError:  # pragma: no cover - defensive
+            return
+
+        # A cursor lives exactly as long as the transaction, which is the right
+        # scope for this guard: _google_insert defers the real API call to
+        # post-commit, so two writes in one transaction would both still see an
+        # empty google_id and queue a second insert -- creating a duplicate
+        # event in Google Calendar.
+        pushed = getattr(self.env.cr, "_sgc_google_pushed", None)
+        if pushed is None:
+            pushed = set()
+            self.env.cr._sgc_google_pushed = pushed
+
+        service = None
+        for event in self:
+            if event.google_id or event.id in pushed:
+                continue
+            if not event._sgc_is_customer_meeting():
+                continue
+            organizer = event.user_id
+            if not organizer or not organizer.sudo().google_calendar_rtoken:
+                continue
+            if organizer.sudo()._get_google_sync_status() != "sync_active":
+                _logger.warning(
+                    "Meet organizer %s is not actively synced with Google: "
+                    "meeting %s will not get a Meet room until the sync cron "
+                    "runs.",
+                    organizer.login, event.id,
+                )
+                continue
+            if event.videocall_location or event.location:
+                # google_calendar only asks Google for a Meet room when *both*
+                # are empty -- see google_calendar/models/calendar.py, the
+                # conferenceData createRequest is skipped otherwise. Worth
+                # saying out loud: a salesperson typing anything into Location
+                # silently costs them the Meet link.
+                _logger.warning(
+                    "Meeting %s has %s set, so Google will create the calendar "
+                    "entry but NOT a Meet room.",
+                    event.id,
+                    "a videocall link" if event.videocall_location else "a location",
+                )
+            if service is None:
+                service = GoogleCalendarService(self.env["google.service"])
+            event_as_organizer = event.with_user(organizer)
+            try:
+                event_as_organizer._google_insert(
+                    service, event_as_organizer._google_values(), timeout=3
+                )
+            except Exception:
+                _logger.exception(
+                    "Failed to push CRM meeting %s to Google Calendar", event.id
+                )
+            else:
+                pushed.add(event.id)
+
+    # ------------------------------------------------------------------
     # Auto-registration when a salesperson books a meeting
     # ------------------------------------------------------------------
+    def _sgc_is_customer_meeting(self):
+        """True for meetings that should get a shared Google Meet room.
+
+        A CRM booking always qualifies. Beyond those, a meeting qualifies as
+        soon as one attendee is *not* an internal employee -- i.e. there is a
+        customer or prospect in the room -- which covers meetings booked
+        straight from the Calendar app rather than from an opportunity. A
+        partner with no user account, or only portal/share users, is external.
+
+        Internal stand-ups and personal time blocks have employee-only
+        attendees, so they keep their own organizer and stay off the shared
+        crm@sgctech.ai calendar.
+        """
+        self.ensure_one()
+        if "opportunity_id" in self._fields and self.opportunity_id:
+            return True
+        organizer_partner = self.user_id.partner_id
+        for partner in self.partner_ids - organizer_partner:
+            users = partner.sudo().user_ids
+            if not users or all(user.share for user in users):
+                return True
+        return False
+
     def _sgc_register_meeting(self):
-        """Register opportunity meetings for resource booking + AI recording."""
+        """Register opportunity meetings for resource booking + AI recording,
+        and route every customer meeting through the shared Meet organizer."""
         for event in self:
+            # Resource booking + AI session stay strictly CRM-scoped: they key
+            # off the opportunity and would otherwise spawn bookings/sessions
+            # for every externally-attended meeting in the database.
             if not event.opportunity_id:
                 continue
             # Resource booking/session must use the *real* salesperson so
@@ -360,28 +505,46 @@ class CalendarEvent(models.Model):
                         "Failed to create AI meeting session for event %s",
                         event.id,
                     )
-            # Applied last: only touches this event's own organizer/attendees,
-            # not the resource booking, so it can't affect resource validity.
-            if not self.env.context.get("sgc_applying_meet_organizer"):
-                try:
-                    event._sgc_apply_meet_organizer()
-                except Exception:
-                    _logger.exception(
-                        "Failed to apply shared Meet organizer for event %s",
-                        event.id,
-                    )
-                try:
-                    event._sgc_clear_discuss_videocall()
-                except Exception:
-                    _logger.exception(
-                        "Failed to clear Discuss videocall link for event %s",
-                        event.id,
-                    )
+        # Applied last, in its own pass, and over a wider set than the CRM
+        # bookings above: this only touches the event's own organizer and
+        # attendees, never the resource booking, so it cannot affect resource
+        # validity.
+        if self.env.context.get("sgc_applying_meet_organizer"):
+            return
+        for event in self:
+            if not event._sgc_is_customer_meeting():
+                continue
+            # An event that arrived *from* Google already has a real organizer
+            # over there. Reassigning it would patch that change straight back
+            # and hijack somebody's own meeting -- this matters now that the
+            # scope is every externally-attended meeting, not just CRM
+            # bookings, since inbound sync creates plenty of those.
+            if "google_id" in event._fields and event.google_id:
+                continue
+            try:
+                event._sgc_apply_meet_organizer()
+            except Exception:
+                _logger.exception(
+                    "Failed to apply shared Meet organizer for event %s",
+                    event.id,
+                )
+            try:
+                event._sgc_clear_discuss_videocall()
+            except Exception:
+                _logger.exception(
+                    "Failed to clear Discuss videocall link for event %s",
+                    event.id,
+                )
 
     @api.model_create_multi
     def create(self, vals_list):
         events = super().create(vals_list)
         events._sgc_register_meeting()
+        # Only after _sgc_register_meeting(): the push has to happen once the
+        # organizer is the shared Meet account and the Discuss link is gone,
+        # otherwise Google is asked to create the event on behalf of a user
+        # with no token and without a conference request.
+        events._sgc_push_to_google()
         return events
 
     def write(self, vals):
@@ -395,7 +558,7 @@ class CalendarEvent(models.Model):
             new_loc = vals.get("videocall_location") or ""
             if "meet.google.com" in new_loc:
                 for event in self:
-                    if not event.opportunity_id:
+                    if not event._sgc_is_customer_meeting():
                         continue
                     old_loc = event._origin.videocall_location or ""
                     if "meet.google.com" not in old_loc:
@@ -410,4 +573,10 @@ class CalendarEvent(models.Model):
                     resend_events.ids,
                 )
         self._sgc_register_meeting()
+        # A meeting linked to its opportunity after creation reaches the same
+        # state a fresh CRM booking does, and would otherwise wait for the 12h
+        # cron. The internal writes made by _sgc_register_meeting carry
+        # sgc_applying_meet_organizer, so this does not re-enter on those.
+        if not self.env.context.get("sgc_applying_meet_organizer"):
+            self._sgc_push_to_google()
         return res
