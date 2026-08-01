@@ -268,10 +268,41 @@ class CalendarEvent(models.Model):
         for event in self:
             if event.user_id == organizer:
                 continue
-            attendee_partners = event.partner_ids | event.user_id.partner_id
+            # The shared organizer must also be an *attendee*, not just
+            # user_id: google_calendar._get_sync_domain() selects events with
+            # ('partner_ids.user_ids', 'in', env.user.id), so an event that
+            # only names crm@sgctech.ai as organizer is never picked up by its
+            # Google sync -- and a real Meet room is therefore never created.
+            attendee_partners = (
+                event.partner_ids
+                | event.user_id.partner_id
+                | organizer.partner_id
+            )
             event.with_context(sgc_applying_meet_organizer=True).write({
                 "partner_ids": [(6, 0, attendee_partners.ids)],
                 "user_id": organizer.id,
+            })
+
+    def _sgc_clear_discuss_videocall(self):
+        """Drop Odoo's native Discuss videocall link before the first Google sync.
+
+        google_calendar only asks Google to create a real Meet room when the
+        event has no videocall_location and no location at insert time (see
+        google_calendar/models/calendar.py: conferenceData createRequest).
+        A Discuss auto-link suppresses that, which is why meetings kept showing
+        an app.sgctech.ai/calendar/join_videocall/... URL instead of a
+        meet.google.com room. Only Discuss links are dropped -- a deliberate
+        Zoom/Teams/custom link is left untouched -- and only before the event
+        has been synced, so an existing Google conference is never stripped.
+        """
+        for event in self:
+            location = event.videocall_location or ""
+            if not location or self.DISCUSS_ROUTE not in location:
+                continue
+            if "google_id" in event._fields and event.google_id:
+                continue
+            event.with_context(sgc_applying_meet_organizer=True).write({
+                "videocall_location": False,
             })
 
     # ------------------------------------------------------------------
@@ -311,6 +342,13 @@ class CalendarEvent(models.Model):
                 except Exception:
                     _logger.exception(
                         "Failed to apply shared Meet organizer for event %s",
+                        event.id,
+                    )
+                try:
+                    event._sgc_clear_discuss_videocall()
+                except Exception:
+                    _logger.exception(
+                        "Failed to clear Discuss videocall link for event %s",
                         event.id,
                     )
 
