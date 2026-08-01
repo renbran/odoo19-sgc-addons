@@ -130,6 +130,39 @@ class TestResourceBookingRecursion(TransactionCase):
         self._book(context={"default_start": stray, "default_duration": 0.5})
         self.assertEqual(len(self._events_named("Recursion Test meeting")), 1)
 
+    def test_booking_works_for_a_user_without_resource_booking_rights(self):
+        """Registration is a side effect of saving a meeting, so it runs as
+        whoever touches the event -- a salesperson, or crm@sgctech.ai when the
+        Google sync writes back. Neither has resource_booking rights. Without
+        sudo this died on "Access Denied by ACLs ... resource.booking.type",
+        swallowed by the try/except as a bare "Failed to create resource
+        booking", so bookings silently stopped being created."""
+        # Salesperson rights but NOT resource_booking rights -- exactly the
+        # shape of crm@sgctech.ai (uid 111), which is what hit this in
+        # production. Without the CRM group, create() dies earlier in
+        # upstream crm.log_meeting() and never reaches the code under test.
+        plain_user = self.env["res.users"].create({
+            "name": "No Booking Rights",
+            "login": "sgc_test_no_rights",
+            "email": "norights@sgctech.example",
+            "group_ids": [(6, 0, [
+                self.env.ref("base.group_user").id,
+                self.env.ref("sales_team.group_sale_salesman").id,
+            ])],
+        })
+        start = fields.Datetime.now() + timedelta(days=4)
+        event = self.env["calendar.event"].with_user(plain_user).create({
+            "name": "ACL Test meeting",
+            "start": start,
+            "stop": start + timedelta(minutes=30),
+            "partner_ids": [(6, 0, self.customer.ids)],
+            "opportunity_id": self.opportunity.id,
+        })
+        self.assertTrue(
+            event.sudo().sgc_booking_id,
+            "a user without resource_booking rights must still get a booking",
+        )
+
     def test_register_is_skipped_under_the_recursion_guard(self):
         event = self._book(context={"sgc_skip_meeting_register": True})
         self.assertFalse(

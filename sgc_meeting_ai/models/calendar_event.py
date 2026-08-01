@@ -102,11 +102,19 @@ class CalendarEvent(models.Model):
 
     def _get_or_create_booking_type(self):
         calendar = self._sgc_get_247_calendar()
-        booking_type = self.env["resource.booking.type"].search([
+        # sudo like every other helper here: booking registration is a
+        # side effect of saving a meeting, so it runs as whoever happens to
+        # touch the event -- a salesperson, or crm@sgctech.ai when the Google
+        # sync writes back. Neither has resource_booking rights, and without
+        # this the whole registration dies on "Access Denied by ACLs for
+        # operation: read, uid: 111, model: resource.booking.type", caught and
+        # logged as a bare "Failed to create resource booking".
+        BookingType = self.env["resource.booking.type"].sudo()
+        booking_type = BookingType.search([
             ("active", "=", True),
         ], limit=1)
         if not booking_type:
-            booking_type = self.env["resource.booking.type"].create({
+            booking_type = BookingType.create({
                 "name": "SGC Meeting",
                 "combination_assignment": "sorted",
                 "resource_calendar_id": calendar.id,
@@ -183,7 +191,7 @@ class CalendarEvent(models.Model):
             if not key.startswith("default_")
         }
         booking_context["sgc_skip_meeting_register"] = True
-        booking = self.env["resource.booking"].with_context(booking_context).create({
+        booking = self.env["resource.booking"].sudo().with_context(booking_context).create({
             "type_id": booking_type.id,
             "partner_ids": [(6, 0, attendees.ids)],
             "combination_id": combination.id,
