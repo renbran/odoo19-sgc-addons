@@ -80,7 +80,18 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
         color: $sgc-slate;
     }
     ul[name="company_address_list"] li { margin-bottom: 0; }
-    address { font-style: normal; }
+    // The address here renders through the "contact" field widget (t-options
+    // widget: contact), which is shared with portal contact cards. Portal CSS
+    // gives <address> a 42px icon gutter (padding-top) and a 16px !important
+    // margin-bottom, and gives the street-address span a 1.25 !important
+    // line-height (.lh-sm) - all sized for a webpage card, not a 110px-tall
+    // print header box. Neutralize them here only.
+    address {
+        font-style: normal;
+        padding-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    .lh-sm { line-height: 1.2 !important; }
 }
 
 // ---- Document meta block (Ref / Issued / Expiration / Salesperson) -------
