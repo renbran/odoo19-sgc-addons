@@ -104,12 +104,17 @@
 
         <!--
             2026-08-02 page chrome: gold corner brackets + skyline watermark.
-            All elements are position:fixed (sgc_report_signature.scss), so
-            wkhtmltopdf repeats them on every page, and z-index:0 keeps them
-            behind the flowing content. Inserted as the FIRST child of the
-            article div so they frame the document body itself. Opt-in only:
-            these classes change nothing unless a bridge report t-calls this
-            template (same additive guarantee as the rest of the module).
+            All elements are position:fixed (sgc_report_signature.scss) and
+            z-index:0 keeps them behind the flowing content. Inserted as the
+            FIRST child of the article div so they frame the document body
+            itself. Opt-in only: these classes change nothing unless a bridge
+            report t-calls this template (same additive guarantee as the rest
+            of the module).
+
+            Note: this chrome renders on the FIRST PAGE ONLY. wkhtmltopdf does
+            not repeat position:fixed elements onto continuation pages - see
+            the measurement recorded on .o_sgc_ivory_bleed in
+            sgc_report_signature.scss before assuming otherwise.
         -->
         <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]/*[1]" position="before">
             <span class="o_sgc_corner o_sgc_corner_tl"><span class="o_sgc_corner_tertiary"></span></span>

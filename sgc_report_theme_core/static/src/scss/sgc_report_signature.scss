@@ -176,25 +176,27 @@
         z-index: 0;
     }
 
-    // ---- Ivory body-box canvas (every page) ----------------------------
-    // The margin bands are painted by the header/footer stamps (Option B, see
-    // sgc_report.scss); this layer paints the BODY box, and its whole reason
-    // for existing is that it must do so on EVERY page. The article's own
-    // ivory background cannot: the article is one flowing element, so on a
-    // continuation page it only covers the height its content actually
-    // occupies and the rest of that page renders white. position:fixed is
-    // repeated by wkhtmltopdf on every page, so this layer covers each page's
-    // body box in full.
+    // ---- Ivory body-box canvas (FIRST PAGE ONLY) -----------------------
+    // Offsets were negative (-28/-20/-22/-20mm) from the abandoned Option A
+    // attempt to bleed into the margin band; QtWebKit clips fixed elements at
+    // the body box, so that was dead geometry pinned to margins that have
+    // since changed. Zero offsets state the actual intent: exactly the body
+    // box. z-index:-1 keeps it below content so it cannot wash out text.
     //
-    // The offsets were previously negative (-28/-20/-22/-20mm), from the
-    // abandoned Option A attempt to bleed into the margin band; QtWebKit clips
-    // fixed elements at the body box, so that overflow only ever amounted to
-    // dead geometry pinned to margin values that have since changed. Zero
-    // offsets state the actual intent: exactly the body box, whatever the
-    // paperformat margins are.
+    // KNOWN LIMITATION - do not spend time here again: wkhtmltopdf does NOT
+    // repeat position:fixed elements onto continuation pages. Measured on a
+    // real 2-page quotation by forcing this layer red and rendering page 2
+    // with z-index -1, auto and 0, plus an absolute/height:100% variant: none
+    // of them put a single red pixel on page 2. The same applies to the gold
+    // corners and the skyline watermark - all of this chrome is page-1 only.
     //
-    // z-index:-1 keeps it BELOW all content (QtWebKit paints negative z-index
-    // behind non-positioned block backgrounds), so it cannot wash out text.
+    // Consequence: on a multi-page document the margin bands stay ivory on
+    // every page (those are header/footer stamps, which DO repeat), but the
+    // body box is ivory only as far down as the article's own background
+    // reaches, so the last page renders white below where the content ends.
+    // Fixing that would need a per-page background, which this engine cannot
+    // express from the body document. Single-page documents - effectively all
+    // invoices and quotations - are unaffected and render fully full-bleed.
     .o_sgc_ivory_bleed {
         position: fixed;
         top: 0;
