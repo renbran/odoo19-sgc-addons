@@ -38,15 +38,21 @@
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
-        <!-- 2026-08-02 Option B: header_spacing kept at 24. Setting it equal
-             to margin_top (28) gave the header-html doc a ZERO-HEIGHT stamp
-             slot (wkhtmltopdf available height = margin_top - header_spacing)
-             and clipped the entire header content to a 1px sliver. With 24
-             the header doc renders correctly from y~4mm; the remaining 4mm
-             top strip is covered by the header doc's own ivory canvas (the
-             html/body ivory + height:auto rules in sgc_report.scss paint the
-             stamped doc flush to its top edge). -->
-        <field name="header_spacing">24</field>
+        <!-- 2026-08-02 Option B: header_spacing MUST be 0.
+             wkhtmltopdf gives the header stamp a slot of
+             (margin_top - header_spacing), so 24 left only 4mm of the 28mm
+             band for a header whose content needs the full 28mm - all that
+             survived on the page was the last address line and the gold rule,
+             which is what made the band read as "blank" for so long.
+             0 hands the header the whole 28mm band, and sgc_report.scss pins
+             .o_sgc_header to exactly 28mm so it fills that slot without
+             overflowing it.
+
+             This value is also why the bug kept coming back: the fix had only
+             ever been written to the DB with an ORM write, while this file
+             still said 24, so every -u sgc_report_theme_core silently reverted
+             it. Change it HERE, not in the database. -->
+        <field name="header_spacing">0</field>
         <field name="dpi">96</field>
     </record>
 
