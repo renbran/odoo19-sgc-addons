@@ -58,6 +58,17 @@
              still said 24, so every -u sgc_report_theme_core silently reverted
              it. Change it HERE, not in the database. -->
         <field name="header_spacing">0</field>
+        <!-- Smart shrinking (wkhtmltopdf's default) re-scales the rendered page
+             to the paper width, which silently multiplies every CSS physical
+             unit by ~0.79: a box declared 32mm came out ~25mm on paper, so the
+             header/footer boxes and the article's min-height all fell short of
+             the bands they are supposed to fill, and pt font sizes did not
+             render at their true size either. This layout is built on mm/pt
+             that are meant to be real, so shrinking is disabled and 1 CSS mm is
+             1 paper mm. Note this renders content ~26% larger than the shrunk
+             output did, which is the correct size - documents that used to be
+             squeezed onto one page may now legitimately run to two. -->
+        <field name="disable_shrinking" eval="True"/>
         <field name="dpi">96</field>
     </record>
 

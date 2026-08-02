@@ -176,22 +176,31 @@
         z-index: 0;
     }
 
-    // ---- Option A: ivory full-bleed test layer -------------------------
-    // wkhtmltopdf paints only the body box; the paperformat margin band
-    // (28/22/20/20mm) stays white, so ivory never reaches the paper edge.
-    // This fixed layer overflows the body box by exactly the paperformat
-    // margins and paints ivory into the band. z-index:-1 keeps it BELOW all
-    // content (QtWebKit paints negative z-index behind non-positioned
-    // block backgrounds), so it cannot wash out text. The open question is
-    // whether QtWebKit clips fixed elements at the body-box edge - if the
-    // margin band stays white after this layer is added, Option A fails
-    // and Option B (zero paperformat margins) is required.
+    // ---- Ivory body-box canvas (every page) ----------------------------
+    // The margin bands are painted by the header/footer stamps (Option B, see
+    // sgc_report.scss); this layer paints the BODY box, and its whole reason
+    // for existing is that it must do so on EVERY page. The article's own
+    // ivory background cannot: the article is one flowing element, so on a
+    // continuation page it only covers the height its content actually
+    // occupies and the rest of that page renders white. position:fixed is
+    // repeated by wkhtmltopdf on every page, so this layer covers each page's
+    // body box in full.
+    //
+    // The offsets were previously negative (-28/-20/-22/-20mm), from the
+    // abandoned Option A attempt to bleed into the margin band; QtWebKit clips
+    // fixed elements at the body box, so that overflow only ever amounted to
+    // dead geometry pinned to margin values that have since changed. Zero
+    // offsets state the actual intent: exactly the body box, whatever the
+    // paperformat margins are.
+    //
+    // z-index:-1 keeps it BELOW all content (QtWebKit paints negative z-index
+    // behind non-positioned block backgrounds), so it cannot wash out text.
     .o_sgc_ivory_bleed {
         position: fixed;
-        top: -28mm;
-        right: -20mm;
-        bottom: -22mm;
-        left: -20mm;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
         background: $sgc-ivory;
         pointer-events: none;
         z-index: -1;
