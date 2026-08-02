@@ -52,6 +52,28 @@
 
     &.article {
         background: $sgc-ivory;
+        position: relative;
+
+        // Full-bleed fix: the ivory background only covers the article
+        // div's own height, which shrinks to fit short content - on a
+        // mostly-empty page this left a visible white gap below the
+        // content instead of ivory reaching the page edges. min-height
+        // is a floor, not a fixed height, so longer documents that
+        // naturally exceed this still flow across pages normally.
+        min-height: 220mm;
+
+        // "Boxed" architectural frame (Brand Guidelines v3.0 Ch.07:
+        // "Gold Corner Geometry... create an architectural frame
+        // effect"), inset from the page edges so the ivory full-bleed
+        // background remains visible outside the frame.
+        &::before {
+            content: "";
+            position: absolute;
+            top: 6mm; left: 6mm; right: 6mm; bottom: 6mm;
+            border: 1px solid $sgc-gold;
+            pointer-events: none;
+            z-index: 0;
+        }
 
         h2 {
             font-family: $sgc-font-serif;
@@ -194,11 +216,15 @@
         }
 
         th {
+            // Filled navy header, matching sgc_report.scss's main table
+            // (Brand Guidelines v3.0 Ch.03/Ch.08: navy background, white
+            // text for table headers).
+            background: $sgc-navy;
+            color: $sgc-ivory;
             font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: $sgc-slate;
-            border-bottom: 1px solid $sgc-charcoal;
+            border-bottom: 1px solid $sgc-navy;
             padding: $sgc-space-sm;
             text-align: left;
         }

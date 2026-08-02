@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <!--
+    Simple geometric skyline silhouette placeholder - NOT real UAE landmark
+    photography. Brand Guidelines v3.0 Ch.06 calls for actual photographed
+    landmarks (Burj Khalifa, Museum of the Future, etc.) at 2-5% opacity;
+    the guideline PDF itself only contains flattened full-page raster
+    exports with no isolated extractable photo assets (confirmed - every
+    page is a single merged PNG, text and imagery baked together). This
+    vector placeholder gives the intended visual effect (a faint skyline
+    watermark behind report content) until real photography is sourced.
+    Solid fill here - actual opacity is controlled by the consuming CSS
+    (sgc_report_signature.scss), not baked into this file.
+  -->
+  <g fill="#0F213D">
+    <rect x="40"  y="330" width="55" height="170"/>
+    <rect x="105" y="290" width="45" height="210"/>
+    <rect x="160" y="350" width="60" height="150"/>
+    <rect x="230" y="260" width="50" height="240"/>
+    <rect x="290" y="380" width="40" height="120"/>
+    <!-- central spire, Burj-Khalifa-inspired tapering silhouette -->
+    <polygon points="360,500 385,120 400,60 415,120 440,500"/>
+    <rect x="460" y="340" width="50" height="160"/>
+    <rect x="520" y="270" width="45" height="230"/>
+    <rect x="575" y="360" width="60" height="140"/>
+    <rect x="645" y="300" width="40" height="200"/>
+    <rect x="695" y="370" width="55" height="130"/>
+  </g>
+</svg>

@@ -90,10 +90,16 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     tr, td, th { page-break-inside: avoid; }
 
     thead th {
-        background: $sgc-zebra;
-        border-top: 1px solid $sgc-rule-strong;
-        border-bottom: 1px solid $sgc-rule-strong;
-        color: $sgc-navy;
+        // Filled navy header per Brand Guidelines v3.0 Ch.03 (Color
+        // Application Hierarchy: "table headers use the navy at full
+        // strength but limited area") and Ch.08 (Component System: "Headers
+        // use navy background with white text"). Was a light zebra fill
+        // with navy text - visually read as a thin underline, not a filled
+        // bar.
+        background: $sgc-navy;
+        border-top: 1px solid $sgc-navy;
+        border-bottom: 1px solid $sgc-navy;
+        color: $sgc-ivory;
         font-size: 7.75pt;
         font-weight: 600;
         letter-spacing: .07em;

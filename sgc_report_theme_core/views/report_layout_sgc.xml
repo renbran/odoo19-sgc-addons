@@ -102,6 +102,24 @@
             <attribute name="t-attf-class">o_sgc_report o_sgc_body #{sgc_density} article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
         </xpath>
 
+        <!--
+            2026-08-02 page chrome: gold corner brackets + skyline watermark.
+            All elements are position:fixed (sgc_report_signature.scss), so
+            wkhtmltopdf repeats them on every page, and z-index:0 keeps them
+            behind the flowing content. Inserted as the FIRST child of the
+            article div so they frame the document body itself. Opt-in only:
+            these classes change nothing unless a bridge report t-calls this
+            template (same additive guarantee as the rest of the module).
+        -->
+        <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]/*[1]" position="before">
+            <span class="o_sgc_corner o_sgc_corner_tl"><span class="o_sgc_corner_tertiary"></span></span>
+            <span class="o_sgc_corner o_sgc_corner_tr"><span class="o_sgc_corner_tertiary"></span></span>
+            <span class="o_sgc_corner o_sgc_corner_bl"><span class="o_sgc_corner_tertiary"></span></span>
+            <span class="o_sgc_corner o_sgc_corner_br"><span class="o_sgc_corner_tertiary"></span></span>
+            <span class="o_sgc_ivory_bleed"></span>
+            <span class="o_sgc_watermark_skyline"></span>
+        </xpath>
+
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="attributes">
             <attribute name="t-attf-class">o_sgc_report o_sgc_footer #{sgc_density} footer o_company_#{company.id}_layout {{report_type != 'pdf' and 'mt-auto'}}</attribute>
         </xpath>
