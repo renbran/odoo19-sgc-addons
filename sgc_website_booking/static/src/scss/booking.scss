@@ -11,13 +11,23 @@
     --bk-grad:        var(--grad-brand, linear-gradient(135deg, #00D4FF 0%, #7B2FBE 100%));
     --bk-border:      var(--glass-border, rgba(0, 212, 255, 0.18));
     --bk-border-h:    var(--glass-border-h, rgba(0, 212, 255, 0.45));
-    --bk-text:        var(--sgc-text-1, #E8F4FD);
-    --bk-body:        var(--sgc-text-2, #8FB3D9);
-    --bk-muted:       var(--sgc-text-3, #4A7FA5);
+    --bk-text:        var(--sgc-text-1, #E8F4FD);           // headings on dark  (~15:1 AAA)
+    --bk-body:        var(--sgc-text-2, #8FB3D9);           // labels/body on dark (7.6:1 AAA)
+    --bk-muted:       var(--sgc-text-2, #8FB3D9);           // muted TEXT on dark — kept AAA-safe
     --bk-surface:     var(--sgc-bg-2, #0D1F38);
     --bk-surface-2:   var(--sgc-bg-3, #112244);
     --bk-glass:       var(--glass-bg, rgba(13, 31, 56, 0.55));
     --bk-radius:      var(--r-lg, 16px);
+
+    // ── Cream/ivory surfaces for inputs + calendar (high contrast on navy) ──
+    // Contrast ratios (verified): ink on cream 14.5:1 (AAA); muted-ink on cream
+    // 5.8–6.6:1 (AA); white on selected navy 16:1 (AAA).
+    --bk-cream:       var(--sgc-bg-1, #FAF7F2);   // ivory surface
+    --bk-cream-hi:    #FFFFFF;                     // brightest (hover/focus)
+    --bk-cream-idle:  #EFE7D8;                     // recessed ivory (idle/disabled)
+    --bk-ink:         #0D2444;                     // dark-navy text on cream (14.5:1)
+    --bk-ink-2:       #4A5878;                     // muted text on cream (>=5.8:1)
+    --bk-selected:    #0D2444;                     // solid selected tile (white text = 16:1)
 
     // ── Glass cards ──────────────────────────────────────────────
     .sgc-booking-card {
@@ -136,34 +146,35 @@
         display: flex; align-items: center; justify-content: center;
         border-radius: 10px;
         border: 1px solid transparent;
-        background: var(--bk-surface-2);
-        color: var(--bk-body);
+        background: var(--bk-cream-idle);   // recessed ivory tile
+        color: var(--bk-ink-2);
         font-size: .9rem;
         cursor: default;
         transition: var(--t-fast, all .15s ease);
 
         &.empty { background: transparent; }
-        &.disabled { color: var(--bk-muted); opacity: .3; background: transparent; }
+        &.disabled { color: var(--bk-ink-2); background: var(--bk-cream-idle); opacity: .7; }
 
         &.available {
             cursor: pointer;
-            color: var(--bk-text);
-            border-color: var(--bk-border);
-            background: rgba(0, 212, 255, 0.08);
-            font-weight: 600;
+            color: var(--bk-ink);                       // 14.5:1 on cream (AAA)
+            background: var(--bk-cream);
+            border-color: rgba(0, 212, 255, 0.55);
+            font-weight: 700;
 
             &:hover {
-                border-color: var(--bk-border-h);
-                background: rgba(0, 212, 255, 0.18);
-                box-shadow: 0 0 16px rgba(0, 212, 255, 0.20);
+                background: var(--bk-cream-hi);
+                border-color: var(--bk-accent);
+                box-shadow: 0 0 16px rgba(0, 212, 255, 0.30);
             }
         }
-        &.today { box-shadow: inset 0 0 0 1px var(--bk-accent); }
+        &.today { box-shadow: inset 0 0 0 2px var(--bk-accent); }
         &.selected {
-            background: var(--bk-grad);
-            color: #FFFFFF;
-            border-color: transparent;
-            box-shadow: 0 0 22px rgba(0, 212, 255, 0.35);
+            background: var(--bk-selected);             // solid navy tile
+            color: #FFFFFF;                             // 16:1 (AAA)
+            border-color: var(--bk-accent);
+            font-weight: 700;
+            box-shadow: 0 0 22px rgba(0, 212, 255, 0.45);
         }
     }
 
@@ -186,24 +197,25 @@
     .sgc-slot {
         padding: .55rem 1rem;
         border-radius: 999px;
-        border: 1px solid var(--bk-border);
-        background: var(--bk-surface-2);
-        color: var(--bk-body);
+        border: 1px solid rgba(13, 36, 68, 0.18);
+        background: var(--bk-cream);
+        color: var(--bk-ink);                           // 14.5:1 on cream (AAA)
         font-size: .85rem;
         font-weight: 600;
         cursor: pointer;
         transition: var(--t-base, all .3s ease);
 
         &:hover {
-            border-color: var(--bk-border-h);
-            color: var(--bk-accent);
-            box-shadow: 0 0 16px rgba(0, 212, 255, 0.18);
+            background: var(--bk-cream-hi);
+            border-color: var(--bk-accent);
+            color: var(--bk-ink);
+            box-shadow: 0 0 16px rgba(0, 212, 255, 0.25);
         }
         &.selected {
-            background: var(--bk-grad);
-            color: #FFFFFF;
-            border-color: transparent;
-            box-shadow: 0 0 22px rgba(0, 212, 255, 0.35);
+            background: var(--bk-selected);             // solid navy chip
+            color: #FFFFFF;                             // 16:1 (AAA)
+            border-color: var(--bk-accent);
+            box-shadow: 0 0 22px rgba(0, 212, 255, 0.45);
         }
     }
 
@@ -248,24 +260,24 @@
         width: 100%;
         padding: .7rem .9rem;
         border-radius: 10px;
-        border: 1px solid var(--bk-border);
-        background: var(--bk-surface);
-        color: var(--bk-text);
+        border: 1px solid rgba(13, 36, 68, 0.22);
+        background: var(--bk-cream);
+        color: var(--bk-ink);                           // 14.5:1 on cream (AAA)
         font-size: .92rem;
         font-family: var(--font-body, 'Inter', sans-serif);
         transition: var(--t-fast, all .15s ease);
 
-        &::placeholder { color: var(--bk-muted); }
-        &:hover { border-color: var(--bk-border-h); }
+        &::placeholder { color: var(--bk-ink-2); }      // 5.8:1 on cream (AA)
+        &:hover { border-color: rgba(0, 212, 255, 0.6); }
         &:focus {
             outline: none;
             border-color: var(--bk-accent);
-            background: var(--bk-surface-2);
-            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+            background: var(--bk-cream-hi);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.30);
         }
     }
     select.sgc-form-input { cursor: pointer; }
-    select.sgc-form-input option { background: var(--bk-surface); color: var(--bk-text); }
+    select.sgc-form-input option { background: var(--bk-cream); color: var(--bk-ink); }
     textarea.sgc-form-input { resize: vertical; min-height: 84px; }
 
     // ── Trust microcopy under the CTA ────────────────────────────
