@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    email_shell_sgc - reusable branded "chrome" for customer-facing
+    transactional emails: navy masthead, gold corner geometry, Dubai
+    coordinate marks, deep-navy footer band.
+
+    Extracted verbatim (same hex values, same structure) from
+    sgc_meeting_ai.mail_template_meeting_invitation_sgc - the "Active
+    Meeting Invitation (SGC)" template - which is this brand's already-
+    live, already-approved email design and the reference every other
+    customer-facing email template should match. That template is fully
+    self-contained (no shared block); this shell exists so OTHER
+    templates don't have to duplicate ~80 lines of identical chrome HTML
+    each. A consuming mail.template's body_html should:
+
+      <t t-set="doc_subtitle" t-value="'Quotation'"/>
+      <t t-call="sgc_report_theme_core.email_shell_sgc">
+          ... this template's own title/intro/CTA/details content ...
+      </t>
+
+    and set email_layout_xmlid = False on the template record itself -
+    same as the reference template. This shell deliberately never wraps
+    through mail.mail_notification_layout/email_layout_xmlid; the
+    reference template proves that stock wrapper isn't part of this
+    brand's email pattern.
+
+    Like the reference template, every color/font value here is a
+    literal Brand Guidelines v3.0 hex/font value - email HTML has no
+    asset bundle, so these cannot reference the report SCSS $sgc-*
+    variables.
+-->
+
+    <template id="email_shell_sgc" name="SGC Branded Email Shell">
+        <t t-set="serif" t-value="&quot;'IBM Plex Serif', Georgia, 'Times New Roman', serif&quot;"/>
+        <t t-set="sans" t-value="&quot;'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif&quot;"/>
+
+        <div style="margin:0; padding:0; background-color:#F7F4EE;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F7F4EE;">
+        <tr><td align="center" style="padding:28px 12px;">
+
+            <!-- COORDINATE MARK - NORTH -->
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+                <tr>
+                    <td t-attf-style="padding:0 2px 8px 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">25.2048 N</td>
+                    <td align="right" t-attf-style="padding:0 2px 8px 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">55.2708 E</td>
+                </tr>
+            </table>
+
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px; background-color:#FFFFFF; border:1px solid #ECE7DF;">
+
+                <!-- NAVY MASTHEAD -->
+                <tr>
+                <td style="background-color:#0F213D; padding:26px 32px 22px 32px; border-bottom:2px solid #B79554;">
+                    <div t-attf-style="font-family:{{ sans }}; font-size:11px; font-weight:600; letter-spacing:5px; color:#D9C08A; text-transform:uppercase;">S G C&#160;&#160;T E C H&#160;&#160;A I</div>
+                    <div t-attf-style="font-family:{{ sans }}; font-size:9px; letter-spacing:3px; color:#5F6775; text-transform:uppercase; padding-top:8px;" t-out="doc_subtitle or ''">Document</div>
+                </td>
+                </tr>
+
+                <!-- GOLD CORNER GEOMETRY - TOP -->
+                <tr><td style="padding:22px 32px 0 32px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td width="26" style="width:26px; height:18px; border-top:1px solid #B79554; border-left:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                            <td style="font-size:0; line-height:0;">&#160;</td>
+                            <td width="26" style="width:26px; height:18px; border-top:1px solid #B79554; border-right:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                        </tr>
+                    </table>
+                </td></tr>
+
+                <!-- BODY: caller-supplied content -->
+                <tr>
+                <td t-attf-style="padding:10px 32px 8px 32px; font-family:{{ sans }}; font-size:14px; color:#1C2430; line-height:1.7;">
+                    <t t-out="0"/>
+                </td>
+                </tr>
+
+                <!-- GOLD CORNER GEOMETRY - BOTTOM -->
+                <tr><td style="padding:0 32px 22px 32px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                            <td width="26" style="width:26px; height:18px; border-bottom:1px solid #B79554; border-left:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                            <td style="font-size:0; line-height:0;">&#160;</td>
+                            <td width="26" style="width:26px; height:18px; border-bottom:1px solid #B79554; border-right:1px solid #B79554; font-size:0; line-height:0;">&#160;</td>
+                        </tr>
+                    </table>
+                </td></tr>
+
+                <!-- FOOTER BAND -->
+                <tr>
+                <td t-attf-style="background-color:#091528; padding:18px 32px; font-family:{{ sans }}; font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#5F6775; text-align:center; line-height:1.9;">
+                    <span style="color:#D9C08A;">SGC TECH AI</span><br/>
+                    DIFC, Dubai, UAE • INFO@SGCTECH.AI
+                </td>
+                </tr>
+            </table>
+
+            <!-- COORDINATE MARK - EAST -->
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px; max-width:600px;">
+                <tr>
+                    <td t-attf-style="padding:10px 2px 0 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">DUBAI • 2026</td>
+                    <td align="right" t-attf-style="padding:10px 2px 0 2px; font-family:'IBM Plex Mono',Consolas,monospace; font-size:8px; letter-spacing:2px; color:#B79554;">55.2708 E</td>
+                </tr>
+            </table>
+
+        </td></tr>
+        </table>
+        </div>
+    </template>
+
+</odoo>

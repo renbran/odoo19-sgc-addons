@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+<!--
+    Re-declares 4 stock mail.template records by their exact fully-
+    qualified XML ID (a standard, supported Odoo customization pattern -
+    this UPDATES the existing record via its already-registered
+    ir.model.data entry, it does not create a duplicate). Every business-
+    logic expression (t-if/t-out/t-set) is preserved verbatim from each
+    stock template; only presentation changes, via
+    sgc_report_theme_core.email_shell_sgc.
+-->
+
+    <record id="sale.email_template_edi_sale" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_name" t-value="'quotation' if object.state in ('draft', 'sent') else 'order'"/>
+<t t-set="doc_subtitle" t-value="'Sales Quotation' if object.state in ('draft', 'sent') else 'Sales Order'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+    <h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+        Your <t t-out="doc_name or ''">quotation</t> is ready
+    </h1>
+    <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+    <p style="margin:0 0 20px 0; color:#1C2430;">
+        Hello,<br/><br/>
+        Your <t t-out="doc_name or ''">quotation</t> <strong t-out="object.name or ''">S00052</strong>
+        <t t-if="object.origin"> (with reference: <t t-out="object.origin or ''">S00052</t>)</t>
+        amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 10.00</strong> is ready for review.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
+    <tr><td align="center" style="padding:6px 0;">
+        <a t-att-href="object.get_portal_url()" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
+            View <t t-out="doc_name or ''">Quotation</t>
+        </a>
+    </td></tr>
+    </table>
+    <t t-set="documents" t-value="object._get_product_documents()"/>
+    <t t-if="documents">
+        <div style="font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:24px 0 10px 0;">
+            <t t-if="len(documents) &gt; 1">Additional Documents</t><t t-else="">Additional Document</t>
+        </div>
+        <ul style="margin:0 0 20px 0; padding-left:18px; color:#1C2430;">
+            <t t-foreach="documents" t-as="document">
+                <li style="font-size:13px; margin-bottom:4px;">
+                    <a t-out="document.ir_attachment_id.name" t-att-href="object.get_portal_url('/document/' + str(document.id))" t-att-target="target" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"/>
+                </li>
+            </t>
+        </ul>
+    </t>
+    <p style="margin:22px 0 0 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+    <t t-if="not is_html_empty(object.user_id.signature)" data-o-mail-quote-container="1">
+        <div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.user_id.signature or ''" data-o-mail-quote="1">Mitchell Admin</t></div>
+    </t>
+</t>
+        </field>
+    </record>
+
+    <record id="sale.email_template_proforma" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_name" t-value="'quotation' if object.state in ('draft', 'sent') else 'order'"/>
+<t t-set="doc_subtitle" t-value="'Proforma Invoice'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+    <h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+        Your proforma invoice
+    </h1>
+    <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+    <p style="margin:0 0 20px 0; color:#1C2430;">
+        Hello,<br/><br/>
+        Your Pro forma invoice for <t t-out="doc_name or ''">quotation</t> <strong t-out="object.name or ''">S00052</strong>
+        <t t-if="object.origin"> (with reference: <t t-out="object.origin or ''"/>)</t>
+        amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 10.00</strong> is available.
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
+    <tr><td align="center" style="padding:6px 0;">
+        <a t-att-href="object.get_portal_url()" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
+            View Proforma
+        </a>
+    </td></tr>
+    </table>
+    <p style="margin:22px 0 0 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+    <t t-if="not is_html_empty(object.user_id.signature)" data-o-mail-quote-container="1">
+        <div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.user_id.signature or ''" data-o-mail-quote="1">Mitchell Admin</t></div>
+    </t>
+</t>
+        </field>
+    </record>
+
+    <record id="account.email_template_edi_invoice" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Invoice'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+    <h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+        Your invoice
+        <t t-if="object.name">is ready</t>
+    </h1>
+    <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+    <p style="margin:0 0 20px 0; color:#1C2430;">
+        Dear
+        <t t-if="object.partner_id.parent_id">
+            <t t-if="object.partner_id.name">
+                <t t-out="object.partner_id.name">Brandon Freeman</t> (<t t-out="object.partner_id.parent_id.name or ''">Azure Interior</t>),
+            </t>
+            <t t-else="">
+                <t t-out="object.partner_id.parent_id.name or ''">Azure Interior</t>,
+            </t>
+        </t>
+        <t t-else="">
+            <t t-out="object.partner_id.name or ''">Brandon Freeman</t>,
+        </t>
+        <br/><br/>
+        Here is your
+        <t t-if="object.name">
+            invoice <strong t-out="object.name or ''">INV/2021/05/0005</strong>
+        </t>
+        <t t-else="">
+            invoice
+        </t>
+        <t t-if="object.invoice_origin">
+            (with reference: <t t-out="object.invoice_origin or ''">SUB003</t>)
+        </t>
+        amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''">$ 143,750.00</strong>
+        from <t t-out="object.company_id.name or ''">YourCompany</t>.
+        <t t-if="object.payment_state in ('paid', 'in_payment')">
+            This invoice is already paid.
+        </t>
+        <t t-else="">
+            Please remit payment at your earliest convenience.
+            <t t-if="object.payment_reference">
+                <br/><br/>
+                Please use the following communication for your payment: <strong t-out="object.payment_reference or ''">INV/2021/05/0005</strong>
+                <t t-if="object.partner_bank_id">
+                    on the account <strong t-out="object.partner_bank_id.acc_number"/>
+                </t>.
+            </t>
+        </t>
+    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 6px 0;">
+    <tr><td align="center" style="padding:6px 0;">
+        <a t-att-href="object.get_portal_url()" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">
+            View Invoice
+        </a>
+    </td></tr>
+    </table>
+    <t t-if="hasattr(object, 'timesheet_count') and object.timesheet_count">
+        <p style="margin:16px 0 0 0; color:#1C2430;">
+            PS: you can review your timesheets <a t-att-href="'/my/timesheets?search_in=invoice&amp;search=%s' % object.name" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;">from the portal.</a>
+        </p>
+    </t>
+    <p style="margin:22px 0 0 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+    <t t-if="not is_html_empty(object.invoice_user_id.signature)" data-o-mail-quote-container="1">
+        <div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.invoice_user_id.signature or ''" data-o-mail-quote="1">Mitchell Admin</t></div>
+    </t>
+</t>
+        </field>
+    </record>
+
+    <record id="account.mail_template_data_payment_receipt" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Payment Receipt'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+    <h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+        Thank you for your payment
+    </h1>
+    <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+    <p style="margin:0 0 20px 0; color:#1C2430;">
+        Dear <t t-out="object.partner_id.name or ''">Azure Interior</t>,<br/><br/>
+        Thank you for your payment.
+        Here is your payment receipt <strong t-out="(object.name or '').replace('/','-') or ''">BNK1-2021-05-0002</strong> amounting
+        to <strong t-out="format_amount(object.amount, object.currency_id) or ''">$ 10.00</strong> from <t t-out="object.company_id.name or ''">YourCompany</t>.
+    </p>
+    <p style="margin:0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+    <p style="margin:22px 0 0 0; color:#1C2430;">Best regards,</p>
+    <t t-if="not is_html_empty(user.signature)" data-o-mail-quote-container="1">
+        <div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="user.signature or ''" data-o-mail-quote="1">Mitchell Admin</t></div>
+    </t>
+</t>
+        </field>
+    </record>
+
+</odoo>
