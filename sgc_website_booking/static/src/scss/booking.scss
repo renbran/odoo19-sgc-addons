@@ -301,8 +301,60 @@
         a { color: var(--bk-accent); text-decoration: underline; }
     }
 
+    // ── Confirm CTA — self-contained primary button ─────────────────
+    // The .sgc-btn family normally comes from the website_sgctech_ai theme,
+    // which is NOT installed on the live sgctech.ai site. These rules keep
+    // the button (and its label) fully styled and persistent, standing out
+    // from the page background instead of being washed out by it.
+    .sgc-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+        font-family: var(--font-body, 'Inter', sans-serif);
+        font-weight: 700;
+        font-size: .95rem;
+        letter-spacing: .02em;
+        border-radius: 999px;
+        padding: .85rem 1.6rem;
+        border: none;
+        cursor: pointer;
+        text-decoration: none !important;
+        white-space: nowrap;
+        position: relative;
+        z-index: 2;                     // stays above any background layer
+        transition: all .3s ease;
+    }
+    .sgc-btn-full {
+        width: 100%;
+        justify-content: center;
+        border-radius: 14px;
+    }
+    .sgc-btn-primary {
+        background: linear-gradient(135deg, #00D4FF 0%, #7B2FBE 100%);
+        color: #FFFFFF;
+        box-shadow: 0 0 28px rgba(0, 212, 255, .35), 0 6px 22px rgba(0, 0, 0, .45);
+
+        &:hover {
+            color: #FFFFFF;
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(0, 212, 255, .45), 0 10px 30px rgba(0, 0, 0, .5);
+        }
+        &:active { transform: translateY(-1px) scale(.99); }
+    }
+
+    // Confirm button stays persistent when disabled (before a slot is picked):
+    // still fully visible with readable white text — just muted, not hidden.
+    #sgc-bk-submit:disabled.sgc-btn-primary {
+        cursor: not-allowed;
+        opacity: 1;                      // keep the button + text persistent
+        background: linear-gradient(135deg, #1D4A74 0%, #3A2B5E 100%);
+        color: rgba(255, 255, 255, .9);
+        filter: saturate(.55);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, .3);
+        &:hover { transform: none; }
+    }
     #sgc-bk-submit.loading { opacity: .6; pointer-events: none; }
-    #sgc-bk-submit:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 }
 
 // ── Dark-navy page background (overrides the theme's cream #wrapwrap so the
