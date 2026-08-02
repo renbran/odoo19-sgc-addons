@@ -57,13 +57,29 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 }
 
 // ---- Header -------------------------------------------------------------
+// Content must fit inside the wkhtmltopdf --header-html box, which is only
+// as tall as paperformat margin_top (28mm ~ 110px @100dpi). Measured via a
+// standalone wkhtmltoimage render of the extracted header stamp (bypassing
+// the box clip): the address list was rendering at 10pt/1.6 line-height
+// because its real markup is <ul class="list-unstyled" name="company_address_list">,
+// not .o_company_address/address (that selector matches a different stock
+// layout variant and never matched here) - so the compact sizing below
+// never applied and the block overflowed to ~127px, clipped invisible by
+// wkhtmltopdf's bottom-anchored header box.
 .o_sgc_header {
-    padding-bottom: 6px;
+    padding-bottom: 4px;
     border-bottom: 1px solid $sgc-rule-soft;
 
     img.o_company_logo, img.o_company_logo_small, img.o_company_logo_big,
-    .o_company_logo img { max-height: 46px; width: auto; max-width: 160px; object-fit: contain; }
-    .o_company_address, address { font-size: 8.5pt; line-height: 1.35; color: $sgc-slate; }
+    .o_company_logo img { max-height: 38px; width: auto; max-width: 150px; object-fit: contain; }
+    .mb-2 { margin-bottom: 3px !important; }
+
+    ul[name="company_address_list"], .o_company_address, address {
+        font-size: 8pt;
+        line-height: 1.2;
+        color: $sgc-slate;
+    }
+    ul[name="company_address_list"] li { margin-bottom: 0; }
     address { font-style: normal; }
 }
 
