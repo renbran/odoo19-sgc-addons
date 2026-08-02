@@ -174,7 +174,10 @@
             <div class="row g-4 mt-4 aurum-industry-list">
                 <t t-foreach="['Real Estate','Construction','Healthcare','Manufacturing','Retail','Professional Services']" t-as="industry">
                     <div class="col-6 col-md-4 aurum-reveal">
-                        <div class="aurum-industry">
+                        <!-- The per-industry class replaces the old :nth-child() coupling in
+                             aurum_frontend.scss: reordering this list no longer swaps the
+                             background photos onto the wrong industries. -->
+                        <div t-attf-class="aurum-industry aurum-industry-#{industry.lower().replace(' ', '-')}">
                             <span><t t-esc="industry"/></span>
                         </div>
                     </div>

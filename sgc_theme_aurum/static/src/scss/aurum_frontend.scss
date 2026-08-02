@@ -461,23 +461,62 @@ header#top .nav-link:hover {
 .aurum-industry:hover { transform: scale(1.03); }
 
 // Homepage industry card background images
-.aurum-industry-list .aurum-industry:nth-child(1) {
-    background-image: url(https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=600&q=80);
+// Self-hosted HD assets (1200x900, 4:3 to match .aurum-industry aspect-ratio).
+// These previously hotlinked images.unsplash.com at w=600 -- a third-party request
+// on every homepage load, and well below retina resolution for the card.
+// Keyed on a per-industry class rather than :nth-child, so reordering the markup
+// can no longer put the wrong photo on an industry.
+// The url() line is the fallback; browsers that understand image-set() take the
+// second declaration and pick AVIF or WebP.
+
+.aurum-industry-real-estate {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.jpg)  type('image/jpeg'));
 }
-.aurum-industry-list .aurum-industry:nth-child(2) {
-    background-image: url(https://images.unsplash.com/photo-1541888946425-d81bb0025e8f?auto=format&fit=crop&w=600&q=80);
+.aurum-industry-construction {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_construction.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_construction.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_construction.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_construction.jpg)  type('image/jpeg'));
 }
-.aurum-industry-list .aurum-industry:nth-child(3) {
-    background-image: url(https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=600&q=80);
+.aurum-industry-healthcare {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.jpg)  type('image/jpeg'));
 }
-.aurum-industry-list .aurum-industry:nth-child(4) {
-    background-image: url(https://images.unsplash.com/photo-1565538421755-d98c6c41a224?auto=format&fit=crop&w=600&q=80);
+.aurum-industry-manufacturing {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.jpg)  type('image/jpeg'));
 }
-.aurum-industry-list .aurum-industry:nth-child(5) {
-    background-image: url(https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=600&q=80);
+.aurum-industry-retail {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_retail.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_retail.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_retail.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_retail.jpg)  type('image/jpeg'));
 }
-.aurum-industry-list .aurum-industry:nth-child(6) {
-    background-image: url(https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80);
+.aurum-industry-professional-services {
+    background-image: url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.jpg);
+    background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.avif) type('image/avif'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.webp) type('image/webp'),
+                                url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.jpg)  type('image/jpeg'));
+}
+
+.aurum-industry-list .aurum-industry {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+// WCAG 2.2.2 / 2.3.3 -- the hover zoom is decorative motion.
+@media (prefers-reduced-motion: reduce) {
+    .aurum-industry,
+    .aurum-industry:hover { transition: none !important; transform: none !important; }
+}
 }
 
 // ---------------------------------------------------------------- roadmap
