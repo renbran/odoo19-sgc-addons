@@ -27,8 +27,16 @@
         <field name="orientation">Portrait</field>
         <field name="margin_top">28</field>
         <field name="margin_bottom">22</field>
-        <field name="margin_left">20</field>
-        <field name="margin_right">20</field>
+        <!-- 2026-08-02 Option B full-bleed: left/right margins zeroed so the
+             wkhtmltopdf body box reaches the paper's side edges and the
+             article's ivory background paints the side bands edge-to-edge.
+             The 20mm brand inset is restored as padding on the article via
+             sgc_report.scss.              Top/bottom margins stay: the native
+             header-html/footer-html stamp the top/bottom margin zones
+             and carry their own ivory background (html/body ivory in the
+             report assets), so all four bands read full-bleed ivory. -->
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
         <field name="header_spacing">24</field>
         <field name="dpi">96</field>

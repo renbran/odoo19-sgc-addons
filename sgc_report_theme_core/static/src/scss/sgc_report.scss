@@ -187,3 +187,38 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 
     .text-center, .o_footer_page { letter-spacing: .02em; }
 }
+
+// ---- Option B: full-bleed ivory (2026-08-02) -----------------------------
+// wkhtmltopdf paints only the body box - the paperformat margin band stays
+// white regardless of position:fixed (Option A proved this: negative-offset
+// fixed layers get clipped at the body box). Option B therefore zeroes the
+// left/right paperformat margins (paperformat_data.xml) so the body box
+// reaches the paper's side edges, and this file - loaded last in both asset
+// bundles - restores the 20mm brand inset as padding on the article and
+// pushes the gold frame out to the same 26mm-from-edge position it held
+// when the 20mm margins still existed.
+//
+// The top/bottom bands are painted by the native --header-html/--footer-html
+// documents (Odoo extracts every 'header'/'footer' element into separate
+// html and stamps them into the margin zone). They render with the report
+// assets too, so html/body ivory covers the top/bottom zones as well.
+html, body { background-color: $sgc-ivory; }
+
+// Kill bootstrap .container's 15px side padding so the article truly spans
+// edge-to-edge; its own ivory background then paints the side bands.
+body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
+
+// Restore the 20mm brand inset as content padding on the article.
+.o_sgc_report.article {
+    padding-left: 20mm;
+    padding-right: 20mm;
+}
+
+// Gold frame: keep the same visual position as with the old margins -
+// 6mm inside where the article edge used to be (20mm margin + 6mm inset
+// = 26mm from paper edge). Top/bottom stay 6mm (article top/bottom are
+// bounded by the header/footer zones, unchanged).
+.o_sgc_report.article::before {
+    left: 26mm;
+    right: 26mm;
+}
