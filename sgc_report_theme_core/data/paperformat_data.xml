@@ -38,7 +38,13 @@
         <field name="margin_left">0</field>
         <field name="margin_right">0</field>
         <field name="header_line" eval="False"/>
-        <field name="header_spacing">24</field>
+        <!-- 2026-08-02 Option B: header_spacing set equal to margin_top (28)
+             so the header-html document is stamped starting at the very top
+             edge of the page (y=0). With header_spacing 24 < margin_top 28
+             the header doc starts 4mm below the top, leaving a white strip
+             above the header; the standalone header-doc render proved the
+             doc itself is ivory flush to its own top edge. -->
+        <field name="header_spacing">28</field>
         <field name="dpi">96</field>
     </record>
 

@@ -20,6 +20,7 @@ Uninstalling this module reverts the report to its stock layout.
     "license": "LGPL-3",
     "depends": ["sgc_report_theme_core", "sale_management", "sale"],
     "data": [
+        "data/report_paperformat.xml",
         "views/sales_reports_bridge.xml",
     ],
     "installable": True,

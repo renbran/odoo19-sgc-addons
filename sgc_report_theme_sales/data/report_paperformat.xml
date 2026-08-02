@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <!--
+        2026-08-02 Option B full-bleed: the stock Quotation / Sales Order
+        report actions are explicitly bound to base.paperformat_euro
+        (5mm side margins), so they ignore the company default paperformat
+        and render with white side strips instead of full-bleed ivory.
+        Re-point all three to sgc_report_theme_core's paperformat_sgc_a4_portrait
+        (margin_left/right 0, company-default on invoice side).
+    -->
+    <record id="sale.report_saleorder" model="ir.actions.report">
+        <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
+    </record>
+    <record id="sale.report_saleorder_pro_forma" model="ir.actions.report">
+        <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
+    </record>
+    <record id="sale.report_saleorder_raw" model="ir.actions.report">
+        <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
+    </record>
+</odoo>

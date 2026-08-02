@@ -184,6 +184,12 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     font-size: 7.75pt;
     line-height: 1.35;
     color: $sgc-slate;
+    // Option B full-bleed: the footer div is extracted by Odoo into the
+    // --footer-html margin-zone document. Paint it ivory and give it the full
+    // margin_bottom height so the bottom band of the page is ivory edge to
+    // edge (previously the band below the footer text stayed white).
+    background-color: $sgc-ivory;
+    min-height: 22mm;
 
     .text-center, .o_footer_page { letter-spacing: .02em; }
 }
@@ -203,6 +209,15 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 // html and stamps them into the margin zone). They render with the report
 // assets too, so html/body ivory covers the top/bottom zones as well.
 html, body { background-color: $sgc-ivory; }
+
+// The header/footer --header-html/--footer-html documents are wrapped in
+// minimal_layout which stamps <html style="height: 0;"> on the root. That
+// inline height zeroes the html element's background box, so the ivory
+// background above can never paint the full stamped page - only the content
+// divs (which carry their own backgrounds) show color, leaving white strips
+// above the header and below the footer. Overriding to auto lets the root
+// background propagate to the whole canvas of those documents.
+html { height: auto !important; }
 
 // Kill bootstrap .container's 15px side padding so the article truly spans
 // edge-to-edge; its own ivory background then paints the side bands.
