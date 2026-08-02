@@ -318,7 +318,12 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
 // data/paperformat_data.xml. min- (not fixed) height so a multi-page document
 // still flows past it normally.
 .o_sgc_report.article {
-    min-height: 243mm;
+    // 1mm under the true 243mm body box on purpose. At exactly 243mm the box
+    // overflowed the page by a hair and wkhtmltopdf emitted a completely blank
+    // second page; the 1mm shortfall sits directly against the ivory footer
+    // band, so it is not visible.
+    min-height: 242mm;
+    margin: 0;
     box-sizing: border-box;
     padding-left: 20mm;
     padding-right: 20mm;
