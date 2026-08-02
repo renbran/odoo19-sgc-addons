@@ -4,7 +4,7 @@
     <!-- Public "Book a Session" page (served by the /book-session controller) -->
     <template id="sgc_book_session" name="Book an Online Session">
         <t t-call="website.layout">
-            <div id="wrap" class="sgc-main-wrap oe_structure">
+            <div id="wrap" class="sgc-main-wrap sgc-book-page oe_structure">
 
                 <!-- Hero -->
                 <section class="sgc-page-hero">

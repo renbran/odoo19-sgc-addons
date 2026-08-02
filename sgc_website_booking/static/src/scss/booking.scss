@@ -305,6 +305,12 @@
     #sgc-bk-submit:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 }
 
+// ── Dark-navy page background (overrides the theme's cream #wrapwrap so the
+//    cream calendar/inputs read as high-contrast light surfaces on navy) ──────
+.sgc-book-page {
+    background: var(--sgc-bg-0, #0D223D);
+}
+
 // ── Hero trust chips (row under the subtitle) ────────────────────
 .sgc-bk-hero-trust {
     display: flex;
