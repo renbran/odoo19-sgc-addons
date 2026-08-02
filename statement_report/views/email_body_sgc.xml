@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Branded HTML body for statement emails, replacing the plain,
+    unstyled string-concatenated HTML previously duplicated in 6
+    separate places in models/res_partner.py (action_share_pdf,
+    action_share_xlsx, auto_week_statement_report,
+    auto_month_statement_report, action_vendor_share_pdf,
+    action_vendor_share_xlsx). Uses sgc_report_theme_core's shared
+    email_shell_sgc chrome, matching the SGC TECH AI brand's approved
+    email design (sgc_meeting_ai's "Active Meeting Invitation (SGC)").
+
+    Rendered from Python via
+    env['ir.qweb']._render('statement_report.email_body_sgc', values)
+    with values={'partner_name': ..., 'user_name': ...}.
+-->
+
+    <template id="email_body_sgc" name="SGC Branded Statement Email Body">
+        <t t-set="doc_subtitle" t-value="'Account Statement'"/>
+        <t t-call="sgc_report_theme_core.email_shell_sgc">
+            <h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">
+                Your Account Statement
+            </h1>
+            <div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+            <p style="margin:0 0 20px 0; color:#1C2430;">
+                Dear <strong t-out="partner_name or ''">Customer</strong>,<br/><br/>
+                We have attached your payment statement. Please review the attached document.
+            </p>
+            <p style="margin:0; color:#1C2430;">Best regards,</p>
+            <p style="margin:4px 0 0 0; color:#1C2430;" t-out="user_name or ''">SGC TECH AI</p>
+        </t>
+    </template>
+
+</odoo>

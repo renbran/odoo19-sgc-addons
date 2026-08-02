@@ -14,10 +14,11 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.cybrosys.com",
-    'depends': ['base', 'account', 'contacts'],
+    'depends': ['base', 'account', 'contacts', 'sgc_report_theme_core'],
     'data': [
         'data/ir_cron_data.xml',
         'views/res_partner_views.xml',
+        'views/email_body_sgc.xml',
         'report/res_partner_reports.xml',
         'report/res_partner_templates.xml',
     ],

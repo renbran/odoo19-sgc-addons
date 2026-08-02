@@ -72,6 +72,24 @@ class Partner(models.Model):
         params = [self.id, self.env.company.id]
         return amount_query, params
 
+    def _sgc_statement_email_values(self, email_to, subject, attachment_ids, partner_name=None):
+        """Shared branded email body for statement emails - replaces the
+        plain, unstyled string-concatenated HTML previously duplicated in
+        6 separate places in this file (action_share_pdf,
+        action_share_xlsx, auto_week_statement_report,
+        auto_month_statement_report, action_vendor_share_pdf,
+        action_vendor_share_xlsx)."""
+        body_html = self.env['ir.qweb']._render('statement_report.email_body_sgc', {
+            'partner_name': partner_name or self.display_name,
+            'user_name': self.env.user.name,
+        })
+        return {
+            'email_to': email_to,
+            'subject': subject,
+            'body_html': body_html,
+            'attachment_ids': attachment_ids,
+        }
+
     def action_share_pdf(self):
         """ Action for sharing customer pdf report"""
         if self.customer_report_ids:
@@ -110,15 +128,8 @@ class Partner(models.Model):
                 'res_model': 'res.partner'
             }
             attachment = self.env['ir.attachment'].sudo().create(ir_values)
-            email_values = {
-                'email_to': self.email,
-                'subject': 'Payment Statement Report',
-                'body_html': '<p>Dear <strong> Mr/Miss. ' + self.name +
-                             '</strong> </p> <p> We have attached your '
-                             'payment statement. Please check </p> '
-                             '<p>Best regards, </p> <p> ' + self.env.user.name,
-                'attachment_ids': [attachment.id],
-            }
+            email_values = self._sgc_statement_email_values(
+                self.email, 'Payment Statement Report', [attachment.id], self.name)
             mail = self.env['mail.mail'].sudo().create(email_values)
             mail.send()
             return {
@@ -366,15 +377,8 @@ class Partner(models.Model):
                 'store_fname': xlsx,
             }
             attachment = self.env['ir.attachment'].sudo().create(ir_values)
-            email_values = {
-                'email_to': self.email,
-                'subject': 'Payment Statement Report',
-                'body_html': '<p>Dear <strong> Mr/Miss. ' + self.name +
-                             '</strong> </p> <p> We have attached your'
-                             ' payment statement. Please check </p> '
-                             '<p>Best regards, </p> <p> ' + self.env.user.name,
-                'attachment_ids': [attachment.id],
-            }
+            email_values = self._sgc_statement_email_values(
+                self.email, 'Payment Statement Report', [attachment.id], self.name)
             mail = self.env['mail.mail'].sudo().create(email_values)
             mail.send()
             return {
@@ -507,15 +511,9 @@ class Partner(models.Model):
                 }
                 attachment2 = self.env['ir.attachment'].sudo().create(
                     ir_values)
-                email_values = {
-                    'email_to': rec.email,
-                    'subject': 'Weekly Payment Statement Report',
-                    'body_html': '<p>Dear <strong> Mr/Miss. ' + rec.name +
-                                 '</strong> </p> <p> We have attached your '
-                                 'payment statement. Please check </p> <p>'
-                                 'Best regards, </p><p> ' + self.env.user.name,
-                    'attachment_ids': [attachment1.id, attachment2.id]
-                }
+                email_values = rec._sgc_statement_email_values(
+                    rec.email, 'Weekly Payment Statement Report',
+                    [attachment1.id, attachment2.id], rec.name)
                 mail = self.env['mail.mail'].sudo().create(email_values)
                 mail.send()
 
@@ -638,16 +636,9 @@ class Partner(models.Model):
                 }
                 attachment2 = self.env['ir.attachment'].sudo().create(
                     ir_values)
-                email_values = {
-                    'email_to': rec.email,
-                    'subject': 'Monthly Payment Statement Report',
-                    'body_html': '<p>Dear <strong> Mr/Miss. ' + rec.name +
-                                 '</strong> </p> <p> We have attached your '
-                                 'payment statement. '
-                                 'Please check </p> <p>Best regards,'
-                                 ' </p> <p>' + self.env.user.name,
-                    'attachment_ids': [attachment1.id, attachment2.id]
-                }
+                email_values = rec._sgc_statement_email_values(
+                    rec.email, 'Monthly Payment Statement Report',
+                    [attachment1.id, attachment2.id], rec.name)
                 mail = self.env['mail.mail'].sudo().create(email_values)
                 mail.send()
 
@@ -717,15 +708,8 @@ class Partner(models.Model):
             }
             attachment = self.env['ir.attachment'].sudo().create(ir_values)
 
-            email_values = {
-                'email_to': self.email,
-                'subject': 'Payment Statement Report',
-                'body_html': '<p>Dear <strong> Mr/Miss. ' + self.name +
-                             '</strong> </p> <p> We have attached'
-                             ' your payment statement. Please check </p> '
-                             '<p>Best regards, </p> <p> ' + self.env.user.name,
-                'attachment_ids': [attachment.id],
-            }
+            email_values = self._sgc_statement_email_values(
+                self.email, 'Payment Statement Report', [attachment.id], self.name)
             mail = self.env['mail.mail'].sudo().create(email_values)
             mail.send()
             return {
@@ -878,15 +862,8 @@ class Partner(models.Model):
             }
             attachment = self.env['ir.attachment'].sudo().create(ir_values)
 
-            email_values = {
-                'email_to': self.email,
-                'subject': 'Payment Statement Report',
-                'body_html': '<p>Dear <strong> Mr/Miss. ' + self.name +
-                             '</strong> </p> <p> We have attached your '
-                             'payment statement. Please check </p> '
-                             '<p>Best regards, </p> <p> ' + self.env.user.name,
-                'attachment_ids': [attachment.id],
-            }
+            email_values = self._sgc_statement_email_values(
+                self.email, 'Payment Statement Report', [attachment.id], self.name)
             mail = self.env['mail.mail'].sudo().create(email_values)
             mail.send()
             return {
