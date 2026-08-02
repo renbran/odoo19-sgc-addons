@@ -99,7 +99,7 @@
         </xpath>
 
         <!--
-            2026-08-02 header CSS inlining: wkhtmltopdf's --header-html
+            2026-08-02 header CSS inlining: wkhtmltopdf's "header html"
             sub-render (used by _prepare_html to stamp the header into the
             margin zone) does not reliably load the external
             web.report_assets_pdf/common <link> stylesheets - confirmed
@@ -108,7 +108,7 @@
             stock <link> tags in place, and rendered correctly the instant
             those tags were stripped, regardless of javascript-delay,
             content size, or the presence of the company logo. The same
-            --footer-html stamp is small/simple enough that it does not
+            "footer html" stamp is small/simple enough that it does not
             trip this, so it is left untouched. Since the header stamp is
             re-rendered through web.minimal_layout independently of the
             main document, and that template's <link> tags cannot be
