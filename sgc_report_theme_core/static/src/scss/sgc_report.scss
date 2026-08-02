@@ -57,16 +57,24 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 }
 
 // ---- Header -------------------------------------------------------------
-// Content must fit inside the wkhtmltopdf --header-html box, which is only
-// as tall as paperformat margin_top (28mm ~ 110px @100dpi). Measured via a
-// standalone wkhtmltoimage render of the extracted header stamp (bypassing
-// the box clip): the address list was rendering at 10pt/1.6 line-height
-// because its real markup is <ul class="list-unstyled" name="company_address_list">,
-// not .o_company_address/address (that selector matches a different stock
-// layout variant and never matched here) - so the compact sizing below
-// never applied and the block overflowed to ~127px, clipped invisible by
-// wkhtmltopdf's bottom-anchored header box.
+// The header div is extracted by Odoo into the wkhtmltopdf header-html stamp
+// and drawn into the paperformat margin_top band, so its box is pinned to that
+// band's height: tall enough that the ivory background fills the band edge to
+// edge, never taller (the stamp is bottom-anchored, so an over-tall box loses
+// its TOP - the logo - off the page). Keep this in sync with margin_top in
+// data/paperformat_data.xml; see the Option B block at the end of this file for
+// why the box height, not the asset loading, is what governs this band.
+//
+// Content is sized to sit inside that band with room to spare. The address list
+// needed explicit compaction because its real markup is
+// <ul class="list-unstyled" name="company_address_list"> - the pre-existing
+// .o_company_address/address selector matches a different stock layout variant
+// and never matched here, so the block was inheriting the 10pt/1.6 airy rhythm.
 .o_sgc_header {
+    height: 28mm;
+    box-sizing: border-box;
+    overflow: hidden;
+    background-color: $sgc-ivory;
     padding-bottom: 4px;
     border-bottom: 1px solid $sgc-rule-soft;
 
@@ -213,10 +221,16 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     line-height: 1.35;
     color: $sgc-slate;
     // Option B full-bleed: the footer div is extracted by Odoo into the
-    // --footer-html margin-zone document. Paint it ivory so the bottom band of
+    // footer-html margin-zone document. Paint it ivory so the bottom band of
     // the page reads ivory edge to edge (previously the band below the footer
-    // text stayed white). No min-height: the html,body height:100% rule fills
-    // the stamped document instead.
+    // text stayed white). The band is filled by pinning this box to
+    // paperformat margin_bottom - it used to ride on html,body{height:100%},
+    // but that rule broke the header stamp and has been removed (see the
+    // Option B block at the end of this file). This stamp is top-anchored, so
+    // min-height grows harmlessly downward into the band it already owns.
+    // Keep in sync with margin_bottom in data/paperformat_data.xml.
+    min-height: 22mm;
+    box-sizing: border-box;
     background-color: $sgc-ivory;
 
     .text-center, .o_footer_page { letter-spacing: .02em; }
@@ -243,9 +257,30 @@ html, body { background-color: $sgc-ivory; }
 // html element's background box, so the ivory background can never paint the
 // full stamped page - only the content divs (which carry their own
 // backgrounds) show color, leaving white strips above the header and below
-// the footer. Stock report.scss ships html,body{height:100%}; restoring that
-// intent with !important lets the root background fill each stamped document.
-html, body { height: 100% !important; }
+// the footer.
+//
+// 2026-08-02 correction: this was previously html,body{height:100% !important},
+// copying stock report.scss's intent, and it is what made the header render as
+// a blank ivory band for weeks. In a stamp document 100% resolves against the
+// full-page viewport, so the stamp's body became ~A4-tall instead of
+// content-tall. wkhtmltopdf then draws the header stamp bottom-anchored to the
+// body edge, so the slice that lands in the 28mm band was the EMPTY BOTTOM of
+// that over-tall document while the real content sat far above it, cropped
+// away. The footer stamp survived the same rule only because it is
+// top-anchored, so its crop happened to contain the content - which is exactly
+// why the bug looked like "header broken, footer fine" and sent the earlier
+// investigation after header_spacing and CSS-loading theories. The assets load
+// correctly; the geometry was wrong.
+//
+// Proven live by replaying Odoo's own wkhtmltopdf invocation against the real
+// extracted header stamp: with height:100% the band is blank, with height:auto
+// the logo, tagline, address and gold rule all render, fully styled (which also
+// confirms the external report_assets stylesheets DO load in the stamp).
+//
+// Each stamp box is instead pinned to the height of the paperformat margin it
+// is drawn into, so it fills its band edge to edge (painting the ivory that
+// height:100% used to provide) without ever exceeding it.
+html, body { height: auto !important; }
 
 // Kill bootstrap .container's 15px side padding so the article truly spans
 // edge-to-edge; its own ivory background then paints the side bands.
