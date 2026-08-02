@@ -58,9 +58,11 @@
         // div's own height, which shrinks to fit short content - on a
         // mostly-empty page this left a visible white gap below the
         // content instead of ivory reaching the page edges. min-height
-        // is a floor, not a fixed height, so longer documents that
-        // naturally exceed this still flow across pages normally.
-        min-height: 220mm;
+        // 100% is now valid because html/body carry height:100% (see
+        // sgc_report.scss Option B block), so the article fills the whole
+        // content area on short pages while longer documents still flow
+        // across pages normally.
+        min-height: 100%;
 
         // "Boxed" architectural frame (Brand Guidelines v3.0 Ch.07:
         // "Gold Corner Geometry... create an architectural frame
