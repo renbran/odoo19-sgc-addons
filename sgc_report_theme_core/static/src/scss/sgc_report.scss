@@ -131,7 +131,13 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 
     thead { display: table-header-group; }   // repeat header on every page
     tfoot { display: table-row-group; }
+
+    // Default: keep a row whole. Right for ordinary rows - a line item split
+    // across a page boundary reads as two different items.
     tr, td, th { page-break-inside: avoid; }
+
+    // Never strand a section heading at the foot of a page.
+    tr.o_line_section, .o_line_section { page-break-after: avoid; }
 
     thead th {
         // Filled navy header per Brand Guidelines v3.0 Ch.03 (Color
@@ -171,14 +177,28 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     // Outer edge, so the grid closes instead of ending on a raw cell border.
     border: 1px solid $sgc-rule-soft;
 
-    // Description column: let it take the slack, keep author line breaks,
-    // and break long refs like SGC-TFX-2026-IMPL-05-T1 instead of overflowing.
+    // Description column: let it take the slack and keep author line breaks.
+    //
+    // Wrapping is deliberately conservative. This used to carry
+    // word-break: break-word + overflow-wrap: anywhere + hyphens: auto, which
+    // between them let QtWebKit chop a word at any character it liked to
+    // avoid overflow. overflow-wrap: break-word breaks a word ONLY when that
+    // word cannot fit the column on its own - ordinary prose now always
+    // breaks at spaces. hyphens: auto is gone because wkhtmltopdf ships no
+    // hyphenation dictionary, so it never did anything except license more
+    // breaking.
     tbody td:first-child, thead th:first-child {
         width: 46%;
-        white-space: pre-line;
-        word-break: break-word;
-        overflow-wrap: anywhere;
-        hyphens: auto;
+        overflow-wrap: break-word;
+
+        // NOT pre-line. Odoo renders a description newline as "<br>\n" - the
+        // tag AND the original character. pre-line honours that surviving \n
+        // as a line break of its own, so every author newline was breaking
+        // the line TWICE and the column printed double-spaced. That is what
+        // pushed a 3-line quotation onto a second page carrying nothing but
+        // the payment terms. The <br> already carries the author's structure,
+        // so normal whitespace handling is both correct and half the height.
+        white-space: normal;
     }
 
     // Numeric columns: never wrap, aligned digits.
@@ -202,6 +222,30 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 .sgc-airy  table.o_main_table tbody td { padding: 9px 7px; }
 .sgc-tight table.o_main_table tbody td { padding: 4.5px 6px; }
 
+// Tighten the leading of long descriptions specifically. The density classes
+// set the rhythm for the whole document; a description block many lines deep
+// is where a loose leading actually costs a page, so it gets a tighter one
+// than the surrounding figures without making the numbers look cramped.
+.sgc-regular table.o_main_table tbody td:first-child { line-height: 1.3; }
+.sgc-tight   table.o_main_table tbody td:first-child { line-height: 1.2; }
+
+// ---- Page-break behaviour for text-heavy documents ----------------------
+// sgc-flow is set in report_layout_sgc.xml when the estimated line count goes
+// past ~20. On those documents "keep every row whole" backfires: one tall
+// description row that cannot fit the remaining space jumps ENTIRELY to the
+// next page, leaving a band of empty ivory behind it - a break forced by lack
+// of room rather than by the content. Here a tall row may split, but only
+// between whole lines (never mid-word - see overflow-wrap above), and orphans
+// and widows keep at least two lines of it on each side of the break.
+.sgc-flow table.o_main_table {
+    tbody tr, tbody td { page-break-inside: auto; }
+    tbody td { orphans: 2; widows: 2; }
+}
+
+// The totals block and the terms stay atomic at any density - those are the
+// two places where a split genuinely changes how the document reads.
+.sgc-flow #total, .sgc-flow .o_sgc_terms { page-break-inside: avoid; }
+
 // ---- Totals -------------------------------------------------------------
 .o_sgc_report #total {
     page-break-inside: avoid;
@@ -221,9 +265,16 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 }
 
 // ---- Terms / narration block --------------------------------------------
+// [name="order_note"] is included deliberately. Unlike a line description -
+// which arrives as "<br>\n" and must NOT be pre-line (see the table above) -
+// the order note arrives as a <p> holding raw \n and no <br> at all, so
+// without pre-line its installment schedule collapsed into one run-on
+// paragraph. Same declaration, opposite reason: check which form the field
+// actually renders before adding a selector here.
 .o_sgc_report .o_sgc_terms,
 .o_sgc_report #total ~ p,
-.o_sgc_report [name="comment"], .o_sgc_report [name="payment_term"] {
+.o_sgc_report [name="comment"], .o_sgc_report [name="payment_term"],
+.o_sgc_report [name="order_note"] {
     // [name="payment_term"] is a <span> wrapping a <p> in the stock invoice
     // template. Left inline, the padding/background/border-left paint around
     // an inline box that collapses to almost no width once its block child is

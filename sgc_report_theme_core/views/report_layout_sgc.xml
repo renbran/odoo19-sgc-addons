@@ -90,8 +90,25 @@
             <t t-set="sgc_lines"
                t-value="sgc_lines.filtered(lambda l: l.display_type not in ('line_section', 'line_note')) if sgc_lines else []"/>
             <t t-set="sgc_count" t-value="len(sgc_lines)"/>
+
+            <!-- 2026-08-02: measure the TEXT, not the row count. Counting rows
+                 got this exactly backwards on the documents that need help
+                 most: a 3-line quotation carrying 816 characters of product
+                 description scored "short" and was handed the airy 10pt/1.6
+                 rhythm, which blew it onto a second page holding two orphan
+                 lines. Estimate how many rendered lines the table will really
+                 occupy - one per row, one per author newline (white-space is
+                 pre-line, so those survive), plus the wrap-around from long
+                 text at roughly 60 characters per line in a 46% column. -->
+            <t t-set="sgc_chars" t-value="sum(len(l.name or '') for l in sgc_lines)"/>
+            <t t-set="sgc_breaks" t-value="sum((l.name or '').count('\n') for l in sgc_lines)"/>
+            <t t-set="sgc_rows" t-value="sgc_count + sgc_breaks + int(sgc_chars / 60)"/>
             <t t-set="sgc_density"
-               t-value="'sgc-airy' if sgc_count &lt;= 5 else ('sgc-tight' if sgc_count &gt; 12 else 'sgc-regular')"/>
+               t-value="'sgc-airy' if sgc_rows &lt;= 8 else ('sgc-tight' if sgc_rows &gt; 20 else 'sgc-regular')"/>
+
+            <!-- Text-heavy documents also change how page breaks are allowed:
+                 see the sgc-flow block in sgc_report.scss. -->
+            <t t-set="sgc_flow" t-value="'sgc-flow' if sgc_rows &gt; 20 else ''"/>
 
             <!-- 2026-08-02 Dubai landmark watermark, picked per document type
                  so a quotation and an invoice are not the same page. The class
@@ -110,7 +127,7 @@
         </xpath>
 
         <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]" position="attributes">
-            <attribute name="t-attf-class">o_sgc_report o_sgc_body #{sgc_density} #{sgc_wm} article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
+            <attribute name="t-attf-class">o_sgc_report o_sgc_body #{sgc_density} #{sgc_flow} #{sgc_wm} article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
         </xpath>
 
         <!--
