@@ -132,12 +132,12 @@
         <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]" position="replace">
             <div t-attf-class="o_sgc_report o_sgc_header #{sgc_density} header o_company_#{company.id}_layout">
                 <div class="d-flex align-items-start justify-content-between" style="gap: 20mm;">
-                    <!-- Left: Logo - larger, capped at 48px height -->
+                    <!-- Left: Logo - larger, capped at 72px height to match company details block -->
                     <img t-if="company.logo"
                          class="o_company_logo"
                          t-att-src="image_data_uri(company.logo)"
                          alt="Logo"
-                         style="max-height: 48px; width: auto; max-width: 200px; object-fit: contain;"/>
+                         style="max-height: 72px; width: auto; max-width: 250px; object-fit: contain;"/>
                     
                     <!-- Right: Company info block (name, tagline, address) -->
                     <div class="text-end flex-grow-1" style="min-width: 0;">
