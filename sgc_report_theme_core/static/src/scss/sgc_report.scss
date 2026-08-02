@@ -61,7 +61,8 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     padding-bottom: 6px;
     border-bottom: 1px solid $sgc-rule-soft;
 
-    img.o_company_logo, .o_company_logo img { max-height: 46px; width: auto; }
+    img.o_company_logo, img.o_company_logo_small, img.o_company_logo_big,
+    .o_company_logo img { max-height: 46px; width: auto; max-width: 160px; object-fit: contain; }
     .o_company_address, address { font-size: 8.5pt; line-height: 1.35; color: $sgc-slate; }
     address { font-style: normal; }
 }
