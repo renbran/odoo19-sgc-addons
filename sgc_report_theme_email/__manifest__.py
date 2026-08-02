@@ -30,6 +30,18 @@ design reference). email_layout_xmlid is set to False on each, matching
 that reference template - these are fully self-contained branded emails,
 not wrapped through the stock mail.mail_notification_layout.
 
+Also includes a small mail.compose.message override (models/mail_compose_message.py):
+the stock _compute_email_layout_xmlid only overrides the composer's layout
+when the selected template's own email_layout_xmlid is truthy - an
+explicitly empty value (this brand's fully self-contained templates) is
+treated as "no opinion" and whatever generic layout the calling action's
+context hardcoded (e.g. action_quotation_send()'s
+mail.mail_notification_layout_with_responsible_signature) silently
+survives instead, double-wrapping the branded email in the stock
+notification chrome. Confirmed empirically before this fix. The override
+only affects templates with an explicitly empty email_layout_xmlid -
+every other template's behaviour is unchanged.
+
 Uninstalling this module reverts all 4 templates to their stock body/layout.
 """,
     "author": "SGC TECH AI",
