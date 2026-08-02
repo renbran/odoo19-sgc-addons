@@ -375,16 +375,40 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
     // survivable at 0.06 opacity - and z-index:-1 does not render in this
     // engine (see sgc_report_signature.scss).
     //
-    // The source is already toned to the ivory/gold palette with the page
-    // colour baked in as its background, so `contain` leaves no visible seam
-    // where the artwork ends - it is A4 portrait (0.706), taller than the
-    // body box, so it fits to height and centres with pure ivory either side.
-    // Strength lives in the asset itself because CSS cannot set opacity on a
-    // background image; re-export the file to adjust it, do not add a layer.
-    background-image: url('/sgc_report_theme_core/static/src/img/watermark_dubai_palm.jpg');
+    // The sources are already toned to the ivory/gold palette with the page
+    // colour baked in as their background, so `contain` leaves no visible seam
+    // where the artwork ends - they are A4 portrait (0.706), taller than the
+    // body box, so each fits to height and centres with pure ivory either side.
+    //
+    // STRENGTH LIVES IN THE ASSET, because CSS cannot set opacity on a
+    // background image. All four were flattened onto ivory and then blended
+    // back toward it until they measured the same: darkest pixel ~224 and
+    // standard deviation ~3 against an ivory of 244. They did NOT start
+    // equal - the Palm aerial was about 2.7x the ink of the others (min 159
+    // vs 212) and printed as a hard tan picture that fought the line table -
+    // so each got its own blend (palm 77%, museum 65%, burj 58%, al arab 37%
+    // toward ivory). Re-measure with
+    //   convert <file> -colorspace Gray -format '%[fx:minima*255]' info:
+    // if you swap artwork in; do not add an overlay to compensate.
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
+}
+
+// Per-document artwork. The variant class is chosen in report_layout_sgc.xml
+// from the record's model, so a bridge gets the right landmark without having
+// to know anything about this file.
+.o_sgc_report.article.o_sgc_wm_palm {
+    background-image: url('/sgc_report_theme_core/static/src/img/watermark_dubai_palm.jpg');
+}
+.o_sgc_report.article.o_sgc_wm_burj_khalifa {
+    background-image: url('/sgc_report_theme_core/static/src/img/watermark_burj_khalifa.jpg');
+}
+.o_sgc_report.article.o_sgc_wm_museum {
+    background-image: url('/sgc_report_theme_core/static/src/img/watermark_museum_future.jpg');
+}
+.o_sgc_report.article.o_sgc_wm_burj_al_arab {
+    background-image: url('/sgc_report_theme_core/static/src/img/watermark_burj_al_arab.jpg');
 }
 
 // Gold frame. It must ENCLOSE the content, so its inset has to be SMALLER
