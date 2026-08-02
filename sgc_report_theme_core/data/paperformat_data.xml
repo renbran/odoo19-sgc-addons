@@ -25,7 +25,12 @@
         <field name="default" eval="False"/>
         <field name="format">A4</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">28</field>
+        <!-- 32mm gives the header band room for the logo, tagline and the full
+             5-line company address at a legible 8pt; at 28mm the last address
+             line fell outside the band. sgc_report.scss pins .o_sgc_header to
+             this exact height and derives the article's min-height from it
+             (243mm = 297 - 32 - 22) - change all three together. -->
+        <field name="margin_top">32</field>
         <field name="margin_bottom">22</field>
         <!-- 2026-08-02 Option B full-bleed: left/right margins zeroed so the
              wkhtmltopdf body box reaches the paper's side edges and the

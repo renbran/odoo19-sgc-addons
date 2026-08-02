@@ -71,15 +71,23 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 // .o_company_address/address selector matches a different stock layout variant
 // and never matched here, so the block was inheriting the 10pt/1.6 airy rhythm.
 .o_sgc_header {
-    height: 28mm;
+    height: 32mm;
     box-sizing: border-box;
     overflow: hidden;
     background-color: $sgc-ivory;
-    padding-bottom: 4px;
+    // margin:0 matters as much as the height: the stamp document's own body
+    // margin was offsetting this box ~6mm down the band, which simultaneously
+    // left a white strip along the paper's top edge and pushed the last address
+    // line out of the bottom of the box. Reset here and on the wrapper below.
+    margin: 0;
+    // 20mm side padding is the same brand inset the article carries, so the
+    // logo and address line up with the document body instead of sitting flush
+    // against the paper edge (the side margins are 0 in Option B).
+    padding: 2mm 20mm 4px;
     border-bottom: 1px solid $sgc-rule-soft;
 
     img.o_company_logo, img.o_company_logo_small, img.o_company_logo_big,
-    .o_company_logo img { max-height: 38px; width: auto; max-width: 150px; object-fit: contain; }
+    .o_company_logo img { max-height: 34px; width: auto; max-width: 150px; object-fit: contain; }
     .mb-2 { margin-bottom: 3px !important; }
 
     ul[name="company_address_list"], .o_company_address, address {
@@ -229,8 +237,12 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
     // Option B block at the end of this file). This stamp is top-anchored, so
     // min-height grows harmlessly downward into the band it already owns.
     // Keep in sync with margin_bottom in data/paperformat_data.xml.
-    min-height: 22mm;
+    height: 22mm;
     box-sizing: border-box;
+    overflow: hidden;
+    margin: 0;
+    padding-left: 20mm;
+    padding-right: 20mm;
     background-color: $sgc-ivory;
 
     .text-center, .o_footer_page { letter-spacing: .02em; }
@@ -282,6 +294,14 @@ html, body { background-color: $sgc-ivory; }
 // height:100% used to provide) without ever exceeding it.
 html, body { height: auto !important; }
 
+// The stamp documents inherit a body margin that offsets the header/footer
+// boxes inside their bands (see .o_sgc_header). Zero it, and the wrappers Odoo
+// generates around the extracted nodes, so each box can sit flush against the
+// paper edge it owns.
+html, body { margin: 0 !important; padding: 0 !important; }
+#minimal_layout_report_headers,
+#minimal_layout_report_footers { margin: 0 !important; padding: 0 !important; }
+
 // Kill bootstrap .container's 15px side padding so the article truly spans
 // edge-to-edge; its own ivory background then paints the side bands.
 body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
@@ -293,12 +313,12 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
 // go because it broke the header stamp (see above); pinning the article instead
 // is strictly better-scoped, because .article exists ONLY in the body document -
 // the header and footer stamps are extracted before this can reach them, so
-// they keep their own content-sized boxes. 247mm = A4 297mm less the 28mm and
+// they keep their own content-sized boxes. 243mm = A4 297mm less the 32mm and
 // 22mm paperformat margins, i.e. exactly the body box; keep in sync with
 // data/paperformat_data.xml. min- (not fixed) height so a multi-page document
 // still flows past it normally.
 .o_sgc_report.article {
-    min-height: 247mm;
+    min-height: 243mm;
     box-sizing: border-box;
     padding-left: 20mm;
     padding-right: 20mm;
