@@ -150,13 +150,26 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
         text-transform: uppercase;
         padding: 6px 7px;
         vertical-align: bottom;
+        // Column separators inside the navy bar: ivory at low alpha so they
+        // read as divisions of one solid header, not as added lines.
+        border-right: 1px solid rgba($sgc-ivory, 0.28);
+
+        &:last-child { border-right: 0; }
     }
 
+    // Full grid, not just horizontal rules. With only border-bottom the body
+    // read as floating text rather than a table - the effect is strongest on
+    // this layout because a wrapped description makes a very tall row, leaving
+    // the quantity/price/amount stranded in white space with nothing tying
+    // them to their column.
     tbody td {
-        border-bottom: 1px solid $sgc-rule-soft;
+        border: 1px solid $sgc-rule-soft;
         padding: 7px;
         vertical-align: top;
     }
+
+    // Outer edge, so the grid closes instead of ending on a raw cell border.
+    border: 1px solid $sgc-rule-soft;
 
     // Description column: let it take the slack, keep author line breaks,
     // and break long refs like SGC-TFX-2026-IMPL-05-T1 instead of overflowing.
@@ -332,17 +345,31 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
     // article had to be capped ~6mm short, which is what left a white sliver
     // above the footer on short documents. 1px of padding contains the margin
     // and buys back the full 243mm.
-    padding-bottom: 1px;
     box-sizing: border-box;
-    padding-left: 20mm;
-    padding-right: 20mm;
+    // Sides: the 20mm brand inset. Top/bottom: clearance so content cannot
+    // collide with the gold frame below - 8mm here against the frame's 2mm
+    // leaves 6mm of breathing room at both ends.
+    //
+    // The bottom padding is also load-bearing, not just cosmetic: the
+    // article's last child carries a bottom margin (.mb-3 on the terms block)
+    // which, with no bottom padding or border to stop it, COLLAPSES OUT of the
+    // article and lands after it in the flow. That pushed the page past the
+    // body box and wkhtmltopdf answered with an entirely blank second page.
+    // Any non-zero bottom padding contains it; do not drop this to 0.
+    padding: 8mm 20mm;
 }
 
-// Gold frame: keep the same visual position as with the old margins -
-// 6mm inside where the article edge used to be (20mm margin + 6mm inset
-// = 26mm from paper edge). Top/bottom stay 6mm (article top/bottom are
-// bounded by the header/footer zones, unchanged).
+// Gold frame. It must ENCLOSE the content, so its inset has to be SMALLER
+// than the article's padding - it was 26mm against a 20mm padding, i.e. 6mm
+// INSIDE the content box, so the line ran straight through the line table:
+// measured on a real quotation, table 20-190mm vs frame 26-184mm. (This
+// predates the full-bleed work - zeroing the side margins only made it
+// obvious.) 12mm sides clear the 20mm content by 8mm; 2mm top/bottom clear
+// the 8mm vertical padding by 6mm. Content 20-190mm now sits inside a
+// 12-198mm frame. Keep frame inset < article padding on every edge.
 .o_sgc_report.article::before {
-    left: 26mm;
-    right: 26mm;
+    top: 2mm;
+    bottom: 2mm;
+    left: 12mm;
+    right: 12mm;
 }
