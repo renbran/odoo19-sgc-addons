@@ -10,17 +10,16 @@
                     <group>
                         <group string="AI Auto-Reply">
                             <field name="sgc_ai_enabled"/>
-                            <field name="sgc_ai_assistant_id"
-                                   invisible="not sgc_ai_enabled"
-                                   required="sgc_ai_enabled"
-                                   options="{'no_create': True}"/>
                         </group>
                         <group>
                             <div class="text-muted" colspan="2">
-                                When enabled, visitor messages on this channel are
-                                answered by the selected AI assistant. Make sure the
-                                assistant's provider has a valid API key, and add the
-                                "SGC Assistant" bot user as an Operator on this channel.
+                                When enabled, visitor messages on this channel are answered
+                                by the AI assistant (freellmapi). Configure the endpoint,
+                                model, API key and system prompt in
+                                <b>Settings &gt; Technical &gt; System Parameters</b>
+                                (keys starting with <code>sgc_livechat_ai.</code>).
+                                Also add the <b>SGC Assistant</b> bot user as an Operator
+                                on this channel so replies post under it.
                             </div>
                         </group>
                     </group>

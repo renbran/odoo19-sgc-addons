@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- noupdate: values you edit later (esp. api_key & system_prompt) are preserved on upgrade -->
     <data noupdate="1">
-        <record id="prompt_sgc_website" model="llm.prompt">
-            <field name="name">SGC Website Assistant Prompt</field>
-            <field name="format">text</field>
-            <field name="description">System prompt + company knowledge for the public website live-chat assistant.</field>
-            <field name="template"><![CDATA[You are "SGC Assistant", the friendly, professional front-desk AI for SGC Tech on its public website live chat. Answer visitors accurately using ONLY the knowledge below, qualify their need, and guide them to book a consultation.
+        <record id="icp_endpoint" model="ir.config_parameter">
+            <field name="key">sgc_livechat_ai.endpoint</field>
+            <field name="value">http://freellmapi-prod:3001/v1</field>
+        </record>
+        <record id="icp_model" model="ir.config_parameter">
+            <field name="key">sgc_livechat_ai.model</field>
+            <field name="value">auto</field>
+        </record>
+        <record id="icp_api_key" model="ir.config_parameter">
+            <field name="key">sgc_livechat_ai.api_key</field>
+            <field name="value"></field>
+        </record>
+        <record id="icp_max_history" model="ir.config_parameter">
+            <field name="key">sgc_livechat_ai.max_history</field>
+            <field name="value">12</field>
+        </record>
+        <record id="icp_system_prompt" model="ir.config_parameter">
+            <field name="key">sgc_livechat_ai.system_prompt</field>
+            <field name="value"><![CDATA[You are "SGC Assistant", the friendly, professional front-desk AI for SGC Tech on its public website live chat. Answer visitors accurately using ONLY the knowledge below, qualify their need, and guide them to book a consultation.
 
 # WHO WE ARE
 - Brand: SGC Tech (SGC TECH AI). Legal entity: Scholarix Global Consultant FZE.

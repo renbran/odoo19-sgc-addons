@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from odoo import fields, models
+from odoo import models
 
 from .utils import as_markup, html_to_text
 
 _logger = logging.getLogger(__name__)
 
+DEFAULT_ENDPOINT = "http://freellmapi-prod:3001/v1"
+DEFAULT_MODEL = "auto"
+DEFAULT_MAX_HISTORY = 12
+REQUEST_TIMEOUT = 40
+
 
 class DiscussChannel(models.Model):
     _inherit = "discuss.channel"
-
-    sgc_ai_thread_id = fields.Many2one(
-        "llm.thread",
-        string="AI Conversation Thread",
-        copy=False,
-        help="LLM thread that keeps this live-chat conversation's AI memory.",
-    )
 
     def _message_post_after_hook(self, message, msg_vals):
         res = super()._message_post_after_hook(message, msg_vals)
@@ -34,8 +32,7 @@ class DiscussChannel(models.Model):
         self.ensure_one()
         if self.channel_type != "livechat":
             return
-        lc = self.livechat_channel_id.sudo()
-        if not lc or not lc.sgc_ai_enabled or not lc.sgc_ai_assistant_id:
+        if not self.livechat_channel_id.sudo().sgc_ai_enabled:
             return
         # Let a scripted chatbot (if any) finish its flow first.
         if self.chatbot_current_step_id:
@@ -43,48 +40,92 @@ class DiscussChannel(models.Model):
         if not message or message.message_type != "comment":
             return
         operator = self.livechat_operator_id
-        # Skip the operator's / our own messages -> prevents infinite recursion.
+        # Skip operator/own messages -> prevents infinite recursion.
         if operator and message.author_id and message.author_id.id == operator.id:
             return
-        user_text = html_to_text(message.body)
-        if not user_text:
+        if not html_to_text(message.body):
             return
 
-        assistant = lc.sgc_ai_assistant_id
-        if not assistant.provider_id or not assistant.model_id:
-            _logger.warning(
-                "SGC AI assistant %s has no provider/model set; skipping reply.",
-                assistant.name,
-            )
+        cfg = self._sgc_ai_config()
+        if not cfg["api_key"]:
+            _logger.warning("SGC live-chat AI: no api_key set; skipping reply.")
             return
 
-        thread = self._sgc_get_ai_thread(assistant)
-        reply_html = thread.sgc_generate_reply(user_text)
-        if not reply_html:
+        reply = self._sgc_ai_complete(cfg)
+        if not reply:
             return
-
-        # Post the answer as the channel operator (the AI bot). Because the
-        # author is the operator, the guard above stops it from re-triggering.
         self.message_post(
-            body=as_markup(reply_html),
+            body=as_markup("<p>%s</p>" % reply.replace("\n", "<br/>")),
             author_id=operator.id if operator else False,
             message_type="comment",
             subtype_xmlid="mail.mt_comment",
         )
 
     # ------------------------------------------------------------------
-    def _sgc_get_ai_thread(self, assistant):
+    def _sgc_ai_config(self):
+        icp = self.env["ir.config_parameter"].sudo()
+        try:
+            max_hist = int(icp.get_param("sgc_livechat_ai.max_history") or DEFAULT_MAX_HISTORY)
+        except (TypeError, ValueError):
+            max_hist = DEFAULT_MAX_HISTORY
+        return {
+            "endpoint": (icp.get_param("sgc_livechat_ai.endpoint") or DEFAULT_ENDPOINT).strip(),
+            "model": (icp.get_param("sgc_livechat_ai.model") or DEFAULT_MODEL).strip(),
+            "api_key": (icp.get_param("sgc_livechat_ai.api_key") or "").strip(),
+            "system_prompt": icp.get_param("sgc_livechat_ai.system_prompt") or "",
+            "max_history": max_hist,
+        }
+
+    def _sgc_build_messages(self, cfg):
+        """Build the OpenAI-style message list from recent channel history."""
         self.ensure_one()
-        if self.sgc_ai_thread_id:
-            return self.sgc_ai_thread_id.sudo()
-        thread = self.env["llm.thread"].sudo().create(
-            {
-                "name": "Livechat AI - %s" % (self.name or self.id),
-                "provider_id": assistant.provider_id.id,
-                "model_id": assistant.model_id.id,
-            }
+        operator_id = self.livechat_operator_id.id
+        history = self.env["mail.message"].sudo().search(
+            [
+                ("model", "=", "discuss.channel"),
+                ("res_id", "=", self.id),
+                ("message_type", "=", "comment"),
+            ],
+            order="id desc",
+            limit=cfg["max_history"],
         )
-        # Applies provider/model/prompt/tools from the assistant.
-        thread.set_assistant(assistant.id)
-        self.sudo().sgc_ai_thread_id = thread.id
-        return thread
+        msgs = []
+        for m in reversed(history):
+            text = html_to_text(m.body)
+            if not text:
+                continue
+            is_operator = bool(m.author_id) and m.author_id.id == operator_id
+            msgs.append({"role": "assistant" if is_operator else "user", "content": text})
+        result = []
+        if cfg["system_prompt"]:
+            result.append({"role": "system", "content": cfg["system_prompt"]})
+        result.extend(msgs)
+        return result
+
+    def _sgc_ai_complete(self, cfg):
+        """Call the OpenAI-compatible endpoint (freellmapi) and return text."""
+        self.ensure_one()
+        try:
+            from openai import OpenAI
+        except ImportError:
+            _logger.error("SGC live-chat AI: python 'openai' package not installed.")
+            return ""
+        messages = self._sgc_build_messages(cfg)
+        if not any(m["role"] == "user" for m in messages):
+            return ""
+        try:
+            client = OpenAI(
+                api_key=cfg["api_key"],
+                base_url=cfg["endpoint"],
+                timeout=REQUEST_TIMEOUT,
+            )
+            resp = client.chat.completions.create(
+                model=cfg["model"],
+                messages=messages,
+                temperature=0.3,
+                max_tokens=600,
+            )
+            return (resp.choices[0].message.content or "").strip()
+        except Exception as e:
+            _logger.exception("SGC live-chat AI completion failed: %s", e)
+            return ""
