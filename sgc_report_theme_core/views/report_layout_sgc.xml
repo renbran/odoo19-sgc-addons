@@ -98,6 +98,57 @@
             <attribute name="t-attf-class">o_sgc_report o_sgc_header #{sgc_density} header o_company_#{company.id}_layout</attribute>
         </xpath>
 
+        <!--
+            2026-08-02 header CSS inlining: wkhtmltopdf's --header-html
+            sub-render (used by _prepare_html to stamp the header into the
+            margin zone) does not reliably load the external
+            web.report_assets_pdf/common <link> stylesheets - confirmed
+            empirically by replaying Odoo's own wkhtmltopdf invocation
+            directly: the header stamp rendered completely blank with the
+            stock <link> tags in place, and rendered correctly the instant
+            those tags were stripped, regardless of javascript-delay,
+            content size, or the presence of the company logo. The same
+            --footer-html stamp is small/simple enough that it does not
+            trip this, so it is left untouched. Since the header stamp is
+            re-rendered through web.minimal_layout independently of the
+            main document, and that template's <link> tags cannot be
+            trusted for the header specifically, duplicate the minimal set
+            of rules needed for the header to read correctly as inline
+            <style>, scoped to .o_sgc_header, so they travel with the
+            extracted node instead of depending on a fetch that empirically
+            does not complete for this stamp. Keep this in sync with the
+            .o_sgc_header rules in sgc_report.scss (which still governs the
+            on-screen/HTML preview and is not itself wrong) - do not let
+            them drift.
+        -->
+        <xpath expr="//div[contains(@t-attf-class, 'header o_company_')]/*[1]" position="before">
+            <style>
+                html, body { background-color: #F7F4EE; margin: 0; }
+                .o_sgc_header {
+                    font-family: Arial, sans-serif;
+                    color: #1C2430;
+                    background-color: #F7F4EE;
+                    padding-bottom: 4px;
+                    border-bottom: 1px solid rgba(95,103,117,0.3);
+                }
+                .o_sgc_header .o_company_tagline { color: #B79554; font-weight: 600; }
+                .o_sgc_header img.o_company_logo,
+                .o_sgc_header img.o_company_logo_small,
+                .o_sgc_header img.o_company_logo_big,
+                .o_sgc_header .o_company_logo img {
+                    max-height: 38px; width: auto; max-width: 150px; object-fit: contain;
+                }
+                .o_sgc_header .mb-2 { margin-bottom: 3px; }
+                .o_sgc_header ul[name="company_address_list"],
+                .o_sgc_header .o_company_address,
+                .o_sgc_header address {
+                    font-size: 8pt; line-height: 1.2; color: #5F6775; font-style: normal;
+                }
+                .o_sgc_header address { padding-top: 0; margin-bottom: 0; }
+                .o_sgc_header .lh-sm { line-height: 1.2; }
+            </style>
+        </xpath>
+
         <xpath expr="//div[contains(@t-attf-class, 'article o_report_layout_standard')]" position="attributes">
             <attribute name="t-attf-class">o_sgc_report o_sgc_body #{sgc_density} article o_report_layout_standard o_table_standard o_company_#{company.id}_layout o_snail_mail {{'o_report_layout_background' if company.layout_background != 'Blank' else ''}}</attribute>
         </xpath>
