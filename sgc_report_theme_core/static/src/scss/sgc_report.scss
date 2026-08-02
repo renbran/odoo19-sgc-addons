@@ -224,6 +224,13 @@ $sgc-zebra:       $sgc-parchment;            // light fill - brand "light gray" 
 .o_sgc_report .o_sgc_terms,
 .o_sgc_report #total ~ p,
 .o_sgc_report [name="comment"], .o_sgc_report [name="payment_term"] {
+    // [name="payment_term"] is a <span> wrapping a <p> in the stock invoice
+    // template. Left inline, the padding/background/border-left paint around
+    // an inline box that collapses to almost no width once its block child is
+    // taken out of the inline flow, so the navy bar rendered as a stray stub
+    // with the paragraph overprinting it - the "P" of "Payment terms" came out
+    // sliced in half. Blockify so the decoration wraps the text it belongs to.
+    display: block;
     page-break-inside: avoid;        // keep the installment schedule intact
     margin-top: 16px;
     padding: 10px 12px;

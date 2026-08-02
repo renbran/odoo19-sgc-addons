@@ -16,13 +16,19 @@
                                     <span class="sgc-breadcrumb-sep">/</span>
                                     <span>Book a Session</span>
                                 </nav>
+                                <span class="sgc-label">Schedule · Online Session</span>
                                 <h1 class="sgc-page-title">
                                     Book an <span class="sgc-gradient-text">Online Session</span>
                                 </h1>
-                                <p class="sgc-page-subtitle">
+                                <p class="sgc-page-subtitle mx-auto">
                                     Pick a date and time that works for you. You'll get a meeting
                                     link by email, and our AI notetaker captures the discussion.
                                 </p>
+                                <div class="sgc-bk-hero-trust">
+                                    <span class="sgc-bk-trust"><i class="fa fa-bolt"/> Instant confirmation</span>
+                                    <span class="sgc-bk-trust"><i class="fa fa-user-o"/> No login required</span>
+                                    <span class="sgc-bk-trust"><i class="fa fa-magic"/> AI notetaker included</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -36,6 +42,13 @@
                             <!-- Calendar -->
                             <div class="col-lg-7">
                                 <div class="sgc-booking-card glass">
+                                    <div class="sgc-bk-steps" aria-hidden="true">
+                                        <span class="sgc-bk-step"><span class="sgc-bk-step-n">1</span> Pick a date</span>
+                                        <span class="sgc-bk-step-sep"/>
+                                        <span class="sgc-bk-step"><span class="sgc-bk-step-n">2</span> Choose a time</span>
+                                        <span class="sgc-bk-step-sep"/>
+                                        <span class="sgc-bk-step"><span class="sgc-bk-step-n">3</span> Confirm</span>
+                                    </div>
                                     <div class="sgc-booking-calhead">
                                         <button type="button" class="sgc-cal-nav" id="sgc-bk-prev"
                                                 aria-label="Previous month">&#8249;</button>
@@ -55,8 +68,8 @@
 
                             <!-- Form -->
                             <div class="col-lg-5">
-                                <div class="sgc-booking-card glass">
-                                    <h3>Your details</h3>
+                                <div class="sgc-booking-card glass sgc-booking-aside">
+                                    <h3><i class="fa fa-user-circle-o"/> Your details</h3>
                                     <div class="sgc-selected-slot" id="sgc-bk-selected">
                                         No time selected yet.
                                     </div>
@@ -98,6 +111,11 @@
                                                 id="sgc-bk-submit" disabled="disabled">
                                             Confirm Booking <i class="fa fa-calendar-check-o ms-1"/>
                                         </button>
+                                        <p class="sgc-bk-assurance">
+                                            <i class="fa fa-lock"/>
+                                            <span>Your details are only used to arrange this session.
+                                            A calendar invite and meeting link are emailed on confirmation.</span>
+                                        </p>
                                         <div id="sgc-bk-message" class="sgc-bk-message mt-3"></div>
                                     </form>
                                 </div>
