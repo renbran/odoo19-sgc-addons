@@ -287,7 +287,19 @@ html, body { height: auto !important; }
 body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
 
 // Restore the 20mm brand inset as content padding on the article.
+//
+// min-height fills the body box so the ivory reaches the footer band even on a
+// short document. This used to come from html,body{height:100%}, which had to
+// go because it broke the header stamp (see above); pinning the article instead
+// is strictly better-scoped, because .article exists ONLY in the body document -
+// the header and footer stamps are extracted before this can reach them, so
+// they keep their own content-sized boxes. 247mm = A4 297mm less the 28mm and
+// 22mm paperformat margins, i.e. exactly the body box; keep in sync with
+// data/paperformat_data.xml. min- (not fixed) height so a multi-page document
+// still flows past it normally.
 .o_sgc_report.article {
+    min-height: 247mm;
+    box-sizing: border-box;
     padding-left: 20mm;
     padding-right: 20mm;
 }
