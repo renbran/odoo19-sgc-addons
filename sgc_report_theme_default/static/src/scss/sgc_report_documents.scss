@@ -63,10 +63,10 @@
 
         .o_company_tagline {
             font-family: $sgc-font-serif;
-            font-size: 9px;
+            font-size: 12px;
             font-style: italic;
             color: $sgc-gold;
-            text-transform: none;   // stock uppercases this; too shouty at 9px
+            text-transform: none;   // stock uppercases this; too shouty at small sizes
             letter-spacing: 0.2px;
         }
     }
