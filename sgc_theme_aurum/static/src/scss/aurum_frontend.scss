@@ -468,38 +468,52 @@ header#top .nav-link:hover {
 // can no longer put the wrong photo on an industry.
 // The url() line is the fallback; browsers that understand image-set() take the
 // second declaration and pick AVIF or WebP.
+// Two selectors per industry on purpose:
+//   .aurum-industry-<slug>  -- from the theme template's t-attf-class.
+//   .aurum-industry-list > div:nth-child(N)  -- the live homepage renders from a
+//   COW'd website.homepage copy that has no per-industry class, so it is matched
+//   positionally. Note this targets the *column wrapper*, which really are
+//   siblings. The previous rules used .aurum-industry:nth-child(N), but each
+//   .aurum-industry is the only child of its column -- so :nth-child(1) matched
+//   every card and 2..6 matched nothing, i.e. all six cards showed one photo.
 
-.aurum-industry-real-estate {
+.aurum-industry-real-estate,
+.aurum-industry-list > div:nth-child(1) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.webp) type('image/webp'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_real_estate.jpg)  type('image/jpeg'));
 }
-.aurum-industry-construction {
+.aurum-industry-construction,
+.aurum-industry-list > div:nth-child(2) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_construction.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_construction.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_construction.webp) type('image/webp'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_construction.jpg)  type('image/jpeg'));
 }
-.aurum-industry-healthcare {
+.aurum-industry-healthcare,
+.aurum-industry-list > div:nth-child(3) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.webp) type('image/webp'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_healthcare.jpg)  type('image/jpeg'));
 }
-.aurum-industry-manufacturing {
+.aurum-industry-manufacturing,
+.aurum-industry-list > div:nth-child(4) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.webp) type('image/webp'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_manufacturing.jpg)  type('image/jpeg'));
 }
-.aurum-industry-retail {
+.aurum-industry-retail,
+.aurum-industry-list > div:nth-child(5) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_retail.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_retail.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_retail.webp) type('image/webp'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_retail.jpg)  type('image/jpeg'));
 }
-.aurum-industry-professional-services {
+.aurum-industry-professional-services,
+.aurum-industry-list > div:nth-child(6) .aurum-industry {
     background-image: url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.jpg);
     background-image: image-set(url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.avif) type('image/avif'),
                                 url(/sgc_theme_aurum/static/src/img/home_industry_professional_services.webp) type('image/webp'),
