@@ -39,7 +39,7 @@
                 </div>
             </xpath>
 
-            <!-- Qualification tab: gate questions, research capture, existing BANT fields -->
+            <!-- Qualification tab: gate questions and pre-call research capture -->
             <xpath expr="//notebook" position="inside">
                 <page string="Qualification" name="sgc_qualification">
                     <group>
@@ -60,12 +60,10 @@
                             <field name="x_research_pain_note" placeholder="The specific signal found: a review quote, a hiring post, listing count/areas..."/>
                         </group>
                     </group>
-                    <group string="BANT (optional)">
-                        <field name="x_bant_budget"/>
-                        <field name="x_bant_authority"/>
-                        <field name="x_bant_need"/>
-                        <field name="x_bant_timeline"/>
-                    </group>
+                    <!-- BANT is deliberately NOT rendered here: sgc_lead_scoring already
+                         owns the x_bant_* fields and renders them on its own "BANT" tab
+                         with the full call-script layout. Duplicating them made the same
+                         four fields appear twice on the lead form. -->
                 </page>
             </xpath>
 

@@ -203,10 +203,13 @@
                 </div>
             </t>
 
-            <!-- KPI Scorecard — 10 cards in two rows of 5 -->
+            <!-- KPI Scorecard — 10 cards in two rows of 5.
+                 row-cols-md-5 (not col-md-2) is what actually yields 5 equal cards
+                 filling the row: 5 × col-md-2 only spans 10 of the 12 columns and
+                 leaves a dead gutter on the right. -->
             <!-- Row 1: In Pipeline · New Leads Today · Moved Out of New Today · Won · Lost -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-2">
+            <div class="row row-cols-2 row-cols-md-5 g-3 mb-4 px-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-pipeline h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -221,7 +224,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-new-today h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -237,7 +240,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-moved-out h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -253,7 +256,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-won h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -268,7 +271,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-lost h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -286,8 +289,8 @@
             </div>
 
             <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked · Revenue -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-6 col-md-2">
+            <div class="row row-cols-2 row-cols-md-5 g-3 mb-4 px-3">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-follow-up h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -302,7 +305,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #00B67A;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -317,7 +320,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card h-100" style="border-top:3px solid #4DA3FF;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -332,7 +335,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-booked h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -347,7 +350,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-2">
+                <div class="col">
                     <div class="card o_kpi_card o_kpi-revenue h-100">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
@@ -357,6 +360,69 @@
                                 </div>
                                 <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
                                     <i class="fa fa-money fa-lg" style="color:#C7A23A;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Qualification &amp; Gate Compliance (sgc_sales_playbook) -->
+            <div class="row g-3 mb-4 px-3">
+                <div class="col-md-12">
+                    <div class="card o_dash_card">
+                        <div class="card-header">
+                            <h6 class="mb-0 fw-semibold"><i class="fa fa-check-square-o me-2" style="color:#C7A23A;"/>Qualification &amp; Gate Compliance</h6>
+                            <small>Are deals being properly qualified before advancing? (Playbook Phase 4)</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-muted small mb-2" t-if="!state.qualification.enabled">
+                                <i class="fa fa-info-circle me-1"/>
+                                Install sgc_sales_playbook to track gate pass rate, stalled deals and objection conversion.
+                            </div>
+                            <div class="alert alert-warning small mb-2 py-2" t-if="state.qualification.enabled and !state.qualification.gate_stage_configured">
+                                <i class="fa fa-exclamation-triangle me-1"/>
+                                sgc_sales_playbook.gate_stage_id does not resolve to a real stage — the Proposal
+                                gate is currently failing OPEN (not enforced) until this is corrected in
+                                Settings &gt; Technical &gt; System Parameters.
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6 col-md-3">
+                                    <div class="o_stat_box" t-att-class="{
+                                        'o_stat-green': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &gt;= 70,
+                                        'o_stat-yellow': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &gt;= 40 and state.qualification.gate_pass_rate &lt; 70,
+                                        'o_stat-red': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &lt; 40,
+                                        'o_stat-muted': state.qualification.gate_pass_rate === null or state.qualification.gate_pass_rate === undefined
+                                    }">
+                                        <div class="o_stat_value" t-esc="state.qualification.gate_pass_rate === null or state.qualification.gate_pass_rate === undefined ? 'N/A' : state.qualification.gate_pass_rate + '%'"/>
+                                        <div class="o_stat_label">Gate Pass Rate</div>
+                                        <div class="small text-muted" style="font-size:0.7rem;">
+                                            n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_n)"/>
+                                            <t t-if="state.qualification.gate_pass_rate_ai_n or state.qualification.gate_pass_rate_human_n">
+                                                · AI <t t-esc="state.qualification.gate_pass_rate_ai === null ? 'N/A' : state.qualification.gate_pass_rate_ai + '%'"/> (n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_ai_n)"/>)
+                                                · Human <t t-esc="state.qualification.gate_pass_rate_human === null ? 'N/A' : state.qualification.gate_pass_rate_human + '%'"/> (n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_human_n)"/>)
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="o_stat_box" t-att-class="state.qualification.stalled_deals_count === null or state.qualification.stalled_deals_count === undefined ? 'o_stat-muted' : 'o_stat-red'">
+                                        <div class="o_stat_value" t-esc="state.qualification.stalled_deals_count === null or state.qualification.stalled_deals_count === undefined ? 'N/A' : formatNumber(state.qualification.stalled_deals_count)"/>
+                                        <div class="o_stat_label">Stalled 3+ Weeks</div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="o_stat_box" t-att-class="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'o_stat-muted' : 'o_stat-mauve'">
+                                        <div class="o_stat_value" t-esc="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'N/A' : state.qualification.objection_conversion_rate + '%'"/>
+                                        <div class="o_stat_label">Objection → Meeting</div>
+                                        <div class="small text-muted" style="font-size:0.7rem;">n=<t t-esc="formatNumber(state.qualification.objection_conversion_rate_n)"/></div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <div class="o_stat_box o_stat-yellow">
+                                        <div class="o_stat_value" t-esc="formatNumber(state.qualification.stale_lead_count)"/>
+                                        <div class="o_stat_label">Stale, Pending Cleanup</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -439,69 +505,6 @@
                             <div t-else="" class="text-center text-muted">
                                 <i class="fa fa-info-circle fa-2x mb-2 d-block"/>
                                 <div class="small">No source attribution on active leads.<br/>Add UTM source to track campaign ROI.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Qualification &amp; Gate Compliance (sgc_sales_playbook) -->
-            <div class="row g-3 mb-4 px-3">
-                <div class="col-md-12">
-                    <div class="card o_dash_card">
-                        <div class="card-header">
-                            <h6 class="mb-0 fw-semibold"><i class="fa fa-check-square-o me-2" style="color:#C7A23A;"/>Qualification &amp; Gate Compliance</h6>
-                            <small>Are deals being properly qualified before advancing? (Playbook Phase 4)</small>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-muted small mb-2" t-if="!state.qualification.enabled">
-                                <i class="fa fa-info-circle me-1"/>
-                                Install sgc_sales_playbook to track gate pass rate, stalled deals and objection conversion.
-                            </div>
-                            <div class="alert alert-warning small mb-2 py-2" t-if="state.qualification.enabled and !state.qualification.gate_stage_configured">
-                                <i class="fa fa-exclamation-triangle me-1"/>
-                                sgc_sales_playbook.gate_stage_id does not resolve to a real stage — the Proposal
-                                gate is currently failing OPEN (not enforced) until this is corrected in
-                                Settings &gt; Technical &gt; System Parameters.
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box" t-att-class="{
-                                        'o_stat-green': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &gt;= 70,
-                                        'o_stat-yellow': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &gt;= 40 and state.qualification.gate_pass_rate &lt; 70,
-                                        'o_stat-red': state.qualification.gate_pass_rate !== null and state.qualification.gate_pass_rate !== undefined and state.qualification.gate_pass_rate &lt; 40,
-                                        'o_stat-muted': state.qualification.gate_pass_rate === null or state.qualification.gate_pass_rate === undefined
-                                    }">
-                                        <div class="o_stat_value" t-esc="state.qualification.gate_pass_rate === null or state.qualification.gate_pass_rate === undefined ? 'N/A' : state.qualification.gate_pass_rate + '%'"/>
-                                        <div class="o_stat_label">Gate Pass Rate</div>
-                                        <div class="small text-muted" style="font-size:0.7rem;">
-                                            n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_n)"/>
-                                            <t t-if="state.qualification.gate_pass_rate_ai_n or state.qualification.gate_pass_rate_human_n">
-                                                · AI <t t-esc="state.qualification.gate_pass_rate_ai === null ? 'N/A' : state.qualification.gate_pass_rate_ai + '%'"/> (n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_ai_n)"/>)
-                                                · Human <t t-esc="state.qualification.gate_pass_rate_human === null ? 'N/A' : state.qualification.gate_pass_rate_human + '%'"/> (n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_human_n)"/>)
-                                            </t>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box" t-att-class="state.qualification.stalled_deals_count === null or state.qualification.stalled_deals_count === undefined ? 'o_stat-muted' : 'o_stat-red'">
-                                        <div class="o_stat_value" t-esc="state.qualification.stalled_deals_count === null or state.qualification.stalled_deals_count === undefined ? 'N/A' : formatNumber(state.qualification.stalled_deals_count)"/>
-                                        <div class="o_stat_label">Stalled 3+ Weeks</div>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box" t-att-class="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'o_stat-muted' : 'o_stat-mauve'">
-                                        <div class="o_stat_value" t-esc="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'N/A' : state.qualification.objection_conversion_rate + '%'"/>
-                                        <div class="o_stat_label">Objection → Meeting</div>
-                                        <div class="small text-muted" style="font-size:0.7rem;">n=<t t-esc="formatNumber(state.qualification.objection_conversion_rate_n)"/></div>
-                                    </div>
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box o_stat-yellow">
-                                        <div class="o_stat_value" t-esc="formatNumber(state.qualification.stale_lead_count)"/>
-                                        <div class="o_stat_label">Stale, Pending Cleanup</div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

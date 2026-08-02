@@ -26,6 +26,16 @@ $_radius-sm: 10px;
     color: $_text-primary;
     font-family: inherit;
 
+    // Scorecard: guarantee exactly 5 cards per row from md up, even if the
+    // backend bundle ships without Bootstrap's row-cols-* utilities.
+    @media (min-width: 768px) {
+        .row-cols-md-5 > .col {
+            flex: 0 0 auto;
+            width: 20%;
+            max-width: 20%;
+        }
+    }
+
     .o_kpi_card {
         background: $_bg-secondary !important;
         backdrop-filter: blur($_glass-blur) saturate(160%);

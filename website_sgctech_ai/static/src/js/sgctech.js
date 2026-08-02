@@ -24,6 +24,21 @@ function initSGCTechTheme() {
     const lerp  = (a, b, t) => a + (b - a) * t;
 
     /* ═══════════════════════════════════════════════════════
+     *  §0  WCAG 2.2.2 — stop indefinite SVG (SMIL) animation
+     *      The industry icons animate via <animate repeatCount="indefinite">.
+     *      CSS prefers-reduced-motion cannot stop SMIL, so pause it here.
+     * ═══════════════════════════════════════════════════════ */
+    (function pauseDecorativeSvgAnimation() {
+        if (motionOK) return;
+        [...document.querySelectorAll('.sgc-industry-icon svg')].forEach((svg) => {
+            if (typeof svg.pauseAnimations === 'function') {
+                svg.pauseAnimations();
+                svg.setCurrentTime(0);
+            }
+        });
+    })();
+
+    /* ═══════════════════════════════════════════════════════
      *  §1  NAVBAR — glassmorphism scroll behaviour
      * ═══════════════════════════════════════════════════════ */
     (function initNavbar() {

@@ -2812,3 +2812,151 @@ textarea.sgc-form-input {
     .sgc-seals-row { gap: 1rem; }
     .sgc-seal-ring-wrap { width: 100px; height: 100px; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INDUSTRIES SECTION — HD imagery + WCAG 2.2 AA
+   Appended block: overrides the earlier .sgc-industry-* rules by source order.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Card backgrounds ─────────────────────────────────────────────────────
+   Moved out of inline style= so each card can serve AVIF -> WebP -> JPEG.
+   The plain url() line is the fallback for engines without image-set().     */
+.sgc-industry-card .sgc-ind-card-bg[class*="sgc-ind-bg-"] {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.sgc-ind-bg-real-estate   { background-image: url('/website_sgctech_ai/static/src/img/industries/real_estate.jpg'); }
+.sgc-ind-bg-construction  { background-image: url('/website_sgctech_ai/static/src/img/industries/construction.jpg'); }
+.sgc-ind-bg-trading       { background-image: url('/website_sgctech_ai/static/src/img/industries/trading.jpg'); }
+.sgc-ind-bg-retail        { background-image: url('/website_sgctech_ai/static/src/img/industries/retail.jpg'); }
+.sgc-ind-bg-hospitality   { background-image: url('/website_sgctech_ai/static/src/img/industries/hospitality.jpg'); }
+.sgc-ind-bg-manufacturing { background-image: url('/website_sgctech_ai/static/src/img/industries/manufacturing.jpg'); }
+.sgc-ind-bg-healthcare    { background-image: url('/website_sgctech_ai/static/src/img/industries/healthcare.jpg'); }
+.sgc-ind-bg-education     { background-image: url('/website_sgctech_ai/static/src/img/industries/education.jpg'); }
+
+@supports (background-image: image-set(url("x.avif") type("image/avif"))) {
+    .sgc-ind-bg-real-estate {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/real_estate.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/real_estate.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/real_estate.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-construction {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/construction.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/construction.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/construction.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-trading {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/trading.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/trading.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/trading.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-retail {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/retail.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/retail.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/retail.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-hospitality {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/hospitality.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/hospitality.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/hospitality.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-manufacturing {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/manufacturing.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/manufacturing.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/manufacturing.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-healthcare {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/healthcare.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/healthcare.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/healthcare.jpg')  type('image/jpeg'));
+    }
+    .sgc-ind-bg-education {
+        background-image: image-set(
+            url('/website_sgctech_ai/static/src/img/industries/education.avif') type('image/avif'),
+            url('/website_sgctech_ai/static/src/img/industries/education.webp') type('image/webp'),
+            url('/website_sgctech_ai/static/src/img/industries/education.jpg')  type('image/jpeg'));
+    }
+}
+
+/* ── 1.4.3 Contrast ───────────────────────────────────────────────────────
+   Card text sits on a photo, so the floor is set by the darkest scrim region,
+   not by a flat colour. Raise both alphas and deepen the scrim under them.   */
+.sgc-industry-card-header-text p { color: rgba(255,255,255,0.88); }
+.sgc-industry-card p.sgc-card-desc { color: rgba(255,255,255,0.92); }
+
+.sgc-industry-card::before {
+    background: linear-gradient(
+        to top,
+        rgba(6,14,26,0.96) 0%,
+        rgba(6,14,26,0.86) 32%,
+        rgba(6,14,26,0.55) 62%,
+        rgba(6,14,26,0.30) 100%);
+}
+
+/* Glass header band needs its own floor: the top of a card can be bright sky. */
+.sgc-industry-card-header {
+    background: rgba(6,14,26,0.58);
+    border-color: rgba(255,255,255,0.18);
+}
+
+/* ── 2.4.7 / 2.4.11 Focus visible ─────────────────────────────────────────
+   The CTA was opacity:0 until :hover, so a keyboard user focused an
+   invisible control. Reveal it on focus as well, with a real focus ring.     */
+.sgc-industry-card:focus-within .sgc-card-cta,
+.sgc-industry-card .sgc-card-cta:focus,
+.sgc-industry-card .sgc-card-cta:focus-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.sgc-industry-card .sgc-card-cta:focus-visible {
+    outline: 3px solid #FFFFFF;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Keep the focused card lifted like a hovered one so the ring is never
+   clipped by a neighbouring card. */
+.sgc-industry-card:focus-within { z-index: 2; }
+
+/* ── 3.2 Affordance ───────────────────────────────────────────────────────
+   The card itself is not focusable or clickable — only the CTA is — so a
+   pointer cursor over the whole card promised an interaction that never
+   existed. The CTA keeps its own pointer cursor. */
+.sgc-industry-card { cursor: default; }
+.sgc-industry-card .sgc-card-cta { cursor: pointer; }
+
+/* ── 2.2.2 Pause, Stop, Hide ──────────────────────────────────────────────
+   Icon SVGs animate indefinitely via SMIL. CSS cannot stop SMIL, so
+   sgctech.js calls svg.pauseAnimations() — this block covers everything
+   CSS *can* stop in the same section. */
+@media (prefers-reduced-motion: reduce) {
+    .sgc-industry-card,
+    .sgc-industry-card .sgc-ind-card-bg,
+    .sgc-industry-card .sgc-industry-icon,
+    .sgc-industry-card .sgc-card-pill,
+    .sgc-industry-card .sgc-card-cta {
+        transition: none !important;
+        animation: none !important;
+    }
+    .sgc-industry-card {
+        transform: none !important;
+    }
+    .sgc-industry-card .sgc-card-glare {
+        display: none !important;
+    }
+    /* Never leave the CTA hidden behind a hover-only reveal when motion is off. */
+    .sgc-industry-card .sgc-card-cta {
+        opacity: 1;
+        transform: none;
+    }
+}
