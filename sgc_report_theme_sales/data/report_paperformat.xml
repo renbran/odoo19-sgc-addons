@@ -7,14 +7,20 @@
         and render with white side strips instead of full-bleed ivory.
         Re-point all three to sgc_report_theme_core's paperformat_sgc_a4_portrait
         (margin_left/right 0, company-default on invoice side).
+
+        NOTE: the record id must be the ir.actions.report XMLID, NOT the
+        report template view XMLID. Verified on prod via ir.model.data:
+          sale.report_saleorder           -> sale.action_report_saleorder (314)
+          sale.report_saleorder_pro_forma -> sale.action_report_pro_forma_invoice (315)
+          sale.report_saleorder_raw       -> sale_pdf_quote_builder.action_report_saleorder_raw (350)
     -->
-    <record id="sale.report_saleorder" model="ir.actions.report">
+    <record id="sale.action_report_saleorder" model="ir.actions.report">
         <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
     </record>
-    <record id="sale.report_saleorder_pro_forma" model="ir.actions.report">
+    <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
         <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
     </record>
-    <record id="sale.report_saleorder_raw" model="ir.actions.report">
+    <record id="sale_pdf_quote_builder.action_report_saleorder_raw" model="ir.actions.report">
         <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
     </record>
 </odoo>
