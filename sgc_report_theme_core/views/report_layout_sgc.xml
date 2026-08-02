@@ -103,7 +103,7 @@
         </xpath>
 
         <!--
-            2026-08-02 page chrome: gold corner brackets + skyline watermark.
+            2026-08-02 page chrome: gold corner brackets (page-1 chrome).
             All elements are position:fixed (sgc_report_signature.scss) and
             z-index:0 keeps them behind the flowing content. Inserted as the
             FIRST child of the article div so they frame the document body
@@ -122,7 +122,6 @@
             <span class="o_sgc_corner o_sgc_corner_bl"><span class="o_sgc_corner_tertiary"></span></span>
             <span class="o_sgc_corner o_sgc_corner_br"><span class="o_sgc_corner_tertiary"></span></span>
             <span class="o_sgc_ivory_bleed"></span>
-            <span class="o_sgc_watermark_skyline"></span>
         </xpath>
 
         <xpath expr="//div[contains(@t-attf-class, 'footer o_company_')]" position="attributes">

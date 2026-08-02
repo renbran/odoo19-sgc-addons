@@ -152,29 +152,19 @@
         &.o_sgc_nav_rail_right { right: $sgc-grid-margin-mm; }
     }
 
-    // ---- Skyline watermark --------------------------------------------
-    // Centered geometric skyline (watermark_skyline_sgc.svg) rendered as a
-    // low-opacity background so document content stays legible. The SVG
-    // ships with SOLID fill; opacity is enforced HERE per the SVG's own
-    // comment ("opacity must be controlled by the consuming CSS") so no
-    // consumer can accidentally render it opaque. width/height 120mm x 75mm
-    // match the SVG's 800x500 aspect ratio (1.6:1); background-size:contain
-    // guards against any future SVG rescale.
-    .o_sgc_watermark_skyline {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 120mm;
-        height: 75mm;
-        background-image: url('/sgc_report_theme_core/static/src/img/watermark_skyline_sgc.svg');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        opacity: 0.06;
-        pointer-events: none;
-        z-index: 0;
-    }
+    // ---- Skyline watermark ---------------------------------------------
+    // REMOVED 2026-08-02. This was a geometric SVG placeholder painted by a
+    // fixed <span> at z-index 0 - which stacks ABOVE the in-flow text, not
+    // behind it. That only passed unnoticed because the opacity was 0.06;
+    // anything stronger visibly hazed the copy underneath, and the obvious
+    // fix (z-index: -1) does not render at all here, the same way it kills
+    // .o_sgc_ivory_bleed above.
+    //
+    // The real Dubai aerial that replaced it is applied as a background-image
+    // on .o_sgc_report.article in sgc_report.scss instead. An element's own
+    // background always paints behind that element's content, so the artwork
+    // is genuinely behind the text with no stacking tricks and no opacity
+    // ceiling. See that rule for the tuning notes.
 
     // ---- Ivory body-box canvas (FIRST PAGE ONLY) -----------------------
     // Offsets were negative (-28/-20/-22/-20mm) from the abandoned Option A

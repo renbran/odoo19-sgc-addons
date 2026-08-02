@@ -364,6 +364,27 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
     // body box and wkhtmltopdf answered with an entirely blank second page.
     // Any non-zero bottom padding contains it; do not drop this to 0.
     padding: 8mm 20mm;
+
+    // Dubai aerial watermark (Palm Jumeirah + Marina), a real photographic
+    // asset rather than the geometric SVG placeholder it replaces.
+    //
+    // Applied as this element's OWN background, not as an overlay: a
+    // background always paints behind its element's content, so the artwork
+    // cannot haze the text no matter how strong it is. The previous fixed
+    // <span> sat at z-index 0, i.e. ON TOP of the copy, and was only
+    // survivable at 0.06 opacity - and z-index:-1 does not render in this
+    // engine (see sgc_report_signature.scss).
+    //
+    // The source is already toned to the ivory/gold palette with the page
+    // colour baked in as its background, so `contain` leaves no visible seam
+    // where the artwork ends - it is A4 portrait (0.706), taller than the
+    // body box, so it fits to height and centres with pure ivory either side.
+    // Strength lives in the asset itself because CSS cannot set opacity on a
+    // background image; re-export the file to adjust it, do not add a layer.
+    background-image: url('/sgc_report_theme_core/static/src/img/watermark_dubai_palm.jpg');
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
 // Gold frame. It must ENCLOSE the content, so its inset has to be SMALLER
