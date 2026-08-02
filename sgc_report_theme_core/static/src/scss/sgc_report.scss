@@ -318,15 +318,21 @@ body.o_body_pdf.container { padding-left: 0; padding-right: 0; }
 // data/paperformat_data.xml. min- (not fixed) height so a multi-page document
 // still flows past it normally.
 .o_sgc_report.article {
-    // 237mm, not the 243mm the margins imply. wkhtmltopdf's usable body box is
-    // ~6mm shorter than (page - margins), so anything from 238mm up overflows
-    // and it emits an entirely blank extra page - measured by sweeping this
-    // value against the real body document: 237mm renders one page, 238mm two.
-    // At 237mm the ivory still reaches the bottom of the body box (verified by
-    // sampling the last row above the footer band), so nothing is given up.
-    // Re-measure this if the margins or dpi change.
-    min-height: 237mm;
+    // 243mm = exactly the body box (A4 297mm less the 32mm and 22mm margins),
+    // so the ivory reaches the footer band on a short document instead of
+    // stopping where the content happens to end. Keep in sync with
+    // data/paperformat_data.xml.
+    min-height: 243mm;
     margin: 0;
+    // padding-bottom is load-bearing, not cosmetic: the article's last child
+    // carries a bottom margin (.mb-3 on the terms block) which, with no bottom
+    // padding or border to stop it, COLLAPSES OUT of the article and lands
+    // after it in the flow. That pushed the page ~6mm past the body box, and
+    // wkhtmltopdf answered by emitting an entirely blank second page - so the
+    // article had to be capped ~6mm short, which is what left a white sliver
+    // above the footer on short documents. 1px of padding contains the margin
+    // and buys back the full 243mm.
+    padding-bottom: 1px;
     box-sizing: border-box;
     padding-left: 20mm;
     padding-right: 20mm;
