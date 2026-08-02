@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Re-points 9 financial report templates onto
+    sgc_report_theme_core.external_layout_sgc. These templates currently
+    t-call web.internal_layout (not web.external_layout like the other
+    bridges) - the xpath target is the same pattern, just matching the
+    layout each template actually calls today.
+-->
+
+    <template id="report_agedpartnerbalance_sgc"
+              inherit_id="accounting_pdf_reports.report_agedpartnerbalance">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_financial_sgc"
+              inherit_id="accounting_pdf_reports.report_financial">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_general_ledger_sgc"
+              inherit_id="accounting_pdf_reports.report_general_ledger">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_partnerledger_sgc"
+              inherit_id="accounting_pdf_reports.report_partnerledger">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_tax_sgc"
+              inherit_id="accounting_pdf_reports.report_tax">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_trialbalance_sgc"
+              inherit_id="accounting_pdf_reports.report_trialbalance">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_bankbook_sgc"
+              inherit_id="om_account_daily_reports.report_bankbook">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_cashbook_sgc"
+              inherit_id="om_account_daily_reports.report_cashbook">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_daybook_sgc"
+              inherit_id="om_account_daily_reports.report_daybook">
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+</odoo>

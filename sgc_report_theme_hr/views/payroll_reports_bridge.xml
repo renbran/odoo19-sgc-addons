@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Re-points the two payslip report templates onto
+    sgc_report_theme_core.external_layout_sgc.
+-->
+
+    <template id="report_payslipdetails_sgc"
+              inherit_id="hr_payroll_community.report_payslipdetails">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+    <template id="report_payslipdetails_uae_wps_sgc"
+              inherit_id="eh_uae_payroll_wps.report_payslipdetails_uae_wps">
+        <xpath expr="//t[@t-call='web.basic_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+</odoo>

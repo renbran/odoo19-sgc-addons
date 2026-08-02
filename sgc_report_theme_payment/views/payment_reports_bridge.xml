@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<!--
+    Re-points the Payment Receipt sub-template onto
+    sgc_report_theme_core.external_layout_sgc. Note: the actual
+    web.external_layout t-call lives in
+    account.report_payment_receipt_document (the per-record sub-template),
+    not account.report_payment_receipt (the outer wrapper) itself.
+-->
+
+    <template id="report_payment_receipt_document_sgc"
+              inherit_id="account.report_payment_receipt_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+            <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+    </template>
+
+</odoo>
