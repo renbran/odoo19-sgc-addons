@@ -226,6 +226,32 @@ $_radius-sm: 10px;
         cursor: pointer;
     }
 
+    // KPI cards, qualification tiles and chart segments that open the
+    // records behind their number. Cards/tiles are plain divs made
+    // interactive (role="button" + tabindex in the template), so they need
+    // their own visible focus treatment — the browser default outline is
+    // suppressed by the surrounding glass-card styling otherwise.
+    .o_kpi_clickable,
+    .o_stat_clickable {
+        cursor: pointer;
+
+        &:hover {
+            filter: brightness(1.08);
+        }
+
+        &:focus-visible {
+            outline: 2px solid $_gold;
+            outline-offset: 2px;
+        }
+    }
+
+    canvas {
+        // Chart.js already swaps the cursor per-segment via onHover; this
+        // is just the resting state so the whole chart doesn't look
+        // draggable/selectable before the first hover event fires.
+        cursor: default;
+    }
+
     .badge {
         font-weight: 500;
         font-size: 0.78rem;

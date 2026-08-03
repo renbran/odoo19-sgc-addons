@@ -9,10 +9,15 @@ import { loadJS } from "@web/core/assets";
 export class CrmDashboard extends Component {
     static template = "sgc_crm_dashboard.Dashboard";
     static props = { ...standardActionServiceProps };
+    // Positional keys matching the fixed bucket order dashboard.py's
+    // pipeline_aging always returns them in (0-7d, 8-30d, 31-60d, 61-90d,
+    // 90d+), so the label at index i maps to backend bucket key i here.
+    static AGING_BUCKET_KEYS = ["0-7", "8-30", "31-60", "61-90", "90p"];
 
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
+        this.action = useService("action");
         this.state = useState({
             kpi: {},
             funnel: [],
@@ -118,9 +123,46 @@ export class CrmDashboard extends Component {
         this.state.salespersonDetail = null;
     }
 
+    /**
+     * Open the crm.lead (or sale.order / sgc.lead.objection) records behind
+     * a KPI card, qualification tile, or chart segment. `kind`/`params`
+     * are forwarded to crm.dashboard.open_records, which builds the exact
+     * domain the displayed number came from — see the comment on that
+     * method for why the domains live server-side rather than being
+     * rebuilt here from state.
+     */
+    async openRecords(kind, params) {
+        try {
+            const action = await this.orm.call(
+                "crm.dashboard", "open_records", [kind, params || {}, this.state.selectedUserId]
+            );
+            await this.action.doAction(action);
+        } catch (e) {
+            this.notification.add(
+                e?.data?.message || "Couldn't open the records behind this number",
+                { type: "danger" }
+            );
+        }
+    }
+
+    /** Space/Enter on a keyboard-focused clickable card/tile triggers the same click. */
+    onClickableKeydown(ev, kind, params) {
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            this.openRecords(kind, params);
+        }
+    }
+
     destroyCharts() {
         Object.values(this.charts).forEach(c => c?.destroy());
         this.charts = {};
+    }
+
+    /** Chart.js v4 onHover: swap the cursor to a pointer over a clickable segment. */
+    _chartCursorHover(evt, elements) {
+        if (evt.native?.target) {
+            evt.native.target.style.cursor = elements.length ? "pointer" : "default";
+        }
     }
 
     renderCharts() {
@@ -150,6 +192,12 @@ export class CrmDashboard extends Component {
                 maintainAspectRatio: false,
                 plugins: { legend: { position: "right", labels: { padding: 12, usePointStyle: true } } },
                 cutout: "55%",
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const stage = this.state.stages[elements[0].index];
+                    if (stage) this.openRecords("chart_stage", { stage_name: stage.name });
+                },
             },
         });
     }
@@ -177,6 +225,14 @@ export class CrmDashboard extends Component {
                     x: { grid: { display: false } },
                 },
                 plugins: { legend: { labels: { usePointStyle: true, padding: 16 } } },
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const { datasetIndex, index } = elements[0];
+                    const series = ["created", "won", "lost"][datasetIndex];
+                    const month = this.state.monthly[index];
+                    if (series && month) this.openRecords("chart_monthly", { month: month.month, series });
+                },
             },
         });
     }
@@ -227,6 +283,12 @@ export class CrmDashboard extends Component {
                         },
                     },
                 },
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const bucket = CrmDashboard.AGING_BUCKET_KEYS[elements[0].index];
+                    if (bucket) this.openRecords("chart_aging", { bucket });
+                },
             },
         });
     }
@@ -275,6 +337,12 @@ export class CrmDashboard extends Component {
                         },
                     },
                 },
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const owner = this.state.owner_pipeline[elements[0].index];
+                    if (owner) this.openRecords("chart_owner", { owner_id: owner.id });
+                },
             },
         });
     }
@@ -301,6 +369,12 @@ export class CrmDashboard extends Component {
                 maintainAspectRatio: false,
                 cutout: "55%",
                 plugins: { legend: { position: "right", labels: { padding: 10, usePointStyle: true } } },
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const source = this.state.pipeline_by_source[elements[0].index];
+                    if (source) this.openRecords("chart_source", { source_name: source.name });
+                },
             },
         });
     }
@@ -344,6 +418,12 @@ export class CrmDashboard extends Component {
                             },
                         },
                     },
+                },
+                onHover: (evt, elements) => this._chartCursorHover(evt, elements),
+                onClick: (evt, elements) => {
+                    if (!elements.length) return;
+                    const stage = this.state.funnel[elements[0].index];
+                    if (stage) this.openRecords("chart_funnel", { stage_name: stage.name });
                 },
             },
         });

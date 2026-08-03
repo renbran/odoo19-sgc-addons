@@ -1,4 +1,5 @@
-from odoo import models, api, fields
+from odoo import models, api, fields, _
+from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
@@ -31,14 +32,16 @@ class CRMDashboard(models.AbstractModel):
         return cr.fetchone() is not None
 
     @api.model
-    def get_dashboard_data(self, user_id=None):
-        lead = self.env["crm.lead"]
-        order = self.env["sale.order"]
-        team = self.env["crm.team"]
+    def _scope(self, user_id):
+        """(is_admin, target_ids, lead_domain_base) for the given salesperson
+        filter. Shared by get_dashboard_data (to compute the numbers) and
+        open_records (to compute the domain behind a click) so the two can
+        never silently diverge — the count shown and the list it opens must
+        always describe the same records.
+        """
         is_admin = self._is_admin()
         current_user = self.env.user
 
-        # Determine which users to show
         if user_id:
             target_users = self.env["res.users"].browse(user_id)
         elif is_admin:
@@ -48,10 +51,19 @@ class CRMDashboard(models.AbstractModel):
 
         target_ids = target_users.ids
 
-        # KPIs scoped to target users
         lead_domain_base = [("user_id", "in", target_ids)] if not user_id and not is_admin else []
         if user_id:
             lead_domain_base = [("user_id", "=", user_id)]
+
+        return is_admin, target_ids, lead_domain_base
+
+    @api.model
+    def get_dashboard_data(self, user_id=None):
+        lead = self.env["crm.lead"]
+        order = self.env["sale.order"]
+        team = self.env["crm.team"]
+        is_admin, target_ids, lead_domain_base = self._scope(user_id)
+        current_user = self.env.user
 
         # Get won stage ids dynamically from CRM stages
         won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
@@ -473,7 +485,14 @@ class CRMDashboard(models.AbstractModel):
             key = l.create_date.strftime("%Y-%m") if l.create_date else False
             if key in months:
                 months[key]["created"] += 1
-        for l in lead.search([("date_closed", ">=", range_start)] + (
+        # Bug fix (found while wiring the drill-down click for this chart):
+        # this search must see archived leads too, since "lost" IS
+        # archived — but plain search() implicitly filters active=True
+        # whenever the domain doesn't mention 'active' itself, so every
+        # archived (lost) lead was silently excluded and the Lost bar was
+        # always 0 regardless of real data. with_context(active_test=False)
+        # restores the archived leads the loop below already branches on.
+        for l in lead.with_context(active_test=False).search([("date_closed", ">=", range_start)] + (
             [("user_id", "=", user_id)] if user_id else (
                 [("user_id", "in", target_ids)] if not is_admin else []
             )
@@ -481,7 +500,11 @@ class CRMDashboard(models.AbstractModel):
             key = l.date_closed.strftime("%Y-%m") if l.date_closed else False
             if key not in months:
                 continue
-            if l.active and l.stage_id in won_stage_ids:
+            # Bug fix: l.stage_id is a crm.stage recordset; comparing it
+            # against won_stage_ids (a list of ints) with `in` was always
+            # False, so the Won bar was also always 0 regardless of real
+            # data. Compare the id instead.
+            if l.active and l.stage_id.id in won_stage_ids:
                 months[key]["won"] += 1
             elif not l.active:
                 months[key]["lost"] += 1
@@ -543,6 +566,229 @@ class CRMDashboard(models.AbstractModel):
             "salesperson": salesperson_data[:10] if is_admin and not user_id else salesperson_data,
             "monthly": monthly,
         }
+
+    # ─── Drill-down: "what records are behind this number?" ─────────────
+    # Every KPI card, qualification tile and chart segment on the
+    # dashboard is a count or a rate computed above. open_records() maps a
+    # click on one of those back to the crm.lead (or sale.order /
+    # sgc.lead.objection) records that produced it, as a real window
+    # action — so clicking "Won: 12" opens exactly those 12 leads, not an
+    # approximation. Domains here intentionally mirror the ones above
+    # rather than sharing helper functions with them line-for-line: most
+    # already funnel through the shared _scope()/lead_domain_base, and
+    # keeping the rest as short, self-contained blocks (each next to a
+    # comment naming which KPI it must match) makes it possible to spot a
+    # drift between "the number" and "the list" by reading the two blocks
+    # side by side, which a deeper shared abstraction would hide.
+    _AGING_BUCKETS = {
+        # bucket key -> (days_ago_low, days_ago_high); mirrors the SQL CASE
+        # in get_dashboard_data's pipeline_aging query exactly.
+        "0-7": (0, 7),
+        "8-30": (8, 30),
+        "31-60": (31, 60),
+        "61-90": (61, 90),
+        "90p": (91, None),
+    }
+
+    def _aging_bucket_domain(self, bucket):
+        if bucket not in self._AGING_BUCKETS:
+            raise UserError(_("Unknown pipeline-aging bucket: %s", bucket))
+        lo, hi = self._AGING_BUCKETS[bucket]
+        today = fields.Date.context_today(self)
+        domain = []
+        if hi is not None:
+            start = today - timedelta(days=hi)
+            domain.append(("create_date", ">=", fields.Datetime.to_string(datetime.combine(start, datetime.min.time()))))
+        end = today - timedelta(days=lo)
+        domain.append(("create_date", "<=", fields.Datetime.to_string(datetime.combine(end, datetime.max.time()))))
+        return domain
+
+    @staticmethod
+    def _month_bounds(month_key):
+        """('2026-07', ) -> (datetime str, datetime str) covering that month."""
+        year, month = (int(p) for p in month_key.split("-"))
+        start = datetime(year, month, 1)
+        end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+        return fields.Datetime.to_string(start), fields.Datetime.to_string(end)
+
+    @staticmethod
+    def _lead_action(name, domain, extra_context=None):
+        return {
+            "type": "ir.actions.act_window",
+            "name": name,
+            "res_model": "crm.lead",
+            "view_mode": "list,kanban,form",
+            "views": [[False, "list"], [False, "kanban"], [False, "form"]],
+            "domain": domain,
+            "context": {"create": False, **(extra_context or {})},
+            "target": "current",
+        }
+
+    @api.model
+    def open_records(self, kind, params=None, user_id=None):
+        """Return an ir.actions.act_window dict for the records behind a
+        dashboard KPI/chart segment.
+
+        `user_id` must be the salesperson-filter value the dashboard was
+        showing when the user clicked (the admin dropdown selection) so the
+        opened list always matches what was on screen — the frontend passes
+        state.selectedUserId on every call.
+        """
+        params = params or {}
+        is_admin, target_ids, lead_domain_base = self._scope(user_id)
+
+        # ── Scorecard row 1 ──────────────────────────────────────────
+        if kind == "kpi_pipeline":
+            return self._lead_action(_("In Pipeline"), lead_domain_base + [
+                ("active", "=", True), ("probability", ">", 0), ("probability", "<", 100),
+            ])
+        if kind == "kpi_new_leads_today":
+            # Matches new_leads_today above, which is NOT scoped to
+            # target_ids there either — preserved here so the count and the
+            # opened list always agree, even though that's arguably a bug.
+            start = fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )
+            return self._lead_action(_("New Leads Today"), [("create_date", ">=", start)])
+        if kind == "kpi_moved_out_of_new":
+            new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
+            today_start = fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )
+            domain = [("active", "=", True), ("write_date", ">=", today_start)]
+            if new_stage_id:
+                domain.append(("stage_id", "!=", new_stage_id))
+            if user_id:
+                domain.append(("user_id", "=", user_id))
+            elif not is_admin:
+                domain.append(("user_id", "in", target_ids))
+            return self._lead_action(_("Moved Out of New Today"), domain)
+        if kind == "kpi_won":
+            won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
+            return self._lead_action(_("Won"), lead_domain_base + [("stage_id", "in", won_stage_ids)])
+        if kind == "kpi_lost":
+            return self._lead_action(_("Lost"), lead_domain_base + [
+                "|", ("active", "=", False), ("probability", "=", 0),
+            ])
+
+        # ── Scorecard row 2 ──────────────────────────────────────────
+        if kind == "kpi_follow_up":
+            return self._lead_action(_("Follow Up"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 6)])
+        if kind == "kpi_research_done":
+            return self._lead_action(_("Research Done"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 2)])
+        if kind == "kpi_outreach_email":
+            return self._lead_action(_("Email Outreach"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 10)])
+        if kind == "kpi_booked":
+            return self._lead_action(_("Meeting Booked"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 3)])
+        if kind == "kpi_revenue":
+            # confirmed_revenue sums ALL confirmed sale.order regardless of
+            # salesperson filter — mirrored here, not scoped either.
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Confirmed Revenue"),
+                "res_model": "sale.order",
+                "view_mode": "list,form",
+                "views": [[False, "list"], [False, "form"]],
+                "domain": [("state", "=", "sale")],
+                "context": {"create": False},
+                "target": "current",
+            }
+
+        # ── Qualification & Gate Compliance (sgc_sales_playbook) ──────
+        if kind == "qual_gate_pass_rate":
+            return self._lead_action(_("Gateable Deals (Meeting Booked+)"), lead_domain_base + [
+                ("active", "=", True), ("stage_id.sequence", ">=", 7),
+            ])
+        if kind == "qual_stalled":
+            stall_cutoff = fields.Datetime.to_string(datetime.now() - timedelta(weeks=3))
+            return self._lead_action(_("Stalled 3+ Weeks"), lead_domain_base + [
+                ("active", "=", True),
+                ("date_last_stage_update", "!=", False),
+                ("date_last_stage_update", "<=", stall_cutoff),
+            ])
+        if kind == "qual_objection_conversion":
+            if "sgc.lead.objection" not in self.env:
+                raise UserError(_("Objection tracking isn't installed (sgc_sales_playbook)."))
+            if user_id:
+                obj_domain = [("lead_id.user_id", "=", user_id)]
+            elif not is_admin:
+                obj_domain = [("lead_id.user_id", "in", target_ids)]
+            else:
+                obj_domain = []
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Objections"),
+                "res_model": "sgc.lead.objection",
+                "view_mode": "list,form",
+                "views": [[False, "list"], [False, "form"]],
+                "domain": obj_domain,
+                "context": {"create": False},
+                "target": "current",
+            }
+        if kind == "qual_stale":
+            stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
+            return self._lead_action(_("Stale, Pending Cleanup"), lead_domain_base + [
+                ("active", "=", True),
+                ("stage_id", "in", [5, 7]),
+                ("lost_reason_id", "=", False),
+                ("write_date", "<=", stale_cutoff_dt),
+            ])
+
+        # ── Charts ─────────────────────────────────────────────────────
+        if kind == "chart_stage":
+            # "Pipeline by Stage (Active)" donut — segment identified by
+            # stage name, matching the stages[] the chart already renders.
+            stage_name = params.get("stage_name")
+            return self._lead_action(_("Pipeline: %s", stage_name), lead_domain_base + [
+                ("active", "=", True), ("stage_id.name", "=", stage_name),
+            ])
+        if kind == "chart_funnel":
+            # "Conversion Funnel" — all-time (active + archived) per stage,
+            # matching funnel_stages' f_domain (no active filter).
+            stage_name = params.get("stage_name")
+            return self._lead_action(_("Funnel: %s", stage_name), lead_domain_base + [
+                ("stage_id.name", "=", stage_name),
+            ])
+        if kind == "chart_aging":
+            bucket = params.get("bucket")
+            return self._lead_action(_("Pipeline Age: %s", bucket), lead_domain_base + [
+                ("active", "=", True),
+            ] + self._aging_bucket_domain(bucket))
+        if kind == "chart_owner":
+            owner_id = params.get("owner_id")
+            owner = self.env["res.users"].browse(owner_id)
+            return self._lead_action(_("Pipeline: %s", owner.display_name), [
+                ("active", "=", True), ("user_id", "=", owner_id),
+            ])
+        if kind == "chart_source":
+            # Matches pipeline_by_source, which collapses NULL/blank UTM
+            # source into a single "Unassigned" bucket by display name.
+            source_name = params.get("source_name")
+            domain = lead_domain_base + [("active", "=", True)]
+            domain += [("source_id", "=", False)] if source_name == "Unassigned" else [("source_id.name", "=", source_name)]
+            return self._lead_action(_("Pipeline Source: %s", source_name), domain)
+        if kind == "chart_monthly":
+            month = params.get("month")
+            series = params.get("series")
+            start, end = self._month_bounds(month)
+            if series == "created":
+                domain = lead_domain_base + [("create_date", ">=", start), ("create_date", "<", end)]
+            elif series == "won":
+                won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
+                domain = lead_domain_base + [
+                    ("date_closed", ">=", start), ("date_closed", "<", end),
+                    ("active", "=", True), ("stage_id", "in", won_stage_ids),
+                ]
+            elif series == "lost":
+                domain = lead_domain_base + [
+                    ("date_closed", ">=", start), ("date_closed", "<", end),
+                    ("active", "=", False),
+                ]
+            else:
+                raise UserError(_("Unknown Pipeline Movement series: %s", series))
+            return self._lead_action(_("%(series)s — %(month)s", series=series.capitalize(), month=month), domain)
+
+        raise UserError(_("Unknown dashboard drill-down: %s", kind))
 
     @api.model
     def get_salesperson_detail(self, user_id):
