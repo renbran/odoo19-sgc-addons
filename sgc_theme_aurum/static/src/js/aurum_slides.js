@@ -1,75 +1,80 @@
-odoo.define('sgc_theme_aurum.aurum_slides', function (require) {
-    'use strict';
+/** @odoo-module **/
 
-    const { onDOMReady } = require('web.utils.misc');
+import publicWidget from "@web/legacy/js/public/public_widget";
 
-    function initStage(stage) {
-        const slides = Array.from(stage.querySelectorAll('.slide'));
-        if (slides.length === 0) {
+publicWidget.registry.AurumSlides = publicWidget.Widget.extend({
+    selector: ".stage",
+    disabledInEditableMode: false,
+
+    start() {
+        this._initDeck();
+        return this._super(...arguments);
+    },
+
+    _initDeck() {
+        const stage = this.el;
+        const slides = Array.from(stage.querySelectorAll(".slide"));
+        if (!slides.length) {
             return;
         }
-        const nav = stage.querySelector('.nav');
-        const dotsContainer = stage.querySelector('.dots');
-        const prevBtn = nav ? nav.querySelector('button:first-child') : null;
-        const nextBtn = nav ? nav.querySelector('button:last-child') : null;
-        let current = Math.max(0, slides.findIndex((s) => s.classList.contains('active')));
+        const nav = stage.querySelector(".nav");
+        const dotsContainer = stage.querySelector(".dots");
+        const prevBtn = nav ? nav.querySelector("button:first-child") : null;
+        const nextBtn = nav ? nav.querySelector("button:last-child") : null;
+        let current = Math.max(0, slides.findIndex((s) => s.classList.contains("active")));
         if (current < 0) {
             current = 0;
         }
-        let dots = [];
 
-        function render() {
+        const render = () => {
             slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === current);
+                slide.classList.toggle("active", i === current);
             });
             if (dotsContainer) {
-                dotsContainer.innerHTML = '';
-                dots = slides.map((slide, i) => {
-                    const dot = document.createElement('span');
-                    dot.className = 'dot' + (i === current ? ' active' : '');
-                    dot.setAttribute('role', 'tab');
-                    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-                    dot.addEventListener('click', () => {
+                dotsContainer.innerHTML = "";
+                slides.forEach((slide, i) => {
+                    const dot = document.createElement("span");
+                    dot.className = "dot" + (i === current ? " active" : "");
+                    dot.setAttribute("role", "tab");
+                    dot.setAttribute("aria-label", "Go to slide " + (i + 1));
+                    dot.addEventListener("click", () => {
                         current = i;
                         render();
                     });
                     dotsContainer.appendChild(dot);
-                    return dot;
                 });
             }
-        }
+        };
 
-        function prev() {
+        const prev = () => {
             current = (current - 1 + slides.length) % slides.length;
             render();
-        }
-
-        function next() {
+        };
+        const next = () => {
             current = (current + 1) % slides.length;
             render();
-        }
+        };
 
         if (prevBtn) {
-            prevBtn.addEventListener('click', prev);
+            prevBtn.addEventListener("click", prev);
         }
         if (nextBtn) {
-            nextBtn.addEventListener('click', next);
+            nextBtn.addEventListener("click", next);
         }
-
-        stage.addEventListener('keydown', (ev) => {
-            if (ev.key === 'ArrowLeft') {
+        stage.setAttribute("tabindex", "0");
+        stage.addEventListener("keydown", (ev) => {
+            if (ev.key === "ArrowLeft") {
                 prev();
-            } else if (ev.key === 'ArrowRight') {
+            } else if (ev.key === "ArrowRight") {
                 next();
             }
         });
-        stage.setAttribute('tabindex', '0');
 
         let touchStartX = null;
-        stage.addEventListener('touchstart', (ev) => {
+        stage.addEventListener("touchstart", (ev) => {
             touchStartX = ev.touches[0].clientX;
         }, { passive: true });
-        stage.addEventListener('touchend', (ev) => {
+        stage.addEventListener("touchend", (ev) => {
             if (touchStartX === null) {
                 return;
             }
@@ -85,9 +90,5 @@ odoo.define('sgc_theme_aurum.aurum_slides', function (require) {
         }, { passive: true });
 
         render();
-    }
-
-    onDOMReady(() => {
-        document.querySelectorAll('#stage.stage').forEach(initStage);
-    });
+    },
 });
