@@ -35,6 +35,14 @@
                                  help="Create a Mailcow mailbox automatically when a new internal user is created under the default domain.">
                             <field name="mailcow_auto_provision"/>
                         </setting>
+                        <setting string="Roleplay Pass Webhook Secret"
+                                 help="Shared secret for the /sgc-webhook/roleplay-pass endpoint that provisions Mailcow + Odoo credentials when a hire passes the Roleplay Arena.">
+                            <field name="mailcow_webhook_secret" password="True"/>
+                        </setting>
+                        <setting string="Roleplay Arena Channel ID"
+                                 help="slide.channel id of the Roleplay Arena (completion is recorded here).">
+                            <field name="mailcow_roleplay_channel_id"/>
+                        </setting>
                     </block>
                 </app>
             </xpath>

@@ -32,6 +32,19 @@ class ResConfigSettings(models.TransientModel):
              "matches the default mail domain automatically creates a Mailcow "
              "mailbox (mailbox only, no Odoo SMTP/IMAP server). Off by default.")
 
+    mailcow_webhook_secret = fields.Char(
+        string="Roleplay Pass Webhook Secret",
+        config_parameter="sgc_mailcow.webhook_secret",
+        help="Shared secret the external AI-persona platform sends in the "
+             "X-SGC-Webhook-Secret header when a hire passes the Roleplay "
+             "Arena, triggering Mailcow + Odoo credential provisioning.")
+    mailcow_roleplay_channel_id = fields.Integer(
+        string="Roleplay Arena Channel ID",
+        config_parameter="sgc_mailcow.roleplay_channel_id",
+        default=6,
+        help="slide.channel id of the Roleplay Arena; its completion is "
+             "recorded when credentials are provisioned.")
+
     def action_mailcow_test_connection(self):
         self.env["mailcow.api"].test_connection()
         return {

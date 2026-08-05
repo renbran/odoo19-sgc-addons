@@ -59,6 +59,10 @@ class RoleplayPassWebhookController(http.Controller):
             )
 
         # --- Parse ------------------------------------------------------
+        # Contract mirrors the roleplay-arena.vercel.app frontend, which POSTs
+        # to /api/booking/provision with:
+        #   {fullName, email, mobile, personaId, sessionId, bookingToken}
+        # The simpler aliases (name/role/phone) are accepted as well.
         try:
             payload = request.httprequest.get_json(force=True)
         except Exception:
@@ -67,9 +71,11 @@ class RoleplayPassWebhookController(http.Controller):
             )
 
         email = (payload.get("email") or "").strip().lower()
-        name = (payload.get("name") or "").strip()
-        role = (payload.get("role") or "").strip()
-        phone = (payload.get("phone") or "").strip()
+        name = (payload.get("fullName") or payload.get("name") or "").strip()
+        role = (payload.get("personaId") or payload.get("role") or "").strip()
+        phone = (payload.get("mobile") or payload.get("phone") or "").strip()
+        session_id = (payload.get("sessionId") or "").strip()
+        booking_token = (payload.get("bookingToken") or "").strip()
         dry_run = bool(payload.get("dry_run"))
 
         if not email or not name:
@@ -220,6 +226,7 @@ class RoleplayPassWebhookController(http.Controller):
             "already_provisioned": False,
             "dry_run": dry_run,
             "role": role or False,
+            "session_id": session_id or False,
             "odoo_user_id": user.id if user else False,
             "odoo_login": user.login if user else False,
             "mailbox_email": mailbox.email if mailbox else False,
@@ -230,10 +237,11 @@ class RoleplayPassWebhookController(http.Controller):
             result["temporary_password"] = password
 
         _logger.info(
-            "Roleplay-pass: provisioned %s (odoo_user_id=%s, mailbox=%s, role=%s)",
+            "Roleplay-pass: provisioned %s (odoo_user_id=%s, mailbox=%s, role=%s, session=%s)",
             email,
             user.id if user else None,
             mailbox.email if mailbox else None,
             role,
+            session_id,
         )
         return self._json_response(result)
