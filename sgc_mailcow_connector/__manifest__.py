@@ -19,7 +19,7 @@ Mailcow Connector
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
     # fetchmail.server is part of "mail" in Odoo 19 (no standalone module)
-    "depends": ["base_setup", "mail", "hr"],
+    "depends": ["base_setup", "mail", "hr", "website_slides"],
     "data": [
         "security/ir.model.access.csv",
         "data/ir_cron.xml",
