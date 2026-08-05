@@ -59,7 +59,7 @@ class MailcowApi(models.AbstractModel):
     def _request(self, method, endpoint, payload=None):
         base_url, api_key = self._get_params()
         url = "%s%s" % (base_url, endpoint)
-        headers = {"X-API-Key": api_key, "Content-Type": "application/json"}
+        headers = {"X-MAILCOW-API-Key": api_key, "Content-Type": "application/json"}
         try:
             resp = requests.request(
                 method, url, json=payload, headers=headers, timeout=TIMEOUT)
