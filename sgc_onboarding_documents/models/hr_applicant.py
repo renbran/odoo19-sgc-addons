@@ -1,31 +1,40 @@
 # -*- coding: utf-8 -*-
-from odoo import models, fields, api
+from odoo import models, fields, api, _
+import secrets
 
 
-class HrApplicant(models.Model):
-    _inherit = 'hr.applicant'
+class OnboardingUploadToken(models.Model):
+    _name = 'onboarding.upload.token'
+    _description = 'Onboarding Upload Token'
+    _rec_name = 'applicant_id'
 
-    onboarding_access_token = fields.Char(
-        string='Onboarding Upload Token',
+    applicant_id = fields.Many2one(
+        comodel_name='hr.applicant',
+        string='Applicant',
+        required=True,
+        ondelete='cascade',
+        help='Applicant for whom this upload token is valid.',
+    )
+    access_token = fields.Char(
+        string='Access Token',
+        required=True,
         index=True,
         copy=False,
-        help='Token used in the public URL that lets the candidate upload their '
-             'passport, Emirates ID, visa, education certificate and photo. '
-             'Uploaded files are attached to this applicant\'s chatter log.',
+        default=lambda self: secrets.token_urlsafe(24),
+        help='Unique token used in the public URL that lets the applicant upload their documents.',
     )
 
     _sql_constraints = [
-        ('onboarding_access_token_unique', 'unique(onboarding_access_token)',
-         'Onboarding access token must be unique.'),
+        ('access_token_unique', 'unique(access_token)', 'Access token must be unique.'),
+    token', 'Access token must be unique.'),
     ]
 
     @api.model
-    def _get_or_create_onboarding_token(self, applicant_id):
-        """Return an existing token, or create one. Idempotent."""
-        applicant = self.browse(applicant_id)
-        if applicant.onboarding_access_token:
-            return applicant.onboarding_access_token
-        import secrets
-        token = secrets.token_urlsafe(24)
-        applicant.write({'onboarding_access_token': token})
-        return token
+    def get_or_create_token(self, applicant_id):
+        """Return an existing token for the applicant, or create one."""
+        token = self.search([('applicant_id', '=', applicant_id)], limit=1)
+        if token:
+            return token.access_token
+        # create new
+        rec = self.create({'applicant_id': applicant_id})
+        return rec.access_token
