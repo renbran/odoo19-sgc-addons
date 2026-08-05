@@ -28,6 +28,7 @@ Mailcow Connector
         "views/res_config_settings_views.xml",
         "views/hr_employee_views.xml",
     ],
+    "external_dependencies": {"python": ["requests"]},
     "installable": True,
     "application": False,
 }
