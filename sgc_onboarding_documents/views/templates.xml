@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="upload_form" name="Onboarding Document Upload">
+            <t t-call="website.layout">
+                <t t-set="title">Onboarding Documents — <t t-esc="applicant.partner_name"/></t>
+                <div class="oe_structure">
+                    <div class="container my-5" style="max-width:760px;">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header text-white" style="background:#003D5C;">
+                                <h4 class="mb-0">Onboarding Documents</h4>
+                                <small class="text-white-50">
+                                    <t t-esc="applicant.partner_name"/> · Day 1 Onboarding
+                                </small>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">
+                                    Please upload clear scans of the documents below. Each file
+                                    will be saved on your onboarding record (the HR log) and is
+                                    only visible to the SGC HR team.
+                                </p>
+
+                                <form t-attf-action="/onboarding/upload/#{token}" method="post"
+                                      enctype="multipart/form-data" class="mb-3">
+
+                                    <t t-foreach="doc_types" t-as="dt">
+                                        <div class="mb-3 pb-3 border-bottom">
+                                            <label class="form-label fw-semibold"
+                                                   t-attf-for="{{ dt[0] }}_input">
+                                                <t t-esc="dt[1]"/>
+                                            </label>
+                                            <div class="text-muted small mb-1"
+                                                 t-esc="dt[2]"/>
+                                            <input class="form-control" type="file"
+                                                   t-attf-id="{{ dt[0] }}_input"
+                                                   t-attf-name="{{ dt[0] }}"
+                                                   accept="image/*,.pdf"/>
+                                        </div>
+                                    </t>
+
+                                    <div class="d-flex gap-2 mt-4">
+                                        <button type="submit"
+                                                class="btn btn-primary px-4"
+                                                style="background:#003D5C;border-color:#003D5C;">
+                                            Upload Documents
+                                        </button>
+                                        <a t-attf-href="/onboarding/upload/#{token}"
+                                           class="btn btn-outline-secondary">
+                                            Refresh
+                                        </a>
+                                    </div>
+                                </form>
+
+                                <t t-if="existing">
+                                    <hr/>
+                                    <h6 class="text-muted">Already on file</h6>
+                                    <ul class="list-group">
+                                        <t t-foreach="existing" t-as="att">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="fa fa-paperclip me-1"/>
+                                                    <t t-esc="att['name']"/>
+                                                </span>
+                                                <small class="text-muted"
+                                                       t-esc="att['create_date']"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+                            </div>
+                            <div class="card-footer text-muted small text-center">
+                                SGC Tech AI · This form is for <t t-esc="applicant.partner_name"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="upload_thanks" name="Onboarding Upload Thanks">
+            <t t-call="website.layout">
+                <t t-set="title">Upload received — thank you</t>
+                <div class="oe_structure">
+                    <div class="container my-5" style="max-width:760px;">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header text-white" style="background:#003D5C;">
+                                <h4 class="mb-0">Thank you — upload received</h4>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    Your documents have been saved on your onboarding record.
+                                    The HR team will review them before your start date.
+                                </p>
+
+                                <t t-if="uploaded_keys">
+                                    <h6 class="text-muted">Received in this submission</h6>
+                                    <ul>
+                                        <t t-foreach="doc_types" t-as="dt">
+                                            <t t-if="dt[0] in uploaded_keys">
+                                                <li><t t-esc="dt[1]"/></li>
+                                            </t>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="existing">
+                                    <h6 class="text-muted mt-4">All documents on file</h6>
+                                    <ul class="list-group">
+                                        <t t-foreach="existing" t-as="att">
+                                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                <span>
+                                                    <i class="fa fa-paperclip me-1"/>
+                                                    <t t-esc="att['name']"/>
+                                                </span>
+                                                <small class="text-muted"
+                                                       t-esc="att['create_date']"/>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <div class="mt-4">
+                                    <a t-attf-href="/onboarding/upload/#{token}"
+                                       class="btn btn-outline-secondary">
+                                        Upload more documents
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="upload_invalid" name="Onboarding Upload Invalid Token">
+            <t t-call="website.layout">
+                <t t-set="title">Link not valid</t>
+                <div class="oe_structure">
+                    <div class="container my-5" style="max-width:600px;">
+                        <div class="alert alert-warning">
+                            <h4 class="alert-heading">Link not valid</h4>
+                            <p>
+                                This onboarding upload link is not valid or has expired.
+                                Please contact <a href="mailto:hr@sgctech.ai">hr@sgctech.ai</a>
+                                to receive a new link.
+                            </p>
+                            <p class="small text-muted mb-0">Token: <code t-esc="token"/></p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+    </data>
+</odoo>
