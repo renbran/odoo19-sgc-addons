@@ -147,7 +147,7 @@ class CRMDashboard(models.AbstractModel):
         #    "New" stage today (old stage = New, read from
         #    mail_tracking_value). The former write_date approximation
         #    counted bulk re-stagings between other stages (5 -> 11/12)
-        #    and missed nothing — it never verified the lead left New.
+        #    and rollbacks INTO New — it never verified the lead left New.
         new_stage_id = self.env["crm.stage"].search(
             [("sequence", "=", 0)], limit=1
         ).id  # New = sequence 0 in this DB
@@ -337,6 +337,7 @@ class CRMDashboard(models.AbstractModel):
             # n= is actively misleading (S5).
             gateable_domain = (lead_domain_base or []) + [
                 ("active", "=", True), ("stage_id.sequence", ">=", 7),
+                ("type", "=", "opportunity"),
             ]
             gate_pass_rate_n = lead.search_count(gateable_domain)
             if gate_pass_rate_n:
@@ -390,9 +391,17 @@ class CRMDashboard(models.AbstractModel):
                     won_objections / objection_conversion_rate_n * 100.0, 1
                 )
 
-        # Stale-lead count: parked 30+ days in No Answer(5)/Not Interested(7)
-        # with no lost_reason_id ever set. Uses only stock crm.lead fields,
-        # so it's meaningful with or without sgc_sales_playbook installed.
+        # Stale-lead count: parked 30+ days in any No Answer stage (5,
+        # including per-SDR "No Answer - Pipelines" splits) or Not
+        # Interested(7), no lost_reason_id set. Stage set resolved by name
+        # pattern so new SDR pipelines are picked up automatically —
+        # hardcoding (5, 7) silently dropped reassigned leads. Uses only
+        # stock crm.lead fields, so it's meaningful with or without
+        # sgc_sales_playbook installed.
+        stale_stage_ids = set([5, 7]) | set(
+            self.env["crm.stage"].search([("name", "ilike", "no answer")]).ids
+        )
+        stale_stage_sql = ",".join(map(str, stale_stage_ids)) or "0"
         stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
         stale_lead_filter = ""
         stale_params = [stale_cutoff_dt]
@@ -406,7 +415,7 @@ class CRMDashboard(models.AbstractModel):
             SELECT COUNT(*)
             FROM crm_lead
             WHERE active = true
-              AND stage_id IN (5, 7)
+              AND stage_id IN ({stale_stage_sql})
               AND lost_reason_id IS NULL
               AND write_date <= %s
               {stale_lead_filter}
@@ -660,18 +669,35 @@ class CRMDashboard(models.AbstractModel):
             )
             return self._lead_action(_("New Leads Today"), [("create_date", ">=", start)])
         if kind == "kpi_moved_out_of_new":
+            # Mirrors moved_out_of_new_today in get_dashboard_data: only
+            # real transitions OUT of the New stage (old stage = New) in
+            # the tracked stage history, never the write_date guess.
             new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
-            today_start = fields.Datetime.to_string(
-                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            stage_field = self.env["ir.model.fields"].search(
+                [("model", "=", "crm.lead"), ("name", "=", "stage_id")], limit=1
             )
-            domain = [("active", "=", True), ("write_date", ">=", today_start)]
-            if new_stage_id:
-                domain.append(("stage_id", "!=", new_stage_id))
+            moved_params = []
+            moved_user_filter = ""
             if user_id:
-                domain.append(("user_id", "=", user_id))
+                moved_user_filter = "AND l.user_id = %s"
+                moved_params.append(user_id)
             elif not is_admin:
-                domain.append(("user_id", "in", target_ids))
-            return self._lead_action(_("Moved Out of New Today"), domain)
+                moved_user_filter = "AND l.user_id IN %s"
+                moved_params.append(tuple(target_ids))
+            self.env.cr.execute(f"""
+                SELECT DISTINCT m.res_id
+                FROM mail_tracking_value tv
+                JOIN mail_message m ON m.id = tv.mail_message_id
+                JOIN crm_lead l ON l.id = m.res_id
+                WHERE tv.field_id = %s
+                  AND tv.old_value_integer = %s
+                  AND m.model = 'crm.lead'
+                  AND m.date::date = CURRENT_DATE
+                  AND l.active = true
+                  {moved_user_filter}
+            """, [stage_field.id, new_stage_id] + moved_params)
+            lead_ids = [r[0] for r in self.env.cr.fetchall()]
+            return self._lead_action(_("Moved Out of New Today"), [("id", "in", lead_ids)])
         if kind == "kpi_won":
             won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
             return self._lead_action(_("Won"), lead_domain_base + [("stage_id", "in", won_stage_ids)])
@@ -705,8 +731,12 @@ class CRMDashboard(models.AbstractModel):
 
         # ── Qualification & Gate Compliance (sgc_sales_playbook) ──────
         if kind == "qual_gate_pass_rate":
+            # Mirrors gateable_domain in get_dashboard_data: opportunities
+            # only — lead-type records at/after the gate stage must not
+            # dilute the pass rate.
             return self._lead_action(_("Gateable Deals (Meeting Booked+)"), lead_domain_base + [
                 ("active", "=", True), ("stage_id.sequence", ">=", 7),
+                ("type", "=", "opportunity"),
             ])
         if kind == "qual_stalled":
             stall_cutoff = fields.Datetime.to_string(datetime.now() - timedelta(weeks=3))
@@ -735,10 +765,15 @@ class CRMDashboard(models.AbstractModel):
                 "target": "current",
             }
         if kind == "qual_stale":
+            # Mirrors stale_lead_count: all No Answer stages (5 + per-SDR
+            # splits like 11/12) plus Not Interested(7).
             stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
+            stale_stage_ids = set([5, 7]) | set(
+                self.env["crm.stage"].search([("name", "ilike", "no answer")]).ids
+            )
             return self._lead_action(_("Stale, Pending Cleanup"), lead_domain_base + [
                 ("active", "=", True),
-                ("stage_id", "in", [5, 7]),
+                ("stage_id", "in", list(stale_stage_ids)),
                 ("lost_reason_id", "=", False),
                 ("write_date", "<=", stale_cutoff_dt),
             ])
