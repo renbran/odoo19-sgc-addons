@@ -143,10 +143,11 @@ class CRMDashboard(models.AbstractModel):
         # ─── Stage-flow KPIs (the New-stage pipeline monitor) ────────────
         # 1) New Leads Today: leads created today (they enter the
         #    "New" stage by default). This is the input side.
-        # 2) Moved Out of New Today: leads that were moved OUT of the
-        #    "New" stage today. The user wants to monitor whether the
-        #    team is working the top-of-funnel backlog. We approximate
-        #    via write_date::date = today AND current stage != New.
+        # 2) Moved Out of New Today: only REAL transitions out of the
+        #    "New" stage today (old stage = New, read from
+        #    mail_tracking_value). The former write_date approximation
+        #    counted bulk re-stagings between other stages (5 -> 11/12)
+        #    and missed nothing — it never verified the lead left New.
         new_stage_id = self.env["crm.stage"].search(
             [("sequence", "=", 0)], limit=1
         ).id  # New = sequence 0 in this DB
@@ -157,23 +158,31 @@ class CRMDashboard(models.AbstractModel):
         ])
         moved_out_of_new_today = 0
         if new_stage_id:
-            moved_user_filter = ""
-            moved_params = []
-            if user_id:
-                moved_user_filter = "AND user_id = %s"
-                moved_params.append(user_id)
-            elif not is_admin:
-                moved_user_filter = "AND user_id IN %s"
-                moved_params.append(tuple(target_ids))
-            cr.execute(f"""
-                SELECT COUNT(*)
-                FROM crm_lead
-                WHERE active = true
-                  AND stage_id != %s
-                  AND write_date::date = CURRENT_DATE
-                  {moved_user_filter}
-            """, [new_stage_id] + moved_params)
-            moved_out_of_new_today = cr.fetchone()[0] or 0
+            stage_field = self.env["ir.model.fields"].search(
+                [("model", "=", "crm.lead"), ("name", "=", "stage_id")], limit=1
+            )
+            if stage_field:
+                moved_user_filter = ""
+                moved_params = []
+                if user_id:
+                    moved_user_filter = "AND l.user_id = %s"
+                    moved_params.append(user_id)
+                elif not is_admin:
+                    moved_user_filter = "AND l.user_id IN %s"
+                    moved_params.append(tuple(target_ids))
+                cr.execute(f"""
+                    SELECT COUNT(DISTINCT m.res_id)
+                    FROM mail_tracking_value tv
+                    JOIN mail_message m ON m.id = tv.mail_message_id
+                    JOIN crm_lead l ON l.id = m.res_id
+                    WHERE tv.field_id = %s
+                      AND tv.old_value_integer = %s
+                      AND m.model = 'crm.lead'
+                      AND m.date::date = CURRENT_DATE
+                      AND l.active = true
+                      {moved_user_filter}
+                """, [stage_field.id, new_stage_id] + moved_params)
+                moved_out_of_new_today = cr.fetchone()[0] or 0
 
         # Funnel: ordered stages (kept for the existing Conversion Funnel widget)
         funnel_stages = []
