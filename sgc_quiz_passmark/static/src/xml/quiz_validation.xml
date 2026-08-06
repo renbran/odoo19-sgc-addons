@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!--
+        Display the achieved score with a clear pass / fail feedback after
+        the user clicks "Check your answers" (quiz submission).
+        Data comes from the /slides/slide/quiz/submit response which now
+        contains `score`, `passing_score` and `passed`.
+    -->
+    <t t-name="sgc_quiz_passmark.quiz_score_feedback" t-inherit="slide.slide.quiz.validation" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_wslides_js_lesson_quiz_resource_info')]" position="before">
+            <div t-if="widget.quiz.score !== undefined"
+                 t-att-class="'alert d-flex align-items-center mt-3 mb-0 py-2 px-3 ' + (widget.quiz.passed ? 'alert-success' : 'alert-danger')"
+                 role="alert">
+                <i t-att-class="'fa fa-fw fa-2x me-3 ' + (widget.quiz.passed ? 'fa-check-circle text-success' : 'fa-times-circle text-danger')"/>
+                <span class="h5 my-0">
+                    <t t-if="widget.quiz.passed">
+                        Quiz completed! You scored <b><t t-esc="widget.quiz.score"/>%</b>.
+                    </t>
+                    <t t-else="">
+                        You scored <b><t t-esc="widget.quiz.score"/>%</b>. You need at least
+                        <b><t t-esc="widget.quiz.passing_score"/>%</b> to pass, so this quiz is
+                        <b>not marked as completed</b>. Review the highlighted answers and try again.
+                    </t>
+                </span>
+            </div>
+        </xpath>
+    </t>
+
+    <!--
+        Also show the achieved score in the success dialog shown when the
+        quiz has been passed and marked as completed.
+    -->
+    <t t-name="sgc_quiz_passmark.quiz_finish_dialog_score" t-inherit="website_slides.SlideQuizFinishDialog" t-inherit-mode="extension">
+        <xpath expr="//h4[hasclass('pb-2')]" position="after">
+            <div t-if="props.quiz.score !== undefined" class="h5 pb-2">
+                <i class="fa fa-check-circle text-success me-1"/>
+                Your score: <b><t t-esc="props.quiz.score"/>%</b>
+                <span class="text-muted">(pass mark: <t t-esc="props.quiz.passing_score"/>%)</span>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

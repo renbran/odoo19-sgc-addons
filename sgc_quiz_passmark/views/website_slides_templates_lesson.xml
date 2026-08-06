@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Expose the passing score on the server-rendered quiz page so the
+        frontend can display it before the first submission. The value is
+        available in the rendering context through _get_slide_quiz_data.
+    -->
+    <template id="lesson_content_quiz_passing_score" inherit_id="website_slides.lesson_content_quiz">
+        <xpath expr="//div[@id='lessonQuiz']" position="attributes">
+            <attribute name="t-att-data-quiz-passing-score">passing_score or 80</attribute>
+        </xpath>
+    </template>
+</odoo>

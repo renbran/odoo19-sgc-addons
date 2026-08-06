@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add the passing score setting on quiz slides (Quiz page, Points Rewards group). -->
+    <record id="slide_slide_view_form_passing_score" model="ir.ui.view">
+        <field name="name">slide.slide.form - passing score</field>
+        <field name="model">slide.slide</field>
+        <field name="inherit_id" ref="website_slides.view_slide_slide_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='quiz_rewards']" position="inside">
+                <group name="quiz_passing_score" string="Passing">
+                    <field name="passing_score"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
