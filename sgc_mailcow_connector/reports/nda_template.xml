@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_nda">
+        <t-call="report.html_container">
+            <t-call="report.internal_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <div class="oe_title">
+                        <h1>NON-DISCLOSURE AGREEMENT (NDA)</h1>
+                    </div>
+                    <div class="oe_company_information" style="margin-bottom: 20px;">
+                        <span t-esc="company.name"/> 
+                        <br/>
+                        <span t-esc="company.street"/> 
+                        <br/>
+                        <span t-esc="company.city"/> 
+                        <span t-esc="company.zip"/> 
+                        <span t-esc="company.state_id.name"/> 
+                        <span t-esc="company.country_id.name"/>
+                    </div>
+                    
+                    <div class=,"oe_details">
+                        <p><strong>Date:</strong> <span t-esc="fields.Date.today()"/></p>
+                        <p><strong>Employee:</strong> <span t-esc="employee.name"/></p>
+                        <p><strong>Position:</strong> <span t-esc="employee.job_title"/></p>
+                        <p><strong>Employee ID:</strong> <span t-esc="employee.id"/></p>
+                    </div>
+                    
+                    <div class="oe_body">
+                        <h2>NON-DISCLOSURE AGREEMENT</h2>
+                        
+                        <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="fields.Date.today()"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="employee.name"/>, an employee of the Company ("Employee").</p>
+                        
+                        <h3>1. DEFINITION OF CONFIDENTIAL INFORMATION</h3>
+                        <p>"Confidential Information" means all non-public information disclosed by the Company to the Employee, whether oral or written, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.</p>
+                        
+                        <h3>2. OBLIGATIONS OF EMPLOYEE</h3>
+                        <p>Employee agrees to hold and maintain the Confidential Information in strictest confidence and to not disclose such Confidential Information to any third party without the prior written consent of the Company.</p>
+                        
+                        <h3>3. TERM</h3>
+                        <p>The obligations of this Agreement shall commence on the Effective Date and shall continue until [Number] years after the Employee's termination of employment with the Company.</p>
+                        
+                        <h3>4. RETURN OF MATERIALS</h3>
+                        <p>Upon termination of employment or upon the Company's request, Employee shall promptly return all Confidential Information in tangible form and destroy all electronic copies.</p>
+                        
+                        <h3>5. REMEDIES</h3>
+                        <p>Employee acknowledges that any breach of this Agreement may cause irreparable harm to the Company for which monetary damages may not be an adequate remedy, and that in the event of any breach or threatened breach, the Company shall be entitled to seek equitable relief, including injunctive relief.</p>
+                        
+                        <h3>6. GOVERNING LAW</h3>
+                        <p>This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of laws principles.</p>
+                        
+                        <p>IN WITNESS WHEREOF, the parties have executed this Non-Disclosure Agreement as of the Effective Date.</p>
+                    </div>
+                    
+                    <div class="oe_footer">
+                        <div class="oe_row">
+                            <div class="oe_col_6">
+                                <p>SGC TECH AI</p>
+                                <br/><br/>
+                                <p><strong>Authorized Signatory</strong><br/>
+                                [Name]<br/>
+                                [Title]</p>
+                            </div>
+                            <div class="oe_col_6">
+                                <p><strong>Employee Acceptance</strong></p>
+                                <p>By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
+                                <p>Signature: _________________________</p>
+                                <p>Name: <span t-esc="employee.name"/></p>
+                                <p>Date: _________________________</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t-call>
+        </t-call>
+    </template>
+    
+    <!-- Report action -->
+    <report 
+        id="action_report_nda"
+        string="Non-Disclosure Agreement"
+        model="hr.employee" 
+        report_type="qweb-pdf"
+        name="sgc_mailcow_connector.report_nda"
+        file="sgc_mailcow_connector.report_nda"
+        attachment_use="True"
+        attachment="(object.state in ('open','closed')) and 'NDA_%s' % (object.name or '')"
+    />
+</odoo>

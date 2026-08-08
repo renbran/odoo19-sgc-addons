@@ -24,6 +24,8 @@ Mailcow Connector
         "security/ir.model.access.csv",
         "data/ir_cron.xml",
         "data/res_users_actions.xml",
+        "data/email_templates.xml",
+        "data/report_actions.xml",
         "views/mailcow_mailbox_views.xml",
         "views/res_config_settings_views.xml",
         "views/hr_employee_views.xml",

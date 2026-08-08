@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_warning_letter">
+        <t-call="report.html_container">
+            <t-call="report.internal_layout">
+                <div class="page">
+                    <div class="oe_structure"/>
+                    <div class="oe_title">
+                        <h1>WARNING LETTER</h1>
+                    </div>
+                    <div class="oe_company_information" style="margin-bottom: 20px;">
+                        <span t-esc="company.name"/> 
+                        <br/>
+                        <span t-esc="company.street"/> 
+                        <br/>
+                        <span t-esc="company.city"/> 
+                        <span t-esc="company.zip"/> 
+                        <span t-esc="company.state_id.name"/> 
+                        <span t-esc="company.country_id.name"/>
+                    </div>
+                    
+                    <div class="oe_details">
+                        <p><strong>Date:</strong> <span t-esc="fields.Date.today()"/></p>
+                        <p><strong>To:</strong> <span t-esc="employee.name"/></p>
+                        <p><strong>Position:</strong> <span t-esc="employee.job_title"/></p>
+                        <p><strong>Employee ID:</strong> <span t-esc="employee.id"/></p>
+                    </div>
+                    
+                    <div class="oe_body">
+                        <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at SGC TECH AI.</p>
+                        
+                        <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
+                        <ul>
+                            <li>Consistently failing to meet deadlines and performance targets</li>
+                            <li>Lack of improvement despite feedback and coaching</li>
+                            <li>Quality of work below acceptable standards</li>
+                            <li>Inadequate communication and collaboration with team members</li>
+                        </ul>
+                        
+                        <p>You are hereby given a period of 30 days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
+                        
+                        <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
+                        
+                        <p>We believe in your potential to succeed and are committed to supporting your development. However, we must ensure that all employees meet the performance standards required for our organization's success.</p>
+                    </div>
+                    
+                    <div class="oe_footer">
+                        <div class="oe_row">
+                            <div class="oe_col_6">
+                                <p>Sincerely,</p>
+                                <br/><br/>
+                                <p><strong>[Manager Name]</strong><br/>
+                                [Manager Position]<br/>
+                                SGC TECH AI</p>
+                            </div>
+                            <div class="oe_col_6">
+                                <p><strong>Employee Acknowledgement</strong></p>
+                                <p>I have received and reviewed this warning letter.</p>
+                                <p>Signature: _________________________</p>
+                                <p>Date: _________________________</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t-call>
+        </t-call>
+    </template>
+    
+    <!-- Report action -->
+    <report 
+        id="action_report_warning_letter"
+        string="Warning Letter"
+        model="hr.employee" 
+        report_type="qweb-pdf"
+        name="sgc_mailcow_connector.report_warning_letter"
+        file="sgc_mailcow_connector.report_warning_letter"
+        attachment_use="True"
+        attachment="(object.state in ('open','closed')) and 'WARNING_LETTER_%s' % (object.name or '')"
+    />
+</odoo>
