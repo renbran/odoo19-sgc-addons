@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_sgc_regenerate_signatures" model="ir.actions.server">
+        <field name="name">Regenerate All Email Signatures</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="state">code</field>
+        <field name="code">records.regenerate_all_signatures()</field>
+    </record>
+</odoo>
