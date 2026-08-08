@@ -1,6 +1,24 @@
+import base64
 import html
+import os
+from functools import lru_cache
 
 from odoo import api, models
+
+
+
+@lru_cache(maxsize=1)
+def _sig_img_data_uris():
+    """Base64 data-URIs of the signature assets (logo + social icons),
+    embedded so the signature renders in clients that block remote images."""
+    base = os.path.join(os.path.dirname(__file__), '..', 'static', 'src', 'img')
+    uris = {}
+    for name in ('logo', 'icon_linkedin', 'icon_facebook', 'icon_instagram',
+                 'icon_youtube', 'icon_twitter', 'icon_tiktok'):
+        path = os.path.join(base, '%s.png' % name)
+        with open(path, 'rb') as f:
+            uris[name] = 'data:image/png;base64,' + base64.b64encode(f.read()).decode('ascii')
+    return uris
 
 
 class HrEmployee(models.Model):
@@ -111,6 +129,8 @@ class HrEmployee(models.Model):
                 '<td style="padding:1px 0;color:#5F6775;">%s</td></tr>'
             ) % esc(address)
 
+        img = _sig_img_data_uris()
+
         return (
             '<table cellpadding="0" cellspacing="0" border="0" '
             'style="border-collapse:collapse;background-color:#F7F4EE;max-width:480px;'
@@ -119,7 +139,7 @@ class HrEmployee(models.Model):
             '<tr><td style="padding:16px 22px 12px 22px;">'
             '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'
             '<td valign="top" width="104" style="padding-right:16px;">'
-            '<a href="%(web)s" target="_blank"><img src="https://res.cloudinary.com/dsl5fhclj/image/upload/v1780504857/msfggljvvxu8zja4jo5g.png" '
+'<a href="%(web)s" target="_blank"><img src="%(logo)s" '
             'width="96" alt="SGC TECH AI" style="display:block;width:96px;max-width:96px;height:auto;border:0;"></a>'
             '<div style="margin-top:8px;font-size:7px;letter-spacing:1.4px;color:#B79554;'
             "font-family:Consolas,'Courier New',monospace;\">25.2048&nbsp;N&nbsp;·&nbsp;55.2708&nbsp;E</div>"
@@ -146,15 +166,15 @@ class HrEmployee(models.Model):
             '</table>'
             '<div style="margin-top:10px;">'
             '<a href="https://www.linkedin.com/company/sgctechai/" target="_blank" style="text-decoration:none;">'
-            '<img src="https://img.icons8.com/ios-filled/50/0F213D/linkedin.png" width="14" height="14" alt="LinkedIn" '
+            '<img src="%(icon_linkedin)s" width="14" height="14" alt="LinkedIn" '
             'style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="https://img.icons8.com/ios-filled/50/0F213D/facebook-f.png" '
+            '<a href="#" style="text-decoration:none;"><img src="%(icon_facebook)s" '
             'width="14" height="14" alt="Facebook" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="https://img.icons8.com/ios-filled/50/0F213D/instagram-new.png" '
+            '<a href="#" style="text-decoration:none;"><img src="%(icon_instagram)s" '
             'width="14" height="14" alt="Instagram" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="https://img.icons8.com/ios-filled/50/0F213D/youtube-play.png" '
+            '<a href="#" style="text-decoration:none;"><img src="%(icon_youtube)s" '
             'width="14" height="14" alt="YouTube" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="https://img.icons8.com/ios-filled/50/0F213D/twitterx.png" '
+            '<a href="#" style="text-decoration:none;"><img src="%(icon_twitter)s" '
             'width="13" height="13" alt="X" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
             '</div>'
             '</td></tr></table></td></tr>'
@@ -174,4 +194,10 @@ class HrEmployee(models.Model):
             'email': email_block,
             'address': address_row,
             'web': esc(website.rstrip('/')),
+            'logo': img['logo'],
+            'icon_linkedin': img['icon_linkedin'],
+            'icon_facebook': img['icon_facebook'],
+            'icon_instagram': img['icon_instagram'],
+            'icon_youtube': img['icon_youtube'],
+            'icon_twitter': img['icon_twitter'],
         }
