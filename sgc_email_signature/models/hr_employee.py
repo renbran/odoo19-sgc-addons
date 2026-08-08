@@ -104,86 +104,76 @@ class HrEmployee(models.Model):
         website = company['website']
         address = company['address']
         company_name = company['company_name']
-
         phone_block = ''
         if phone:
             phone_block = (
-                '<tr><td valign="top" style="padding:1px 10px 1px 0;font-size:9px;font-weight:600;'
-                'letter-spacing:1.2px;color:#B79554;">M</td>'
-                '<td style="padding:1px 0;"><a href="%s" style="color:#1C2430;text-decoration:none;">%s</a></td></tr>'
+                '<a href="%s" style="color:#1C2430;text-decoration:none;">%s</a>'
+                '<span style="color:#B79554;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>'
             ) % (esc(self._compute_sgc_phone_href(phone)), esc(phone))
 
         email_block = ''
         if email:
             email_block = (
-                '<tr><td valign="top" style="padding:1px 10px 1px 0;font-size:9px;font-weight:600;'
-                'letter-spacing:1.2px;color:#B79554;">E</td>'
-                '<td style="padding:1px 0;"><a href="mailto:%s" style="color:#1C2430;text-decoration:none;">%s</a></td></tr>'
+                '<a href="mailto:%s" style="color:#1C2430;text-decoration:none;">%s</a>'
             ) % (esc(email), esc(email))
 
-        address_row = ''
-        if address:
-            address_row = (
-                '<tr><td valign="top" style="padding:1px 10px 1px 0;font-size:9px;font-weight:600;'
-                'letter-spacing:1.2px;color:#B79554;">A</td>'
-                '<td style="padding:1px 0;color:#5F6775;">%s</td></tr>'
-            ) % esc(address)
+        address_label = 'Dubai,&nbsp;UAE'
+        for part in (address or '').split(', '):
+            p = part.strip()
+            if p.lower() in ('united arab emirates', 'uae', 'dubai'):
+                address_label = 'Dubai,&nbsp;UAE'
+            elif p and p.lower() not in ('united arab emirates',):
+                address_label = '%s,&nbsp;UAE' % esc(p) if p.lower() == 'dubai' else address_label
 
         img = _sig_img_data_uris()
 
+        icons = ''.join(
+            '<a href="%s" target="_blank" style="text-decoration:none;"><img src="%s" '
+            'width="14" height="14" alt="%s" style="border:0;margin-right:7px;vertical-align:middle;"></a>' % (
+                url, img[key], label)
+            for key, url, label in (
+                ('icon_linkedin', 'https://www.linkedin.com/company/sgctechai/', 'LinkedIn'),
+                ('icon_facebook', 'https://www.facebook.com/sgctechai', 'Facebook'),
+                ('icon_instagram', 'https://www.instagram.com/sgctech.ai/', 'Instagram'),
+                ('icon_youtube', 'https://www.youtube.com/@sgctechai', 'YouTube'),
+                ('icon_twitter', 'https://x.com/sgctech_ai', 'X'),
+                ('icon_tiktok', 'https://www.tiktok.com/@scholarixglobal', 'TikTok'),
+            )
+        )
+
         return (
             '<table cellpadding="0" cellspacing="0" border="0" '
-            'style="border-collapse:collapse;background-color:#F7F4EE;max-width:480px;'
+            'style="border-collapse:collapse;background-color:#F7F4EE;max-width:340px;'
             "font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif;\">"
-            '<tr><td style="height:3px;line-height:3px;font-size:0;background-color:#B79554;">&nbsp;</td></tr>'
-            '<tr><td style="padding:16px 22px 12px 22px;">'
+            '<tr><td style="height:2px;line-height:2px;font-size:0;background-color:#B79554;">&nbsp;</td></tr>'
+            '<tr><td style="padding:10px 14px 8px 14px;">'
             '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'
-            '<td valign="top" width="104" style="padding-right:16px;">'
-'<a href="%(web)s" target="_blank"><img src="%(logo)s" '
-            'width="96" alt="SGC TECH AI" style="display:block;width:96px;max-width:96px;height:auto;border:0;"></a>'
-            '<div style="margin-top:8px;font-size:7px;letter-spacing:1.4px;color:#B79554;'
-            "font-family:Consolas,'Courier New',monospace;\">25.2048&nbsp;N&nbsp;·&nbsp;55.2708&nbsp;E</div>"
+            '<td valign="middle" width="62" style="padding-right:12px;">'
+            '<a href="%(web)s" target="_blank"><img src="%(logo)s" '
+            'width="52" alt="SGC TECH AI" style="display:block;width:52px;max-width:52px;height:auto;border:0;"></a>'
             '</td>'
-            '<td width="1" style="width:1px;background-color:#D9C08A;font-size:0;line-height:0;">&nbsp;</td>'
-            '<td valign="top" style="padding-left:16px;">'
-            '<div style="font-family:%(font)s;font-size:15px;line-height:18px;font-weight:700;color:#0F213D;'
+            '<td valign="middle" style="border-left:1px solid #D9C08A;padding-left:12px;">'
+            '<div style="font-family:%(font)s;font-size:13px;line-height:16px;font-weight:700;color:#0F213D;'
             'letter-spacing:-0.2px;">%(name)s</div>'
-            '<div style="margin-top:3px;font-size:8px;line-height:11px;font-weight:600;color:#B79554;'
-            'text-transform:uppercase;letter-spacing:1.8px;">%(job)s</div>'
-            '<div style="margin-top:2px;font-size:9px;line-height:12px;font-weight:600;color:#1C2430;'
-            'letter-spacing:1.2px;text-transform:uppercase;">%(company)s</div>'
-            '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;'
-            'margin:9px 0 8px 0;"><tr><td width="46" style="height:2px;line-height:2px;font-size:0;'
-            'background-color:#B79554;">&nbsp;</td></tr></table>'
-            '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;'
-            'font-size:10px;line-height:16px;color:#5F6775;">'
+            '<div style="margin-top:1px;font-size:8px;line-height:11px;font-weight:600;color:#B79554;'
+            'text-transform:uppercase;letter-spacing:1.4px;">%(job)s</div>'
+            '<div style="margin-top:1px;font-size:8px;line-height:11px;font-weight:600;color:#1C2430;'
+            'letter-spacing:1.1px;text-transform:uppercase;">%(company)s</div>'
+            '<div style="margin-top:3px;font-size:10px;line-height:14px;color:#5F6775;">'
             '%(phone)s%(email)s'
-            '<tr><td valign="top" style="padding:1px 10px 1px 0;font-size:9px;font-weight:600;'
-            'letter-spacing:1.2px;color:#B79554;">W</td>'
-            '<td style="padding:1px 0;"><a href="%(web)s" target="_blank" style="color:#1C2430;'
-            'text-decoration:none;">%(web)s</a></td></tr>'
-            '%(address)s'
-            '</table>'
-            '<div style="margin-top:10px;">'
-            '<a href="https://www.linkedin.com/company/sgctechai/" target="_blank" style="text-decoration:none;">'
-            '<img src="%(icon_linkedin)s" width="14" height="14" alt="LinkedIn" '
-            'style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="%(icon_facebook)s" '
-            'width="14" height="14" alt="Facebook" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="%(icon_instagram)s" '
-            'width="14" height="14" alt="Instagram" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="%(icon_youtube)s" '
-            'width="14" height="14" alt="YouTube" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
-            '<a href="#" style="text-decoration:none;"><img src="%(icon_twitter)s" '
-            'width="13" height="13" alt="X" style="border:0;margin-right:8px;vertical-align:middle;"></a>'
             '</div>'
-            '</td></tr></table></td></tr>'
-            '<tr><td style="background-color:#0F213D;padding:7px 22px;'
-            "font-family:'IBM Plex Serif',Georgia,serif;font-size:11px;line-height:14px;color:#F7F4EE;"
+            '<div style="margin-top:1px;font-size:10px;line-height:14px;color:#5F6775;">'
+            '<a href="%(web)s" target="_blank" style="color:#1C2430;text-decoration:none;">%(web)s</a>'
+            '<span style="color:#B79554;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>'
+            '<span style="color:#5F6775;">%(address)s</span>'
+            '</div>'
+            '<div style="margin-top:5px;">%(icons)s</div>'
+            '</td>'
+            '</tr></table>'
+            '</td></tr>'
+            '<tr><td style="background:#0F213D;padding:4px 14px;'
+            "font-family:'IBM Plex Serif',Georgia,serif;font-size:9px;line-height:12px;color:#F7F4EE;"
             'font-style:italic;">Finance.System.Technology</td></tr>'
-            '<tr><td style="padding:6px 22px 8px 22px;border-top:1px solid #ECE7DF;font-size:7px;'
-            'line-height:10px;color:#5F6775;">CONFIDENTIAL — This message and any attachments are intended solely for '
-            'the addressee. If received in error, please notify the sender and delete all copies.</td></tr>'
             '</table>'
         ) % {
             'font': "'IBM Plex Serif',Georgia,'Times New Roman',serif",
@@ -192,8 +182,9 @@ class HrEmployee(models.Model):
             'company': esc(company_name),
             'phone': phone_block,
             'email': email_block,
-            'address': address_row,
+            'address': address_label,
             'web': esc(website.rstrip('/')),
+            'icons': icons,
             'logo': img['logo'],
             'icon_linkedin': img['icon_linkedin'],
             'icon_facebook': img['icon_facebook'],
