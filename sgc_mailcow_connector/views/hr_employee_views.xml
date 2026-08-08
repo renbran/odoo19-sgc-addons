@@ -31,6 +31,64 @@
                     <field name="id" widget="statinfo" string="Asset Handover"/>
                 </button>
             </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Documents string="Documents string="Documents & Assets" Assets" Assets" groups="hr.group_hr_manager">
+                    <group string="Warning Letter">
+                        <field name="warning_letter_date"/>
+                        <field name="warning_letter_supervisor"/>
+                        <field name="warning_letter_improvement_period"/>
+                        <field name="warning_letter_reason"/>
+                        <field name="warning_letter_acknowledged"/>
+                        <field name="warning_letter_acknowledged_date"/>
+                    </group>
+                    <group string="Non-Disclosure Agreement">
+                        <field name="nda_signed"/>
+                        <field name="nda_signed_date"/>
+                        <field name="nda_version"/>
+                        <field name="nda_duration_years"/>
+                        <field name="nda_signed_by_employee"/>
+                        <field name="nda_signed_by_company"/>
+                    </group>
+                    <group string="Asset Handover">
+                        <field name="last_working_day"/>
+                        <field name="laptop_id"/>
+                        <field name="laptop_condition"/>
+                        <field name="laptop_issued_date"/>
+                        <field name="laptop_returned_date"/>
+                        <field name="laptop_remarks"/>
+                        <field name="mobile_id"/>
+                        <field name="mobile_condition"/>
+                        <field name="mobile_issued_date"/>
+                        <field name="mobile_returned_date"/>
+                        <field name="mobile_remarks"/>
+                        <field name="tablet_id"/>
+                        <field name="tablet_condition"/>
+                        <field name="tablet_issued_date"/>
+                        <field name="tablet_returned_date"/>
+                        <field name="tablet_remarks"/>
+                        <field name="access_card_id"/>
+                        <field name="access_card_condition"/>
+                        <field name="access_card_issued_date"/>
+                        <field name="access_card_returned_date"/>
+                        <field name="access_card_remarks"/>
+                        <field name="key_id"/>
+                        <field name="key_condition"/>
+                        <field name="key_issued_date"/>
+                        <field name="key_returned_date"/>
+                        <field name="key_remarks"/>
+                        <field name="monitor_id"/>
+                        <field name="monitor_condition"/>
+                        <field name="monitor_issued_date"/>
+                        <field name="monitor_returned_date"/>
+                        <field name="monitor_remarks"/>
+                        <field name="printer_id"/>
+                        <field name="printer_condition"/>
+                        <field name="printer_issued_date"/>
+                        <field name="printer_returned_date"/>
+                        <field name="printer_remarks"/>
+                    </group>
+                </page>
+            </xpath>
         </field>
     </record>
 
