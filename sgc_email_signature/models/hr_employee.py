@@ -119,7 +119,7 @@ class HrEmployee(models.Model):
             '<tr><td style="padding:16px 22px 12px 22px;">'
             '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'
             '<td valign="top" width="104" style="padding-right:16px;">'
-            '<a href="%s" target="_blank"><img src="https://res.cloudinary.com/dsl5fhclj/image/upload/v1780504857/msfggljvvxu8zja4jo5g.png" '
+            '<a href="%(web)s" target="_blank"><img src="https://res.cloudinary.com/dsl5fhclj/image/upload/v1780504857/msfggljvvxu8zja4jo5g.png" '
             'width="96" alt="SGC TECH AI" style="display:block;width:96px;max-width:96px;height:auto;border:0;"></a>'
             '<div style="margin-top:8px;font-size:7px;letter-spacing:1.4px;color:#B79554;'
             "font-family:Consolas,'Courier New',monospace;\">25.2048&nbsp;N&nbsp;·&nbsp;55.2708&nbsp;E</div>"
