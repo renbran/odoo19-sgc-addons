@@ -127,7 +127,7 @@ class HrEmployee(models.Model):
         address_line = ''
         if address:
             address_line = (
-                '<div style="font-size:10px;line-height:16px;color:#5F6673;">%(address)s</div>'
+                '<div style="font-size:10px;line-height:15px;color:#5F6673;">%(address)s</div>'
                 % {'address': esc(address)}
             )
 
@@ -153,7 +153,7 @@ class HrEmployee(models.Model):
             "font-family:'IBM Plex Sans','Segoe UI',Arial,sans-serif;\">"
             '<tr><td bgcolor="#B79554" style="height:2px;line-height:2px;font-size:0;background-color:#B79554;">'
             '&nbsp;</td></tr>'
-            '<tr><td style="padding:16px 20px 14px 20px;">'
+            '<tr><td style="padding:12px 20px 10px 20px;">'
             '<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%%" '
             'style="border-collapse:collapse;">'
             '<tr>'
@@ -164,23 +164,23 @@ class HrEmployee(models.Model):
             '<td valign="top" style="border-left:1px solid #D9C08A;padding-left:16px;">'
             '<div style="font-family:%(font)s;font-size:19px;line-height:24px;font-weight:700;'
             'color:#0F2137;letter-spacing:-0.2px;">%(name)s</div>'
-            '<div style="font-size:10px;line-height:16px;font-weight:600;color:#A8822B;'
+            '<div style="font-size:10px;line-height:14px;font-weight:600;color:#A8822B;'
             'text-transform:uppercase;letter-spacing:1.6px;">%(job)s</div>'
-            '<div style="font-size:10px;line-height:16px;font-weight:600;color:#1C2430;'
+            '<div style="font-size:10px;line-height:14px;font-weight:600;color:#1C2430;'
             'letter-spacing:1.2px;text-transform:uppercase;">%(company)s</div>'
-            '<div style="width:38px;height:2px;margin:5px 0 4px 0;background-color:#C9A86A;'
+            '<div style="width:38px;height:2px;margin:4px 0 3px 0;background-color:#C9A86A;'
             'font-size:0;line-height:0;">&nbsp;</div>'
-            '<div style="font-size:11px;line-height:20px;color:#5F6673;">%(contact)s</div>'
+            '<div style="font-size:11px;line-height:18px;color:#5F6673;">%(contact)s</div>'
             '%(address)s'
-            '<div style="font-size:0;line-height:0;margin-top:6px;">%(icons)s</div>'
+            '<div style="font-size:0;line-height:0;margin-top:4px;">%(icons)s</div>'
             '</td>'
             '</tr>'
             '</table>'
             '</td></tr>'
-            '<tr><td bgcolor="#0F2137" style="background-color:#0F2137;padding:6px 20px;'
+            '<tr><td bgcolor="#0F2137" style="background-color:#0F2137;padding:5px 20px;'
             "font-family:'IBM Plex Serif',Georgia,serif;font-size:11px;line-height:14px;color:#F7F4EE;"
             'font-style:italic;">Finance.System.Technology</td></tr>'
-            '<tr><td style="border-top:1px solid #E4DECF;padding:3px 20px 4px 20px;font-size:8px;'
+            '<tr><td style="border-top:1px solid #E4DECF;padding:2px 20px 3px 20px;font-size:8px;'
             'line-height:11px;color:#959DA8;">CONFIDENTIAL — This message and any attachments are intended '
             'solely for the addressee. If received in error, please notify the sender and delete all copies.</td></tr>'
             '</table>'
