@@ -12,6 +12,24 @@
                         groups="base.group_system">
                     <field name="mailcow_mailbox_count" widget="statinfo" string="Mailbox"/>
                 </button>
+                <button name="%(action_report_warning_letter)d" type="action"
+                        class="oe_stat_button" icon="fa-warning"
+                        groups="hr.group_hr_manager"
+                        attrs="{'invisible': [('state', '=', 'draft')]}">
+                    <field name="id" widget="statinfo" string="Warning Letter"/>
+                </button>
+                <button name="%(action_report_nda)d" type="action"
+                        class="oe_stat_button" icon="fa-file-contract"
+                        groups="hr.group_hr_manager"
+                        attrs="{'invisible': [('state', '=', 'draft')]}">
+                    <field name="id" widget="statinfo" string="NDA"/>
+                </button>
+                <button name="%(action_report_company_asset_handover)d" type="action"
+                        class="oe_stat_button" icon="fa-truck"
+                        groups="hr.group_hr_manager"
+                        attrs="{'invisible': [('state', '=', 'draft')]}">
+                    <field name="id" widget="statinfo" string="Asset Handover"/>
+                </button>
             </xpath>
         </field>
     </record>
