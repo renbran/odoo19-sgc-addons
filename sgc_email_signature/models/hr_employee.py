@@ -104,33 +104,39 @@ class HrEmployee(models.Model):
         website = company['website']
         address = company['address']
         company_name = company['company_name']
-        phone_block = ''
+        contact_parts = []
         if phone:
-            phone_block = (
-                '<a href="%s" style="color:#1C2430;text-decoration:none;">%s</a>'
-                '<span style="color:#B79554;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>'
-            ) % (esc(self._compute_sgc_phone_href(phone)), esc(phone))
-
-        email_block = ''
+            contact_parts.append(
+                '<span style="color:#A8822B;font-weight:600;">M</span>'
+                '&nbsp;&nbsp;<a href="%s" style="color:#1C2430;text-decoration:none;">%s</a>'
+                % (esc(self._compute_sgc_phone_href(phone)), esc(phone))
+            )
         if email:
-            email_block = (
-                '<a href="mailto:%s" style="color:#1C2430;text-decoration:none;">%s</a>'
-            ) % (esc(email), esc(email))
+            contact_parts.append(
+                '<span style="color:#A8822B;font-weight:600;">E</span>'
+                '&nbsp;&nbsp;<a href="mailto:%s" style="color:#1C2430;text-decoration:none;">%s</a>'
+                % (esc(email), esc(email))
+            )
+        contact_parts.append(
+            '<span style="color:#A8822B;font-weight:600;">W</span>'
+            '&nbsp;&nbsp;<a href="%(web)s" target="_blank" style="color:#1C2430;text-decoration:none;">'
+            '%(web)s</a>' % {'web': esc(website.rstrip('/'))}
+        )
+        contact_line = '&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;'.join(contact_parts)
 
-        address_label = 'Dubai,&nbsp;UAE'
-        for part in (address or '').split(', '):
-            p = part.strip()
-            if p.lower() in ('united arab emirates', 'uae', 'dubai'):
-                address_label = 'Dubai,&nbsp;UAE'
-            elif p and p.lower() not in ('united arab emirates',):
-                address_label = '%s,&nbsp;UAE' % esc(p) if p.lower() == 'dubai' else address_label
+        address_line = ''
+        if address:
+            address_line = (
+                '<div style="font-size:10px;line-height:16px;color:#5F6673;">%(address)s</div>'
+                % {'address': esc(address)}
+            )
 
         img = _sig_img_data_uris()
 
         icons = ''.join(
             '<a href="%s" target="_blank" style="text-decoration:none;"><img src="%s" '
-            'width="14" height="14" alt="%s" style="border:0;margin-right:7px;vertical-align:middle;"></a>' % (
-                url, img[key], label)
+            'width="16" height="16" alt="%s" style="display:inline-block;border:0;margin-right:9px;'
+            'vertical-align:middle;"></a>' % (url, img[key], label)
             for key, url, label in (
                 ('icon_linkedin', 'https://www.linkedin.com/company/sgctechai/', 'LinkedIn'),
                 ('icon_facebook', 'https://www.facebook.com/sgctechai', 'Facebook'),
@@ -142,53 +148,50 @@ class HrEmployee(models.Model):
         )
 
         return (
-            '<table cellpadding="0" cellspacing="0" border="0" '
-            'style="border-collapse:collapse;background-color:#F7F4EE;max-width:300px;'
-            "font-family:'IBM Plex Sans','Segoe UI',Helvetica,Arial,sans-serif;\">"
-            '<tr><td style="height:1px;line-height:1px;font-size:0;background-color:#B79554;">&nbsp;</td></tr>'
-            '<tr><td style="padding:6px 10px 4px 10px;">'
-            '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr>'
-            '<td valign="middle" width="46" style="padding-right:8px;">'
-            '<a href="%(web)s" target="_blank"><img src="%(logo)s" '
-            'width="40" alt="SGC TECH AI" style="display:block;width:40px;max-width:40px;height:auto;border:0;"></a>'
+            '<table cellpadding="0" cellspacing="0" border="0" role="presentation" '
+            'style="border-collapse:collapse;width:600px;max-width:600px;background-color:#F7F4EE;'
+            "font-family:'IBM Plex Sans','Segoe UI',Arial,sans-serif;\">"
+            '<tr><td bgcolor="#B79554" style="height:2px;line-height:2px;font-size:0;background-color:#B79554;">'
+            '&nbsp;</td></tr>'
+            '<tr><td style="padding:16px 20px 14px 20px;">'
+            '<table cellpadding="0" cellspacing="0" border="0" role="presentation" width="100%%" '
+            'style="border-collapse:collapse;">'
+            '<tr>'
+            '<td width="112" valign="top" style="padding:2px 18px 0 0;">'
+            '<a href="%(web)s" target="_blank"><img src="%(logo)s" width="100" alt="SGC TECH AI" '
+            'style="display:block;width:100px;height:auto;border:0;"></a>'
             '</td>'
-            '<td valign="middle" style="border-left:1px solid #D9C08A;padding-left:8px;">'
-            '<div style="font-family:%(font)s;font-size:12px;line-height:15px;font-weight:700;color:#0F213D;'
-            'letter-spacing:-0.2px;">%(name)s</div>'
-            '<div style="margin-top:0;font-size:7px;line-height:9px;font-weight:600;color:#B79554;'
-            'text-transform:uppercase;letter-spacing:1px;">%(job)s</div>'
-            '<div style="margin-top:0;font-size:7px;line-height:9px;font-weight:600;color:#1C2430;'
-            'letter-spacing:0.8px;text-transform:uppercase;">%(company)s</div>'
-            '<div style="margin-top:2px;font-size:9px;line-height:12px;color:#5F6775;">'
-            '%(phone)s%(email)s'
-            '</div>'
-            '<div style="margin-top:1px;font-size:9px;line-height:12px;color:#5F6775;">'
-            '<a href="%(web)s" target="_blank" style="color:#1C2430;text-decoration:none;">%(web)s</a>'
-            '<span style="color:#B79554;">&nbsp;|&nbsp;</span>'
-            '<span style="color:#5F6775;">Dubai, UAE</span>'
-            '</div>'
-            '<div style="margin-top:3px;">%(icons)s</div>'
+            '<td valign="top" style="border-left:1px solid #D9C08A;padding-left:16px;">'
+            '<div style="font-family:%(font)s;font-size:19px;line-height:24px;font-weight:700;'
+            'color:#0F2137;letter-spacing:-0.2px;">%(name)s</div>'
+            '<div style="font-size:10px;line-height:16px;font-weight:600;color:#A8822B;'
+            'text-transform:uppercase;letter-spacing:1.6px;">%(job)s</div>'
+            '<div style="font-size:10px;line-height:16px;font-weight:600;color:#1C2430;'
+            'letter-spacing:1.2px;text-transform:uppercase;">%(company)s</div>'
+            '<div style="width:38px;height:2px;margin:5px 0 4px 0;background-color:#C9A86A;'
+            'font-size:0;line-height:0;">&nbsp;</div>'
+            '<div style="font-size:11px;line-height:20px;color:#5F6673;">%(contact)s</div>'
+            '%(address)s'
+            '<div style="font-size:0;line-height:0;margin-top:6px;">%(icons)s</div>'
             '</td>'
-            '</tr></table>'
+            '</tr>'
+            '</table>'
             '</td></tr>'
-            '<tr><td style="background:#0F213D;padding:3px 10px;'
-            "font-family:'IBM Plex Serif',Georgia,serif;font-size:8px;line-height:10px;color:#F7F4EE;"
+            '<tr><td bgcolor="#0F2137" style="background-color:#0F2137;padding:6px 20px;'
+            "font-family:'IBM Plex Serif',Georgia,serif;font-size:11px;line-height:14px;color:#F7F4EE;"
             'font-style:italic;">Finance.System.Technology</td></tr>'
+            '<tr><td style="border-top:1px solid #E4DECF;padding:3px 20px 4px 20px;font-size:8px;'
+            'line-height:11px;color:#959DA8;">CONFIDENTIAL — This message and any attachments are intended '
+            'solely for the addressee. If received in error, please notify the sender and delete all copies.</td></tr>'
             '</table>'
         ) % {
             'font': "'IBM Plex Serif',Georgia,'Times New Roman',serif",
             'name': esc(name),
             'job': esc(job_title),
             'company': esc(company_name),
-            'phone': phone_block,
-            'email': email_block,
-            'address': address_label,
+            'contact': contact_line,
+            'address': address_line,
             'web': esc(website.rstrip('/')),
             'icons': icons,
             'logo': img['logo'],
-            'icon_linkedin': img['icon_linkedin'],
-            'icon_facebook': img['icon_facebook'],
-            'icon_instagram': img['icon_instagram'],
-            'icon_youtube': img['icon_youtube'],
-            'icon_twitter': img['icon_twitter'],
         }
