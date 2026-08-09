@@ -3,6 +3,7 @@ import binascii
 
 _ASSET_GROUPS = ("laptop", "mobile", "tablet", "access_card", "key", "monitor", "printer")
 
+
 def _asset_fields():
     fields_list = []
     for group in _ASSET_GROUPS:
@@ -12,6 +13,7 @@ def _asset_fields():
         fields_list.append(f"{group}_returned_date")
         fields_list.append(f"{group}_remarks")
     return fields_list
+
 
 SNAPSHOT_FIELDS = [
     "employee_name",
