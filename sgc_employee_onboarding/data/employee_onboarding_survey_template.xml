@@ -149,12 +149,16 @@
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
     </record>
 
+
     <record id="sgc_employee_onboarding.question_passport_number" model="survey.question">
         <field name="name">sgc_employee_onboarding.question_passport_number</field>
         <field name="title">Passport Number</field>
         <field name="question_type">char_box</field>
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
     </record>
+
+    <record id="sgc_employee_onboarding.question_visa_number" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_visa_number</field>
         <field name="title">Visa Number</field>
         <field name="question_type">char_box</field>
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
@@ -180,7 +184,6 @@
         <field name="question_type">many2many</field>
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
     </record>
-
     <!-- Suggested Answers for Marital Status -->
     <record id="sgc_employee_onboarding.suggested_answer_single" model="survey.question.answer">
         <field name="name">sgc_employee_onboarding.suggested_answer_single</field>
