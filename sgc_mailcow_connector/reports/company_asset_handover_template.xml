@@ -143,7 +143,7 @@
                             <tr>
                                 <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
                                 <td><span class="sgc-label">Department</span><span class="sgc-value"><t t-if="o.department_id" t-esc="o.department_id.name"/><t t-else="">N/A</t></span></td>
-                                <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="o.last_working_day" t-esc="o.last_working_day"/><t t-else="">-</t></td>
+                                <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="o.last_working_day" t-esc="o.last_working_day"/><t t-else="">-</t></span></td>
                             </tr>
                         </table>
 
