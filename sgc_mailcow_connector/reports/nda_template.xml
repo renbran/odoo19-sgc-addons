@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="report_nda">
-        <t-call="report.html_container">
-            <t-call="report.internal_layout">
+        <t t-call="report.html_container">
+            <t t-call="report.internal_layout">
                 <div class="page">
                     <div class="oe_structure"/>
                     <div class="oe_title">
@@ -19,7 +19,7 @@
                         <span t-esc="company.country_id.name"/>
                     </div>
                     
-                    <div class=,"oe_details">
+                    <div class="oe_details">
                         <p><strong>Date:</strong> <span t-esc="fields.Date.today()"/></p>
                         <p><strong>Employee:</strong> <span t-esc="employee.name"/></p>
                         <p><strong>Position:</strong> <span t-esc="employee.job_title"/></p>
@@ -71,8 +71,8 @@
                         </div>
                     </div>
                 </div>
-            </t-call>
-        </t-call>
+            </t>
+        </t>
     </template>
     
     <!-- Report action -->

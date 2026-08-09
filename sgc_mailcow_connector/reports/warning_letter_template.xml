@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="report_warning_letter">
-        <t-call="report.html_container">
-            <t-call="report.internal_layout">
+        <t t-call="report.html_container">
+            <t t-call="report.internal_layout">
                 <div class="page">
                     <div class="oe_structure"/>
                     <div class="oe_title">
@@ -62,8 +62,8 @@
                         </div>
                     </div>
                 </div>
-            </t-call>
-        </t-call>
+            </t>
+        </t>
     </template>
     
     <!-- Report action -->
