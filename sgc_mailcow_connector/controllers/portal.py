@@ -49,12 +49,13 @@ class SgcEmployeeDocumentPortal(CustomerPortal):
         doc_sudo.action_store_pdf()
         
         doc_sudo.message_post(
-        # Get report reference safely for PDF generation
-        report_xmlid = doc_sudo._REPORT_XMLIDS.get(doc_sudo.doc_type)
-        if not report_xmlid:
-            raise ValueError(_("No report configured for document type: %s") % doc_sudo.doc_type)
-        pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
-            report_xmlid, [doc_sudo.id])[0]
+            subtype_xmlid='mail.mt_comment',
+            # Get report reference safely for PDF generation
+            report_xmlid = doc_sudo._REPORT_XMLIDS.get(doc_sudo.doc_type)
+            if not report_xmlid:
+                raise ValueError(_("No report configured for document type: %s") % doc_sudo.doc_type)
+            pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
+                report_xmlid, [doc_sudo.id])[0]
             attachments=[('%s.pdf' % doc_sudo.name, pdf)],
             body=_('Document signed by %s', name),
             subtype_xmlid='mail.mt_comment',
