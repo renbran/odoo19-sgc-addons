@@ -3,75 +3,154 @@
     <template id="report_nda">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
+                <t t-set="emp" t-value="o"/>
                 <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="oe_title">
-                            <h1>NON-DISCLOSURE AGREEMENT (NDA)</h1>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <span t-esc="company.name"/>
-                            <br/>
-                            <span t-esc="company.street"/>
-                            <br/>
-                            <span t-esc="company.city"/>
-                            <span t-esc="company.zip"/>
-                            <span t-esc="company.state_id.name"/>
-                            <span t-esc="company.country_id.name"/>
-                        </div>
+                    <div class="page sgc-nda-report">
+                        <style>
+                            .sgc-nda-report {
+                                font-family: 'IBM Plex Sans', Arial, sans-serif;
+                                color: #1C2430;
+                                font-size: 9pt !important;
+                                line-height: 1.45;
+                            }
+                            .sgc-nda-report h1.sgc-doc-title {
+                                font-size: 14pt !important;
+                                font-weight: 600;
+                                letter-spacing: .01em;
+                                color: #0F213D;
+                                margin: 0 0 10px 0;
+                                padding-bottom: 6px;
+                                border-bottom: 1px solid rgba(95, 103, 117, 0.3);
+                                page-break-after: avoid;
+                            }
+                            .sgc-nda-report table.sgc-meta {
+                                width: 100%;
+                                table-layout: fixed;
+                                border-collapse: collapse;
+                                margin: 10px 0 14px 0;
+                            }
+                            .sgc-nda-report table.sgc-meta td {
+                                border: none;
+                                padding: 3px 10px 3px 0;
+                                vertical-align: top;
+                                width: 33.33%;
+                            }
+                            .sgc-nda-report .sgc-label {
+                                display: block;
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                            .sgc-nda-report .sgc-value {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-nda-report p {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                            }
+                            .sgc-nda-report strong {
+                                font-weight: 600;
+                            }
+                            .sgc-nda-report .sgc-clause {
+                                margin-bottom: 8px;
+                            }
+                            .sgc-nda-report table.sgc-sign {
+                                width: 100%;
+                                table-layout: fixed;
+                                border: none;
+                                border-collapse: collapse;
+                                page-break-inside: avoid;
+                                margin-top: 16px;
+                            }
+                            .sgc-nda-report table.sgc-sign td {
+                                border: none;
+                                padding: 4px 12px 4px 0;
+                                vertical-align: top;
+                            }
+                            .sgc-nda-report .sgc-sign-title {
+                                font-size: 9pt !important;
+                                font-weight: 600;
+                                color: #0F213D;
+                                margin-bottom: 4px;
+                            }
+                            .sgc-nda-report .sgc-sign-text {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-nda-report .sgc-rule-line {
+                                border-bottom: 1px solid #1C2430;
+                                width: 70%;
+                                margin: 12px 0 3px 0;
+                            }
+                            .sgc-nda-report .sgc-rule-caption {
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                        </style>
 
-                        <div class="oe_details">
-                            <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
-                            <p><strong>Employee:</strong> <span t-esc="o.name"/></p>
-                            <p><strong>Position:</strong> <span t-esc="o.job_title"/></p>
-                            <p><strong>Employee ID:</strong> <span t-esc="o.id"/></p>
-                            <p t-if="o.nda_version"><strong>NDA Version:</strong> <span t-esc="o.nda_version"/></p>
-                        </div>
+                        <h1 class="sgc-doc-title">NON-DISCLOSURE AGREEMENT (NDA)</h1>
 
-                        <div class="oe_body">
-                            <h2>NON-DISCLOSURE AGREEMENT</h2>
+                        <table class="sgc-meta">
+                            <tr>
+                                <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
+                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="emp.name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
+                                <td><span class="sgc-label">NDA Version</span><span class="sgc-value"><t t-if="emp.nda_version" t-esc="emp.nda_version"/><t t-else="">-</t></span></td>
+                                <td/>
+                            </tr>
+                        </table>
 
-                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="time.strftime('%d/%m/%Y')"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="o.name"/>, an employee of the Company ("Employee").</p>
+                        <div>
+                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="doc_date"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="emp.name"/>, an employee of the Company ("Employee").</p>
 
-                            <h3>1. DEFINITION OF CONFIDENTIAL INFORMATION</h3>
-                            <p>"Confidential Information" means all non-public information disclosed by the Company to the Employee, whether oral or written, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.</p>
+                            <p class="sgc-clause"><strong>1. DEFINITION OF CONFIDENTIAL INFORMATION</strong> "Confidential Information" means all non-public information disclosed by the Company to the Employee, whether oral or written, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.</p>
 
-                            <h3>2. OBLIGATIONS OF EMPLOYEE</h3>
-                            <p>Employee agrees to hold and maintain the Confidential Information in strictest confidence and to not disclose such Confidential Information to any third party without the prior written consent of the Company.</p>
+                            <p class="sgc-clause"><strong>2. OBLIGATIONS OF EMPLOYEE</strong> Employee agrees to hold and maintain the Confidential Information in strictest confidence and to not disclose such Confidential Information to any third party without the prior written consent of the Company.</p>
 
-                            <h3>3. TERM</h3>
-                            <p>The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="o.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
+                            <p class="sgc-clause"><strong>3. TERM</strong> The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="emp.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
 
-                            <h3>4. RETURN OF MATERIALS</h3>
-                            <p>Upon termination of employment or upon the Company's request, Employee shall promptly return all Confidential Information in tangible form and destroy all electronic copies.</p>
+                            <p class="sgc-clause"><strong>4. RETURN OF MATERIALS</strong> Upon termination of employment or upon the Company's request, Employee shall promptly return all Confidential Information in tangible form and destroy all electronic copies.</p>
 
-                            <h3>5. REMEDIES</h3>
-                            <p>Employee acknowledges that any breach of this Agreement may cause irreparable harm to the Company for which monetary damages may not be an adequate remedy, and that in the event of any breach or threatened breach, the Company shall be entitled to seek equitable relief, including injunctive relief.</p>
+                            <p class="sgc-clause"><strong>5. REMEDIES</strong> Employee acknowledges that any breach of this Agreement may cause irreparable harm to the Company for which monetary damages may not be an adequate remedy, and that in the event of any breach or threatened breach, the Company shall be entitled to seek equitable relief, including injunctive relief.</p>
 
-                            <h3>6. GOVERNING LAW</h3>
-                            <p>This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of laws principles.</p>
+                            <p class="sgc-clause"><strong>6. GOVERNING LAW</strong> This Agreement shall be governed by and construed in accordance with the laws of the United Arab Emirates, without regard to its conflict of laws principles.</p>
 
                             <p>IN WITNESS WHEREOF, the parties have executed this Non-Disclosure Agreement as of the Effective Date.</p>
                         </div>
 
-                        <div class="oe_footer">
-                            <div class="oe_row">
-                                <div class="oe_col_6">
-                                    <p>SGC TECH AI</p>
-                                    <br/><br/>
-                                    <p><strong>Authorized Signatory</strong><br/>
-                                    [Name]<br/>
-                                    [Title]</p>
-                                </div>
-                                <div class="oe_col_6">
-                                    <p><strong>Employee Acceptance</strong></p>
-                                    <p>By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
-                                    <p>Signature: _________________________</p>
-                                    <p>Name: <span t-esc="o.name"/></p>
-                                    <p>Date: _________________________</p>
-                                </div>
-                            </div>
-                        </div>
+                        <table class="sgc-sign">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-text">SGC TECH AI</p>
+                                        <p class="sgc-sign-title">Authorized Signatory</p>
+                                        <p class="sgc-sign-text">[Name]<br/>[Title]</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                    </td>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-title">Employee Acceptance</p>
+                                        <p class="sgc-sign-text">By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                        <p class="sgc-sign-text">Name: <span t-esc="emp.name"/></p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Date</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </t>
             </t>

@@ -3,31 +3,121 @@
     <template id="report_warning_letter">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
+                <t t-set="emp" t-value="o"/>
                 <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="oe_title">
-                            <h1>WARNING LETTER</h1>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <span t-esc="company.name"/>
-                            <br/>
-                            <span t-esc="company.street"/>
-                            <br/>
-                            <span t-esc="company.city"/>
-                            <span t-esc="company.zip"/>
-                            <span t-esc="company.state_id.name"/>
-                            <span t-esc="company.country_id.name"/>
-                        </div>
+                    <div class="page sgc-warning-letter-report">
+                        <style>
+                            .sgc-warning-letter-report {
+                                font-family: 'IBM Plex Sans', Arial, sans-serif;
+                                color: #1C2430;
+                                font-size: 9pt !important;
+                                line-height: 1.45;
+                            }
+                            .sgc-warning-letter-report h1.sgc-doc-title {
+                                font-size: 14pt !important;
+                                font-weight: 600;
+                                letter-spacing: .01em;
+                                color: #0F213D;
+                                margin: 0 0 10px 0;
+                                padding-bottom: 6px;
+                                border-bottom: 1px solid rgba(95, 103, 117, 0.3);
+                                page-break-after: avoid;
+                            }
+                            .sgc-warning-letter-report table.sgc-meta {
+                                width: 100%;
+                                table-layout: fixed;
+                                border-collapse: collapse;
+                                margin: 10px 0 14px 0;
+                            }
+                            .sgc-warning-letter-report table.sgc-meta td {
+                                border: none;
+                                padding: 3px 10px 3px 0;
+                                vertical-align: top;
+                                width: 33.33%;
+                            }
+                            .sgc-warning-letter-report .sgc-label {
+                                display: block;
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                            .sgc-warning-letter-report .sgc-value {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-warning-letter-report p {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                            }
+                            .sgc-warning-letter-report strong {
+                                font-weight: 600;
+                            }
+                            .sgc-warning-letter-report ul {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                                padding-left: 16px;
+                            }
+                            .sgc-warning-letter-report li {
+                                font-size: 9pt !important;
+                                margin-bottom: 3px;
+                            }
+                            .sgc-warning-letter-report table.sgc-sign {
+                                width: 100%;
+                                table-layout: fixed;
+                                border: none;
+                                border-collapse: collapse;
+                                page-break-inside: avoid;
+                                margin-top: 16px;
+                            }
+                            .sgc-warning-letter-report table.sgc-sign td {
+                                border: none;
+                                padding: 4px 12px 4px 0;
+                                vertical-align: top;
+                            }
+                            .sgc-warning-letter-report .sgc-sign-title {
+                                font-size: 9pt !important;
+                                font-weight: 600;
+                                color: #0F213D;
+                                margin-bottom: 4px;
+                            }
+                            .sgc-warning-letter-report .sgc-sign-text {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-warning-letter-report .sgc-rule-line {
+                                border-bottom: 1px solid #1C2430;
+                                width: 70%;
+                                margin: 12px 0 3px 0;
+                            }
+                            .sgc-warning-letter-report .sgc-rule-caption {
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                        </style>
 
-                        <div class="oe_details">
-                            <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
-                            <p><strong>To:</strong> <span t-esc="o.name"/></p>
-                            <p><strong>Position:</strong> <span t-esc="o.job_title"/></p>
-                            <p><strong>Employee ID:</strong> <span t-esc="o.id"/></p>
-                        </div>
+                        <h1 class="sgc-doc-title">WARNING LETTER</h1>
 
-                        <div class="oe_body">
+                        <table class="sgc-meta">
+                            <tr>
+                                <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
+                                <td><span class="sgc-label">To</span><span class="sgc-value" t-esc="emp.name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
+                                <td/>
+                                <td/>
+                            </tr>
+                        </table>
+
+                        <div>
                             <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at SGC TECH AI.</p>
 
                             <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
@@ -38,30 +128,33 @@
                                 <li>Inadequate communication and collaboration with team members</li>
                             </ul>
 
-                            <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
+                            <p>You are hereby given a period of <span t-esc="emp.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
 
                             <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
 
                             <p>We believe in your potential to succeed and are committed to supporting your development. However, we must ensure that all employees meet the performance standards required for our organization's success.</p>
                         </div>
 
-                        <div class="oe_footer">
-                            <div class="oe_row">
-                                <div class="oe_col_6">
-                                    <p>Sincerely,</p>
-                                    <br/><br/>
-                                    <p><strong t-esc="o.warning_letter_supervisor.name or 'Manager Name'"/><br/>
-                                    [Manager Position]<br/>
-                                    SGC TECH AI</p>
-                                </div>
-                                <div class="oe_col_6">
-                                    <p><strong>Employee Acknowledgement</strong></p>
-                                    <p>I have received and reviewed this warning letter.</p>
-                                    <p>Signature: _________________________</p>
-                                    <p>Date: _________________________</p>
-                                </div>
-                            </div>
-                        </div>
+                        <table class="sgc-sign">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-text">Sincerely,</p>
+                                        <p class="sgc-sign-text"><strong t-esc="emp.warning_letter_supervisor.name or 'Manager Name'"/><br/>[Manager Position]<br/>SGC TECH AI</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                    </td>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-title">Employee Acknowledgement</p>
+                                        <p class="sgc-sign-text">I have received and reviewed this warning letter.</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Date</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </t>
             </t>

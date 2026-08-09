@@ -3,142 +3,258 @@
     <template id="report_company_asset_handover">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
+                <t t-set="emp" t-value="o"/>
                 <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
-                    <div class="page">
-                        <div class="oe_title">
-                            <h1>COMPANY ASSET HANDOVER FORM</h1>
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <span t-esc="company.name"/>
-                            <br/>
-                            <span t-esc="company.street"/>
-                            <br/>
-                            <span t-esc="company.city"/>
-                            <span t-esc="company.zip"/>
-                            <span t-esc="company.state_id.name"/>
-                            <span t-esc="company.country_id.name"/>
-                        </div>
+                    <div class="page sgc-asset-handover-report">
+                        <style>
+                            .sgc-asset-handover-report {
+                                font-family: 'IBM Plex Sans', Arial, sans-serif;
+                                color: #1C2430;
+                                font-size: 9pt !important;
+                                line-height: 1.45;
+                            }
+                            .sgc-asset-handover-report h1.sgc-doc-title {
+                                font-size: 14pt !important;
+                                font-weight: 600;
+                                letter-spacing: .01em;
+                                color: #0F213D;
+                                margin: 0 0 10px 0;
+                                padding-bottom: 6px;
+                                border-bottom: 1px solid rgba(95, 103, 117, 0.3);
+                                page-break-after: avoid;
+                            }
+                            .sgc-asset-handover-report table.sgc-meta {
+                                width: 100%;
+                                table-layout: fixed;
+                                border-collapse: collapse;
+                                margin: 10px 0 14px 0;
+                            }
+                            .sgc-asset-handover-report table.sgc-meta td {
+                                border: none;
+                                padding: 3px 10px 3px 0;
+                                vertical-align: top;
+                                width: 33.33%;
+                            }
+                            .sgc-asset-handover-report .sgc-label {
+                                display: block;
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                            .sgc-asset-handover-report .sgc-value {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-asset-handover-report p {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                            }
+                            .sgc-asset-handover-report strong {
+                                font-weight: 600;
+                            }
+                            .sgc-asset-handover-report table.sgc-data {
+                                width: 100%;
+                                table-layout: fixed;
+                                border-collapse: collapse;
+                                border: 1px solid rgba(95, 103, 117, 0.3);
+                                margin: 10px 0 16px 0;
+                            }
+                            .sgc-asset-handover-report table.sgc-data thead {
+                                display: table-header-group;
+                            }
+                            .sgc-asset-handover-report table.sgc-data th {
+                                background: #0F213D;
+                                color: #F7F4EE;
+                                font-size: 7pt !important;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                padding: 5px 6px;
+                                border: 1px solid #0F213D;
+                                border-right: 1px solid rgba(247, 244, 238, 0.28);
+                                word-wrap: break-word;
+                                vertical-align: bottom;
+                            }
+                            .sgc-asset-handover-report table.sgc-data th:last-child {
+                                border-right: 1px solid #0F213D;
+                            }
+                            .sgc-asset-handover-report table.sgc-data td {
+                                border: 1px solid rgba(95, 103, 117, 0.3);
+                                padding: 4px 6px;
+                                vertical-align: top;
+                                font-size: 9pt !important;
+                                word-wrap: break-word;
+                            }
+                            .sgc-asset-handover-report table.sgc-data tr {
+                                page-break-inside: avoid;
+                            }
+                            .sgc-asset-handover-report table.sgc-data tr.sgc-section td {
+                                background: #ECE7DF;
+                                font-weight: 600;
+                            }
+                            .sgc-asset-handover-report table.sgc-sign {
+                                width: 100%;
+                                table-layout: fixed;
+                                border: none;
+                                border-collapse: collapse;
+                                page-break-inside: avoid;
+                                margin-top: 16px;
+                            }
+                            .sgc-asset-handover-report table.sgc-sign td {
+                                border: none;
+                                padding: 4px 12px 4px 0;
+                                vertical-align: top;
+                            }
+                            .sgc-asset-handover-report .sgc-sign-title {
+                                font-size: 9pt !important;
+                                font-weight: 600;
+                                color: #0F213D;
+                                margin-bottom: 4px;
+                            }
+                            .sgc-asset-handover-report .sgc-sign-text {
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-asset-handover-report .sgc-rule-line {
+                                border-bottom: 1px solid #1C2430;
+                                width: 70%;
+                                margin: 12px 0 3px 0;
+                            }
+                            .sgc-asset-handover-report .sgc-rule-caption {
+                                font-size: 7pt !important;
+                                color: #5F6775;
+                                text-transform: uppercase;
+                                letter-spacing: .07em;
+                                font-weight: 600;
+                            }
+                        </style>
 
-                        <div class="oe_details">
-                            <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
-                            <p><strong>Employee:</strong> <span t-esc="o.name"/></p>
-                            <p><strong>Position:</strong> <span t-esc="o.job_title"/></p>
-                            <p><strong>Employee ID:</strong> <span t-esc="o.id"/></p>
-                            <p><strong>Department:</strong> <span t-esc="o.department_id.name or 'N/A'"/></p>
-                            <p><strong>Last Working Day:</strong> <span t-if="o.last_working_day" t-field="o.last_working_day"/><span t-else="">-</span></p>
-                        </div>
+                        <h1 class="sgc-doc-title">COMPANY ASSET HANDOVER FORM</h1>
 
-                        <div class="oe_body">
-                            <h2>ASSET HANDOVER CHECKLIST</h2>
+                        <table class="sgc-meta">
+                            <tr>
+                                <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
+                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="emp.name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                            </tr>
+                            <tr>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
+                                <td><span class="sgc-label">Department</span><span class="sgc-value"><t t-if="emp.department_id" t-esc="emp.department_id.name"/><t t-else="">N/A</t></span></td>
+                                <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="emp.last_working_day" t-esc="emp.last_working_day"/><t t-else="">-</t></span></td>
+                            </tr>
+                        </table>
 
+                        <div>
                             <p>This document serves to record the return of company property and assets by the employee upon termination of employment, transfer, or leave of absence.</p>
-
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Item Description</th>
-                                        <th>Asset ID/Serial No.</th>
-                                        <th>Condition</th>
-                                        <th>Issued Date</th>
-                                        <th>Returned Date</th>
-                                        <th>Remarks</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Electronic Devices -->
-                                    <tr>
-                                        <td colspan="6"><strong>ELECTRONIC DEVICES</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Laptop Computer</td>
-                                        <td><span t-esc="o.laptop_id or '-'"/></td>
-                                        <td><span t-if="o.laptop_condition" t-field="o.laptop_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.laptop_issued_date" t-field="o.laptop_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.laptop_returned_date" t-field="o.laptop_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.laptop_remarks or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Mobile Phone</td>
-                                        <td><span t-esc="o.mobile_id or '-'"/></td>
-                                        <td><span t-if="o.mobile_condition" t-field="o.mobile_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.mobile_issued_date" t-field="o.mobile_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.mobile_returned_date" t-field="o.mobile_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.mobile_remarks or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Tablet/iPad</td>
-                                        <td><span t-esc="o.tablet_id or '-'"/></td>
-                                        <td><span t-if="o.tablet_condition" t-field="o.tablet_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.tablet_issued_date" t-field="o.tablet_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.tablet_returned_date" t-field="o.tablet_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.tablet_remarks or '-'"/></td>
-                                    </tr>
-
-                                    <!-- Access Devices -->
-                                    <tr>
-                                        <td colspan="6"><strong>ACCESS DEVICES</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Access Card/Badge</td>
-                                        <td><span t-esc="o.access_card_id or '-'"/></td>
-                                        <td><span t-if="o.access_card_condition" t-field="o.access_card_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.access_card_issued_date" t-field="o.access_card_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.access_card_returned_date" t-field="o.access_card_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.access_card_remarks or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Key (Office/Building)</td>
-                                        <td><span t-esc="o.key_id or '-'"/></td>
-                                        <td><span t-if="o.key_condition" t-field="o.key_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.key_issued_date" t-field="o.key_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.key_returned_date" t-field="o.key_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.key_remarks or '-'"/></td>
-                                    </tr>
-
-                                    <!-- Other Equipment -->
-                                    <tr>
-                                        <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Monitor</td>
-                                        <td><span t-esc="o.monitor_id or '-'"/></td>
-                                        <td><span t-if="o.monitor_condition" t-field="o.monitor_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.monitor_issued_date" t-field="o.monitor_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.monitor_returned_date" t-field="o.monitor_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.monitor_remarks or '-'"/></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Printer/Scanner</td>
-                                        <td><span t-esc="o.printer_id or '-'"/></td>
-                                        <td><span t-if="o.printer_condition" t-field="o.printer_condition"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.printer_issued_date" t-field="o.printer_issued_date"/><span t-else="">-</span></td>
-                                        <td><span t-if="o.printer_returned_date" t-field="o.printer_returned_date"/><span t-else="">-</span></td>
-                                        <td><span t-esc="o.printer_remarks or '-'"/></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div class="oe_footer">
-                                <div class="oe_row">
-                                    <div class="oe_col_6">
-                                        <p>Received by (Employee):</p>
-                                        <br/><br/>
-                                        <p>Signature: _________________________</p>
-                                        <p>Name: <span t-esc="o.name"/></p>
-                                        <p>Date: _________________________</p>
-                                    </div>
-                                    <div class="oe_col_6">
-                                        <p>Received by (Company Representative):</p>
-                                        <br/><br/>
-                                        <p>Signature: _________________________</p>
-                                        <p>Name: _________________________</p>
-                                        <p>Position: _________________________</p>
-                                        <p>Date: _________________________</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+
+                        <table class="sgc-data">
+                            <thead>
+                                <tr>
+                                    <th style="width: 26%;">Item Description</th>
+                                    <th style="width: 17%;">Asset ID/Serial No.</th>
+                                    <th style="width: 14%;">Condition</th>
+                                    <th style="width: 13%;">Issued Date</th>
+                                    <th style="width: 13%;">Returned Date</th>
+                                    <th style="width: 17%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="sgc-section">
+                                    <td colspan="6"><strong>ELECTRONIC DEVICES</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Laptop Computer</td>
+                                    <td><span t-esc="emp.laptop_id or '-'"/></td>
+                                    <td><t t-if="emp.laptop_condition" t-esc="dict(emp._fields['laptop_condition'].selection).get(emp.laptop_condition, emp.laptop_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.laptop_issued_date" t-esc="emp.laptop_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.laptop_returned_date" t-esc="emp.laptop_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.laptop_remarks or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Mobile Phone</td>
+                                    <td><span t-esc="emp.mobile_id or '-'"/></td>
+                                    <td><t t-if="emp.mobile_condition" t-esc="dict(emp._fields['mobile_condition'].selection).get(emp.mobile_condition, emp.mobile_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.mobile_issued_date" t-esc="emp.mobile_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.mobile_returned_date" t-esc="emp.mobile_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.mobile_remarks or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Tablet/iPad</td>
+                                    <td><span t-esc="emp.tablet_id or '-'"/></td>
+                                    <td><t t-if="emp.tablet_condition" t-esc="dict(emp._fields['tablet_condition'].selection).get(emp.tablet_condition, emp.tablet_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.tablet_issued_date" t-esc="emp.tablet_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.tablet_returned_date" t-esc="emp.tablet_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.tablet_remarks or '-'"/></td>
+                                </tr>
+                                <tr class="sgc-section">
+                                    <td colspan="6"><strong>ACCESS DEVICES</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Access Card/Badge</td>
+                                    <td><span t-esc="emp.access_card_id or '-'"/></td>
+                                    <td><t t-if="emp.access_card_condition" t-esc="dict(emp._fields['access_card_condition'].selection).get(emp.access_card_condition, emp.access_card_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.access_card_issued_date" t-esc="emp.access_card_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.access_card_returned_date" t-esc="emp.access_card_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.access_card_remarks or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Key (Office/Building)</td>
+                                    <td><span t-esc="emp.key_id or '-'"/></td>
+                                    <td><t t-if="emp.key_condition" t-esc="dict(emp._fields['key_condition'].selection).get(emp.key_condition, emp.key_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.key_issued_date" t-esc="emp.key_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.key_returned_date" t-esc="emp.key_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.key_remarks or '-'"/></td>
+                                </tr>
+                                <tr class="sgc-section">
+                                    <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Monitor</td>
+                                    <td><span t-esc="emp.monitor_id or '-'"/></td>
+                                    <td><t t-if="emp.monitor_condition" t-esc="dict(emp._fields['monitor_condition'].selection).get(emp.monitor_condition, emp.monitor_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.monitor_issued_date" t-esc="emp.monitor_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.monitor_returned_date" t-esc="emp.monitor_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.monitor_remarks or '-'"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Printer/Scanner</td>
+                                    <td><span t-esc="emp.printer_id or '-'"/></td>
+                                    <td><t t-if="emp.printer_condition" t-esc="dict(emp._fields['printer_condition'].selection).get(emp.printer_condition, emp.printer_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.printer_issued_date" t-esc="emp.printer_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="emp.printer_returned_date" t-esc="emp.printer_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="emp.printer_remarks or '-'"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <table class="sgc-sign">
+                            <tbody>
+                                <tr>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-title">Received by (Employee)</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                        <p class="sgc-sign-text">Name: <span t-esc="emp.name"/></p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Date</span>
+                                    </td>
+                                    <td style="width: 50%;">
+                                        <p class="sgc-sign-title">Received by (Company Representative)</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Signature</span>
+                                        <p class="sgc-sign-text">Name:</p>
+                                        <p class="sgc-sign-text">Position:</p>
+                                        <div class="sgc-rule-line"></div>
+                                        <span class="sgc-rule-caption">Date</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </t>
             </t>
