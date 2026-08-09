@@ -32,7 +32,7 @@
                 </button>
             </xpath>
             <xpath expr="//notebook" position="inside">
-                <page string="Documents string="Documents string="Documents & Assets" Assets" Assets" groups="hr.group_hr_manager">
+                <page string="Documents & Assets" groups="hr.group_hr_manager">
                     <group string="Warning Letter">
                         <field name="warning_letter_date"/>
                         <field name="warning_letter_supervisor"/>
