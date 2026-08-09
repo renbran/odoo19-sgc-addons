@@ -31,24 +31,24 @@ _SNAPSHOT_SOURCES = {
     "warning_letter_supervisor_id": "warning_letter_supervisor",
 }
 
-_REPORT_XMLIDS = {
-    "nda": "sgc_mailcow_connector.action_report_nda",
-    "warning_letter": "sgc_mailcow_connector.action_report_warning_letter",
-    "asset_handover": "sgc_mailcow_connector.action_report_company_asset_handover",
-}
-
-_EMAIL_TEMPLATE_XMLIDS = {
-    "nda": "sgc_mailcow_connector.email_template_nda",
-    "warning_letter": "sgc_mailcow_connector.email_template_warning_letter",
-    "asset_handover": "sgc_mailcow_connector.email_template_company_asset_handover",
-}
-
 
 class SgcEmployeeDocument(models.Model):
     _name = "sgc.employee.document"
     _description = "Employee Document"
     _inherit = ["mail.thread", "mail.activity.mixin", "portal.mixin"]
     _order = "create_date desc"
+
+    _REPORT_XMLIDS = {
+        "nda": "sgc_mailcow_connector.action_report_nda",
+        "warning_letter": "sgc_mailcow_connector.action_report_warning_letter",
+        "asset_handover": "sgc_mailcow_connector.action_report_company_asset_handover",
+    }
+
+    _EMAIL_TEMPLATE_XMLIDS = {
+        "nda": "sgc_mailcow_connector.email_template_nda",
+        "warning_letter": "sgc_mailcow_connector.email_template_warning_letter",
+        "asset_handover": "sgc_mailcow_connector.email_template_company_asset_handover",
+    }
 
     # New fields for signature
     signature = fields.Image(copy=False, attachment=True, max_width=1024, max_height=1024)
