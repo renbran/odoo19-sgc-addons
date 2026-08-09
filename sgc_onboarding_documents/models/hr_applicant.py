@@ -117,7 +117,7 @@ class HrApplicant(models.Model):
         template.send_mail(self.id, force_send=False)
         self.message_post(
             body=_('Onboarding upload link e-mailed to %(email)s.') % {'email': self.email_from},
-            message_type='note',
+            message_type='comment',
             subtype_xmlid='mail.mt_note',
         )
         return {
@@ -137,4 +137,4 @@ class HrApplicant(models.Model):
             '<p>Onboarding link (%s), valid until <b>%s</b>:</p>'
             '<p><a href="%s">%s</a></p>'
         ) % (action, self.onboarding_token_expiry, self.onboarding_link, self.onboarding_link)
-        self.message_post(body=body, message_type='note', subtype_xmlid='mail.mt_note')
+        self.message_post(body=body, message_type='comment', subtype_xmlid='mail.mt_note')
