@@ -25,6 +25,11 @@ SNAPSHOT_FIELDS = [
     "warning_letter_improvement_period",
 ] + _asset_fields()
 
+_SNAPSHOT_SOURCES = {
+    "employee_name": "name",
+    "warning_letter_supervisor_id": "warning_letter_supervisor",
+}
+
 
 class SgcEmployeeDocument(models.Model):
     _name = "sgc.employee.document"
@@ -148,8 +153,11 @@ class SgcEmployeeDocument(models.Model):
                 if emp:
                     for fname in SNAPSHOT_FIELDS:
                         if fname not in vals:
-                            source = "name" if fname == "employee_name" else fname
-                            vals[fname] = emp[source]
+                            source = _SNAPSHOT_SOURCES.get(fname, fname)
+                            value = emp[source]
+                            if isinstance(emp._fields[source], fields.Many2one):
+                                value = value.id
+                            vals[fname] = value
         return super().create(vals_list)
 
     def action_store_pdf(self):
