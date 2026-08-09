@@ -183,7 +183,15 @@ class SgcEmployeeDocument(models.Model):
     def action_send(self):
         """ Opens a wizard to compose an email, with relevant mail template loaded by default """
         self.ensure_one()
-        template_id = self.env.ref(self._EMAIL_TEMPLATE_XMLIDS[self.doc_type]).id
+        # Get email template reference safely
+
+        email_template_xmlid = self._EMAIL_TEMPLATE_XMLIDS.get(self.doc_type)
+
+        if not email_template_xmlid:
+
+            raise ValueError(_("No email template configured for document type: %s") % self.doc_type)
+
+        template_id = self.env.ref(email_template_xmlid).id
         ctx = {
             'default_model': 'sgc.employee.document',
             'default_res_ids': self.ids,
