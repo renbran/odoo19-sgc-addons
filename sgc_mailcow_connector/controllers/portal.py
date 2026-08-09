@@ -54,7 +54,7 @@ class SgcEmployeeDocumentPortal(CustomerPortal):
             raise ValueError(_("No report configured for document type: %s") % doc_sudo.doc_type)
         doc_sudo.message_post(
             pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
-                report_xmlid, [doc_sudo.id])[0]
+                report_xmlid, [doc_sudo.id])[0],
             attachments=[('%s.pdf' % doc_sudo.name, pdf)],
             body=_('Document signed by %s', name),
             subtype_xmlid='mail.mt_comment',
