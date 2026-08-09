@@ -1,4 +1,5 @@
-from odoo import http, request
+from odoo import http
+from odoo.http import request
 from odoo.exceptions import AccessError, MissingError
 from odoo.addons.portal.controllers.portal import CustomerPortal
 import binascii
