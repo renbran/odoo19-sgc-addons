@@ -2,8 +2,9 @@
 <odoo>
     <template id="report_nda">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-call="sgc_construction_management.construction_external_layout">
                     <div class="page">
                         <div class="oe_title">
                             <h1>NON-DISCLOSURE AGREEMENT (NDA)</h1>
@@ -21,16 +22,16 @@
 
                         <div class="oe_details">
                             <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
-                            <p><strong>Employee:</strong> <span t-esc="doc.name"/></p>
-                            <p><strong>Position:</strong> <span t-esc="doc.job_title"/></p>
-                            <p><strong>Employee ID:</strong> <span t-esc="doc.id"/></p>
-                            <p t-if="doc.nda_version"><strong>NDA Version:</strong> <span t-esc="doc.nda_version"/></p>
+                            <p><strong>Employee:</strong> <span t-esc="o.name"/></p>
+                            <p><strong>Position:</strong> <span t-esc="o.job_title"/></p>
+                            <p><strong>Employee ID:</strong> <span t-esc="o.id"/></p>
+                            <p t-if="o.nda_version"><strong>NDA Version:</strong> <span t-esc="o.nda_version"/></p>
                         </div>
 
                         <div class="oe_body">
                             <h2>NON-DISCLOSURE AGREEMENT</h2>
 
-                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="time.strftime('%d/%m/%Y')"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="doc.name"/>, an employee of the Company ("Employee").</p>
+                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="time.strftime('%d/%m/%Y')"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="o.name"/>, an employee of the Company ("Employee").</p>
 
                             <h3>1. DEFINITION OF CONFIDENTIAL INFORMATION</h3>
                             <p>"Confidential Information" means all non-public information disclosed by the Company to the Employee, whether oral or written, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.</p>
@@ -39,7 +40,7 @@
                             <p>Employee agrees to hold and maintain the Confidential Information in strictest confidence and to not disclose such Confidential Information to any third party without the prior written consent of the Company.</p>
 
                             <h3>3. TERM</h3>
-                            <p>The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="doc.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
+                            <p>The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="o.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
 
                             <h3>4. RETURN OF MATERIALS</h3>
                             <p>Upon termination of employment or upon the Company's request, Employee shall promptly return all Confidential Information in tangible form and destroy all electronic copies.</p>
@@ -66,7 +67,7 @@
                                     <p><strong>Employee Acceptance</strong></p>
                                     <p>By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
                                     <p>Signature: _________________________</p>
-                                    <p>Name: <span t-esc="doc.name"/></p>
+                                    <p>Name: <span t-esc="o.name"/></p>
                                     <p>Date: _________________________</p>
                                 </div>
                             </div>

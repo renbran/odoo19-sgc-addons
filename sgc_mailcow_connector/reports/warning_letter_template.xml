@@ -2,8 +2,9 @@
 <odoo>
     <template id="report_warning_letter">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-call="sgc_construction_management.construction_external_layout">
                     <div class="page">
                         <div class="oe_title">
                             <h1>WARNING LETTER</h1>
@@ -21,9 +22,9 @@
 
                         <div class="oe_details">
                             <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
-                            <p><strong>To:</strong> <span t-esc="doc.name"/></p>
-                            <p><strong>Position:</strong> <span t-esc="doc.job_title"/></p>
-                            <p><strong>Employee ID:</strong> <span t-esc="doc.id"/></p>
+                            <p><strong>To:</strong> <span t-esc="o.name"/></p>
+                            <p><strong>Position:</strong> <span t-esc="o.job_title"/></p>
+                            <p><strong>Employee ID:</strong> <span t-esc="o.id"/></p>
                         </div>
 
                         <div class="oe_body">
@@ -37,7 +38,7 @@
                                 <li>Inadequate communication and collaboration with team members</li>
                             </ul>
 
-                            <p>You are hereby given a period of <span t-esc="doc.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
+                            <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
 
                             <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
 
@@ -49,7 +50,7 @@
                                 <div class="oe_col_6">
                                     <p>Sincerely,</p>
                                     <br/><br/>
-                                    <p><strong t-esc="doc.warning_letter_supervisor.name or 'Manager Name'"/><br/>
+                                    <p><strong t-esc="o.warning_letter_supervisor.name or 'Manager Name'"/><br/>
                                     [Manager Position]<br/>
                                     SGC TECH AI</p>
                                 </div>
