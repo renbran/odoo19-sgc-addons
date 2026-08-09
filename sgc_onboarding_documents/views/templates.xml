@@ -15,10 +15,18 @@
                                 </small>
                             </div>
                             <div class="card-body">
+
+                                <t t-if="errors.get('_global')">
+                                    <div class="alert alert-warning" role="alert">
+                                        <t t-esc="errors.get('_global')"/>
+                                    </div>
+                                </t>
+
                                 <p class="text-muted">
                                     Please upload clear scans of the documents below. Each file
                                     will be saved on your onboarding record (the HR log) and is
-                                    only visible to the SGC HR team.
+                                    only visible to the SGC HR team. Supported formats:
+                                    PDF, PNG, JPG — max 10 MB per file.
                                 </p>
 
                                 <form t-attf-action="/onboarding/upload/#{token}" method="post"
@@ -35,7 +43,13 @@
                                             <input class="form-control" type="file"
                                                    t-attf-id="{{ dt[0] }}_input"
                                                    t-attf-name="{{ dt[0] }}"
-                                                   accept="image/*,.pdf"/>
+                                                   accept=".pdf,.png,.jpg,.jpeg"/>
+                                            <t t-if="errors.get(dt[0])">
+                                                <div class="text-danger small mt-1">
+                                                    <i class="fa fa-exclamation-triangle me-1"/>
+                                                    <t t-out="errors.get(dt[0])"/>
+                                                </div>
+                                            </t>
                                         </div>
                                     </t>
 
@@ -93,13 +107,11 @@
                                     The HR team will review them before your start date.
                                 </p>
 
-                                <t t-if="uploaded_keys">
+                                <t t-if="uploaded">
                                     <h6 class="text-muted">Received in this submission</h6>
                                     <ul>
-                                        <t t-foreach="doc_types" t-as="dt">
-                                            <t t-if="dt[0] in uploaded_keys">
-                                                <li><t t-esc="dt[1]"/></li>
-                                            </t>
+                                        <t t-foreach="uploaded" t-as="up">
+                                            <li><t t-esc="up['label']"/></li>
                                         </t>
                                     </ul>
                                 </t>
@@ -139,11 +151,19 @@
                 <div class="oe_structure">
                     <div class="container my-5" style="max-width:600px;">
                         <div class="alert alert-warning">
-                            <h4 class="alert-heading">Link not valid</h4>
-                            <p>
-                                This onboarding upload link is not valid or has expired.
-                                Please contact <a href="mailto:hr@sgctech.ai">hr@sgctech.ai</a>
-                                to receive a new link.
+                            <h4 class="alert-heading">
+                                <t t-if="reason == 'expired'">Link expired</t>
+                                <t t-else="">Link not valid</t>
+                            </h4>
+                            <p t-if="reason == 'expired'">
+                                This onboarding upload link has expired. Please contact
+                                <a href="mailto:hr@sgctech.ai">hr@sgctech.ai</a> and the HR
+                                team will send you a fresh link.
+                            </p>
+                            <p t-else="">
+                                This onboarding upload link is not valid. Please contact
+                                <a href="mailto:hr@sgctech.ai">hr@sgctech.ai</a> to receive
+                                a valid link.
                             </p>
                             <p class="small text-muted mb-0">Token: <code t-esc="token"/></p>
                         </div>

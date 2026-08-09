@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="onboarding_link_email_template" model="mail.template">
+            <field name="name">Onboarding Document Upload Link</field>
+            <field name="model_id" ref="hr_recruitment.model_hr_applicant"/>
+            <field name="subject">Your SGC Onboarding Documents</field>
+            <field name="email_from">${object.company_id.partner_email or 'hr@sgctech.ai'}</field>
+            <field name="email_to">${object.email_from}</field>
+            <field name="body_html" type="html">
+                <div style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f5f7;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td align="center" style="padding:32px 16px;">
+                                <table role="presentation" width="100%" cellspacing="0"
+                                       cellpadding="0" style="max-width:560px;background:#ffffff;
+                                       border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                                    <tr>
+                                        <td style="background:#003D5C;padding:24px 28px;">
+                                            <h2 style="color:#ffffff;margin:0;font-size:20px;">
+                                                SGC Onboarding Documents
+                                            </h2>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:28px;">
+                                            <p>Hello <b t-out="object.partner_name"/>,</p>
+                                            <p>
+                                                Welcome to SGC! As part of your onboarding we
+                                                need a few documents from you (passport, Emirates
+                                                ID, visa, education certificate and a photo).
+                                            </p>
+                                            <p>
+                                                Please upload them using the secure link below:
+                                            </p>
+                                            <p>
+                                                <a t-att-href="object.onboarding_link"
+                                                   style="display:inline-block;background:#003D5C;
+                                                          color:#ffffff;padding:12px 22px;
+                                                          border-radius:6px;text-decoration:none;
+                                                          font-weight:bold;">
+                                                    Upload My Documents
+                                                </a>
+                                            </p>
+                                            <p t-if="object.onboarding_token_expiry" class="muted">
+                                                This link is valid until
+                                                <b t-out="object.onboarding_token_expiry"/>.
+                                            </p>
+                                            <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+                                            <p style="color:#9ca3af;font-size:12px;">
+                                                Scholarix Global Consultants · hr@sgctech.ai
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>

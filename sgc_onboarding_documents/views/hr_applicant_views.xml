@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="hr_applicant_view_form_onboarding" model="ir.ui.view">
+            <field name="name">hr.applicant.form.onboarding</field>
+            <field name="model">hr.applicant</field>
+            <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/header" position="inside">
+                    <button name="action_generate_onboarding_link" type="object"
+                            string="Generate Onboarding Link"
+                            class="btn-secondary"
+                            groups="hr_recruitment.group_hr_recruitment_user"
+                            invisible="not active"
+                            title="Create or refresh the public document-upload link"/>
+                    <button name="action_send_onboarding_link" type="object"
+                            string="Send Onboarding Email"
+                            class="btn-secondary"
+                            groups="hr_recruitment.group_hr_recruitment_user"
+                            invisible="not active"
+                            title="E-mail the public document-upload link to the applicant"/>
+                </xpath>
+                <xpath expr="//form/sheet/notebook" position="inside">
+                    <page string="Onboarding Documents"
+                          name="onboarding_documents"
+                          groups="hr_recruitment.group_hr_recruitment_user">
+                        <group>
+                            <group>
+                                <field name="onboarding_link" readonly="1"
+                                       widget="url" string="Upload Link"
+                                       help="Public link the applicant uses to upload documents."/>
+                                <field name="onboarding_token_expiry"
+                                       string="Link Valid Until"/>
+                            </group>
+                        </group>
+                        <div class="text-muted small">
+                            Generate the link to create or refresh it. The candidate can
+                            upload Passport, Emirates ID, Visa, Education Certificate and
+                            Photo directly; files land on this record's chatter.
+                        </div>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
