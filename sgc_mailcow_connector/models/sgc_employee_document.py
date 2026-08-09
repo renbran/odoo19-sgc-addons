@@ -210,8 +210,8 @@ class SgcEmployeeDocument(models.Model):
         return super().message_post(**kwargs)
 
     def action_store_pdf(self):
-        self.ensure_one()
-        report = self.env.ref(self._REPORT_XMLIDS[self.doc_type])
+            raise ValueError(_("No report configured for document type: %s") % self.doc_type)
+        report = self.env.ref(report_xmlid)
         pdf, _ = report._render_qweb_pdf(report, self.ids)
         if self.pdf_attachment_id:
             self.pdf_attachment_id.unlink()
