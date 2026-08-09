@@ -14,21 +14,24 @@
                 </button>
                 <button name="%(action_report_warning_letter)d" type="action"
                         class="oe_stat_button" icon="fa-warning"
-                        groups="hr.group_hr_manager"
-                        attrs="{'invisible': [('state', '=', 'draft')]}">
-                    <field name="id" widget="statinfo" string="Warning Letter"/>
+                        groups="hr.group_hr_manager">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Warning Letter</span>
+                    </div>
                 </button>
                 <button name="%(action_report_nda)d" type="action"
                         class="oe_stat_button" icon="fa-file-contract"
-                        groups="hr.group_hr_manager"
-                        attrs="{'invisible': [('state', '=', 'draft')]}">
-                    <field name="id" widget="statinfo" string="NDA"/>
+                        groups="hr.group_hr_manager">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">NDA</span>
+                    </div>
                 </button>
                 <button name="%(action_report_company_asset_handover)d" type="action"
                         class="oe_stat_button" icon="fa-truck"
-                        groups="hr.group_hr_manager"
-                        attrs="{'invisible': [('state', '=', 'draft')]}">
-                    <field name="id" widget="statinfo" string="Asset Handover"/>
+                        groups="hr.group_hr_manager">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Asset Handover</span>
+                    </div>
                 </button>
             </xpath>
             <xpath expr="//notebook" position="inside">

@@ -1,157 +1,146 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="report_company_asset_handover">
-        <t t-call="report.html_container">
-            <t t-call="report.internal_layout">
-                <div class="page">
-                    <div class="oe_structure"/>
-                    <div class="oe_title">
-                        <h1>COMPANY ASSET HANDOVER FORM</h1>
-                    </div>
-                    <div class="oe_company_information" style="margin-bottom: 20px;">
-                        <span t-esc="company.name"/> 
-                        <br/>
-                        <span t-esc="company.street"/> 
-                        <br/>
-                        <span t-esc="company.city"/> 
-                        <span t-esc="company.zip"/> 
-                        <span t-esc="company.state_id.name"/> 
-                        <span t-esc="company.country_id.name"/>
-                    </div>
-                    
-                    <div class="oe_details">
-                        <p><strong>Date:</strong> <span t-esc="fields.Date.today()"/></p>
-                        <p><strong>Employee:</strong> <span t-esc="employee.name"/></p>
-                        <p><strong>Position:</strong> <span t-esc="employee.job_title"/></p>
-                        <p><strong>Employee ID:</strong> <span t-esc="employee.id"/></p>
-                        <p><strong>Department:</strong> <span t-esc="employee.department_id.name or 'N/A'"/></p>
-                        <p><strong>Last Working Day:</strong> <span t-esc="employee.last_working_day or fields.Date.today()"/></p>
-                    </div>
-                    
-                    <div class="oe_body">
-                        <h2>ASSET HANDOVER CHECKLIST</h2>
-                        
-                        <p>This document serves to record the return of company property and assets by the employee upon termination of employment, transfer, or leave of absence.</p>
-                        
-                        <table class="table table-condensed">
-                            <thead>
-                                <tr>
-                                    <th>Item Description</th>
-                                    <th>Asset ID/Serial No.</th>
-                                    <th>Condition</th>
-                                    <th>Issued Date</th>
-                                    <th>Returned Date</th>
-                                    <th>Remarks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Electronic Devices -->
-                                <tr>
-                                    <td colspan="6"><strong>ELECTRONIC DEVICES</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Laptop Computer</td>
-                                    <td><span t-esc="employee.laptop_id or '-'"/></td>
-                                    <td><span t-esc="employee.laptop_condition or '-'"/></td>
-                                    <td><span t-esc="employee.laptop_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.laptop_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.laptop_remarks or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Mobile Phone</td>
-                                    <td><span t-esc="employee.mobile_id or '-'"/></td>
-                                    <td><span t-esc="employee.mobile_condition or '-'"/></td>
-                                    <td><span t-esc="employee.mobile_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.mobile_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.mobile_remarks or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Tablet/iPad</td>
-                                    <td><span t-esc="employee.tablet_id or '-'"/></td>
-                                    <td><span t-esc="employee.tablet_condition or '-'"/></td>
-                                    <td><span t-esc="employee.tablet_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.tablet_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.tablet_remarks or '-'"/></td>
-                                </tr>
-                                
-                                <!-- Access Devices -->
-                                <tr>
-                                    <td colspan="6"><strong>ACCESS DEVICES</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Access Card/Badge</td>
-                                    <td><span t-esc="employee.access_card_id or '-'"/></td>
-                                    <td><span t-esc="employee.access_card_condition or '-'"/></td>
-                                    <td><span t-esc="employee.access_card_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.access_card_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.access_card_remarks or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Key (Office/Building)</td>
-                                    <td><span t-esc="employee.key_id or '-'"/></td>
-                                    <td><span t-esc="employee.key_condition or '-'"/></td>
-                                    <td><span t-esc="employee.key_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.key_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.key_remarks or '-'"/></td>
-                                </tr>
-                                
-                                <!-- Other Equipment -->
-                                <tr>
-                                    <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Monitor</td>
-                                    <td><span t-esc="employee.monitor_id or '-'"/></td>
-                                    <td><span t-esc="employee.monitor_condition or '-'"/></td>
-                                    <td><span t-esc="employee.monitor_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.monitor_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.monitor_remarks or '-'"/></td>
-                                </tr>
-                                <tr>
-                                    <td>Printer/Scanner</td>
-                                    <td><span t-esc="employee.printer_id or '-'"/></td>
-                                    <td><span t-esc="employee.printer_condition or '-'"/></td>
-                                    <td><span t-esc="employee.printer_issued_date or '-'"/></td>
-                                    <td><span t-esc="employee.printer_returned_date or '-'"/></td>
-                                    <td><span t-esc="employee.printer_remarks or '-'"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div class="oe_footer">
-                            <div class="oe_row">
-                                <div class="oe_col_6">
-                                    <p>Received by (Employee):</p>
-                                    <br/><br/>
-                                    <p>Signature: _________________________</p>
-                                    <p>Name: <span t-esc="employee.name"/></p>
-                                    <p>Date: _________________________</p>
-                                </div>
-                                <div class="oe_col_6">
-                                    <p>Received by (Company Representative):</p>
-                                    <br/><br/>
-                                    <p>Signature: _________________________</p>
-                                    <p>Name: _________________________</p>
-                                    <p>Position: _________________________</p>
-                                    <p>Date: _________________________</p>
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="oe_title">
+                            <h1>COMPANY ASSET HANDOVER FORM</h1>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <span t-esc="company.name"/>
+                            <br/>
+                            <span t-esc="company.street"/>
+                            <br/>
+                            <span t-esc="company.city"/>
+                            <span t-esc="company.zip"/>
+                            <span t-esc="company.state_id.name"/>
+                            <span t-esc="company.country_id.name"/>
+                        </div>
+
+                        <div class="oe_details">
+                            <p><strong>Date:</strong> <span t-esc="time.strftime('%d/%m/%Y')"/></p>
+                            <p><strong>Employee:</strong> <span t-esc="doc.name"/></p>
+                            <p><strong>Position:</strong> <span t-esc="doc.job_title"/></p>
+                            <p><strong>Employee ID:</strong> <span t-esc="doc.id"/></p>
+                            <p><strong>Department:</strong> <span t-esc="doc.department_id.name or 'N/A'"/></p>
+                            <p><strong>Last Working Day:</strong> <span t-if="doc.last_working_day" t-field="doc.last_working_day"/><span t-else="" t-esc="time.strftime('%d/%m/%Y')"/></p>
+                        </div>
+
+                        <div class="oe_body">
+                            <h2>ASSET HANDOVER CHECKLIST</h2>
+
+                            <p>This document serves to record the return of company property and assets by the employee upon termination of employment, transfer, or leave of absence.</p>
+
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Item Description</th>
+                                        <th>Asset ID/Serial No.</th>
+                                        <th>Condition</th>
+                                        <th>Issued Date</th>
+                                        <th>Returned Date</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Electronic Devices -->
+                                    <tr>
+                                        <td colspan="6"><strong>ELECTRONIC DEVICES</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Laptop Computer</td>
+                                        <td><span t-esc="doc.laptop_id or '-'"/></td>
+                                        <td><span t-if="doc.laptop_condition" t-field="doc.laptop_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.laptop_issued_date" t-field="doc.laptop_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.laptop_returned_date" t-field="doc.laptop_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.laptop_remarks or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mobile Phone</td>
+                                        <td><span t-esc="doc.mobile_id or '-'"/></td>
+                                        <td><span t-if="doc.mobile_condition" t-field="doc.mobile_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.mobile_issued_date" t-field="doc.mobile_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.mobile_returned_date" t-field="doc.mobile_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.mobile_remarks or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tablet/iPad</td>
+                                        <td><span t-esc="doc.tablet_id or '-'"/></td>
+                                        <td><span t-if="doc.tablet_condition" t-field="doc.tablet_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.tablet_issued_date" t-field="doc.tablet_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.tablet_returned_date" t-field="doc.tablet_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.tablet_remarks or '-'"/></td>
+                                    </tr>
+
+                                    <!-- Access Devices -->
+                                    <tr>
+                                        <td colspan="6"><strong>ACCESS DEVICES</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Access Card/Badge</td>
+                                        <td><span t-esc="doc.access_card_id or '-'"/></td>
+                                        <td><span t-if="doc.access_card_condition" t-field="doc.access_card_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.access_card_issued_date" t-field="doc.access_card_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.access_card_returned_date" t-field="doc.access_card_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.access_card_remarks or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Key (Office/Building)</td>
+                                        <td><span t-esc="doc.key_id or '-'"/></td>
+                                        <td><span t-if="doc.key_condition" t-field="doc.key_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.key_issued_date" t-field="doc.key_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.key_returned_date" t-field="doc.key_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.key_remarks or '-'"/></td>
+                                    </tr>
+
+                                    <!-- Other Equipment -->
+                                    <tr>
+                                        <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monitor</td>
+                                        <td><span t-esc="doc.monitor_id or '-'"/></td>
+                                        <td><span t-if="doc.monitor_condition" t-field="doc.monitor_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.monitor_issued_date" t-field="doc.monitor_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.monitor_returned_date" t-field="doc.monitor_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.monitor_remarks or '-'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Printer/Scanner</td>
+                                        <td><span t-esc="doc.printer_id or '-'"/></td>
+                                        <td><span t-if="doc.printer_condition" t-field="doc.printer_condition"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.printer_issued_date" t-field="doc.printer_issued_date"/><span t-else="">-</span></td>
+                                        <td><span t-if="doc.printer_returned_date" t-field="doc.printer_returned_date"/><span t-else="">-</span></td>
+                                        <td><span t-esc="doc.printer_remarks or '-'"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="oe_footer">
+                                <div class="oe_row">
+                                    <div class="oe_col_6">
+                                        <p>Received by (Employee):</p>
+                                        <br/><br/>
+                                        <p>Signature: _________________________</p>
+                                        <p>Name: <span t-esc="doc.name"/></p>
+                                        <p>Date: _________________________</p>
+                                    </div>
+                                    <div class="oe_col_6">
+                                        <p>Received by (Company Representative):</p>
+                                        <br/><br/>
+                                        <p>Signature: _________________________</p>
+                                        <p>Name: _________________________</p>
+                                        <p>Position: _________________________</p>
+                                        <p>Date: _________________________</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </t>
             </t>
         </t>
     </template>
-    
-    <!-- Report action -->
-    <report 
-        id="action_report_company_asset_handover"
-        string="Company Asset Handover Form"
-        model="hr.employee" 
-        report_type="qweb-pdf"
-        name="sgc_mailcow_connector.report_company_asset_handover"
-        file="sgc_mailcow_connector.report_company_asset_handover"
-        attachment_use="True"
-        attachment="(object.state in ('open','closed')) and 'ASSET_HANDOVER_%s' % (object.name or '')"
-    />
 </odoo>
