@@ -150,14 +150,11 @@
     </record>
 
     <record id="sgc_employee_onboarding.question_passport_number" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_passport_number</field>
         <field name="title">Passport Number</field>
-        <field name="title">Passport Number</field
-        <field name="title">Passport Number</field>
+        <field name="question_type">char_box</field>
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
     </record>
-
-    <record id="sgc_employee_onboarding.question_visa_number" model="survey.question">
-        <field name="name">sgc_employee_onboarding.question_visa_number</field>
         <field name="title">Visa Number</field>
         <field name="question_type">char_box</field>
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
