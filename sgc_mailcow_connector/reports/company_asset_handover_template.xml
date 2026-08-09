@@ -4,7 +4,7 @@
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
                 <t t-set="company" t-value="o.company_id or res_company"/>
-                <t t-call="sgc_construction_management.construction_external_layout">
+                <t t-call="web.external_layout">
                     <div class="page">
                         <div class="oe_title">
                             <h1>COMPANY ASSET HANDOVER FORM</h1>
