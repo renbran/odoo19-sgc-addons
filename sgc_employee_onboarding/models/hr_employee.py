@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date, datetime
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 import logging
@@ -70,7 +71,7 @@ class HrEmployee(models.Model):
                 employee.onboarding_state = 'expired'
                 continue
                 
-            # Check if completed (has submission after deadline or ever)
+            # Check if completed (has submission)
             if employee.onboarding_last_submitted:
                 employee.onboarding_state = 'completed'
                 continue

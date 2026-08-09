@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default Onboarding Survey Template -->
+    <record id="survey_employee_onboarding_template" model="survey.survey">
+        <field name="name">sgc_employee_onboarding.survey_employee_onboarding_template</field>
+        <field name="title">SGC Employee Onboarding Survey</field>
+        <field name="is_template">True</field>
+        <field name="users_login_required">False</field>
+        <field name="scoring_type">none</field>
+        <field name="questions_ids" eval="[(6, 0, [
+            ref('sgc_employee_onboarding.question_work_email'),
+            ref('sgc_employee_onboarding.question_personal_email'),
+            ref('sgc_employee_onboarding.question_work_phone'),
+            ref('sgc_employee_onboarding.question_mobile_phone'),
+            ref('sgc_employee_onboarding.question_emergency_contact'),
+            ref('sgc_employee_onboarding.question_date_of_birth'),
+            ref('sgc_employee_onboarding.question_marital_status'),
+            ref('sgc_employee_onboarding.question_number_of_children'),
+            ref('sgc_employee_onboarding.question_nationality'),
+            ref('sgc_employee_onboarding.question_department'),
+            ref('sgc_employee_onboarding.question_job_position'),
+            ref('sgc_employee_onboarding.question_work_location'),
+            ref('sgc_employee_onboarding.question_manager'),
+            ref('sgc_employee_onboarding.question_employee_type'),
+            ref('sgc_employee_onboarding.question_bank_account'),
+            ref('sgc_employee_onboarding.question_passport_number'),
+            ref('sgc_employee_onboarding.question_visa_number'),
+            ref('sgc_employee_onboarding.question_visa_expiration'),
+            ref('sgc_employee_onboarding.question_visa_type'),
+            ref('sgc_employee_onboarding.question_skills')
+        ])]"/>
+    </record>
+
+    <!-- Survey Questions -->
+    <record id="sgc_employee_onboarding.question_work_email" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_work_email</field>
+        <field name="title">Work Email</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_personal_email" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_personal_email</field>
+        <field name="title">Personal Email</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_work_phone" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_work_phone</field>
+        <field name="title">Work Phone</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_mobile_phone" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_mobile_phone</field>
+        <field name="title">Mobile Phone</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_emergency_contact" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_emergency_contact</field>
+        <field name="title">Emergency Contact</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_date_of_birth" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_date_of_birth</field>
+        <field name="title">Date of Birth</field>
+        <field name="question_type">date</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_marital_status" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_marital_status</field>
+        <field name="title">Marital Status</field>
+        <field name="question_type">multiple_choice</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+        <field name="suggested_answer_ids" eval="[(6, 0, [
+            ref('sgc_employee_onboarding.suggested_answer_single'),
+            ref('sgc_employee_onboarding.suggested_answer_married'),
+            ref('sgc_employee_onboarding.suggested_answer_divorced'),
+            ref('sgc_employee_onboarding.suggested_answer_widowed')
+        ])]"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_number_of_children" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_number_of_children</field>
+        <field name="title">Number of Dependent Children</field>
+        <field name="question_type">numeric_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_nationality" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_nationality</field>
+        <field name="title">Nationality</field>
+        <field name="question_type">many2one</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_department" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_department</field>
+        <field name="title">Department</field>
+        <field name="question_type">many2one</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_job_position" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_job_position</field>
+        <field name="title">Job Position</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_work_location" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_work_location</field>
+        <field name="title">Work Location</field>
+        <field name="question_type">many2one</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_manager" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_manager</field>
+        <field name="title">Manager</field>
+        <field name="question_type">many2one</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_employee_type" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_employee_type</field>
+        <field name="title">Employee Type</field>
+        <field name="question_type">multiple_choice</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+        <field name="suggested_answer_ids" eval="[(6, 0, [
+            ref('sgc_employee_onboarding.suggested_answer_full_time'),
+            ref('sgc_employee_onboarding.suggested_answer_part_time'),
+            ref('sgc_employee_onboarding.suggested_answer_contract'),
+            ref('sgc_employee_onboarding.suggested_answer_intern')
+        ])]"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_bank_account" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_bank_account</field>
+        <field name="title">Bank Account</field>
+        <field name="question_type">many2one</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_passport_number" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_passport_number</field>
+        <field name="title">Passport Number</field
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_visa_number" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_visa_number</field>
+        <field name="title">Visa Number</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_visa_expiration" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_visa_expiration</field>
+        <field name="title">Visa Expiration Date</field>
+        <field name="question_type">date</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_visa_type" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_visa_type</field>
+        <field name="title">Visa Type</field>
+        <field name="question_type">char_box</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_skills" model="survey.question">
+        <field name="name">sgc_employee_onboarding.question_skills</field>
+        <field name="title">Skills</field>
+        <field name="question_type">many2many</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <!-- Suggested Answers for Marital Status -->
+    <record id="sgc_employee_onboarding.suggested_answer_single" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_single</field>
+        <field name="value">Single</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_marital_status"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_married" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_married</field>
+        <field name="value">Married</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_marital_status"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_divorced" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_divorced</field>
+        <field name="value">Divorced</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_marital_status"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_widowed" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_widowed</field>
+        <field name="value">Widowed</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_marital_status"/>
+    </record>
+
+    <!-- Suggested Answers for Employee Type -->
+    <record id="sgc_employee_onboarding.suggested_answer_full_time" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_full_time</field>
+        <field name="value">Full-time</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_employee_type"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_part_time" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_part_time</field>
+        <field name="value">Part-time</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_employee_type"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_contract" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_contract</field>
+        <field name="value">Contract</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_employee_type"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.suggested_answer_intern" model="survey.question.answer">
+        <field name="name">sgc_employee_onboarding.suggested_answer_intern</field>
+        <field name="value">Intern</field>
+        <field name="question_id" ref="sgc_employee_onboarding.question_employee_type"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Email template for sending onboarding survey link -->
+    <record id="email_template_employee_onboarding" model="mail.template">
+        <field name="name">Employee Onboarding Survey Link</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="subject">Your SGC Employee Onboarding Survey</field>
+        <field name="email_from">${object.company_id.partner_email or 'hr@sgctech.ai'}</field>
+        <field name="email_to">${object.work_email}</field>
+        <field name="body_html" type="html">
+            <div style="margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f5f7;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td align="center" style="padding:32px 16px;">
+                            <table role="presentation" width="100%" cellspacing="0"
+                                   cellpadding="0" style="max-width:560px;background:#ffffff;
+                                   border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                                <tr>
+                                    <td style="background:#003D5C;padding:24px 28px;">
+                                        <h2 style="color:#ffffff;margin:0;font-size:20px;">
+                                            SGC Employee Onboarding
+                                        </h2>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:28px;">
+                                        <p>Hello <b t-out="object.name"/>,</p>
+                                        <p>
+                                            Welcome to the team! As part of your onboarding we
+                                            need to collect some important information from you.
+                                        </p>
+                                        <p>
+                                            Please complete the onboarding survey using the secure link below:
+                                        </p>
+                                        <p>
+                                            <a t-att-href="object.onboarding_survey_link"
+                                               style="display:inline-block;background:#003D5C;
+                                                      color:#ffffff;padding:12px 22px;
+                                                      border-radius:6px;text-decoration:none;
+                                                      font-weight:bold;">
+                                                Start Onboarding Survey
+                                            </a>
+                                        </p>
+                                        <p t-if="object.onboarding_survey_deadline" class="muted">
+                                            This survey should be completed by
+                                            <b t-out="object.onboarding_survey_deadline"/>.
+                                        </p>
+                                        <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;"/>
+                                        <p style="color:#9ca3af;font-size:12px;">
+                                            Scholarix Global Consultants · hr@sgctech.ai
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </field>
+    </record>
+
+</odoo>
