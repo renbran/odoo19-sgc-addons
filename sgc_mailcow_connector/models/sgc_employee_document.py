@@ -132,9 +132,10 @@ class SgcEmployeeDocument(models.Model):
         "ir.attachment", string="PDF Document", readonly=True, copy=False,
         ondelete="set null")
 
-    _sql_constraints = [
-        ("name_uniq", "unique(name)", "Document number must be unique"),
-    ]
+    _name_uniq = models.Constraint(
+        "unique(name)",
+        "Document number must be unique",
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -147,7 +148,8 @@ class SgcEmployeeDocument(models.Model):
                 if emp:
                     for fname in SNAPSHOT_FIELDS:
                         if fname not in vals:
-                            vals[fname] = emp[fname]
+                            source = "name" if fname == "employee_name" else fname
+                            vals[fname] = emp[source]
         return super().create(vals_list)
 
     def action_store_pdf(self):

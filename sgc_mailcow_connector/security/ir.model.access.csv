@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_mailcow_mailbox_system,mailcow.mailbox.system,model_mailcow_mailbox,base.group_system,1,1,1,1
 access_mailcow_mailbox_hr_manager,mailcow.mailbox.hr.manager,model_mailcow_mailbox,hr.group_hr_manager,1,0,0,0
-access_sgc_employee_document_officer,sgc.employee.document.officer,model_sgc_employee_document,hr.group_hr_officer,1,1,1,1
-access_sgc_employee_document_hr_user,sgc.employee.document.hr.user,model_sgc_employee_document,hr.group_hr_user,1,0,0,0
+access_sgc_employee_document_officer,sgc.employee.document.officer,model_sgc_employee_document,hr.group_hr_user,1,1,1,1
 access_sgc_employee_document_employee,sgc.employee.document.employee,model_sgc_employee_document,base.group_user,1,0,0,0
