@@ -116,6 +116,50 @@ class HrEmployee(models.Model):
         for rec in self:
             rec.mailcow_mailbox_count = counts.get(rec, 0)
 
+    sgc_employee_document_ids = fields.One2many(
+        "sgc.employee.document", "employee_id", string="Documents")
+    sgc_employee_document_count = fields.Integer(
+        compute="_compute_sgc_employee_document_count")
+
+    def _compute_sgc_employee_document_count(self):
+        counts = dict(self.env["sgc.employee.document"]._read_group(
+            [("employee_id", "in", self.ids)],
+            groupby=["employee_id"], aggregates=["__count"]))
+        for rec in self:
+            rec.sgc_employee_document_count = counts.get(rec, 0)
+
+    def action_open_employee_documents(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Documents",
+            "res_model": "sgc.employee.document",
+            "view_mode": "list,form",
+            "domain": [("employee_id", "=", self.id)],
+        }
+
+    def action_new_document_nda(self):
+        return self._new_employee_document("nda")
+
+    def action_new_document_warning_letter(self):
+        return self._new_employee_document("warning_letter")
+
+    def action_new_document_asset_handover(self):
+        return self._new_employee_document("asset_handover")
+
+    def _new_employee_document(self, doc_type):
+        self.ensure_one()
+        document = self.env["sgc.employee.document"].create({
+            "doc_type": doc_type,
+            "employee_id": self.id,
+        })
+        return {
+            "type": "ir.actions.act_window",
+            "res_model": "sgc.employee.document",
+            "res_id": document.id,
+            "view_mode": "form",
+        }
+
     def action_open_mailcow_mailboxes(self):
         self.ensure_one()
         action = {

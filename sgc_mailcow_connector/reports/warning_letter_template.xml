@@ -3,8 +3,7 @@
     <template id="report_warning_letter">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-set="emp" t-value="o"/>
-                <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
                     <div class="page sgc-warning-letter-report">
@@ -107,11 +106,11 @@
                         <table class="sgc-meta">
                             <tr>
                                 <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
-                                <td><span class="sgc-label">To</span><span class="sgc-value" t-esc="emp.name"/></td>
-                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                                <td><span class="sgc-label">To</span><span class="sgc-value" t-esc="o.employee_name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
                                 <td/>
                                 <td/>
                             </tr>
@@ -128,7 +127,7 @@
                                 <li>Inadequate communication and collaboration with team members</li>
                             </ul>
 
-                            <p>You are hereby given a period of <span t-esc="emp.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
+                            <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
 
                             <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
 
@@ -140,7 +139,7 @@
                                 <tr>
                                     <td style="width: 50%;">
                                         <p class="sgc-sign-text">Sincerely,</p>
-                                        <p class="sgc-sign-text"><strong t-esc="emp.warning_letter_supervisor.name or 'Manager Name'"/><br/>[Manager Position]<br/>SGC TECH AI</p>
+                                        <p class="sgc-sign-text"><strong t-esc="o.warning_letter_supervisor_id.name or 'Manager Name'"/><br/>[Manager Position]<br/>SGC TECH AI</p>
                                         <div class="sgc-rule-line"></div>
                                         <span class="sgc-rule-caption">Signature</span>
                                     </td>

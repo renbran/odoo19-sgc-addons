@@ -3,8 +3,7 @@
     <template id="report_nda">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-set="emp" t-value="o"/>
-                <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
                     <div class="page sgc-nda-report">
@@ -101,24 +100,24 @@
                         <table class="sgc-meta">
                             <tr>
                                 <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
-                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="emp.name"/></td>
-                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="o.employee_name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
-                                <td><span class="sgc-label">NDA Version</span><span class="sgc-value"><t t-if="emp.nda_version" t-esc="emp.nda_version"/><t t-else="">-</t></span></td>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
+                                <td><span class="sgc-label">NDA Version</span><span class="sgc-value"><t t-if="o.nda_version" t-esc="o.nda_version"/><t t-else="">-</t></span></td>
                                 <td/>
                             </tr>
                         </table>
 
                         <div>
-                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="doc_date"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="emp.name"/>, an employee of the Company ("Employee").</p>
+                            <p>This Non-Disclosure Agreement ("Agreement") is entered into as of <span t-esc="doc_date"/> (the "Effective Date") by and between <span t-esc="company.name"/>, with its principal place of business at <span t-esc="company.street"/>, <span t-esc="company.city"/>, <span t-esc="company.state_id.name"/> <span t-esc="company.country_id.name"/> ("Company"), and <span t-esc="o.employee_name"/>, an employee of the Company ("Employee").</p>
 
                             <p class="sgc-clause"><strong>1. DEFINITION OF CONFIDENTIAL INFORMATION</strong> "Confidential Information" means all non-public information disclosed by the Company to the Employee, whether oral or written, that is designated as confidential or that reasonably should be understood to be confidential given the nature of the information and the circumstances of disclosure.</p>
 
                             <p class="sgc-clause"><strong>2. OBLIGATIONS OF EMPLOYEE</strong> Employee agrees to hold and maintain the Confidential Information in strictest confidence and to not disclose such Confidential Information to any third party without the prior written consent of the Company.</p>
 
-                            <p class="sgc-clause"><strong>3. TERM</strong> The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="emp.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
+                            <p class="sgc-clause"><strong>3. TERM</strong> The obligations of this Agreement shall commence on the Effective Date and shall continue until <span t-esc="o.nda_duration_years or 2"/> years after the Employee's termination of employment with the Company.</p>
 
                             <p class="sgc-clause"><strong>4. RETURN OF MATERIALS</strong> Upon termination of employment or upon the Company's request, Employee shall promptly return all Confidential Information in tangible form and destroy all electronic copies.</p>
 
@@ -144,7 +143,7 @@
                                         <p class="sgc-sign-text">By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
                                         <div class="sgc-rule-line"></div>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name: <span t-esc="emp.name"/></p>
+                                        <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
                                         <div class="sgc-rule-line"></div>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>

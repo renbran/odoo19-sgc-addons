@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sgc_employee_document_view_list" model="ir.ui.view">
+        <field name="name">sgc.employee.document.list</field>
+        <field name="model">sgc.employee.document</field>
+        <field name="arch" type="xml">
+            <list string="Employee Documents">
+                <field name="name"/>
+                <field name="doc_type"/>
+                <field name="employee_id"/>
+                <field name="date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'sent'"
+                       decoration-success="state == 'signed'"/>
+                <field name="pdf_attachment_id" string="PDF" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sgc_employee_document_view_form" model="ir.ui.view">
+        <field name="name">sgc.employee.document.form</field>
+        <field name="model">sgc.employee.document</field>
+        <field name="arch" type="xml">
+            <form string="Employee Document">
+                <header>
+                    <button name="action_store_pdf" type="object"
+                            string="Store PDF" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,sent,signed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="doc_type"/>
+                            <field name="employee_id"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <field name="pdf_attachment_id" widget="binary"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="NDA" name="nda_data"
+                              invisible="doc_type != 'nda'">
+                            <group>
+                                <field name="employee_name"/>
+                                <field name="job_title"/>
+                                <field name="department_id"/>
+                                <field name="nda_version"/>
+                                <field name="nda_duration_years"/>
+                            </group>
+                        </page>
+                        <page string="Warning Letter" name="warning_data"
+                              invisible="doc_type != 'warning_letter'">
+                            <group>
+                                <field name="employee_name"/>
+                                <field name="job_title"/>
+                                <field name="department_id"/>
+                                <field name="warning_letter_supervisor_id"/>
+                                <field name="warning_letter_improvement_period"/>
+                            </group>
+                        </page>
+                        <page string="Asset Handover" name="handover_data"
+                              invisible="doc_type != 'asset_handover'">
+                            <group>
+                                <group>
+                                    <field name="employee_name"/>
+                                    <field name="job_title"/>
+                                    <field name="department_id"/>
+                                    <field name="last_working_day"/>
+                                </group>
+                            </group>
+                            <group string="Laptop">
+                                <field name="laptop_id"/>
+                                <field name="laptop_condition"/>
+                                <field name="laptop_issued_date"/>
+                                <field name="laptop_returned_date"/>
+                                <field name="laptop_remarks"/>
+                            </group>
+                            <group string="Mobile Phone">
+                                <field name="mobile_id"/>
+                                <field name="mobile_condition"/>
+                                <field name="mobile_issued_date"/>
+                                <field name="mobile_returned_date"/>
+                                <field name="mobile_remarks"/>
+                            </group>
+                            <group string="Tablet/iPad">
+                                <field name="tablet_id"/>
+                                <field name="tablet_condition"/>
+                                <field name="tablet_issued_date"/>
+                                <field name="tablet_returned_date"/>
+                                <field name="tablet_remarks"/>
+                            </group>
+                            <group string="Access Card">
+                                <field name="access_card_id"/>
+                                <field name="access_card_condition"/>
+                                <field name="access_card_issued_date"/>
+                                <field name="access_card_returned_date"/>
+                                <field name="access_card_remarks"/>
+                            </group>
+                            <group string="Key">
+                                <field name="key_id"/>
+                                <field name="key_condition"/>
+                                <field name="key_issued_date"/>
+                                <field name="key_returned_date"/>
+                                <field name="key_remarks"/>
+                            </group>
+                            <group string="Monitor">
+                                <field name="monitor_id"/>
+                                <field name="monitor_condition"/>
+                                <field name="monitor_issued_date"/>
+                                <field name="monitor_returned_date"/>
+                                <field name="monitor_remarks"/>
+                            </group>
+                            <group string="Printer/Scanner">
+                                <field name="printer_id"/>
+                                <field name="printer_condition"/>
+                                <field name="printer_issued_date"/>
+                                <field name="printer_returned_date"/>
+                                <field name="printer_remarks"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sgc_employee_document" model="ir.actions.act_window">
+        <field name="name">Employee Documents</field>
+        <field name="res_model">sgc.employee.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="sgc_employee_document_view_list"/>
+    </record>
+</odoo>

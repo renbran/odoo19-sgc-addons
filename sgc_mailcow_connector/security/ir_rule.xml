@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_sgc_employee_document_own" model="ir.rule">
+        <field name="name">Employee: own documents</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+    </record>
+
+    <record id="rule_sgc_employee_document_hr_user_all" model="ir.rule">
+        <field name="name">HR User: all documents</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+
+    <record id="rule_sgc_employee_document_hr_officer_all" model="ir.rule">
+        <field name="name">HR Officer: all documents</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="groups" eval="[(4, ref('hr.group_hr_officer'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+    </record>
+</odoo>

@@ -1,6 +1,6 @@
 {
     "name": "SGC - Mailcow Connector",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Discuss",
     "summary": "Manage Mailcow mailboxes from Odoo: create, disable, sync, "
                "and auto-provision SMTP/IMAP servers for employees.",
@@ -19,16 +19,19 @@ Mailcow Connector
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
     # fetchmail.server is part of "mail" in Odoo 19 (no standalone module)
-    "depends": ["base_setup", "mail", "hr", "website_slides"],
+    "depends": ["base_setup", "mail", "hr", "portal", "website_slides"],
     "data": [
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
         "data/ir_cron.xml",
+        "data/sequences.xml",
         "data/res_users_actions.xml",
         "data/email_templates.xml",
         "data/report_actions.xml",
         "reports/warning_letter_template.xml",
         "reports/nda_template.xml",
         "reports/company_asset_handover_template.xml",
+        "views/sgc_employee_document_views.xml",
         "views/mailcow_mailbox_views.xml",
         "views/res_config_settings_views.xml",
         "views/hr_employee_views.xml",

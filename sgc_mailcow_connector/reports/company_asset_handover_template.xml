@@ -3,8 +3,7 @@
     <template id="report_company_asset_handover">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-set="emp" t-value="o"/>
-                <t t-set="company" t-value="o.company_id or res_company"/>
+                <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
                 <t t-call="web.external_layout">
                     <div class="page sgc-asset-handover-report">
@@ -138,13 +137,13 @@
                         <table class="sgc-meta">
                             <tr>
                                 <td><span class="sgc-label">Date</span><span class="sgc-value" t-esc="doc_date"/></td>
-                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="emp.name"/></td>
-                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="emp.job_title or '-'"/></td>
+                                <td><span class="sgc-label">Employee</span><span class="sgc-value" t-esc="o.employee_name"/></td>
+                                <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="emp.id"/></td>
-                                <td><span class="sgc-label">Department</span><span class="sgc-value"><t t-if="emp.department_id" t-esc="emp.department_id.name"/><t t-else="">N/A</t></span></td>
-                                <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="emp.last_working_day" t-esc="emp.last_working_day"/><t t-else="">-</t></span></td>
+                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
+                                <td><span class="sgc-label">Department</span><span class="sgc-value"><t t-if="o.department_id" t-esc="o.department_id.name"/><t t-else="">N/A</t></span></td>
+                                <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="o.last_working_day" t-esc="o.last_working_day"/><t t-else="">-</t></span></td>
                             </tr>
                         </table>
 
@@ -169,65 +168,65 @@
                                 </tr>
                                 <tr>
                                     <td>Laptop Computer</td>
-                                    <td><span t-esc="emp.laptop_id or '-'"/></td>
-                                    <td><t t-if="emp.laptop_condition" t-esc="dict(emp._fields['laptop_condition'].selection).get(emp.laptop_condition, emp.laptop_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.laptop_issued_date" t-esc="emp.laptop_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.laptop_returned_date" t-esc="emp.laptop_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.laptop_remarks or '-'"/></td>
+                                    <td><span t-esc="o.laptop_id or '-'"/></td>
+                                    <td><t t-if="o.laptop_condition" t-esc="dict(o._fields['laptop_condition'].selection).get(o.laptop_condition, o.laptop_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.laptop_issued_date" t-esc="o.laptop_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.laptop_returned_date" t-esc="o.laptop_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.laptop_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Mobile Phone</td>
-                                    <td><span t-esc="emp.mobile_id or '-'"/></td>
-                                    <td><t t-if="emp.mobile_condition" t-esc="dict(emp._fields['mobile_condition'].selection).get(emp.mobile_condition, emp.mobile_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.mobile_issued_date" t-esc="emp.mobile_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.mobile_returned_date" t-esc="emp.mobile_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.mobile_remarks or '-'"/></td>
+                                    <td><span t-esc="o.mobile_id or '-'"/></td>
+                                    <td><t t-if="o.mobile_condition" t-esc="dict(o._fields['mobile_condition'].selection).get(o.mobile_condition, o.mobile_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.mobile_issued_date" t-esc="o.mobile_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.mobile_returned_date" t-esc="o.mobile_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.mobile_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Tablet/iPad</td>
-                                    <td><span t-esc="emp.tablet_id or '-'"/></td>
-                                    <td><t t-if="emp.tablet_condition" t-esc="dict(emp._fields['tablet_condition'].selection).get(emp.tablet_condition, emp.tablet_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.tablet_issued_date" t-esc="emp.tablet_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.tablet_returned_date" t-esc="emp.tablet_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.tablet_remarks or '-'"/></td>
+                                    <td><span t-esc="o.tablet_id or '-'"/></td>
+                                    <td><t t-if="o.tablet_condition" t-esc="dict(o._fields['tablet_condition'].selection).get(o.tablet_condition, o.tablet_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.tablet_issued_date" t-esc="o.tablet_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.tablet_returned_date" t-esc="o.tablet_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.tablet_remarks or '-'"/></td>
                                 </tr>
                                 <tr class="sgc-section">
                                     <td colspan="6"><strong>ACCESS DEVICES</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Access Card/Badge</td>
-                                    <td><span t-esc="emp.access_card_id or '-'"/></td>
-                                    <td><t t-if="emp.access_card_condition" t-esc="dict(emp._fields['access_card_condition'].selection).get(emp.access_card_condition, emp.access_card_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.access_card_issued_date" t-esc="emp.access_card_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.access_card_returned_date" t-esc="emp.access_card_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.access_card_remarks or '-'"/></td>
+                                    <td><span t-esc="o.access_card_id or '-'"/></td>
+                                    <td><t t-if="o.access_card_condition" t-esc="dict(o._fields['access_card_condition'].selection).get(o.access_card_condition, o.access_card_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.access_card_issued_date" t-esc="o.access_card_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.access_card_returned_date" t-esc="o.access_card_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.access_card_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Key (Office/Building)</td>
-                                    <td><span t-esc="emp.key_id or '-'"/></td>
-                                    <td><t t-if="emp.key_condition" t-esc="dict(emp._fields['key_condition'].selection).get(emp.key_condition, emp.key_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.key_issued_date" t-esc="emp.key_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.key_returned_date" t-esc="emp.key_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.key_remarks or '-'"/></td>
+                                    <td><span t-esc="o.key_id or '-'"/></td>
+                                    <td><t t-if="o.key_condition" t-esc="dict(o._fields['key_condition'].selection).get(o.key_condition, o.key_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.key_issued_date" t-esc="o.key_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.key_returned_date" t-esc="o.key_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.key_remarks or '-'"/></td>
                                 </tr>
                                 <tr class="sgc-section">
                                     <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Monitor</td>
-                                    <td><span t-esc="emp.monitor_id or '-'"/></td>
-                                    <td><t t-if="emp.monitor_condition" t-esc="dict(emp._fields['monitor_condition'].selection).get(emp.monitor_condition, emp.monitor_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.monitor_issued_date" t-esc="emp.monitor_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.monitor_returned_date" t-esc="emp.monitor_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.monitor_remarks or '-'"/></td>
+                                    <td><span t-esc="o.monitor_id or '-'"/></td>
+                                    <td><t t-if="o.monitor_condition" t-esc="dict(o._fields['monitor_condition'].selection).get(o.monitor_condition, o.monitor_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.monitor_issued_date" t-esc="o.monitor_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.monitor_returned_date" t-esc="o.monitor_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.monitor_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Printer/Scanner</td>
-                                    <td><span t-esc="emp.printer_id or '-'"/></td>
-                                    <td><t t-if="emp.printer_condition" t-esc="dict(emp._fields['printer_condition'].selection).get(emp.printer_condition, emp.printer_condition)"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.printer_issued_date" t-esc="emp.printer_issued_date"/><t t-else="">-</t></td>
-                                    <td><t t-if="emp.printer_returned_date" t-esc="emp.printer_returned_date"/><t t-else="">-</t></td>
-                                    <td><span t-esc="emp.printer_remarks or '-'"/></td>
+                                    <td><span t-esc="o.printer_id or '-'"/></td>
+                                    <td><t t-if="o.printer_condition" t-esc="dict(o._fields['printer_condition'].selection).get(o.printer_condition, o.printer_condition)"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.printer_issued_date" t-esc="o.printer_issued_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.printer_returned_date" t-esc="o.printer_returned_date"/><t t-else="">-</t></td>
+                                    <td><span t-esc="o.printer_remarks or '-'"/></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -239,7 +238,7 @@
                                         <p class="sgc-sign-title">Received by (Employee)</p>
                                         <div class="sgc-rule-line"></div>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name: <span t-esc="emp.name"/></p>
+                                        <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
                                         <div class="sgc-rule-line"></div>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
