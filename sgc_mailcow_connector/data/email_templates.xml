@@ -1,44 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Email Template for Warning Letter -->
-    <record id="email_template_warning_letter" model="mail.template">
-        <field name="name">Warning Letter Email</field>
-        <field name="model_id" ref="hr.model_hr_employee"/>
-        <field name="subject">Warning Letter - {{ object.name }}</field>
-        <field name="body_html"><![CDATA[
-            <p>Dear {{ object.name|title }},</p>
-            <p>Please find attached your Warning Letter for your review and acknowledgment.</p>
-            <p>Please sign and return a copy to HR within 3 business days.</p>
-            <p>Best regards,</p>
-            <p>HR Department</p>
-            <p>SGC TECH AI</p>
-        ]]></field>
-    </record>
-    
     <!-- Email Template for NDA -->
     <record id="email_template_nda" model="mail.template">
         <field name="name">NDA Email</field>
-        <field name="model_id" ref="hr.model_hr_employee"/>
-        <field name="subject">Non-Disclosure Agreement - {{ object.name }}</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="subject">Non-Disclosure Agreement - {{ object.employee_name }}</field>
+        <field name="report_template_ids" eval="[(4, ref('sgc_mailcow_connector.action_report_nda'))]"/>
         <field name="body_html"><![CDATA[
-            <p>Dear {{ object.name|title }},</p>
+            <p>Dear {{ object.employee_name|title }},</p>
             <p>Please find attached your Non-Disclosure Agreement for your review and signature.</p>
-            <p>Please sign and return a copy to HR within 5 business days.</p>
+            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
             <p>Best regards,</p>
             <p>HR Department</p>
             <p>SGC TECH AI</p>
         ]]></field>
     </record>
-    
+
+    <!-- Email Template for Warning Letter -->
+    <record id="email_template_warning_letter" model="mail.template">
+        <field name="name">Warning Letter Email</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="report_template_ids" eval="[(4, ref('sgc_mailcow_connector.action_report_warning_letter'))]"/>
+        <field name="subject">Warning Letter - {{ object.employee_name }}</field>
+        <field name="body_html"><![CDATA[
+            <p>Dear {{ object.employee_name|title }},</p>
+            <p>Please find attached your Warning Letter for your review and acknowledgment.</p>
+            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
+            <p>Best regards,</p>
+            <p>HR Department</p>
+            <p>SGC TECH AI</p>
+        ]]></field>
+    </record>
+
     <!-- Email Template for Company Asset Handover -->
     <record id="email_template_company_asset_handover" model="mail.template">
         <field name="name">Company Asset Handover Email</field>
-        <field name="model_id" ref="hr.model_hr_employee"/>
-        <field name="subject">Company Asset Handover Form - {{ object.name }}</field>
+        <field name="model_id" ref="model_sgc_employee_document"/>
+        <field name="report_template_ids" eval="[(4, ref('sgc_mailcow_connector.action_report_company_asset_handover'))]"/>
+        <field name="subject">Company Asset Handover Form - {{ object.employee_name }}</field>
         <field name="body_html"><![CDATA[
-            <p>Dear {{ object.name|title }},</p>
+            <p>Dear {{ object.employee_name|title }},</p>
             <p>Please find attached the Company Asset Handover Form for your completion.</p>
-            <p>Please complete and return the form to HR along with all company property on your last working day.</p>
+            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
             <p>Best regards,</p>
             <p>HR Department</p>
             <p>SGC TECH AI</p>
