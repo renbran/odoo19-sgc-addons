@@ -17,13 +17,17 @@
                         groups="hr.group_hr_user">
                     <field name="sgc_employee_document_count" widget="statinfo" string="Documents"/>
                 </button>
-                <div class="oe_button_group" groups="hr.group_hr_user">
+            </xpath>
+            <!-- Generate actions live in the form header as a single dropdown
+                 (next to Print/Send), keeping the employee form clean and minimal. -->
+            <xpath expr="//form/header" position="inside">
+                <div class="o_dropdown_buttons" groups="hr.group_hr_user">
                     <button name="action_new_document_nda" type="object"
-                            string="Generate NDA" class="btn btn-primary oe_link_btn"/>
+                            string="Generate NDA" class="btn-primary"/>
                     <button name="action_new_document_warning_letter" type="object"
-                            string="Generate Warning Letter" class="btn btn-info oe_link_btn"/>
+                            string="Warning Letter"/>
                     <button name="action_new_document_asset_handover" type="object"
-                            string="Generate Asset Handover" class="btn btn-warning oe_link_btn"/>
+                            string="Asset Handover"/>
                 </div>
             </xpath>
             <xpath expr="//notebook" position="inside">
@@ -41,70 +45,8 @@
                         </list>
                     </field>
                 </page>
-                <page string="Documents &amp; Assets" groups="hr.group_hr_manager">
-                    <group string="Employee Information">
-                        <field name="employee_id"/>
-                    </group>
-                    <group string="Document Details">
-                        <separator string="Document Information" colspan="2"/>
-                        <field name="nda_version"/>
-                        <field name="nda_duration_years"/>
-                        <field name="warning_letter_supervisor"/>
-                        <field name="warning_letter_improvement_period"/>
-                    </group>
-                    <group string="Asset Details" colspan="2">
-                        <separator string="Electronic Devices"/>
-                        <field name="laptop_id"/>
-                        <field name="laptop_condition"/>
-                        <field name="laptop_issued_date"/>
-                        <field name="laptop_returned_date"/>
-                        <field name="laptop_remarks"/>
-                        
-                        <separator string="Mobile Devices"/>
-                        <field name="mobile_id"/>
-                        <field name="mobile_condition"/>
-                        <field name="mobile_issued_date"/>
-                        <field name="mobile_returned_date"/>
-                        <field name="mobile_remarks"/>
-                        
-                        <separator string="Tablet Devices"/>
-                        <field name="tablet_id"/>
-                        <field name="tablet_condition"/>
-                        <field name="tablet_issued_date"/>
-                        <field name="tablet_returned_date"/>
-                        <field name="tablet_remarks"/>
-                    </group>
-                    <group string="Access & Security Devices" colspan="2">
-                        <separator string="Access Devices"/>
-                        <field name="access_card_id"/>
-                        <field name="access_card_condition"/>
-                        <field name="access_card_issued_date"/>
-                        <field name="access_card_returned_date"/>
-                        <field name="access_card_remarks"/>
-                        
-                        <separator string="Keys"/>
-                        <field name="key_id"/>
-                        <field name="key_condition"/>
-                        <field name="key_issued_date"/>
-                        <field name="key_returned_date"/>
-                        <field name="key_remarks"/>
-                    </group>
-                    <group string="Peripheral Devices" colspan="2">
-                        <separator string="Monitors"/>
-                        <field name="monitor_id"/>
-                        <field name="monitor_condition"/>
-                        <field name="monitor_issued_date"/>
-                        <field name="monitor_returned_date"/>
-                        <field name="monitor_remarks"/>
-                        
-                        <separator string="Printers/Scanners"/>
-                        <field name="printer_id"/>
-                        <field name="printer_condition"/>
-                        <field name="printer_issued_date"/>
-                        <field name="printer_returned_date"/>
-                        <field name="printer_remarks"/>
-                    </group>
-                </group>
+<!-- Removed the redundant Documents &amp; Assets notebook page – all fields live on the document model –
+         this declutters the employee form for managers. -->
             </xpath>
         </field>
     </record>
