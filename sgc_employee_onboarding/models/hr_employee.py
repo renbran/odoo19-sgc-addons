@@ -193,7 +193,8 @@ class HrEmployee(models.Model):
         vals = {}
         for question_id, question_lines in answers_by_question.items():
             question = self.env['survey.question'].browse(question_id)
-            answer_value = self._extract_answer_value(question, question_lines)
+            answer_value = self._extract_answer_value(
+                question, self.env['survey.user.input.line'].concat(question_lines))
             if answer_value is None:
                 continue
             mapped = self._map_question_to_employee_field(question, answer_value)
