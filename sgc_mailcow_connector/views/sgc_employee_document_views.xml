@@ -24,8 +24,11 @@
         <field name="arch" type="xml">
             <form string="Employee Document">
                 <header>
+                    <button name="action_send" type="object"
+                            string="Send to Employee" class="btn-primary"
+                            invisible="state == 'signed'"/>
                     <button name="action_store_pdf" type="object"
-                            string="Store PDF" class="btn-primary"
+                            string="Store PDF"
                             invisible="state != 'draft'"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,sent,signed"/>
