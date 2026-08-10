@@ -8,12 +8,12 @@
                     <div class="page">
                         <h2>Pay Slip</h2>
                         <p t-field="o.name"/>
-                        <table class="table table-sm table-bordered">
+                        <table class="table table-sm table-bordered" style="table-layout: fixed; width: 100%;">
                             <colgroup>
-                                <col style="width: 15%;"/>
-                                <col style="width: 35%;"/>
-                                <col style="width: 15%;"/>
-                                <col style="width: 35%;"/>
+                                <col style="width: 12%;"/>
+                                <col style="width: 38%;"/>
+                                <col style="width: 12%;"/>
+                                <col style="width: 38%;"/>
                             </colgroup>
                             <tr>
                                 <td>
