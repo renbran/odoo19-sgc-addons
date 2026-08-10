@@ -107,7 +107,7 @@
                             <tr>
                                 <td><span class="sgc-label">Document Reference</span><span class="sgc-value" t-esc="o.name"/></td>
                                 <td><span class="sgc-label">NDA Version</span><span class="sgc-value"><t t-if="o.nda_version" t-esc="o.nda_version"/><t t-else="">-</t></span></td>
-                                <td><span class="sgc-label">Duration (Years)</span><span class="sgc-value"><t t-esc="o.nda_duration_years or 2"/></td>
+                                <td><span class="sgc-label">Duration (Years)</span><span class="sgc-value"><t t-esc="o.nda_duration_years or 2"/></span></td>
                             </tr>
                         </table>
 
