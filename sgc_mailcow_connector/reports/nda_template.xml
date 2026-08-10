@@ -90,8 +90,11 @@
                             .sgc-nda-report .sgc-sign-intro {
                                 min-height: 78px;
                             }
+                            /* 46px = two rendered lines. The company column runs
+                               Name: + Title: while the employee column runs one
+                               line, so 34px left the two DATE rules 9px apart. */
                             .sgc-nda-report .sgc-sign-mid {
-                                min-height: 34px;
+                                min-height: 46px;
                             }
                             .sgc-nda-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;

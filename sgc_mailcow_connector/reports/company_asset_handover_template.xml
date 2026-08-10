@@ -129,8 +129,11 @@
                             .sgc-asset-handover-report .sgc-sign-intro {
                                 min-height: 40px;
                             }
+                            /* 46px = two rendered lines. The company column runs
+                               Name: + Position: while the employee column runs one
+                               line, so 34px left the two DATE rules 8px apart. */
                             .sgc-asset-handover-report .sgc-sign-mid {
-                                min-height: 34px;
+                                min-height: 46px;
                             }
                             .sgc-asset-handover-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;

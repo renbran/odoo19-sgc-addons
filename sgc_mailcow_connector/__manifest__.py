@@ -1,6 +1,6 @@
 {
     "name": "SGC - Mailcow Connector",
-    "version": "19.0.1.3.2",
+    "version": "19.0.1.3.3",
     "category": "Discuss",
     "summary": "Manage Mailcow mailboxes from Odoo: create, disable, sync, "
                  "and auto-provision SMTP/IMAP servers for employees.",
