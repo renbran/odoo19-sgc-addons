@@ -247,6 +247,18 @@ class HrEmployee(models.Model):
             return lines[0].value_datetime if lines else None
         return None
 
+    @api.model
+    def _get_default_skill_level(self, skill_type):
+        """Return the first level of a skill type, creating one if the type has none."""
+        level = self.env['hr.skill.level'].search(
+            [('skill_type_id', '=', skill_type.id)], order='id', limit=1)
+        if not level:
+            level = self.env['hr.skill.level'].create({
+                'name': 'Level 1',
+                'skill_type_id': skill_type.id,
+            })
+        return level
+
     def _map_question_to_employee_field(self, question, answer_value):
         """Return the {field: value} dict to write on the employee, or {} if unmapped."""
         title = (question.title or '').strip().lower()
@@ -372,7 +384,11 @@ class HrEmployee(models.Model):
                         skill = self.env['hr.skill'].create({
                             'name': name, 'skill_type_id': skill_type.id,
                         })
-                    skill_vals.append((0, 0, {'employee_id': self.id, 'skill_id': skill.id}))
+                    skill_vals.append((0, 0, {
+                        'skill_id': skill.id,
+                        'skill_type_id': skill.skill_type_id.id,
+                        'skill_level_id': self._get_default_skill_level(skill.skill_type_id).id,
+                    }))
             if skill_vals:
                 return {'employee_skill_ids': skill_vals}
             return {}
