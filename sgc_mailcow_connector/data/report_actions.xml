@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data noupdate="0">
+        <!--
+            2026-08-10 paperformat: use sgc_report_theme_core's
+            paperformat_sgc_a4_portrait (margin_top 32, header_spacing 0,
+            side margins 0, disable_shrinking=True) - the format
+            external_layout_sgc was actually tuned against.
+
+            The previous choice, sgc_report_theme_default.paperformat_sgc_documents
+            ("SGC Documents A4"), copies stock A4's margin_top=30 /
+            header_spacing=40. With spacing larger than the top margin,
+            wkhtmltopdf pushes the header stamp clean out of its band and
+            the logo + company address render as a blank strip - verified
+            live: all three PDFs came out headerless while the footer (a
+            top-anchored stamp) was fine. It also leaves smart-shrinking
+            on, which scales every mm-based box in the theme by ~0.79.
+
+            Side margins of 0 are correct here: the SGC article div carries
+            its own gutters, exactly as it does for quotations/invoices.
+        -->
+
         <!-- Warning Letter -->
         <record id="action_report_warning_letter" model="ir.actions.report">
             <field name="name">Warning Letter</field>
@@ -10,7 +29,7 @@
             <field name="report_file">sgc_mailcow_connector.report_warning_letter</field>
             <field name="binding_model_id" ref="model_sgc_employee_document"/>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="sgc_report_theme_default.paperformat_sgc_documents"/>
+            <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
         </record>
 
         <!-- NDA -->
@@ -22,7 +41,7 @@
             <field name="report_file">sgc_mailcow_connector.report_nda</field>
             <field name="binding_model_id" ref="model_sgc_employee_document"/>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="sgc_report_theme_default.paperformat_sgc_documents"/>
+            <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
         </record>
 
         <!-- Company Asset Handover -->
@@ -34,7 +53,7 @@
             <field name="report_file">sgc_mailcow_connector.report_company_asset_handover</field>
             <field name="binding_model_id" ref="model_sgc_employee_document"/>
             <field name="binding_type">report</field>
-            <field name="paperformat_id" ref="sgc_report_theme_default.paperformat_sgc_documents"/>
+            <field name="paperformat_id" ref="sgc_report_theme_core.paperformat_sgc_a4_portrait"/>
         </record>
     </data>
 </odoo>

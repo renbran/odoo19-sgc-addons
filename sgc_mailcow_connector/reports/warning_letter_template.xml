@@ -91,6 +91,15 @@
                                 font-size: 9pt !important;
                                 color: #1C2430;
                             }
+                            /* 2026-08-10: both signature columns open with a
+                               different amount of intro text (3 lines of signatory
+                               on the left, 1 line of acknowledgement on the right),
+                               so the rule lines underneath started at different
+                               heights. Pinning one min-height makes the Signature
+                               and Date rules line up across the two columns. */
+                            .sgc-warning-letter-report .sgc-sign-intro {
+                                min-height: 58px;
+                            }
                             .sgc-warning-letter-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
                                 width: 100%;
@@ -152,15 +161,35 @@
                         <table class="sgc-sign">
                             <tbody>
                                 <tr>
+                                    <!--
+                                        2026-08-10: the signatory block used to print the
+                                        supervisor name, then their job title, then
+                                        company.name unconditionally. Supervisor records
+                                        seeded as the company itself (hr.employee id 9 is
+                                        literally named "SGC TECH AI (...)") therefore
+                                        printed the company name twice, one line apart.
+                                        sign_name / sign_company below collapse that: the
+                                        company line only renders when it says something
+                                        the name line did not.
+                                    -->
+                                    <t t-set="sign_name" t-value="o.warning_letter_supervisor_id.name if o.warning_letter_supervisor_id else company.name"/>
+                                    <t t-set="sign_role" t-value="o.warning_letter_supervisor_id.job_id.name if o.warning_letter_supervisor_id and o.warning_letter_supervisor_id.job_id else 'Manager'"/>
+                                    <t t-set="sign_company" t-value="'' if sign_name == company.name else company.name"/>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-text">Sincerely,</p>
-                                        <p class="sgc-sign-text"><strong t-esc="(o.warning_letter_supervisor_id.name if o.warning_letter_supervisor_id else 'Manager')"/><br/><t t-esc="(o.warning_letter_supervisor_id.job_id.name if o.warning_letter_supervisor_id and o.warning_letter_supervisor_id.job_id else 'Manager')"/><br/><t t-esc="company.name"/></p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-text">Sincerely,</p>
+                                            <p class="sgc-sign-text"><strong t-esc="sign_name"/><br/><t t-esc="sign_role"/><t t-if="sign_company"><br/><t t-esc="sign_company"/></t></p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
+                                        <div class="sgc-rule-line"/>
+                                        <span class="sgc-rule-caption">Date</span>
                                     </td>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-title">Employee Acknowledgement</p>
-                                        <p class="sgc-sign-text">I have received and reviewed this warning letter.</p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-title">Employee Acknowledgement</p>
+                                            <p class="sgc-sign-text">I have received and reviewed this warning letter.</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
                                         <div class="sgc-rule-line"/>

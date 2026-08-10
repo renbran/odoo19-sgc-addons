@@ -118,6 +118,15 @@
                                 font-size: 9pt !important;
                                 color: #1C2430;
                             }
+                            /* 2026-08-10: see the note on the signature table -
+                               these pin the two columns to a common rhythm so the
+                               Signature and Date rules align across them. */
+                            .sgc-asset-handover-report .sgc-sign-intro {
+                                min-height: 22px;
+                            }
+                            .sgc-asset-handover-report .sgc-sign-mid {
+                                min-height: 34px;
+                            }
                             .sgc-asset-handover-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
                                 width: 100%;
@@ -251,20 +260,35 @@
                         <table class="sgc-sign">
                             <tbody>
                                 <tr>
+                                    <!--
+                                        2026-08-10: the employee column carries one line
+                                        between the Signature and Date rules while the
+                                        company column carries two, which knocked the two
+                                        Date rules out of line. sgc-sign-intro /
+                                        sgc-sign-mid give both columns the same rhythm.
+                                    -->
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-title">Received by (Employee)</p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-title">Received by (Employee)</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
+                                        <div class="sgc-sign-mid">
+                                            <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-title">Received by (<t t-esc="company.name"/>)</p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-title">Received by (<t t-esc="company.name"/>)</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name:</p>
-                                        <p class="sgc-sign-text">Position:</p>
+                                        <div class="sgc-sign-mid">
+                                            <p class="sgc-sign-text">Name:</p>
+                                            <p class="sgc-sign-text">Position:</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>

@@ -81,6 +81,15 @@
                                 font-size: 9pt !important;
                                 color: #1C2430;
                             }
+                            /* 2026-08-10: see the note on the signature table -
+                               these pin the two columns to a common rhythm so the
+                               Signature and Date rules align across them. */
+                            .sgc-nda-report .sgc-sign-intro {
+                                min-height: 64px;
+                            }
+                            .sgc-nda-report .sgc-sign-mid {
+                                min-height: 34px;
+                            }
                             .sgc-nda-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
                                 width: 100%;
@@ -132,20 +141,38 @@
                         <table class="sgc-sign">
                             <tbody>
                                 <tr>
+                                    <!--
+                                        2026-08-10: the two columns carry different
+                                        amounts of intro and mid text, so their rule
+                                        lines landed at different heights and the left
+                                        column had no Date line at all. The shared
+                                        sgc-sign-intro / sgc-sign-mid min-heights plus a
+                                        matching Date rule keep both columns in step.
+                                    -->
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-text" t-esc="company.name"/>
-                                        <p class="sgc-sign-title">Authorized Signatory</p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-text" t-esc="company.name"/>
+                                            <p class="sgc-sign-title">Authorized Signatory</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name:</p>
-                                        <p class="sgc-sign-text">Title:</p>
+                                        <div class="sgc-sign-mid">
+                                            <p class="sgc-sign-text">Name:</p>
+                                            <p class="sgc-sign-text">Title:</p>
+                                        </div>
+                                        <div class="sgc-rule-line"/>
+                                        <span class="sgc-rule-caption">Date</span>
                                     </td>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-title">Employee Acceptance</p>
-                                        <p class="sgc-sign-text">By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
+                                        <div class="sgc-sign-intro">
+                                            <p class="sgc-sign-title">Employee Acceptance</p>
+                                            <p class="sgc-sign-text">By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
+                                        <div class="sgc-sign-mid">
+                                            <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
+                                        </div>
                                         <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
