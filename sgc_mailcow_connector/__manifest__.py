@@ -4,8 +4,7 @@
     "category": "Discuss",
     "summary": "Manage Mailcow mailboxes from Odoo: create, disable, sync, "
                  "and auto-provision SMTP/IMAP servers for employees.",
-    "description": """
-    "Mailcow Connector\n================\n- Configure the Mailcow API connection in Settings (URL, API key, defaults).\n- Create employee mailboxes in Mailcow directly from Odoo.\n- Disable / re-enable mailboxes without deleting them (mail is preserved).\n- Auto-provision the matching outgoing SMTP server and incoming IMAP\n  (fetchmail) server in Odoo, following the per-user pattern.\n- Polling sync cron keeps Odoo in step with Mailcow (Mailcow has no\n  native webhooks).\n""",
+    "description": "Mailcow Connector. Configure the Mailcow API connection in Settings (URL, API key, defaults). Create employee mailboxes in Mailcow directly from Odoo. Disable / re-enable mailboxes without deleting them (mail is preserved). Auto-provision the matching outgoing SMTP server and incoming IMAP (fetchmail) server in Odoo, following the per-user pattern. Polling sync cron keeps Odoo in step with Mailcow (Mailcow has no native webhooks).",
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
