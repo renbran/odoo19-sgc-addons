@@ -121,8 +121,13 @@
                             /* 2026-08-10: see the note on the signature table -
                                these pin the two columns to a common rhythm so the
                                Signature and Date rules align across them. */
+                            /* 40px = two rendered lines. The company column's
+                               title carries the full legal name and wraps to two
+                               lines; 22px only cleared one and let the rules drift
+                               13px apart again. min-height only lifts the SHORTER
+                               column, so this has to cover the taller one. */
                             .sgc-asset-handover-report .sgc-sign-intro {
-                                min-height: 22px;
+                                min-height: 40px;
                             }
                             .sgc-asset-handover-report .sgc-sign-mid {
                                 min-height: 34px;

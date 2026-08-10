@@ -84,8 +84,11 @@
                             /* 2026-08-10: see the note on the signature table -
                                these pin the two columns to a common rhythm so the
                                Signature and Date rules align across them. */
+                            /* 78px = the acceptance column's four rendered lines,
+                               which is the taller of the two; min-height only lifts
+                               the shorter column, so it has to clear the tall one. */
                             .sgc-nda-report .sgc-sign-intro {
-                                min-height: 64px;
+                                min-height: 78px;
                             }
                             .sgc-nda-report .sgc-sign-mid {
                                 min-height: 34px;
