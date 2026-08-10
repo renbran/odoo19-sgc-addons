@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="hr_employee_view_form_mailcow" model="ir.ui.view">
+        <field name="name">hr.employee.form.mailcow</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_mailcow_mailboxes" type="object"
+                        class="oe_stat_button" icon="fa-envelope"
+                        groups="base.group_system">
+                    <field name="mailcow_mailbox_count" widget="statinfo" string="Mailbox"/>
+                </button>
+                <button name="action_open_employee_documents" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o"
+                        groups="hr.group_hr_user">
+                    <field name="sgc_employee_document_count" widget="statinfo" string="Documents"/>
+                </button>
+            </xpath>
+            <!-- Generate actions live in the form header as a single dropdown
+                 (next to Print/Send), keeping the employee form clean and minimal. -->
+            <xpath expr="//form/header" position="inside">
+                <div class="o_dropdown_buttons" groups="hr.group_hr_user">
+                    <button name="action_new_document_nda" type="object"
+                            string="Generate NDA" class="btn-primary"/>
+                    <button name="action_new_document_warning_letter" type="object"
+                            string="Warning Letter"/>
+                    <button name="action_new_document_asset_handover" type="object"
+                            string="Asset Handover"/>
+                </div>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Documents" name="sgc_documents" groups="hr.group_hr_user">
+                    <field name="sgc_employee_document_ids"
+                            context="{'default_employee_id': id}">
+                        <list string="Documents">
+                            <field name="name"/>
+                            <field name="doc_type"/>
+                            <field name="state" widget="badge"
+                                    decoration-info="state == 'draft'"
+                                    decoration-warning="state == 'sent'"
+                                    decoration-success="state == 'signed'"/>
+                            <field name="date"/>
+                        </list>
+                    </field>
+                </page>
+<!-- Removed the redundant Documents &amp; Assets notebook page – all fields live on the document model –
+         this declutters the employee form for managers. -->
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
