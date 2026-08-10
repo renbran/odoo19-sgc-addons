@@ -8,9 +8,11 @@ def _asset_fields():
     fields_list = []
     for group in _ASSET_GROUPS:
         fields_list.append(f"{group}_id")
+        fields_list.append(f"{group}_model")
         fields_list.append(f"{group}_condition")
         fields_list.append(f"{group}_issued_date")
         fields_list.append(f"{group}_returned_date")
+        fields_list.append(f"{group}_estimated_value")
         fields_list.append(f"{group}_remarks")
     return fields_list
 
@@ -22,6 +24,8 @@ SNAPSHOT_FIELDS = [
     "last_working_day",
     "nda_version",
     "nda_duration_years",
+    "warning_letter_type",
+    "warning_letter_reason",
     "warning_letter_supervisor_id",
     "warning_letter_improvement_period",
 ] + _asset_fields()
@@ -78,73 +82,97 @@ class SgcEmployeeDocument(models.Model):
     last_working_day = fields.Date("Last Working Day", readonly=True)
     nda_version = fields.Char("NDA Version", readonly=True)
     nda_duration_years = fields.Integer("NDA Duration (Years)", readonly=True)
+    warning_letter_type = fields.Selection([
+        ("verbal", "Verbal Warning"),
+        ("first_written", "First Written Warning"),
+        ("final_written", "Final Written Warning"),
+        ("dismissal", "Notice of Dismissal"),
+    ], string="Warning Type", readonly=True)
+    warning_letter_reason = fields.Text("Reason for Warning", readonly=True)
     warning_letter_supervisor_id = fields.Many2one(
         "hr.employee", string="Supervisor", readonly=True)
     warning_letter_improvement_period = fields.Integer(
         "Improvement Period (Days)", readonly=True)
 
     laptop_id = fields.Char("Laptop ID/Serial", readonly=True)
+    laptop_model = fields.Char("Laptop Model", readonly=True)
     laptop_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Laptop Condition", readonly=True)
     laptop_issued_date = fields.Date("Laptop Issued Date", readonly=True)
     laptop_returned_date = fields.Date("Laptop Returned Date", readonly=True)
+    laptop_estimated_value = fields.Monetary("Laptop Estimated Value", readonly=True, currency_field="company_currency_id")
     laptop_remarks = fields.Text("Laptop Remarks", readonly=True)
 
     mobile_id = fields.Char("Mobile ID/Serial", readonly=True)
+    mobile_model = fields.Char("Mobile Model", readonly=True)
     mobile_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Mobile Condition", readonly=True)
     mobile_issued_date = fields.Date("Mobile Issued Date", readonly=True)
     mobile_returned_date = fields.Date("Mobile Returned Date", readonly=True)
+    mobile_estimated_value = fields.Monetary("Mobile Estimated Value", readonly=True, currency_field="company_currency_id")
     mobile_remarks = fields.Text("Mobile Remarks", readonly=True)
 
     tablet_id = fields.Char("Tablet/iPad ID/Serial", readonly=True)
+    tablet_model = fields.Char("Tablet/iPad Model", readonly=True)
     tablet_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Tablet Condition", readonly=True)
     tablet_issued_date = fields.Date("Tablet Issued Date", readonly=True)
     tablet_returned_date = fields.Date("Tablet Returned Date", readonly=True)
+    tablet_estimated_value = fields.Monetary("Tablet/iPad Estimated Value", readonly=True, currency_field="company_currency_id")
     tablet_remarks = fields.Text("Tablet Remarks", readonly=True)
 
     access_card_id = fields.Char("Access Card ID", readonly=True)
+    access_card_model = fields.Char("Access Card Type/Model", readonly=True)
     access_card_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Access Card Condition", readonly=True)
     access_card_issued_date = fields.Date("Access Card Issued Date", readonly=True)
     access_card_returned_date = fields.Date("Access Card Returned Date", readonly=True)
+    access_card_estimated_value = fields.Monetary("Access Card Estimated Value", readonly=True, currency_field="company_currency_id")
     access_card_remarks = fields.Text("Access Card Remarks", readonly=True)
 
     key_id = fields.Char("Key ID", readonly=True)
+    key_model = fields.Char("Key Type/Label", readonly=True)
     key_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Key Condition", readonly=True)
     key_issued_date = fields.Date("Key Issued Date", readonly=True)
     key_returned_date = fields.Date("Key Returned Date", readonly=True)
+    key_estimated_value = fields.Monetary("Key Estimated Value", readonly=True, currency_field="company_currency_id")
     key_remarks = fields.Text("Key Remarks", readonly=True)
 
     monitor_id = fields.Char("Monitor ID/Serial", readonly=True)
+    monitor_model = fields.Char("Monitor Model", readonly=True)
     monitor_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Monitor Condition", readonly=True)
     monitor_issued_date = fields.Date("Monitor Issued Date", readonly=True)
     monitor_returned_date = fields.Date("Monitor Returned Date", readonly=True)
+    monitor_estimated_value = fields.Monetary("Monitor Estimated Value", readonly=True, currency_field="company_currency_id")
     monitor_remarks = fields.Text("Monitor Remarks", readonly=True)
 
     printer_id = fields.Char("Printer/Scanner ID/Serial", readonly=True)
+    printer_model = fields.Char("Printer/Scanner Model", readonly=True)
     printer_condition = fields.Selection([
         ("excellent", "Excellent"), ("good", "Good"), ("fair", "Fair"),
         ("poor", "Poor"), ("damaged", "Damaged"),
     ], string="Printer/Scanner Condition", readonly=True)
     printer_issued_date = fields.Date("Printer/Scanner Issued Date", readonly=True)
     printer_returned_date = fields.Date("Printer/Scanner Returned Date", readonly=True)
+    printer_estimated_value = fields.Monetary("Printer/Scanner Estimated Value", readonly=True, currency_field="company_currency_id")
     printer_remarks = fields.Text("Printer/Scanner Remarks", readonly=True)
+
+    company_currency_id = fields.Many2one(
+        "res.currency", related="employee_id.company_id.currency_id", readonly=True)
 
     pdf_attachment_id = fields.Many2one(
         "ir.attachment", string="PDF Document", readonly=True, copy=False,

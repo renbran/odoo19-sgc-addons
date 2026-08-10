@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="o">
                 <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
-                <t t-call="web.external_layout">
+                <t t-call="sgc_report_theme_core.external_layout_sgc">
                     <div class="page sgc-asset-handover-report">
                         <style>
                             .sgc-asset-handover-report {
@@ -120,8 +120,9 @@
                             }
                             .sgc-asset-handover-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
-                                width: 70%;
+                                width: 100%;
                                 margin: 12px 0 3px 0;
+                                height: 14px;
                             }
                             .sgc-asset-handover-report .sgc-rule-caption {
                                 font-size: 7pt !important;
@@ -141,7 +142,7 @@
                                 <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
+                                <td><span class="sgc-label">Document Reference</span><span class="sgc-value" t-esc="o.name"/></td>
                                 <td><span class="sgc-label">Department</span><span class="sgc-value"><t t-if="o.department_id" t-esc="o.department_id.name"/><t t-else="">N/A</t></span></td>
                                 <td><span class="sgc-label">Last Working Day</span><span class="sgc-value"><t t-if="o.last_working_day" t-esc="o.last_working_day"/><t t-else="">-</t></span></td>
                             </tr>
@@ -154,78 +155,94 @@
                         <table class="sgc-data">
                             <thead>
                                 <tr>
-                                    <th style="width: 26%;">Item Description</th>
-                                    <th style="width: 17%;">Asset ID/Serial No.</th>
-                                    <th style="width: 14%;">Condition</th>
-                                    <th style="width: 13%;">Issued Date</th>
-                                    <th style="width: 13%;">Returned Date</th>
-                                    <th style="width: 17%;">Remarks</th>
+                                    <th style="width: 18%;">Item</th>
+                                    <th style="width: 13%;">Model / Type</th>
+                                    <th style="width: 13%;">Asset ID/Serial</th>
+                                    <th style="width: 10%;">Condition</th>
+                                    <th style="width: 10%;">Issued</th>
+                                    <th style="width: 10%;">Returned</th>
+                                    <th style="width: 11%;">Est. Value</th>
+                                    <th style="width: 15%;">Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr class="sgc-section">
-                                    <td colspan="6"><strong>ELECTRONIC DEVICES</strong></td>
+                                    <td colspan="8"><strong>ELECTRONIC DEVICES</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Laptop Computer</td>
+                                    <td><span t-esc="o.laptop_model or '-'"/></td>
                                     <td><span t-esc="o.laptop_id or '-'"/></td>
                                     <td><t t-if="o.laptop_condition" t-esc="dict(o._fields['laptop_condition'].selection).get(o.laptop_condition, o.laptop_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.laptop_issued_date" t-esc="o.laptop_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.laptop_returned_date" t-esc="o.laptop_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.laptop_estimated_value" t-esc="o.laptop_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.laptop_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Mobile Phone</td>
+                                    <td><span t-esc="o.mobile_model or '-'"/></td>
                                     <td><span t-esc="o.mobile_id or '-'"/></td>
                                     <td><t t-if="o.mobile_condition" t-esc="dict(o._fields['mobile_condition'].selection).get(o.mobile_condition, o.mobile_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.mobile_issued_date" t-esc="o.mobile_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.mobile_returned_date" t-esc="o.mobile_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.mobile_estimated_value" t-esc="o.mobile_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.mobile_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Tablet/iPad</td>
+                                    <td><span t-esc="o.tablet_model or '-'"/></td>
                                     <td><span t-esc="o.tablet_id or '-'"/></td>
                                     <td><t t-if="o.tablet_condition" t-esc="dict(o._fields['tablet_condition'].selection).get(o.tablet_condition, o.tablet_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.tablet_issued_date" t-esc="o.tablet_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.tablet_returned_date" t-esc="o.tablet_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.tablet_estimated_value" t-esc="o.tablet_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.tablet_remarks or '-'"/></td>
                                 </tr>
                                 <tr class="sgc-section">
-                                    <td colspan="6"><strong>ACCESS DEVICES</strong></td>
+                                    <td colspan="8"><strong>ACCESS DEVICES</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Access Card/Badge</td>
+                                    <td><span t-esc="o.access_card_model or '-'"/></td>
                                     <td><span t-esc="o.access_card_id or '-'"/></td>
                                     <td><t t-if="o.access_card_condition" t-esc="dict(o._fields['access_card_condition'].selection).get(o.access_card_condition, o.access_card_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.access_card_issued_date" t-esc="o.access_card_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.access_card_returned_date" t-esc="o.access_card_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.access_card_estimated_value" t-esc="o.access_card_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.access_card_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Key (Office/Building)</td>
+                                    <td><span t-esc="o.key_model or '-'"/></td>
                                     <td><span t-esc="o.key_id or '-'"/></td>
                                     <td><t t-if="o.key_condition" t-esc="dict(o._fields['key_condition'].selection).get(o.key_condition, o.key_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.key_issued_date" t-esc="o.key_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.key_returned_date" t-esc="o.key_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.key_estimated_value" t-esc="o.key_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.key_remarks or '-'"/></td>
                                 </tr>
                                 <tr class="sgc-section">
-                                    <td colspan="6"><strong>OTHER EQUIPMENT</strong></td>
+                                    <td colspan="8"><strong>OTHER EQUIPMENT</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Monitor</td>
+                                    <td><span t-esc="o.monitor_model or '-'"/></td>
                                     <td><span t-esc="o.monitor_id or '-'"/></td>
                                     <td><t t-if="o.monitor_condition" t-esc="dict(o._fields['monitor_condition'].selection).get(o.monitor_condition, o.monitor_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.monitor_issued_date" t-esc="o.monitor_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.monitor_returned_date" t-esc="o.monitor_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.monitor_estimated_value" t-esc="o.monitor_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.monitor_remarks or '-'"/></td>
                                 </tr>
                                 <tr>
                                     <td>Printer/Scanner</td>
+                                    <td><span t-esc="o.printer_model or '-'"/></td>
                                     <td><span t-esc="o.printer_id or '-'"/></td>
                                     <td><t t-if="o.printer_condition" t-esc="dict(o._fields['printer_condition'].selection).get(o.printer_condition, o.printer_condition)"/><t t-else="">-</t></td>
                                     <td><t t-if="o.printer_issued_date" t-esc="o.printer_issued_date"/><t t-else="">-</t></td>
                                     <td><t t-if="o.printer_returned_date" t-esc="o.printer_returned_date"/><t t-else="">-</t></td>
+                                    <td><t t-if="o.printer_estimated_value" t-esc="o.printer_estimated_value" t-options='{"widget": "monetary", "display_currency": o.company_currency_id}'/><t t-else="">-</t></td>
                                     <td><span t-esc="o.printer_remarks or '-'"/></td>
                                 </tr>
                             </tbody>
@@ -236,19 +253,19 @@
                                 <tr>
                                     <td style="width: 50%;">
                                         <p class="sgc-sign-title">Received by (Employee)</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
                                         <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-title">Received by (Company Representative)</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <p class="sgc-sign-title">Received by (<t t-esc="company.name"/>)</p>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
                                         <p class="sgc-sign-text">Name:</p>
                                         <p class="sgc-sign-text">Position:</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
                                 </tr>

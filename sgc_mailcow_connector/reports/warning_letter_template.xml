@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="o">
                 <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
-                <t t-call="web.external_layout">
+                <t t-call="sgc_report_theme_core.external_layout_sgc">
                     <div class="page sgc-warning-letter-report">
                         <style>
                             .sgc-warning-letter-report {
@@ -55,6 +55,10 @@
                             .sgc-warning-letter-report strong {
                                 font-weight: 600;
                             }
+                            .sgc-warning-letter-report .sgc-reason-body {
+                                white-space: pre-line;
+                                padding: 6px 0 4px 0;
+                            }
                             .sgc-warning-letter-report ul {
                                 font-size: 9pt !important;
                                 margin: 0 0 8px 0;
@@ -89,8 +93,9 @@
                             }
                             .sgc-warning-letter-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
-                                width: 70%;
+                                width: 100%;
                                 margin: 12px 0 3px 0;
+                                height: 14px;
                             }
                             .sgc-warning-letter-report .sgc-rule-caption {
                                 font-size: 7pt !important;
@@ -110,22 +115,32 @@
                                 <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
-                                <td/>
-                                <td/>
+                                <td><span class="sgc-label">Document Reference</span><span class="sgc-value" t-esc="o.name"/></td>
+                                <td><span class="sgc-label">Type</span><span class="sgc-value">
+                                    <t t-if="o.warning_letter_type" t-esc="dict(o._fields['warning_letter_type'].selection).get(o.warning_letter_type, o.warning_letter_type)"/><t t-else="">-</t>
+                                </span></td>
+                                <td><span class="sgc-label">Department</span><span class="sgc-value">
+                                    <t t-if="o.department_id" t-esc="o.department_id.name"/><t t-else="">-</t>
+                                </span></td>
                             </tr>
                         </table>
 
                         <div>
-                            <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at SGC TECH AI.</p>
+                            <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at <t t-esc="company.name"/>.</p>
 
-                            <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
-                            <ul>
-                                <li>Consistently failing to meet deadlines and performance targets</li>
-                                <li>Lack of improvement despite feedback and coaching</li>
-                                <li>Quality of work below acceptable standards</li>
-                                <li>Inadequate communication and collaboration with team members</li>
-                            </ul>
+                            <t t-if="o.warning_letter_reason">
+                                <p>The specific issues observed are as follows:</p>
+                                <div class="sgc-reason-body" t-esc="o.warning_letter_reason"/>
+                            </t>
+                            <t t-else="">
+                                <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
+                                <ul>
+                                    <li>Consistently failing to meet deadlines and performance targets</li>
+                                    <li>Lack of improvement despite feedback and coaching</li>
+                                    <li>Quality of work below acceptable standards</li>
+                                    <li>Inadequate communication and collaboration with team members</li>
+                                </ul>
+                            </t>
 
                             <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
 
@@ -139,16 +154,16 @@
                                 <tr>
                                     <td style="width: 50%;">
                                         <p class="sgc-sign-text">Sincerely,</p>
-                                        <p class="sgc-sign-text"><strong t-esc="o.warning_letter_supervisor_id.name or 'Manager Name'"/><br/>[Manager Position]<br/>SGC TECH AI</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <p class="sgc-sign-text"><strong t-esc="(o.warning_letter_supervisor_id.name if o.warning_letter_supervisor_id else 'Manager')"/><br/><t t-esc="(o.warning_letter_supervisor_id.job_id.name if o.warning_letter_supervisor_id and o.warning_letter_supervisor_id.job_id else 'Manager')"/><br/><t t-esc="company.name"/></p>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
                                     </td>
                                     <td style="width: 50%;">
                                         <p class="sgc-sign-title">Employee Acknowledgement</p>
                                         <p class="sgc-sign-text">I have received and reviewed this warning letter.</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
                                 </tr>

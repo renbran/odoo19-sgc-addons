@@ -61,11 +61,20 @@
                         <page string="Warning Letter" name="warning_data"
                               invisible="doc_type != 'warning_letter'">
                             <group>
-                                <field name="employee_name"/>
-                                <field name="job_title"/>
-                                <field name="department_id"/>
-                                <field name="warning_letter_supervisor_id"/>
-                                <field name="warning_letter_improvement_period"/>
+                                <group string="Employee Snapshot">
+                                    <field name="employee_name"/>
+                                    <field name="job_title"/>
+                                    <field name="department_id"/>
+                                </group>
+                                <group string="Warning Details">
+                                    <field name="warning_letter_type"/>
+                                    <field name="warning_letter_supervisor_id"/>
+                                    <field name="warning_letter_improvement_period"/>
+                                </group>
+                            </group>
+                            <group string="Reason for Warning">
+                                <field name="warning_letter_reason" nolabel="1"
+                                       placeholder="Snapshot of the reason entered on the employee record at issuance time"/>
                             </group>
                         </page>
                         <page string="Asset Handover" name="handover_data"
@@ -80,51 +89,65 @@
                             </group>
                             <group string="Laptop">
                                 <field name="laptop_id"/>
+                                <field name="laptop_model"/>
                                 <field name="laptop_condition"/>
                                 <field name="laptop_issued_date"/>
                                 <field name="laptop_returned_date"/>
+                                <field name="laptop_estimated_value"/>
                                 <field name="laptop_remarks"/>
                             </group>
                             <group string="Mobile Phone">
                                 <field name="mobile_id"/>
+                                <field name="mobile_model"/>
                                 <field name="mobile_condition"/>
                                 <field name="mobile_issued_date"/>
                                 <field name="mobile_returned_date"/>
+                                <field name="mobile_estimated_value"/>
                                 <field name="mobile_remarks"/>
                             </group>
                             <group string="Tablet/iPad">
                                 <field name="tablet_id"/>
+                                <field name="tablet_model"/>
                                 <field name="tablet_condition"/>
                                 <field name="tablet_issued_date"/>
                                 <field name="tablet_returned_date"/>
+                                <field name="tablet_estimated_value"/>
                                 <field name="tablet_remarks"/>
                             </group>
                             <group string="Access Card">
                                 <field name="access_card_id"/>
+                                <field name="access_card_model"/>
                                 <field name="access_card_condition"/>
                                 <field name="access_card_issued_date"/>
                                 <field name="access_card_returned_date"/>
+                                <field name="access_card_estimated_value"/>
                                 <field name="access_card_remarks"/>
                             </group>
                             <group string="Key">
                                 <field name="key_id"/>
+                                <field name="key_model"/>
                                 <field name="key_condition"/>
                                 <field name="key_issued_date"/>
                                 <field name="key_returned_date"/>
+                                <field name="key_estimated_value"/>
                                 <field name="key_remarks"/>
                             </group>
                             <group string="Monitor">
                                 <field name="monitor_id"/>
+                                <field name="monitor_model"/>
                                 <field name="monitor_condition"/>
                                 <field name="monitor_issued_date"/>
                                 <field name="monitor_returned_date"/>
+                                <field name="monitor_estimated_value"/>
                                 <field name="monitor_remarks"/>
                             </group>
                             <group string="Printer/Scanner">
                                 <field name="printer_id"/>
+                                <field name="printer_model"/>
                                 <field name="printer_condition"/>
                                 <field name="printer_issued_date"/>
                                 <field name="printer_returned_date"/>
+                                <field name="printer_estimated_value"/>
                                 <field name="printer_remarks"/>
                             </group>
                         </page>

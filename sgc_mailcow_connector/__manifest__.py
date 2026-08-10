@@ -1,6 +1,6 @@
 {
     "name": "SGC - Mailcow Connector",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "category": "Discuss",
     "summary": "Manage Mailcow mailboxes from Odoo: create, disable, sync, "
                  "and auto-provision SMTP/IMAP servers for employees.",
@@ -10,7 +10,17 @@
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
     # fetchmail.server is part of "mail" in Odoo 19 (no standalone module)
-    "depends": ["base_setup", "mail", "hr", "portal", "website_slides"],
+    "depends": [
+        "base_setup", "mail", "hr", "portal", "website_slides",
+        # SGC report theme core provides the wkhtmltopdf-safe external_layout_sgc
+        # that all SGC documents (statements, sales, financial, HR payroll) bridge
+        # onto. Employee docs were never bridged; depend on it so the templates
+        # can t-call it directly without inheriting the broken stock layout.
+        "sgc_report_theme_core",
+        # paperformat_sgc_documents (SGC Documents A4: margins 30/16/12/12,
+        # header_spacing 40, dpi 96) is defined here for the 3 report actions.
+        "sgc_report_theme_default",
+    ],
     "data": [
         "security/ir.model.access.csv",
         "security/ir_rule.xml",

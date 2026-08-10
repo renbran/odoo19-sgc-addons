@@ -5,7 +5,7 @@
             <t t-foreach="docs" t-as="o">
                 <t t-set="company" t-value="o.employee_id.company_id or res_company"/>
                 <t t-set="doc_date" t-value="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/>
-                <t t-call="web.external_layout">
+                <t t-call="sgc_report_theme_core.external_layout_sgc">
                     <div class="page sgc-nda-report">
                         <style>
                             .sgc-nda-report {
@@ -83,8 +83,9 @@
                             }
                             .sgc-nda-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
-                                width: 70%;
+                                width: 100%;
                                 margin: 12px 0 3px 0;
+                                height: 14px;
                             }
                             .sgc-nda-report .sgc-rule-caption {
                                 font-size: 7pt !important;
@@ -104,9 +105,9 @@
                                 <td><span class="sgc-label">Position</span><span class="sgc-value" t-esc="o.job_title or '-'"/></td>
                             </tr>
                             <tr>
-                                <td><span class="sgc-label">Employee ID</span><span class="sgc-value" t-esc="o.employee_id.id"/></td>
+                                <td><span class="sgc-label">Document Reference</span><span class="sgc-value" t-esc="o.name"/></td>
                                 <td><span class="sgc-label">NDA Version</span><span class="sgc-value"><t t-if="o.nda_version" t-esc="o.nda_version"/><t t-else="">-</t></span></td>
-                                <td/>
+                                <td><span class="sgc-label">Duration (Years)</span><span class="sgc-value"><t t-esc="o.nda_duration_years or 2"/></td>
                             </tr>
                         </table>
 
@@ -132,19 +133,20 @@
                             <tbody>
                                 <tr>
                                     <td style="width: 50%;">
-                                        <p class="sgc-sign-text">SGC TECH AI</p>
+                                        <p class="sgc-sign-text" t-esc="company.name"/>
                                         <p class="sgc-sign-title">Authorized Signatory</p>
-                                        <p class="sgc-sign-text">[Name]<br/>[Title]</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
+                                        <p class="sgc-sign-text">Name:</p>
+                                        <p class="sgc-sign-text">Title:</p>
                                     </td>
                                     <td style="width: 50%;">
                                         <p class="sgc-sign-title">Employee Acceptance</p>
                                         <p class="sgc-sign-text">By signing below, the Employee acknowledges that they have read, understood, and agree to the terms of this Non-Disclosure Agreement.</p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Signature</span>
                                         <p class="sgc-sign-text">Name: <span t-esc="o.employee_name"/></p>
-                                        <div class="sgc-rule-line"></div>
+                                        <div class="sgc-rule-line"/>
                                         <span class="sgc-rule-caption">Date</span>
                                     </td>
                                 </tr>

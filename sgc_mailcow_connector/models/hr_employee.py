@@ -10,6 +10,7 @@ class HrEmployee(models.Model):
         compute="_compute_mailcow_mailbox_count")
 
     laptop_id = fields.Char("Laptop ID/Serial", help="Laptop serial number or asset ID")
+    laptop_model = fields.Char("Laptop Model")
     laptop_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -19,9 +20,11 @@ class HrEmployee(models.Model):
     ], string="Laptop Condition")
     laptop_issued_date = fields.Date("Laptop Issued Date")
     laptop_returned_date = fields.Date("Laptop Returned Date")
+    laptop_estimated_value = fields.Monetary("Laptop Estimated Value", currency_field='company_currency_id')
     laptop_remarks = fields.Text("Laptop Remarks")
 
     mobile_id = fields.Char("Mobile ID/Serial", help="Mobile serial number or asset ID")
+    mobile_model = fields.Char("Mobile Model")
     mobile_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -31,9 +34,11 @@ class HrEmployee(models.Model):
     ], string="Mobile Condition")
     mobile_issued_date = fields.Date("Mobile Issued Date")
     mobile_returned_date = fields.Date("Mobile Returned Date")
+    mobile_estimated_value = fields.Monetary("Mobile Estimated Value", currency_field='company_currency_id')
     mobile_remarks = fields.Text("Mobile Remarks")
 
     tablet_id = fields.Char("Tablet/iPad ID/Serial", help="Tablet serial number or asset ID")
+    tablet_model = fields.Char("Tablet/iPad Model")
     tablet_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -43,9 +48,11 @@ class HrEmployee(models.Model):
     ], string="Tablet Condition")
     tablet_issued_date = fields.Date("Tablet Issued Date")
     tablet_returned_date = fields.Date("Tablet Returned Date")
+    tablet_estimated_value = fields.Monetary("Tablet/iPad Estimated Value", currency_field='company_currency_id')
     tablet_remarks = fields.Text("Tablet Remarks")
 
     access_card_id = fields.Char("Access Card ID", help="Access card ID or number")
+    access_card_model = fields.Char("Access Card Type/Model")
     access_card_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -55,9 +62,11 @@ class HrEmployee(models.Model):
     ], string="Access Card Condition")
     access_card_issued_date = fields.Date("Access Card Issued Date")
     access_card_returned_date = fields.Date("Access Card Returned Date")
+    access_card_estimated_value = fields.Monetary("Access Card Estimated Value", currency_field='company_currency_id')
     access_card_remarks = fields.Text("Access Card Remarks")
 
     key_id = fields.Char("Key ID", help="Key ID or number")
+    key_model = fields.Char("Key Type/Label")
     key_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -67,9 +76,11 @@ class HrEmployee(models.Model):
     ], string="Key Condition")
     key_issued_date = fields.Date("Key Issued Date")
     key_returned_date = fields.Date("Key Returned Date")
+    key_estimated_value = fields.Monetary("Key Estimated Value", currency_field='company_currency_id')
     key_remarks = fields.Text("Key Remarks")
 
     monitor_id = fields.Char("Monitor ID/Serial", help="Monitor serial number or asset ID")
+    monitor_model = fields.Char("Monitor Model")
     monitor_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -79,9 +90,11 @@ class HrEmployee(models.Model):
     ], string="Monitor Condition")
     monitor_issued_date = fields.Date("Monitor Issued Date")
     monitor_returned_date = fields.Date("Monitor Returned Date")
+    monitor_estimated_value = fields.Monetary("Monitor Estimated Value", currency_field='company_currency_id')
     monitor_remarks = fields.Text("Monitor Remarks")
 
     printer_id = fields.Char("Printer/Scanner ID/Serial", help="Printer serial number or asset ID")
+    printer_model = fields.Char("Printer/Scanner Model")
     printer_condition = fields.Selection([
         ('excellent', 'Excellent'),
         ('good', 'Good'),
@@ -91,10 +104,20 @@ class HrEmployee(models.Model):
     ], string="Printer/Scanner Condition")
     printer_issued_date = fields.Date("Printer/Scanner Issued Date")
     printer_returned_date = fields.Date("Printer/Scanner Returned Date")
+    printer_estimated_value = fields.Monetary("Printer/Scanner Estimated Value", currency_field='company_currency_id')
     printer_remarks = fields.Text("Printer/Scanner Remarks")
 
+    company_currency_id = fields.Many2one(
+        'res.currency', related='company_id.currency_id', readonly=True)
+
     warning_letter_date = fields.Date("Warning Letter Date")
-    warning_letter_reason = fields.Text("Warning Letter Reason")
+    warning_letter_type = fields.Selection([
+        ('verbal', 'Verbal Warning'),
+        ('first_written', 'First Written Warning'),
+        ('final_written', 'Final Written Warning'),
+        ('dismissal', 'Notice of Dismissal'),
+    ], string="Warning Type", default='first_written')
+    warning_letter_reason = fields.Text("Warning Letter Reason", required=True)
     warning_letter_supervisor = fields.Many2one('hr.employee', string="Supervisor")
     warning_letter_improvement_period = fields.Integer("Improvement Period (Days)", default=30)
     warning_letter_acknowledged = fields.Boolean("Acknowledged by Employee")

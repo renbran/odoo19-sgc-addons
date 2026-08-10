@@ -45,6 +45,87 @@
                         </list>
                     </field>
                 </page>
+                <page string="Warnings" name="sgc_warnings" groups="hr.group_hr_user">
+                    <group>
+                        <group string="Warning Letter">
+                            <field name="warning_letter_date"/>
+                            <field name="warning_letter_type"/>
+                            <field name="warning_letter_supervisor"/>
+                            <field name="warning_letter_improvement_period"/>
+                            <field name="warning_letter_reason" nolabel="1" placeholder="Free-text reason for the warning; rendered in place of hardcoded bullets on the PDF"/>
+                            <field name="warning_letter_acknowledged"/>
+                            <field name="warning_letter_acknowledged_date"
+                                   invisible="not warning_letter_acknowledged"/>
+                        </group>
+                    </group>
+                </page>
+                <page string="Assets" name="sgc_assets" groups="hr.group_hr_user">
+                    <group>
+                        <group string="Laptop">
+                            <field name="laptop_id"/>
+                            <field name="laptop_model"/>
+                            <field name="laptop_condition"/>
+                            <field name="laptop_issued_date"/>
+                            <field name="laptop_returned_date"/>
+                            <field name="laptop_estimated_value"/>
+                            <field name="laptop_remarks"/>
+                        </group>
+                        <group string="Mobile Phone">
+                            <field name="mobile_id"/>
+                            <field name="mobile_model"/>
+                            <field name="mobile_condition"/>
+                            <field name="mobile_issued_date"/>
+                            <field name="mobile_returned_date"/>
+                            <field name="mobile_estimated_value"/>
+                            <field name="mobile_remarks"/>
+                        </group>
+                        <group string="Tablet/iPad">
+                            <field name="tablet_id"/>
+                            <field name="tablet_model"/>
+                            <field name="tablet_condition"/>
+                            <field name="tablet_issued_date"/>
+                            <field name="tablet_returned_date"/>
+                            <field name="tablet_estimated_value"/>
+                            <field name="tablet_remarks"/>
+                        </group>
+                        <group string="Access Card">
+                            <field name="access_card_id"/>
+                            <field name="access_card_model"/>
+                            <field name="access_card_condition"/>
+                            <field name="access_card_issued_date"/>
+                            <field name="access_card_returned_date"/>
+                            <field name="access_card_estimated_value"/>
+                            <field name="access_card_remarks"/>
+                        </group>
+                        <group string="Key">
+                            <field name="key_id"/>
+                            <field name="key_model"/>
+                            <field name="key_condition"/>
+                            <field name="key_issued_date"/>
+                            <field name="key_returned_date"/>
+                            <field name="key_estimated_value"/>
+                            <field name="key_remarks"/>
+                        </group>
+                        <group string="Monitor">
+                            <field name="monitor_id"/>
+                            <field name="monitor_model"/>
+                            <field name="monitor_condition"/>
+                            <field name="monitor_issued_date"/>
+                            <field name="monitor_returned_date"/>
+                            <field name="monitor_estimated_value"/>
+                            <field name="monitor_remarks"/>
+                        </group>
+                        <group string="Printer/Scanner">
+                            <field name="printer_id"/>
+                            <field name="printer_model"/>
+                            <field name="printer_condition"/>
+                            <field name="printer_issued_date"/>
+                            <field name="printer_returned_date"/>
+                            <field name="printer_estimated_value"/>
+                            <field name="printer_remarks"/>
+                        </group>
+                    </group>
+                </page>
 <!-- Removed the redundant Documents &amp; Assets notebook page – all fields live on the document model –
          this declutters the employee form for managers. -->
             </xpath>
