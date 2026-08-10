@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Add onboarding fields and buttons to employee form -->
+    <!-- Add onboarding fields and buttons to the employee form -->
     <record id="hr_employee_view_form_onboarding" model="ir.ui.view">
         <field name="name">hr.employee.form.onboarding</field>
         <field name="model">hr.employee</field>
@@ -10,24 +10,25 @@
                 <button name="action_generate_onboarding_survey" type="object"
                         string="Generate Onboarding Survey"
                         class="btn-primary"
-                        groups="base.group_user"
-                        attrs="{'invisible': [('onboarding_state', '!=', 'not_started')]}"
+                        groups="hr.group_hr_user"
+                        invisible="onboarding_state != 'not_started'"
                         title="Create a new onboarding survey for this employee"/>
                 <button name="action_send_onboarding_survey" type="object"
                         string="Send Onboarding Survey"
                         class="btn-secondary"
-                        groups="base.group_user"
-                        attrs="{'invisible': [('onboarding_state', '=', 'not_started')]}"
+                        groups="hr.group_hr_user"
+                        invisible="onboarding_state == 'not_started'"
                         title="Send the onboarding survey link to the employee"/>
             </xpath>
             <xpath expr="//form/sheet/notebook" position="inside">
                 <page string="Onboarding"
                       name="onboarding_page"
-                      groups="base.group_user">
+                      groups="hr.group_hr_user">
                     <group>
                         <group>
                             <field name="onboarding_survey_link" readonly="1"
-                                   widget="url" string="Onboarding Survey Link"
+                                   widget="url"
+                                   string="Onboarding Survey Link"
                                    help="Public link for the employee to complete their onboarding survey"/>
                             <field name="onboarding_survey_deadline"
                                    string="Survey Deadline"/>

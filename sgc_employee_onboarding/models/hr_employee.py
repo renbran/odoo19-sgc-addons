@@ -1,37 +1,51 @@
 # -*- coding: utf-8 -*-
-from datetime import date, datetime
+from datetime import date
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+
 import logging
 
 _logger = logging.getLogger(__name__)
 
+
 class HrEmployee(models.Model):
     _inherit = "hr.employee"
 
-    # Survey fields
+    # Identity fields not provided by Odoo 19 core (passport/visa expiry live on hr.version)
+    visa_number = fields.Char(string="Visa Number", groups="hr.group_hr_user", tracking=True)
+    visa_type = fields.Char(string="Visa Type", groups="hr.group_hr_user", tracking=True)
+
+    # Onboarding survey fields
     onboarding_survey_id = fields.Many2one(
         'survey.survey',
         string='Onboarding Survey',
-        help='Survey template used for this employee\'s onboarding'
+        help='Survey used for this employee\'s onboarding'
     )
-    
+
     onboarding_survey_link = fields.Char(
         string='Onboarding Survey Link',
         compute='_compute_onboarding_survey_link',
         help='Public link for the employee to complete their onboarding survey'
     )
-    
+
     onboarding_survey_deadline = fields.Date(
         string='Survey Deadline',
         help='Date by which the employee should complete the onboarding survey'
     )
-    
+
     onboarding_last_submitted = fields.Datetime(
         string='Last Submission Date',
         help='When the employee last submitted their onboarding survey'
     )
-    
+
+    onboarding_last_user_input_id = fields.Many2one(
+        'survey.user_input',
+        string='Last Survey Submission',
+        readonly=True,
+        help='Technical field used to avoid processing the same submission twice'
+    )
+
     onboarding_state = fields.Selection([
         ('not_started', 'Not Started'),
         ('in_progress', 'In Progress'),
@@ -43,15 +57,10 @@ class HrEmployee(models.Model):
     def _compute_onboarding_survey_link(self):
         """Generate the public survey link for this employee"""
         for employee in self:
-            if employee.onboarding_survey_id:
-                base_url = employee.get_base_url()
-                # Use the survey's access token or create a temporary one
-                survey = employee.onboarding_survey_id
-                if survey.access_token:
-                    employee.onboarding_survey_link = f"{base_url}/survey/take/{survey.access_token}"
-                else:
-                    # Generate a token if none exists (should not happen for published surveys)
-                    employee.onboarding_survey_link = False
+            survey = employee.onboarding_survey_id
+            if survey and survey.access_token:
+                employee.onboarding_survey_link = "%s/survey/start/%s" % (
+                    employee.get_base_url(), survey.access_token)
             else:
                 employee.onboarding_survey_link = False
 
@@ -62,50 +71,36 @@ class HrEmployee(models.Model):
             if not employee.onboarding_survey_id:
                 employee.onboarding_state = 'not_started'
                 continue
-                
-            now = fields.Datetime.now()
-            
-            # Check if expired
             if employee.onboarding_survey_deadline and \
-               employee.onboarding_survey_deadline < fields.Date.context_today(employee):
+                    employee.onboarding_survey_deadline < fields.Date.context_today(employee):
                 employee.onboarding_state = 'expired'
                 continue
-                
-            # Check if completed (has submission)
             if employee.onboarding_last_submitted:
                 employee.onboarding_state = 'completed'
                 continue
-                
-            # Check if in progress (survey assigned but not submitted)
-            if employee.onboarding_survey_id:
-                employee.onboarding_state = 'in_progress'
-            else:
-                employee.onboarding_state = 'not_started'
+            employee.onboarding_state = 'in_progress'
 
     def action_generate_onboarding_survey(self):
         """Generate or regenerate the onboarding survey for this employee"""
         self.ensure_one()
-        
-        # Get or create a default onboarding survey template
+
         survey_template = self._get_default_onboarding_survey_template()
         if not survey_template:
             raise ValidationError(_("No onboarding survey template available. Please configure one first."))
-        
-        # Create a copy of the template for this employee
+
         survey_copy = survey_template.copy({
-            'title': f"{survey_template.title} - {self.name}",
-            'access_token': False,  # Will be generated when published
-            'users_login_required': False,  # Public access
-            'scoring_type': 'none',
+            'title': '%s - %s' % (survey_template.title, self.name),
+            'access_token': False,
+            'access_mode': 'public',
+            'users_login_required': False,
+            'scoring_type': 'no_scoring',
         })
-        
-        # Publish the survey to generate access token
-        if survey_copy:
-            survey_copy.action_publish()
-            
+        # Mint a fresh public access token for this employee's copy
+        survey_copy.access_token = survey_copy._get_default_access_token()
+
         self.onboarding_survey_id = survey_copy.id
         self.onboarding_state = 'in_progress'
-        
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -131,7 +126,7 @@ class HrEmployee(models.Model):
                     'sticky': True,
                 },
             }
-        
+
         if not self.onboarding_survey_id:
             return {
                 'type': 'ir.actions.client',
@@ -143,8 +138,9 @@ class HrEmployee(models.Model):
                     'sticky': True,
                 },
             }
-        
-        template = self.env.ref('sgc_employee_onboarding.email_template_employee_onboarding', raise_if_not_found=False)
+
+        template = self.env.ref('sgc_employee_onboarding.email_template_employee_onboarding',
+                                raise_if_not_found=False)
         if template:
             template.send_mail(self.id, force_send=False)
             self.message_post(
@@ -153,13 +149,12 @@ class HrEmployee(models.Model):
                 subtype_xmlid='mail.mt_note',
             )
         else:
-            # Fallback if template doesn't exist yet
             self.message_post(
                 body=_('Please send the onboarding survey link manually: %s') % self.onboarding_survey_link,
                 message_type='comment',
                 subtype_xmlid='mail.mt_note',
             )
-        
+
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
@@ -172,122 +167,221 @@ class HrEmployee(models.Model):
         }
 
     def _get_default_onboarding_survey_template(self):
-        """Get or create the default onboarding survey template"""
-        # Look for an existing template marked as default
-        template = self.env['survey.survey'].search([
-            ('title', '=', 'SGC Employee Onboarding Survey'),
-            ('is_template', '=', True)
-        ], limit=1)
-        
-        if not template:
-            # Create the default template
-            template = self._create_default_onboarding_survey_template()
-        
-        return template
-
-    def _create_default_onboarding_survey_template(self):
-        """Create the default onboarding survey template with standard fields"""
-        # This will be implemented in the data file
-        # For now, return None to indicate template should come from data XML
+        """Get the default onboarding survey template (created by the data file)"""
         return self.env['survey.survey'].search([
             ('title', '=', 'SGC Employee Onboarding Survey'),
-            ('is_template', '=', True)
         ], limit=1)
 
+    def _create_default_onboarding_survey_template(self):
+        """Legacy entry point; the template is provided by the module data file"""
+        return self._get_default_onboarding_survey_template()
+
     def _process_survey_submission(self, survey_user_input):
-        """Process a submitted survey and map answers to employee fields
-        This method will be called from the controller when a survey is submitted
-        """
+        """Process a completed survey: map answers onto the employee record."""
         self.ensure_one()
-        if not survey_user_input or survey_user_input.state != 'done':
+        if not survey_user_input or survey_user_input.state != 'done' or survey_user_input.test_entry:
             return False
-            
-        # Update last submission timestamp
-        self.onboarding_last_submitted = fields.Datetime.now()
-        
-        # Process each question and map to employee fields
-        for line in survey_user_input.user_input_line_ids:
-            question = line.question_id
-            answer_value = None
-            
-            # Extract answer based on question type
-            if question.question_type == 'char_box':
-                answer_value = line.value_char_box
-            elif question.question_type == 'text_box':
-                answer_value = line.value_text_box
-            elif question.question_type == 'date':
-                answer_value = line.value_date
-            elif question.question_type == 'datetime':
-                answer_value = line.value_datetime
-            elif question.question_type == 'multiple_choice':
-                answer_value = line.value_suggested_choice and line.value_suggested_choice.id
-            elif question.question_type == 'multiple_choice_multiple':
-                answer_value = line.value_suggested_choice_ids.ids
-            elif question.question_type == 'matrix':
-                answer_value = line.value_matrix
-            # Add more types as needed
-            
-            # Map question to employee field based on question title or tags
-            if answer_value is not None:
-                self._map_question_to_employee_field(question, answer_value)
-        
-        # Mark as completed
-        self.onboarding_state = 'completed'
-        
-        # Notify HR
-        self.message_post(
+        # Idempotency guard: never process the same submission twice
+        if self.onboarding_last_user_input_id.id == survey_user_input.id:
+            return True
+
+        lines = survey_user_input.user_input_line_ids.filtered(lambda line: not line.skipped)
+        answers_by_question = {}
+        for line in lines:
+            answers_by_question.setdefault(line.question_id.id, []).append(line)
+
+        vals = {}
+        for question_id, question_lines in answers_by_question.items():
+            question = self.env['survey.question'].browse(question_id)
+            answer_value = self._extract_answer_value(question, question_lines)
+            if answer_value is None:
+                continue
+            mapped = self._map_question_to_employee_field(question, answer_value)
+            if mapped:
+                vals.update(mapped)
+
+        employee = self.sudo()
+        if vals:
+            employee.write(vals)
+        employee.write({
+            'onboarding_last_submitted': fields.Datetime.now(),
+            'onboarding_last_user_input_id': survey_user_input.id,
+            'onboarding_state': 'completed',
+        })
+        employee.message_post(
             body=_('Employee %s has completed their onboarding survey.') % self.name,
             message_type='comment',
             subtype_xmlid='mail.mt_note',
         )
-        
         return True
 
-    def _map_question_to_employee_field(self, question, answer_value):
-        """Map a survey question answer to the appropriate employee field
-        This uses the question's title or tags to determine the target field
-        """
-        # Mapping based on question title (case-insensitive, trimmed)
-        question_title = (question.title or '').lower().strip()
-        
-        # Define mappings: question title pattern -> (field_name, conversion_function)
-        field_mappings = {
-            'work email': ('work_email', lambda x: str(x) if x else False),
-            'personal email': ('email', lambda x: str(x) if x else False),
-            'work phone': ('work_phone', lambda x: str(x) if x else False),
-            'mobile phone': ('mobile_phone', lambda x: str(x) if x else False),
-            'home phone': ('home_phone', lambda x: str(x) if x else False),
-            'emergency contact': ('emergency_contact', lambda x: str(x) if x else False),
-            'emergency phone': ('emergency_phone', lambda x: str(x) if x else False),
-            'date of birth': ('birthday', lambda x: x if isinstance(x, date) else False),
-            'marital status': ('marital', lambda x: str(x) if x else False),
-            'number of children': ('children', lambda x: int(x) if x else False),
-            'nationality': ('country_id', lambda x: x if isinstance(x, int) else False),
-            'department': ('department_id', lambda x: x if isinstance(x, int) else False),
-            'job position': ('job_title', lambda x: str(x) if x else False),
-            'work location': ('work_location_id', lambda x: x if isinstance(x, int) else False),
-            'manager': ('parent_id', lambda x: x if isinstance(x, int) else False),
-            'employee type': ('employee_type', lambda x: str(x) if x else False),
-            'bank account': ('bank_account_id', lambda x: x if isinstance(x, int) else False),
-            'passport number': ('passport_id', lambda x: str(x) if x else False),
-            'visa number': ('visa_number', lambda x: str(x) if x else False),
-            'visa expiration': ('visa_expire', lambda x: x if isinstance(x, date) else False),
-            'visa type': ('visa_type', lambda x: str(x) if x else False),
-            'skills': ('skill_ids', lambda x: [(6, 0, x)] if isinstance(x, list) else False),
-        }
-        
-        # Check for exact match first
-        for pattern, (field_name, converter) in field_mappings.items():
-            if pattern in question_title:
-                try:
-                    converted_value = converter(answer_value)
-                    if converted_value is not False:  # Only set if not explicitly False
-                        self.write({field_name: converted_value})
-                    return
-                except Exception as e:
-                    _logger.warning(f"Failed to map question '{question.title}' to field '{field_name}': {e}")
-                    return
-        
-        # If no mapping found, log for debugging
-        _logger.info(f"No field mapping found for question: '{question.title}'")
+    @api.model
+    def _extract_answer_value(self, question, lines):
+        """Extract the answer(s) for a question from its input lines (Odoo 19 answer_type)."""
+        qtype = question.question_type
+        if qtype in ('simple_choice', 'multiple_choice'):
+            answers = [
+                line.suggested_answer_id.value
+                for line in lines
+                if line.answer_type == 'suggestion' and line.suggested_answer_id
+            ]
+            if qtype == 'multiple_choice':
+                return answers or None
+            return answers[0] if answers else None
+        if qtype == 'char_box':
+            lines = lines.filtered('value_char_box')
+            return lines[0].value_char_box if lines else None
+        if qtype == 'text_box':
+            lines = lines.filtered('value_text_box')
+            return lines[0].value_text_box if lines else None
+        if qtype == 'numerical_box':
+            lines = lines.filtered(lambda line: line.value_numerical_box is not False)
+            return lines[0].value_numerical_box if lines else None
+        if qtype == 'date':
+            lines = lines.filtered('value_date')
+            return lines[0].value_date if lines else None
+        if qtype == 'datetime':
+            lines = lines.filtered('value_datetime')
+            return lines[0].value_datetime if lines else None
+        return None
 
+    def _map_question_to_employee_field(self, question, answer_value):
+        """Return the {field: value} dict to write on the employee, or {} if unmapped."""
+        title = (question.title or '').strip().lower()
+        if not title or answer_value is None:
+            return {}
+
+        # Direct char fields
+        simple_mappings = {
+            'work email': ('work_email', str),
+            'personal email': ('private_email', str),
+            'work phone': ('work_phone', str),
+            'mobile phone': ('mobile_phone', str),
+            'home phone': ('private_phone', str),
+            'emergency contact': ('emergency_contact', str),
+            'emergency phone': ('emergency_phone', str),
+            'job position': ('job_title', str),
+            'passport number': ('passport_id', str),
+            'visa number': ('visa_number', str),
+            'visa type': ('visa_type', str),
+        }
+        for pattern, (field_name, converter) in simple_mappings.items():
+            if pattern in title:
+                return {field_name: converter(answer_value).strip()}
+
+        # Date fields
+        if 'date of birth' in title:
+            return {'birthday': answer_value} if isinstance(answer_value, date) else {}
+        if 'visa expiration' in title:
+            return {'visa_expire': answer_value} if isinstance(answer_value, date) else {}
+
+        # Numeric field
+        if 'number of dependent children' in title or 'number of children' in title:
+            try:
+                return {'children': int(float(answer_value))}
+            except (TypeError, ValueError):
+                return {}
+
+        # Selection fields (answer value is the suggested answer label)
+        if 'marital status' in title:
+            marital_map = {
+                'single': 'single',
+                'married': 'married',
+                'divorced': 'divorced',
+                'widower': 'widower',
+                'widowed': 'widower',
+                'cohabitant': 'cohabitant',
+            }
+            key = str(answer_value).strip().lower()
+            for match, selection_value in marital_map.items():
+                if match in key:
+                    return {'marital': selection_value}
+            return {}
+
+        if 'employee type' in title:
+            etype_map = {
+                'employee': 'employee',
+                'worker': 'worker',
+                'student': 'student',
+                'trainee': 'trainee',
+                'intern': 'trainee',
+                'contractor': 'contractor',
+                'freelancer': 'freelance',
+                'freelance': 'freelance',
+            }
+            key = str(answer_value).strip().lower()
+            for match, selection_value in etype_map.items():
+                if match in key:
+                    return {'employee_type': selection_value}
+            return {}
+
+        # Many2one fields resolved by name lookup
+        if 'nationality' in title:
+            country = self.env['res.country'].search([('name', 'ilike', str(answer_value).strip())], limit=1)
+            return {'country_id': country.id} if country else {}
+
+        if 'department' in title:
+            department = self.env['hr.department'].search([('name', 'ilike', str(answer_value).strip())], limit=1)
+            return {'department_id': department.id} if department else {}
+
+        if 'work location' in title:
+            location = self.env['hr.work.location'].search([('name', 'ilike', str(answer_value).strip())], limit=1)
+            return {'work_location_id': location.id} if location else {}
+
+        if title == 'manager':
+            manager = self.env['hr.employee'].search(
+                [('name', 'ilike', str(answer_value).strip())], limit=1)
+            return {'parent_id': manager.id} if manager else {}
+
+        # Bank account: find or create a res.partner.bank and link it
+        if 'bank account' in title:
+            acc_number = str(answer_value).replace(' ', '').strip()
+            if not acc_number:
+                return {}
+            bank = self.env['res.partner.bank'].search([('acc_number', 'ilike', acc_number)], limit=1)
+            if not bank:
+                partner = self.work_contact_id
+                if partner:
+                    bank = self.env['res.partner.bank'].create({
+                        'acc_number': acc_number,
+                        'partner_id': partner.id,
+                    })
+            if bank:
+                return {'bank_account_ids': [(6, 0, [bank.id])]}
+            return {}
+
+        # Skills: match free text against hr.skill and create hr.employee.skill records
+        if 'skills' in title:
+            skill_vals = []
+            raw_values = answer_value if isinstance(answer_value, list) else [answer_value]
+            for raw in raw_values:
+                for name in str(raw).replace(';', ',').split(','):
+                    name = name.strip()
+                    if not name:
+                        continue
+                    skill = self.env['hr.skill'].search([('name', 'ilike', name)], limit=1)
+                    if skill:
+                        skill_vals.append((0, 0, {'employee_id': self.id, 'skill_id': skill.id}))
+            if skill_vals:
+                return {'employee_skill_ids': skill_vals}
+            return {}
+
+        _logger.info("No field mapping found for question: '%s'", question.title)
+        return {}
+
+
+class SurveyUserInput(models.Model):
+    _inherit = 'survey.user_input'
+
+    def _mark_done(self):
+        """Hook the public survey submission: auto-populate the employee record."""
+        res = super()._mark_done()
+        for user_input in self:
+            if user_input.state != 'done' or user_input.test_entry:
+                continue
+            employee = self.env['hr.employee'].sudo().search([
+                ('onboarding_survey_id', '=', user_input.survey_id.id),
+            ], limit=1)
+            if employee:
+                employee._process_survey_submission(user_input)
+        return res

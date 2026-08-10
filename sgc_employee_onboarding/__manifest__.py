@@ -24,6 +24,7 @@ Features:
     'data': [
         'security/ir.model.access.csv',
         'data/employee_onboarding_survey_template.xml',
+        'data/email_templates.xml',
         'views/hr_employee_views.xml',
     ],
     'installable': True,
