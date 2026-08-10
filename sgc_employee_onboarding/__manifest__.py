@@ -19,6 +19,7 @@ Features:
     'depends': [
         'base',
         'hr',
+        'hr_skills',
         'survey',
     ],
     'data': [
