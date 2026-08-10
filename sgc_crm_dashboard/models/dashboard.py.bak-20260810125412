@@ -158,7 +158,7 @@ class CRMDashboard(models.AbstractModel):
         ])
         moved_out_of_new_today = 0
         if new_stage_id:
-            stage_field = self.env["ir.model.fields"].sudo().search(
+            stage_field = self.env["ir.model.fields"].search(
                 [("model", "=", "crm.lead"), ("name", "=", "stage_id")], limit=1
             )
             if stage_field:
@@ -673,7 +673,7 @@ class CRMDashboard(models.AbstractModel):
             # real transitions OUT of the New stage (old stage = New) in
             # the tracked stage history, never the write_date guess.
             new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
-            stage_field = self.env["ir.model.fields"].sudo().search(
+            stage_field = self.env["ir.model.fields"].search(
                 [("model", "=", "crm.lead"), ("name", "=", "stage_id")], limit=1
             )
             moved_params = []
