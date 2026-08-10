@@ -323,8 +323,11 @@ class HrEmployee(models.Model):
             return {'country_id': country.id} if country else {}
 
         if 'department' in title:
-            department = self.env['hr.department'].search([('name', 'ilike', str(answer_value).strip())], limit=1)
-            return {'department_id': department.id} if department else {}
+            dept_name = str(answer_value).strip()
+            department = self.env['hr.department'].search([('name', '=ilike', dept_name)], limit=1)
+            if not department:
+                department = self.env['hr.department'].create({'name': dept_name})
+            return {'department_id': department.id}
 
         if 'work location' in title:
             location = self.env['hr.work.location'].search([('name', 'ilike', str(answer_value).strip())], limit=1)
@@ -352,7 +355,7 @@ class HrEmployee(models.Model):
                 return {'bank_account_ids': [(6, 0, [bank.id])]}
             return {}
 
-        # Skills: match free text against hr.skill and create hr.employee.skill records
+        # Skills: find-or-create hr.skill and create hr.employee.skill records
         if 'skills' in title:
             skill_vals = []
             raw_values = answer_value if isinstance(answer_value, list) else [answer_value]
@@ -361,9 +364,15 @@ class HrEmployee(models.Model):
                     name = name.strip()
                     if not name:
                         continue
-                    skill = self.env['hr.skill'].search([('name', 'ilike', name)], limit=1)
-                    if skill:
-                        skill_vals.append((0, 0, {'employee_id': self.id, 'skill_id': skill.id}))
+                    skill = self.env['hr.skill'].search([('name', '=ilike', name)], limit=1)
+                    if not skill:
+                        skill_type = self.env['hr.skill.type'].search([], order='id', limit=1)
+                        if not skill_type:
+                            skill_type = self.env['hr.skill.type'].create({'name': 'General'})
+                        skill = self.env['hr.skill'].create({
+                            'name': name, 'skill_type_id': skill_type.id,
+                        })
+                    skill_vals.append((0, 0, {'employee_id': self.id, 'skill_id': skill.id}))
             if skill_vals:
                 return {'employee_skill_ids': skill_vals}
             return {}
