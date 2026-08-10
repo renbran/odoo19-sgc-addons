@@ -97,8 +97,13 @@
                                so the rule lines underneath started at different
                                heights. Pinning one min-height makes the Signature
                                and Date rules line up across the two columns. */
+                            /* 72px = the signatory column at its tallest:
+                               "Sincerely," + name + role + company. Today's data
+                               suppresses the company line and needs only 58px, but
+                               a supervisor who is not the company would push past
+                               that and pull the rules out of line again. */
                             .sgc-warning-letter-report .sgc-sign-intro {
-                                min-height: 58px;
+                                min-height: 72px;
                             }
                             .sgc-warning-letter-report .sgc-rule-line {
                                 border-bottom: 1px solid #1C2430;
