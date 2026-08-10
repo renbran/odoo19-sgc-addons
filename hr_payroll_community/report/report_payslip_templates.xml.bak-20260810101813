@@ -9,12 +9,6 @@
                         <h2>Pay Slip</h2>
                         <p t-field="o.name"/>
                         <table class="table table-sm table-bordered">
-                            <colgroup>
-                                <col style="width: 15%;"/>
-                                <col style="width: 35%;"/>
-                                <col style="width: 15%;"/>
-                                <col style="width: 35%;"/>
-                            </colgroup>
                             <tr>
                                 <td>
                                     <strong>Name</strong>
