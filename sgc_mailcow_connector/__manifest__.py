@@ -1,6 +1,6 @@
 {
     "name": "SGC - Mailcow Connector",
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.3.1",
     "category": "Discuss",
     "summary": "Manage Mailcow mailboxes from Odoo: create, disable, sync, "
                  "and auto-provision SMTP/IMAP servers for employees.",
@@ -15,9 +15,14 @@
         # that all SGC documents (statements, sales, financial, HR payroll) bridge
         # onto. Employee docs were never bridged; depend on it so the templates
         # can t-call it directly without inheriting the broken stock layout.
+        # It also defines paperformat_sgc_a4_portrait, the format the layout
+        # is tuned against and the one the 3 report actions use. Do NOT swap
+        # in sgc_report_theme_default's "SGC Documents A4": its
+        # header_spacing (40) exceeds its margin_top (30), which pushes the
+        # header stamp out of its band and renders the logo/address blank.
         "sgc_report_theme_core",
-        # paperformat_sgc_documents (SGC Documents A4: margins 30/16/12/12,
-        # header_spacing 40, dpi 96) is defined here for the 3 report actions.
+        # Kept for the shared document styling the default theme installs
+        # alongside core; no paperformat is taken from it any more.
         "sgc_report_theme_default",
     ],
     "data": [
