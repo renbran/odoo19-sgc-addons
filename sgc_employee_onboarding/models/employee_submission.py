@@ -91,7 +91,6 @@ class HrEmployee(models.Model):
             })
         return level
 
-    @api.model
     def _map_question_to_employee_field(self, question, answer_value):
         """Return the {field: value} dict to write on the employee, or {} if unmapped."""
         title = (question.title or '').strip().lower()

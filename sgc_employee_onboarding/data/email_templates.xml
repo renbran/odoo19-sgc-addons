@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Email template for sending onboarding survey link -->
     <record id="email_template_employee_onboarding" model="mail.template">
         <field name="name">Employee Onboarding Survey Link</field>
         <field name="model_id" ref="hr.model_hr_employee"/>

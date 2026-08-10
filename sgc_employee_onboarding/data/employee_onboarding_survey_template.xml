@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- ============================================================
-         Default Onboarding Survey Template (Odoo 19 schema)
-         Pages and questions are both survey.question records:
-         pages have is_page=True, questions are ordered by sequence.
-         ============================================================ -->
+    <!-- Pages and questions are both survey.question records; pages have is_page=True, questions are ordered by sequence -->
     <record id="survey_employee_onboarding_template" model="survey.survey">
         <field name="title">SGC Employee Onboarding Survey</field>
         <field name="scoring_type">no_scoring</field>
