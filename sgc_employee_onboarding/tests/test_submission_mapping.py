@@ -84,6 +84,12 @@ class TestOnboardingSubmission(TransactionCase):
         self.assertEqual(len(self.employee.employee_skill_ids), 3)
 
     def test_unmapped_question_is_ignored(self):
+        # A question with no employee-field mapping must be skipped without error
+        self.env['survey.question'].create({
+            'survey_id': self.survey.id,
+            'title': 'Favorite Color',
+            'question_type': 'char_box',
+        })
         self._submit([
             ('Work Email', 'char_box', {'value_char_box': 'e2e.work@scholarixglobal.com'}),
             ('Favorite Color', 'char_box', {'value_char_box': 'Blue'}),

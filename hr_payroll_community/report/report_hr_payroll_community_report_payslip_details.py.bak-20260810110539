@@ -66,22 +66,24 @@ class ReportHrPayrollCommunityReportPayslipDetails(models.AbstractModel):
                 for rule_categ_id, line_ids in lines_dict.items():
                     rule_categories = RuleCateg.browse(rule_categ_id)
                     lines = PayslipLine.browse(line_ids)
-                    res[payslip_id].append({
-                        'rule_category': rule_categories.name,
-                        'name': rule_categories.name,
-                        'code': rule_categories.code,
-                        'level': 0,
-                        'total': sum(lines.mapped('total')),
-                    })
-                    if len(lines) > 1:
-                        for line in lines:
-                            res[payslip_id].append({
-                                'rule_category': line.name,
-                                'name': line.name,
-                                'code': line.code,
-                                'total': line.total,
-                                'level': 1
-                            })
+                    level = 0
+                    for parent in get_recursive_parent(rule_categories):
+                        res[payslip_id].append({
+                            'rule_category': parent.name,
+                            'name': parent.name,
+                            'code': parent.code,
+                            'level': level,
+                            'total': sum(lines.mapped('total')),
+                        })
+                        level += 1
+                    for line in lines:
+                        res[payslip_id].append({
+                            'rule_category': line.name,
+                            'name': line.name,
+                            'code': line.code,
+                            'total': line.total,
+                            'level': level
+                        })
         return res
 
     def get_lines_by_contribution_register(self, payslip_lines):
