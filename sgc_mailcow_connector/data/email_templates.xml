@@ -8,9 +8,9 @@
         <field name="email_to">{{ object.employee_id.work_email or object.employee_id.private_email or object.employee_id.user_id.email or '' }}</field>
         <field name="report_template_ids" eval="[(4, ref('sgc_mailcow_connector.action_report_nda'))]"/>
         <field name="body_html"><![CDATA[
-            <p>Dear {{ object.employee_name|title }},</p>
+            <p>Dear <t t-out="object.employee_name.title()"/>,</p>
             <p>Please find attached your Non-Disclosure Agreement for your review and signature.</p>
-            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
+            <p><a t-att-href="object.get_portal_url()">Click here to view and sign the document</a>.</p>
             <p>Best regards,</p>
             <p>HR Department</p>
             <p>SGC TECH AI</p>
@@ -25,9 +25,9 @@
         <field name="subject">Warning Letter - {{ object.employee_name }}</field>
         <field name="email_to">{{ object.employee_id.work_email or object.employee_id.private_email or object.employee_id.user_id.email or '' }}</field>
         <field name="body_html"><![CDATA[
-            <p>Dear {{ object.employee_name|title }},</p>
+            <p>Dear <t t-out="object.employee_name.title()"/>,</p>
             <p>Please find attached your Warning Letter for your review and acknowledgment.</p>
-            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
+            <p><a t-att-href="object.get_portal_url()">Click here to view and sign the document</a>.</p>
             <p>Best regards,</p>
             <p>HR Department</p>
             <p>SGC TECH AI</p>
@@ -42,9 +42,9 @@
         <field name="subject">Company Asset Handover Form - {{ object.employee_name }}</field>
         <field name="email_to">{{ object.employee_id.work_email or object.employee_id.private_email or object.employee_id.user_id.email or '' }}</field>
         <field name="body_html"><![CDATA[
-            <p>Dear {{ object.employee_name|title }},</p>
+            <p>Dear <t t-out="object.employee_name.title()"/>,</p>
             <p>Please find attached the Company Asset Handover Form for your completion.</p>
-            <p><a href="{{ object.get_portal_url() }}">Click here to view and sign the document</a>.</p>
+            <p><a t-att-href="object.get_portal_url()">Click here to view and sign the document</a>.</p>
             <p>Best regards,</p>
             <p>HR Department</p>
             <p>SGC TECH AI</p>
