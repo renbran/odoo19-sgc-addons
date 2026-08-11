@@ -27,17 +27,20 @@ class SGCLeaderboardController(http.Controller):
         # Week start (Monday-aligned)
         week_start = today - relativedelta(days=today.weekday())
 
-        # The ladder ranks sales/employee accounts only. Admin & system
-        # accounts — users holding the Administrator (Access Rights) or
-        # Settings groups — are excluded from the competition.
+        # The ladder ranks sales team members only: a linked hr.employee, on
+        # a crm.team. Admin & system accounts — users holding the
+        # Administrator (Access Rights) or Settings groups — are excluded
+        # from the competition even if they sit on a sales team.
         admin_group_ids = [
             env.ref('base.group_erp_manager').id,
             env.ref('base.group_system').id,
         ]
+        sales_team_user_ids = env['crm.team.member'].sudo().search([]).mapped('user_id').ids
         users = env['res.users'].sudo().search_read(
-            ['&', '&',
-             ('share', '=', False),
+            [('share', '=', False),
              ('active', '=', True),
+             ('employee_ids', '!=', False),
+             ('id', 'in', sales_team_user_ids),
              ('group_ids', 'not in', admin_group_ids)],
             ['id', 'name', 'display_name', 'image_128', 'karma'],
         )
@@ -170,17 +173,19 @@ class SGCLeaderboardController(http.Controller):
         env = request.env
         today = fields.Date.context_today(env.user)
         month_start = today.replace(day=1)
-        # Exclude admin accounts from the ranking: users holding the
-        # Administrator (Access Rights) or Settings groups do not compete.
+        # Sales team members only (linked employee, on a crm.team); admin &
+        # system accounts do not compete even if they sit on a sales team.
         admin_group_ids = [
             env.ref('base.group_erp_manager').id,
             env.ref('base.group_system').id,
         ]
+        sales_team_user_ids = env['crm.team.member'].sudo().search([]).mapped('user_id').ids
         users = env['res.users'].sudo().search_read(
-            ['&', '&',
-             ('share', '=', False),
+            [('share', '=', False),
              ('active', '=', True),
-             ('groups_id', 'not in', admin_group_ids)],
+             ('employee_ids', '!=', False),
+             ('id', 'in', sales_team_user_ids),
+             ('group_ids', 'not in', admin_group_ids)],
             ['id', 'name', 'display_name', 'karma'])
         # Sort by karma descending and take top 5
         users_sorted = sorted(users, key=lambda u: u.get('karma', 0), reverse=True)[:5]

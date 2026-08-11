@@ -897,7 +897,8 @@ class CRMDashboard(models.AbstractModel):
     @api.model
     def get_leaderboard_mini(self):
         """Compact leaderboard snippet for the dashboard: top 5 salespeople
-        by karma, with the same admin exclusion as
+        by karma, restricted to actual sales team members (a linked
+        hr.employee, on a crm.team) with the same admin exclusion as
         sgc_employee_badges' /sgc/leaderboard (Administrator / Settings
         groups don't compete), plus the current user's own rank if they
         aren't already in the top 5. Requires sgc_employee_badges (declared
@@ -909,7 +910,13 @@ class CRMDashboard(models.AbstractModel):
                 self.env.ref("base.group_system", raise_if_not_found=False),
             ) if g
         ]
-        domain = [("share", "=", False), ("active", "=", True)]
+        sales_team_user_ids = self.env["crm.team.member"].sudo().search([]).mapped("user_id").ids
+        domain = [
+            ("share", "=", False),
+            ("active", "=", True),
+            ("employee_ids", "!=", False),
+            ("id", "in", sales_team_user_ids),
+        ]
         if admin_group_ids:
             domain.append(("group_ids", "not in", admin_group_ids))
         users = self.env["res.users"].sudo().search_read(domain, ["id", "name", "karma"])
