@@ -12,18 +12,11 @@ class SgcEmployeeDocumentPortal(CustomerPortal):
         return self._document_check_access('sgc.employee.document', doc_id, access_token=access_token)
 
     @http.route(['/my/employee-documents/<int:doc_id>'], type='http', auth="public", website=True)
-    def portal_employee_document(self, doc_id, access_token=None, report_type=None, **kw):
+    def portal_employee_document(self, doc_id, access_token=None, **kw):
         try:
             doc_sudo = self._document_get_sudo(doc_id, access_token)
         except (AccessError, MissingError):
             return request.redirect('/my')
-        if report_type == 'html':
-            report_xmlid = doc_sudo._REPORT_XMLIDS.get(doc_sudo.doc_type)
-            if not report_xmlid:
-                return request.not_found()
-            report = request.env.ref(report_xmlid).sudo()
-            html, _ = report._render_qweb_html(report.report_name, doc_sudo.ids)
-            return request.make_response(html)
         values = self._get_page_view_values(doc_sudo, access_token, {'doc': doc_sudo}, 'my_employee_documents_history', False)
         return request.render('sgc_mailcow_connector.portal_employee_document', values)
 
