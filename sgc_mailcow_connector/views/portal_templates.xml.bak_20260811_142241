@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="portal_employee_document">
+            <t t-call="portal.portal_layout">
+                <t t-set="main_content">
+                    <div class="oe_content">
+                        <h1><t t-esc="doc.name"/></h1>
+                        <div class="oe_sub_title">
+                            <t t-if="doc.employee_id">
+                                <span class="o_portal_detail"><t t-esc="doc.employee_id.name"/></span>
+                            </t>
+                            <span class="o_portal_detail">Document Type: <t t-esc="doc.doc_type"/></span>
+                            <span class="o_portal_detail">Date: <t t-esc="doc.date"/></span>
+                        </div>
+                        <div class="mt-4">
+                            <iframe src="{{ doc.get_portal_url(report_type='html') }}" width="100%" height="600px" frameborder="0"></iframe>
+                        </div>
+                        <t t-if="doc._has_to_be_signed()">
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signModal">
+                                    Sign Document
+                                </button>
+                            </div>
+                            <div class="modal fade" id="signModal" tabindex="-1" role="dialog" aria-labelledby="signModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="signModalLabel">Sign Document</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <t t-call="portal.signature_form">
+                                                <t t-set="call_url" t-value="doc.get_portal_url(suffix='/sign')"/>
+                                                <t t-set="default_name" t-value="doc.employee_id.name"/>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-if="message == 'sign_ok'">
+                            <div class="alert alert-success mt-4">Document signed successfully.</div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
