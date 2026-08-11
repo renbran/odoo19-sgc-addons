@@ -18,7 +18,7 @@
     <template id="sgc_leaderboard_template" name="SGC Leaderboard">
         <t t-call="web.layout">
             <t t-set="head">
-                <link rel="stylesheet" href="/sgc_employee_badges/static/src/scss/sgc_leaderboard.scss"/>
+                <link rel="stylesheet" href="/sgc_employee_badges/static/src/scss/sgc_leaderboard.css"/>
             </t>
             <div class="o_action_manager">
                 <div class="sgc-lb">
