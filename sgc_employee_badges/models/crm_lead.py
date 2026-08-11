@@ -1,6 +1,8 @@
 from datetime import timedelta
 
-from odoo import fields, models
+from dateutil.relativedelta import relativedelta
+
+from odoo import api, fields, models
 
 # A revival only "confirms" -- and counts toward Growth Driver / the
 # leaderboard -- if real follow-up work happens within this many days.
@@ -60,3 +62,35 @@ class CrmLead(models.Model):
             )
             if has_meeting or has_win:
                 lead.x_revival_confirmed = True
+
+    @api.model
+    def _cron_award_growth_driver(self):
+        """Quarterly: whoever confirmed at least one revival in the
+        trailing 3 months gets Growth Driver. Badge cadence is quarterly
+        per design; the leaderboard's own revivals-count column (separate
+        from this badge) is what moves monthly."""
+        badge = self.env.ref('sgc_employee_badges.badge_growth_driver', raise_if_not_found=False)
+        if not badge:
+            return
+        today = fields.Date.context_today(self)
+        quarter_start = today - relativedelta(months=3)
+        self.env.cr.execute("""
+            SELECT x_revived_by_id, COUNT(*) AS cnt
+              FROM crm_lead
+             WHERE x_revival_confirmed = TRUE
+               AND x_revived_date >= %s
+               AND x_revived_by_id IS NOT NULL
+          GROUP BY x_revived_by_id
+        """, (quarter_start,))
+        BadgeUser = self.env['gamification.badge.user'].sudo()
+        for row in self.env.cr.dictfetchall():
+            if row['cnt'] < 1:
+                continue
+            already = BadgeUser.search_count([
+                ('badge_id', '=', badge.id),
+                ('user_id', '=', row['x_revived_by_id']),
+                ('create_date', '>=', quarter_start),
+            ])
+            if already:
+                continue
+            BadgeUser.create({'badge_id': badge.id, 'user_id': row['x_revived_by_id']})
