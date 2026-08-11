@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Menu entry under the existing Gamification menu -->
-    <record id="menu_sgc_leaderboard" model="ir.ui.menu">
-        <field name="name">SGC Leaderboard</field>
-        <field name="parent_id" ref="gamification.menu_gamification"/>
-        <field name="sequence">40</field>
-        <field name="action" ref="action_sgc_leaderboard"/>
-        <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
-    </record>
-
     <record id="action_sgc_leaderboard" model="ir.actions.act_url">
         <field name="name">SGC Leaderboard</field>
         <field name="url">/sgc/leaderboard</field>
         <field name="target">self</field>
+    </record>
+
+    <!-- Menu entry under the existing Gamification menu -->
+    <record id="menu_sgc_leaderboard" model="ir.ui.menu">
+        <field name="name">SGC Leaderboard</field>
+        <field name="parent_id" ref="gamification.gamification_menu"/>
+        <field name="sequence">40</field>
+        <field name="action" ref="action_sgc_leaderboard"/>
+        <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
     </record>
 
     <template id="sgc_leaderboard_template" name="SGC Leaderboard">
