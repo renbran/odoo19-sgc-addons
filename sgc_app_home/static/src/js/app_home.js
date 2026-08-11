@@ -38,7 +38,7 @@ export class SgcAppHome extends Component {
             return withMeta;
         }
         return withMeta.filter((app) => {
-            if (app.label.toLowerCase().includes(query)) {
+            if (app.name.toLowerCase().includes(query)) {
                 return true;
             }
             return app.keywords.some((keyword) => keyword.includes(query));
