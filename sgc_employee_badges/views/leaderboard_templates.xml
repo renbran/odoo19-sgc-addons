@@ -31,7 +31,7 @@
                             <div class="sgc-lb__period-label">Quarterly Period</div>
                             <div class="sgc-lb__period-value">
                                 <t t-esc="quarter_start" t-options="{'widget': 'date'}"/>
-                                &nbsp;–&nbsp;
+                                &#160;–&#160;
                                 <t t-esc="today" t-options="{'widget': 'date'}"/>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                             <div class="sgc-lb__prize-label">Prize Pool</div>
                             <div class="sgc-lb__prize-value">
                                 <t t-esc="total_prize_pool" t-options="{'widget': 'monetary', 'display_currency': False}"/>
-                                <small>&nbsp;·&nbsp;
+                                <small>&#160;·&#160;
                                     <t t-esc="podium and len(podium) or 0"/> eligible
                                 </small>
                             </div>
@@ -57,10 +57,10 @@
                                     <div class="sgc-lb__podium-medal">
                                         <t t-if="slot['rank'] == 1">&#9733;</t>
                                         <t t-elif="slot['rank'] == 2">&#9678;</t>
-                                        <t t-else>&#9671;</t>
+                                        <t t-else="">&#9671;</t>
                                     </div>
                                     <div class="sgc-lb__podium-place">
-                                        <t t-esc="slot['rank']"/><sup t-if="slot['rank'] == 1">st</sup><sup t-elif="slot['rank'] == 2">nd</sup><sup t-else>rd</sup>
+                                        <t t-esc="slot['rank']"/><sup t-if="slot['rank'] == 1">st</sup><sup t-elif="slot['rank'] == 2">nd</sup><sup t-else="">rd</sup>
                                     </div>
                                     <img class="sgc-lb__avatar"
                                          t-att-src="'data:image/png;base64,' + (slot['user']['image_128'] or '').decode('utf-8') if slot['user']['image_128'] else '/web/static/src/img/placeholder.png'"
@@ -80,7 +80,7 @@
                                     </div>
                                     <div class="sgc-lb__podium-prize">
                                         <t t-esc="slot['prize_aed']" t-options="{'widget': 'monetary', 'display_currency': False}"/>
-                                        <small>&nbsp;·&nbsp;<t t-esc="currency"/></small>
+                                        <small>&#160;·&#160;<t t-esc="currency"/></small>
                                     </div>
                                 </article>
                             </t>
