@@ -26,6 +26,7 @@ weekly/monthly challenges don't penalize a partial first week.
     "depends": ["gamification", "hr_gamification", "crm"],
     "data": [
         "data/gamification_badge_data.xml",
+        "views/leaderboard_templates.xml",
     ],
     "installable": True,
     "application": False,
