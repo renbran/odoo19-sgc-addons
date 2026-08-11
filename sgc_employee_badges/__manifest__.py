@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Employee Achievement Badges",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "summary": "72 premium navy-and-gold milestone badges for employee recognition",
     "description": """
 SGC Employee Achievement Badges
