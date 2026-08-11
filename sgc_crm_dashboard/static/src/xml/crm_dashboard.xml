@@ -298,8 +298,11 @@
                 </div>
             </div>
 
-            <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked · Revenue -->
-            <div class="row row-cols-2 row-cols-md-5 g-3 mb-4 px-3">
+            <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked ·
+                 Revenue · Leaderboard. The leaderboard tile sits beside the other
+                 score cards (row-cols-md-6, not a full-width row) so it reads as
+                 one more KPI, not an interruption. -->
+            <div class="row row-cols-2 row-cols-md-6 g-3 mb-4 px-3">
                 <div class="col">
                     <div class="card o_kpi_card o_kpi_clickable o_kpi-follow-up h-100" role="button" tabindex="0"
                          t-on-click="() => this.openRecords('kpi_follow_up')"
@@ -381,6 +384,36 @@
                                 <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
                                     <i class="fa fa-money fa-lg" style="color:#C7A23A;"/>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card o_kpi_card o_kpi_clickable o_kpi-leaderboard h-100" role="button" tabindex="0"
+                         t-on-click="() => this.openLeaderboard()"
+                         t-on-keydown="(ev) => this.onLeaderboardKeydown(ev)">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <div class="o_kpi_label">Leaderboard</div>
+                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
+                                    <i class="fa fa-trophy fa-lg" style="color:#C7A23A;"/>
+                                </div>
+                            </div>
+                            <ol class="o_lb_mini_list" t-if="state.leaderboard.top.length">
+                                <li t-foreach="state.leaderboard.top.slice(0, 3)" t-as="row" t-key="row.id"
+                                    class="o_lb_mini_row" t-att-class="{ o_lb_mini_me: row.id === state.currentUserId }">
+                                    <span class="o_lb_mini_rank" t-esc="row.rank"/>
+                                    <span class="o_lb_mini_name" t-esc="row.name"/>
+                                    <span class="o_lb_mini_score" t-esc="row.karma"/>
+                                </li>
+                            </ol>
+                            <div class="o_lb_mini_me_row" t-if="state.leaderboard.me">
+                                <span class="o_lb_mini_rank">#<t t-esc="state.leaderboard.me.rank"/></span>
+                                <span class="o_lb_mini_name">You</span>
+                                <span class="o_lb_mini_score" t-esc="state.leaderboard.me.karma"/>
+                            </div>
+                            <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;" t-if="!state.leaderboard.top.length">
+                                No ranked activity yet
                             </div>
                         </div>
                     </div>

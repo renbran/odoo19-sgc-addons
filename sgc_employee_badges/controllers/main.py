@@ -20,8 +20,10 @@ class SGCLeaderboardController(http.Controller):
         env = request.env
         today = fields.Date.context_today(env.user)
         month_start = today.replace(day=1)
+        month_end = month_start + relativedelta(months=1)
         # Quarter start: first day of the calendar quarter containing today.
         quarter_start = today.replace(day=1) - relativedelta(months=(today.month - 1) % 3)
+        quarter_end = quarter_start + relativedelta(months=3)
         # Week start (Monday-aligned)
         week_start = today - relativedelta(days=today.weekday())
 
@@ -154,9 +156,37 @@ class SGCLeaderboardController(http.Controller):
             'rows': rows,
             'today': today,
             'month_start': month_start,
+            'month_end': month_end,
             'quarter_start': quarter_start,
+            'quarter_end': quarter_end,
             'week_start': week_start,
             'total_prize_pool': total_prize_pool,
             'currency': currency,
             'current_user_id': request.env.uid,
+        })
+
+    @http.route('/sgc/leaderboard/mini', type='http', auth='user', website=True, csrf=False)
+    def leaderboard_mini(self, **kwargs):
+        env = request.env
+        today = fields.Date.context_today(env.user)
+        month_start = today.replace(day=1)
+        # Exclude admin accounts from the ranking: users holding the
+        # Administrator (Access Rights) or Settings groups do not compete.
+        admin_group_ids = [
+            env.ref('base.group_erp_manager').id,
+            env.ref('base.group_system').id,
+        ]
+        users = env['res.users'].sudo().search_read(
+            ['&', '&',
+             ('share', '=', False),
+             ('active', '=', True),
+             ('groups_id', 'not in', admin_group_ids)],
+            ['id', 'name', 'display_name', 'karma'])
+        # Sort by karma descending and take top 5
+        users_sorted = sorted(users, key=lambda u: u.get('karma', 0), reverse=True)[:5]
+        currency = env.company.currency_id
+        return request.render('sgc_employee_badges.sgc_leaderboard_mini', {
+            'users': users_sorted,
+            'currency': currency,
+            'today': today,
         })

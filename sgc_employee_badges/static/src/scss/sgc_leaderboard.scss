@@ -111,6 +111,71 @@ $sgc-shadow-gold: 0 12px 32px rgba(201, 162, 75, 0.18);
         color: $sgc-text-soft;
     }
 
+    /* -- Active Gamification Programs (hints) -------------------- */
+    &__programs {
+        margin-bottom: 32px;
+    }
+
+    &__program-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+    }
+
+    &__program-card {
+        position: relative;
+        background: white;
+        border-radius: 14px;
+        padding: 18px 20px;
+        box-shadow: $sgc-shadow;
+        border: 1px solid $sgc-line;
+
+        &--priority {
+            border-color: rgba(201, 162, 75, 0.4);
+            background: linear-gradient(160deg, white 0%, #FFF9EE 100%);
+            box-shadow: $sgc-shadow-gold;
+        }
+    }
+
+    &__program-tag {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: rgba(15, 27, 61, 0.06);
+        color: $sgc-text-soft;
+        margin-bottom: 8px;
+
+        &--priority {
+            background: $sgc-gold;
+            color: white;
+        }
+    }
+
+    &__program-name {
+        margin: 0 0 6px;
+        font-size: 15px;
+        font-weight: 700;
+        color: $sgc-navy;
+    }
+
+    &__program-desc {
+        margin: 0 0 10px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: $sgc-text-soft;
+    }
+
+    &__program-meta {
+        font-size: 11px;
+        font-weight: 600;
+        color: $sgc-navy;
+        opacity: 0.8;
+    }
+
     /* -- Podium ------------------------------------------------- */
     &__podium {
         margin-bottom: 32px;

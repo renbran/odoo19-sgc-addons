@@ -48,6 +48,57 @@
                         </div>
                     </header>
 
+                    <section class="sgc-lb__programs">
+                        <h2 class="sgc-lb__section-title">Active Gamification Programs</h2>
+                        <p class="sgc-lb__section-sub">
+                            What's running right now, and which ones carry the biggest revenue weight.
+                        </p>
+                        <div class="sgc-lb__program-grid">
+                            <article class="sgc-lb__program-card sgc-lb__program-card--priority">
+                                <span class="sgc-lb__program-tag sgc-lb__program-tag--priority">Revenue Priority</span>
+                                <h3 class="sgc-lb__program-name">Quarterly Prize Podium</h3>
+                                <p class="sgc-lb__program-desc">
+                                    Top 3 by quarter-to-date revenue split a cash prize pool. Requires at
+                                    least one closed deal this quarter to qualify.
+                                </p>
+                                <div class="sgc-lb__program-meta">
+                                    Ends <t t-esc="quarter_end" t-options="{'widget': 'date'}"/>
+                                    &#160;·&#160; Pool <t t-esc="total_prize_pool" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                                </div>
+                            </article>
+                            <article class="sgc-lb__program-card sgc-lb__program-card--priority">
+                                <span class="sgc-lb__program-tag sgc-lb__program-tag--priority">Revenue Priority</span>
+                                <h3 class="sgc-lb__program-name">Top Earner</h3>
+                                <p class="sgc-lb__program-desc">
+                                    Highest won-deal revenue this calendar month earns the Top Earner badge.
+                                </p>
+                                <div class="sgc-lb__program-meta">
+                                    Resets <t t-esc="month_end" t-options="{'widget': 'date'}"/>
+                                </div>
+                            </article>
+                            <article class="sgc-lb__program-card sgc-lb__program-card--priority">
+                                <span class="sgc-lb__program-tag sgc-lb__program-tag--priority">Revenue Priority</span>
+                                <h3 class="sgc-lb__program-name">Revenue Generator</h3>
+                                <p class="sgc-lb__program-desc">
+                                    Ongoing tiered badge — cross AED 1,000 / 50,000 / 100,000 / 150,000 /
+                                    200,000+ in cumulative won-deal revenue to climb a tier.
+                                </p>
+                                <div class="sgc-lb__program-meta">Always running</div>
+                            </article>
+                            <article class="sgc-lb__program-card">
+                                <span class="sgc-lb__program-tag">Retention</span>
+                                <h3 class="sgc-lb__program-name">Growth Driver</h3>
+                                <p class="sgc-lb__program-desc">
+                                    Confirming at least one lead revival this quarter (a real follow-up
+                                    within 14 days) earns the Growth Driver badge.
+                                </p>
+                                <div class="sgc-lb__program-meta">
+                                    Ends <t t-esc="quarter_end" t-options="{'widget': 'date'}"/>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
                     <section class="sgc-lb__podium" t-if="podium">
                         <h2 class="sgc-lb__section-title">Quarterly Sales &amp; Revenue Podium</h2>
                         <p class="sgc-lb__section-sub">

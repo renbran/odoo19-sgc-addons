@@ -31,7 +31,7 @@
     "company": "SmartClinic",
     "maintainer": "SmartClinic",
     "website": "https://sgctech.ai",
-    "depends": ["crm", "sale_management", "website"],
+    "depends": ["crm", "sale_management", "website", "sgc_employee_badges"],
     "data": [
         "security/ir.model.access.csv",
         "data/mail_templates.xml",

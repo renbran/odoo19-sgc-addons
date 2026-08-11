@@ -36,6 +36,7 @@ export class CrmDashboard extends Component {
             allUsers: [],
             selectedUserId: null,
             currentUserId: null,
+            leaderboard: { top: [], me: null },
         });
         this.chartRefs = {
             stageChart: useRef("stageChart"),
@@ -82,6 +83,14 @@ export class CrmDashboard extends Component {
             this.notification.add("Failed to load dashboard data", { type: "danger" });
         } finally {
             this.state.loading = false;
+        }
+
+        // Non-fatal: the leaderboard mini widget shouldn't break the rest
+        // of the dashboard if sgc_employee_badges data isn't available yet.
+        try {
+            this.state.leaderboard = await this.orm.call("crm.dashboard", "get_leaderboard_mini", []);
+        } catch (e) {
+            this.state.leaderboard = { top: [], me: null };
         }
 
         // Wait for OWL to re-render with data, then render charts
@@ -150,6 +159,18 @@ export class CrmDashboard extends Component {
         if (ev.key === "Enter" || ev.key === " ") {
             ev.preventDefault();
             this.openRecords(kind, params);
+        }
+    }
+
+    /** Leaderboard mini card -> full SGC Leaderboard website page. */
+    openLeaderboard() {
+        this.action.doAction({ type: "ir.actions.act_url", url: "/sgc/leaderboard", target: "self" });
+    }
+
+    onLeaderboardKeydown(ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+            ev.preventDefault();
+            this.openLeaderboard();
         }
     }
 

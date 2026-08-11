@@ -34,6 +34,12 @@ $_radius-sm: 10px;
             width: 20%;
             max-width: 20%;
         }
+
+        .row-cols-md-6 > .col {
+            flex: 0 0 auto;
+            width: 16.6667%;
+            max-width: 16.6667%;
+        }
     }
 
     .o_kpi_card {
@@ -94,6 +100,62 @@ $_radius-sm: 10px;
         &.o_kpi-activity { border-left: 4px solid $_blue-info !important; }
 
         &.o_kpi-lost { border-left: 4px solid $_coral !important; }
+        &.o_kpi-leaderboard { border-left: 4px solid $_gold !important; }
+    }
+
+    // Compact top-3 list inside the Leaderboard KPI tile - deliberately
+    // smaller than the o_kpi_value number tiles since it packs 3 rows
+    // (plus an optional "you" row) into the same card footprint.
+    .o_lb_mini_list {
+        list-style: none;
+        margin: 4px 0 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .o_lb_mini_row,
+    .o_lb_mini_me_row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.72rem;
+        line-height: 1.3;
+    }
+
+    .o_lb_mini_rank {
+        flex: 0 0 auto;
+        min-width: 16px;
+        color: $_gold;
+        font-weight: 700;
+    }
+
+    .o_lb_mini_name {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: $_text-muted;
+    }
+
+    .o_lb_mini_score {
+        flex: 0 0 auto;
+        font-weight: 700;
+        color: $_text-primary;
+    }
+
+    .o_lb_mini_row.o_lb_mini_me .o_lb_mini_name {
+        color: $_text-primary;
+        font-weight: 600;
+    }
+
+    .o_lb_mini_me_row {
+        margin-top: 4px;
+        padding-top: 4px;
+        border-top: 1px dashed $_border-soft;
+
+        .o_lb_mini_name { color: $_text-primary; font-weight: 600; }
     }
 
     .o_dash_card {
