@@ -34,10 +34,16 @@ class GamificationBadgeUser(models.Model):
         return bool(self.badge_id.challenge_ids)
 
     def _apply_karma(self):
+        # a small number of badges (e.g. Revenue Generator's revenue-tier
+        # ladder) are re-awarded repeatedly at escalating point values --
+        # the triggering challenge passes the tier's points explicitly via
+        # context rather than relying on the badge's flat point_value.
+        override = self.env.context.get('karma_points_override')
         for record in self:
-            if record.badge_id.point_value and record.user_id:
+            points = override if override is not None else record.badge_id.point_value
+            if points and record.user_id:
                 record.user_id.sudo()._add_karma(
-                    record.badge_id.point_value,
+                    points,
                     reason=_('Badge: %s', record.badge_id.name),
                 )
 
