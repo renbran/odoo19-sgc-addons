@@ -38,7 +38,7 @@
                         <div class="sgc-lb__prize">
                             <div class="sgc-lb__prize-label">Prize Pool</div>
                             <div class="sgc-lb__prize-value">
-                                <t t-esc="total_prize_pool" t-options="{'widget': 'monetary', 'display_currency': False}"/>
+                                <t t-esc="total_prize_pool" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
                                 <small>&#160;·&#160;
                                     <t t-esc="podium and len(podium) or 0"/> eligible
                                 </small>
@@ -63,7 +63,7 @@
                                         <t t-esc="slot['rank']"/><sup t-if="slot['rank'] == 1">st</sup><sup t-elif="slot['rank'] == 2">nd</sup><sup t-else="">rd</sup>
                                     </div>
                                     <img class="sgc-lb__avatar"
-                                         t-att-src="'data:image/png;base64,' + (slot['user']['image_128'] or '').decode('utf-8') if slot['user']['image_128'] else '/web/static/src/img/placeholder.png'"
+                                         t-att-src="'data:image/png;base64,' + (slot['user']['image_128'].decode('utf-8') if isinstance(slot['user']['image_128'], bytes) else slot['user']['image_128']) if slot['user']['image_128'] else '/web/static/src/img/placeholder.png'"
                                          t-att-alt="slot['user']['display_name']"/>
                                     <div class="sgc-lb__podium-name" t-esc="slot['user']['display_name']"/>
                                     <div class="sgc-lb__podium-meta">
@@ -79,8 +79,8 @@
                                         </span>
                                     </div>
                                     <div class="sgc-lb__podium-prize">
-                                        <t t-esc="slot['prize_aed']" t-options="{'widget': 'monetary', 'display_currency': False}"/>
-                                        <small>&#160;·&#160;<t t-esc="currency"/></small>
+                                        <t t-esc="slot['prize_aed']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
+                                        <small>&#160;·&#160;<t t-esc="currency.name"/></small>
                                     </div>
                                 </article>
                             </t>
@@ -123,7 +123,7 @@
                                     </td>
                                     <td class="sgc-lb__col-num sgc-lb__num--karma" t-esc="row['karma']"/>
                                     <td class="sgc-lb__col-num sgc-lb__num--money">
-                                        <t t-esc="row['revenue_mtd']" t-options="{'widget': 'monetary', 'display_currency': False}"/>
+                                        <t t-esc="row['revenue_mtd']" t-options="{'widget': 'monetary', 'display_currency': currency}"/>
                                     </td>
                                     <td class="sgc-lb__col-num" t-esc="row['deals_mtd']"/>
                                     <td class="sgc-lb__col-num" t-esc="row['meetings_w']"/>

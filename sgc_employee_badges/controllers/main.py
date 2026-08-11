@@ -137,6 +137,8 @@ class SGCLeaderboardController(http.Controller):
 
         total_prize_pool = sum(p['prize_aed'] for p in podium)
 
+        currency = request.env.company.currency_id
+
         return request.render('sgc_employee_badges.sgc_leaderboard_template', {
             'podium': podium,
             'rows': rows,
@@ -145,6 +147,6 @@ class SGCLeaderboardController(http.Controller):
             'quarter_start': quarter_start,
             'week_start': week_start,
             'total_prize_pool': total_prize_pool,
-            'currency': 'AED',
+            'currency': currency,
             'current_user_id': request.env.uid,
         })
