@@ -2,18 +2,12 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
-import time
-from uuid import UUID, uuid4, uuid5
+from uuid import uuid4
 
 import requests
 
 from odoo import _, api, fields, models
 from odoo.tools import email_normalize
-
-# Stable namespace for deriving deterministic Meet conferenceData
-# requestIds from our own event ids -- so a retried insert reuses the
-# same requestId instead of minting a second, orphaned conference.
-_SGC_REQUEST_ID_NAMESPACE = UUID("6f1b6c1e-6e6b-4a5a-9b0a-2f6c5b3a9d10")
 
 _logger = logging.getLogger(__name__)
 
@@ -58,35 +52,6 @@ class CalendarEvent(models.Model):
         readonly=True,
         copy=False,
     )
-    sgc_has_non_google_attendee = fields.Boolean(
-        string="May Need to Knock",
-        compute="_compute_sgc_has_non_google_attendee",
-        help="At least one attendee's email is not on a domain we can "
-        "reasonably assume is a Google account. The waiting-room bypass "
-        "only works when a guest signs into Meet with the exact address "
-        "they were invited on -- a non-Google address means they'll be "
-        "asked to knock regardless of this being fixed.",
-    )
-
-    # Domains we can safely assume resolve to a real Google Account. Not
-    # exhaustive (any Google Workspace domain also qualifies, which this
-    # can't detect from the address alone) -- a False here is a hint to
-    # double-check, not a hard guarantee either way.
-    _SGC_KNOWN_GOOGLE_DOMAINS = ("gmail.com", "googlemail.com")
-
-    @api.depends("partner_ids.email")
-    def _compute_sgc_has_non_google_attendee(self):
-        for event in self:
-            flagged = False
-            for partner in event.partner_ids:
-                email = (partner.email or "").lower().strip()
-                if not email or "@" not in email:
-                    continue
-                domain = email.rsplit("@", 1)[-1]
-                if domain not in event._SGC_KNOWN_GOOGLE_DOMAINS:
-                    flagged = True
-                    break
-            event.sgc_has_non_google_attendee = flagged
 
     def _compute_sgc_notes_count(self):
         for event in self:
@@ -429,114 +394,17 @@ class CalendarEvent(models.Model):
     # ------------------------------------------------------------------
     @staticmethod
     def _sgc_extract_meet_url(google_values):
-        """Pull the Meet URL out of a Google event resource, if it has one.
-
-        conferenceData.entryPoints is the source of truth for the join link
-        Meet actually trusts attendees on; hangoutLink is a legacy mirror
-        Google keeps for backward compatibility and is only used here if
-        entryPoints is somehow absent.
-        """
+        """Pull the Meet URL out of a Google event resource, if it has one."""
         if not google_values:
             return False
+        url = google_values.get("hangoutLink")
+        if url:
+            return url
         conference = google_values.get("conferenceData") or {}
         for entry in conference.get("entryPoints") or []:
             if entry.get("entryPointType") == "video" and entry.get("uri"):
                 return entry["uri"]
-        return google_values.get("hangoutLink") or False
-
-    @staticmethod
-    def _sgc_conference_status(google_values):
-        """conferenceData.createRequest.status.statusCode, if present.
-
-        Google creates the Meet conference asynchronously: the insert
-        response can come back with status "pending" and no entryPoints
-        yet. Returns False when there is no createRequest status to read
-        (e.g. the conference already existed, or this isn't a createRequest
-        response at all).
-        """
-        if not google_values:
-            return False
-        create_request = (
-            (google_values.get("conferenceData") or {}).get("createRequest")
-            or {}
-        )
-        return (create_request.get("status") or {}).get("statusCode") or False
-
-    def _sgc_poll_conference(self, google_values, event_id):
-        """Google creates the Meet conference asynchronously: right after
-        insert, conferenceData.createRequest.status.statusCode can still be
-        "pending" with no entryPoints. Poll events.get (conferenceDataVersion=1)
-        with short backoff until it flips to "success" (join link ready) or
-        "failure" (explicitly give up -- never silently return an unconfirmed
-        booking), or we exhaust attempts and log a warning.
-
-        Runs inside the same @after_commit deferred call as the original
-        insert (see google_sync._google_insert), so a bounded sleep here
-        blocks only that background callback, not the request/transaction
-        that created the booking.
-        """
-        status = self._sgc_conference_status(google_values)
-        if status != "pending":
-            return google_values
-        organizer = self.user_id
-        if not organizer or not organizer.sudo().google_calendar_rtoken:
-            return google_values
-        try:
-            token = organizer.sudo()._get_google_calendar_token()
-        except Exception:
-            _logger.exception(
-                "Could not get Google token to poll conference status "
-                "for event %s", self.id,
-            )
-            return google_values
-        if not token:
-            return google_values
-
-        url = (
-            f"https://www.googleapis.com/calendar/v3/calendars/primary/"
-            f"events/{event_id}?conferenceDataVersion=1"
-        )
-        headers = {"Authorization": f"Bearer {token}"}
-        delay = 1.0
-        for attempt in range(1, 6):
-            time.sleep(delay)
-            try:
-                resp = requests.get(url, headers=headers, timeout=10)
-                resp.raise_for_status()
-                polled = resp.json()
-            except requests.HTTPError as e:
-                code = e.response.status_code if e.response is not None else None
-                _logger.warning(
-                    "Conference status poll for event %s failed (%s) on "
-                    "attempt %s/5: %s",
-                    self.id, code, attempt, e,
-                )
-                continue
-            except Exception:
-                _logger.exception(
-                    "Conference status poll for event %s failed on "
-                    "attempt %s/5", self.id, attempt,
-                )
-                continue
-            status = self._sgc_conference_status(polled)
-            if status == "success":
-                return polled
-            if status == "failure":
-                _logger.error(
-                    "Google Meet conference creation FAILED for event %s "
-                    "(conferenceData.createRequest.status.statusCode == "
-                    "'failure'). Booking will NOT have a Meet link.",
-                    self.id,
-                )
-                return polled
-            delay = min(delay * 1.5, 3.0)
-        _logger.warning(
-            "Conference for event %s still 'pending' after 5 polling "
-            "attempts; Meet link not yet available, will pick up on the "
-            "next sync pass.",
-            self.id,
-        )
-        return google_values
+        return False
 
     def _get_post_sync_values(self, request_values, google_values):
         """Also store the Meet URL Google just created for this event.
@@ -556,20 +424,10 @@ class CalendarEvent(models.Model):
         and therefore cannot cause a patch loop back to Google.
         """
         values = super()._get_post_sync_values(request_values, google_values)
-        event_id = request_values.get("id") or google_values.get("id")
-        if self._sgc_conference_status(google_values) == "pending" and event_id:
-            google_values = self._sgc_poll_conference(google_values, event_id)
         if not self.videocall_location:
             meet_url = self._sgc_extract_meet_url(google_values)
             if meet_url:
                 values["videocall_location"] = meet_url
-            elif self._sgc_conference_status(google_values) == "failure":
-                _logger.error(
-                    "Event %s synced to Google without a Meet link "
-                    "(conference creation failed). Not marking a booking "
-                    "confirmed on a broken link -- check manually.",
-                    self.id,
-                )
         conference_id = (
             (google_values or {}).get("conferenceData") or {}
         ).get("conferenceId")
@@ -586,22 +444,6 @@ class CalendarEvent(models.Model):
         code = tail.split("?", 1)[0].strip("/")
         return code or False
 
-    @api.model
-    def _sgc_workspace_mode_enabled(self):
-        """Feature flag for the Meet REST API (spaces.patch accessType=OPEN)
-        path. Default OFF: that API is Workspace-only and 403s outright on
-        crm@sgctech.ai's free Google account (confirmed: "Permission denied
-        on resource Space" even on spaces it created itself, with a token
-        holding meetings.space.settings). The Calendar-API attendee-trust
-        path (_sgc_apply_meet_organizer + deterministic conferenceData
-        createRequest below) is what actually removes the waiting room on
-        a free account. Flip 'sgc_meeting_ai.workspace_mode' to 'true' in
-        ir.config_parameter if this account is ever upgraded to Workspace.
-        """
-        return self.env["ir.config_parameter"].sudo().get_param(
-            "sgc_meeting_ai.workspace_mode", "false"
-        ).lower() in ("1", "true", "yes")
-
     def _sgc_set_meet_open_access(self, conference_id):
         """Disable Meet's host-approval waiting room for the shared
         organizer's rooms, so customers/SDRs join instantly instead of
@@ -613,14 +455,7 @@ class CalendarEvent(models.Model):
         A token from before that scope was added will 403 here; this
         silently logs and moves on rather than blocking the booking, since
         the calendar entry and Meet room themselves are still valid.
-
-        Gated by _sgc_workspace_mode_enabled(): on a free/personal Google
-        account this API is unreachable no matter what, so calling it is
-        pure log noise. Left in place, not deleted, for when/if the
-        organizer account is upgraded to Workspace.
         """
-        if not self._sgc_workspace_mode_enabled():
-            return
         organizer = self.user_id
         if not organizer or not organizer.sudo().google_calendar_rtoken:
             return
@@ -716,20 +551,6 @@ class CalendarEvent(models.Model):
             return False
         return super()._skip_send_mail_status_update()
 
-    def _sgc_conference_request_id(self):
-        """Deterministic requestId for conferenceData.createRequest, derived
-        from our own event id rather than a fresh uuid4() per call.
-
-        _google_insert runs @after_commit and can legitimately be retried
-        (network hiccup, worker restart before the deferred call completes);
-        a random requestId on retry asks Google to mint a SECOND, orphaned
-        Meet room for the same booking. Google dedupes createRequest by
-        requestId, so reusing the same one derived from event.id makes a
-        retry idempotent instead.
-        """
-        self.ensure_one()
-        return str(uuid5(_SGC_REQUEST_ID_NAMESPACE, f"sgc-meeting-event-{self.id}"))
-
     def _google_values(self):
         """Ask Google for a Meet room even when the meeting has a Location.
 
@@ -742,9 +563,6 @@ class CalendarEvent(models.Model):
 
         Only for customer meetings, only on first insert, and never when a
         deliberate videocall link is already set.
-
-        Also overrides whatever requestId upstream (or our own branch below)
-        picked, with a deterministic one -- see _sgc_conference_request_id.
         """
         values = super()._google_values()
         if (
@@ -756,10 +574,6 @@ class CalendarEvent(models.Model):
             and self._sgc_is_customer_meeting()
         ):
             values["conferenceData"] = {"createRequest": {"requestId": uuid4().hex}}
-        if (values.get("conferenceData") or {}).get("createRequest"):
-            values["conferenceData"]["createRequest"]["requestId"] = (
-                self._sgc_conference_request_id()
-            )
         return values
 
     def _sgc_push_to_google(self):
