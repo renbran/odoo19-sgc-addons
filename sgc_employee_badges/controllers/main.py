@@ -36,7 +36,7 @@ class SGCLeaderboardController(http.Controller):
             ['&', '&',
              ('share', '=', False),
              ('active', '=', True),
-             ('groups_id', 'not in', admin_group_ids)],
+             ('group_ids', 'not in', admin_group_ids)],
             ['id', 'name', 'display_name', 'image_128', 'karma'],
         )
         user_ids = [u['id'] for u in users]
