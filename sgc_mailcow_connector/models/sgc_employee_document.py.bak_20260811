@@ -224,20 +224,11 @@ class SgcEmployeeDocument(models.Model):
             raise ValueError(_("No email template configured for document type: %s") % self.doc_type)
 
         template_id = self.env.ref(email_template_xmlid).id
-        # the composer resolves recipients from partner_ids, not from the
-        # template's email_to; hr.employee has no partner_id of its own, so
-        # without this the wizard silently sends to nobody.
-        recipient_partner = self.employee_id.work_contact_id or self.employee_id.user_id.partner_id
-        if not recipient_partner:
-            raise ValueError(_(
-                "Employee %s has no work contact or user account to send this document to."
-            ) % self.employee_id.name)
         ctx = {
             'default_model': 'sgc.employee.document',
             'default_res_ids': self.ids,
             'default_composition_mode': 'comment',
             'default_template_id': template_id,
-            'default_partner_ids': [(6, 0, [recipient_partner.id])],
             'default_email_layout_xmlid': 'mail.mail_notification_layout_with_responsible_signature',
             'force_email': True,
             'mark_doc_as_sent': True,
