@@ -25,8 +25,18 @@ class SGCLeaderboardController(http.Controller):
         # Week start (Monday-aligned)
         week_start = today - relativedelta(days=today.weekday())
 
+        # The ladder ranks sales/employee accounts only. Admin & system
+        # accounts — users holding the Administrator (Access Rights) or
+        # Settings groups — are excluded from the competition.
+        admin_group_ids = [
+            env.ref('base.group_erp_manager').id,
+            env.ref('base.group_system').id,
+        ]
         users = env['res.users'].sudo().search_read(
-            [('share', '=', False), ('active', '=', True)],
+            ['&', '&',
+             ('share', '=', False),
+             ('active', '=', True),
+             ('groups_id', 'not in', admin_group_ids)],
             ['id', 'name', 'display_name', 'image_128', 'karma'],
         )
         user_ids = [u['id'] for u in users]

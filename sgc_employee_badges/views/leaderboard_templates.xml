@@ -6,11 +6,13 @@
         <field name="target">self</field>
     </record>
 
-    <!-- Menu entry under the existing Gamification menu -->
+    <!-- Leaderboard menu visible to EVERY internal user. Kept top-level (no
+         parent) on purpose: the gamification menu is gated by the Gamification
+         User group, which would hide this entry from sales users who do not
+         hold that group. base.group_user covers all internal accounts. -->
     <record id="menu_sgc_leaderboard" model="ir.ui.menu">
         <field name="name">SGC Leaderboard</field>
-        <field name="parent_id" ref="gamification.gamification_menu"/>
-        <field name="sequence">40</field>
+        <field name="sequence">60</field>
         <field name="action" ref="action_sgc_leaderboard"/>
         <field name="group_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
