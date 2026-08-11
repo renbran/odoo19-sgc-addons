@@ -15,12 +15,6 @@ from odoo.tools import email_normalize
 # same requestId instead of minting a second, orphaned conference.
 _SGC_REQUEST_ID_NAMESPACE = UUID("6f1b6c1e-6e6b-4a5a-9b0a-2f6c5b3a9d10")
 
-# Per-worker-process MX lookup cache (module-level, not self.pool -- Registry
-# has no dict-like setdefault). Domain -> True/False, keyed by lowercased
-# domain string; failures are deliberately never cached (see
-# _sgc_domain_is_google_hosted).
-_SGC_GOOGLE_MX_CACHE = {}
-
 _logger = logging.getLogger(__name__)
 
 # Dedicated always-available calendar so meetings booked at any time of day
@@ -64,55 +58,24 @@ class CalendarEvent(models.Model):
         readonly=True,
         copy=False,
     )
-    sgc_attendee_domain_advisory = fields.Boolean(
-        string="Possibly Non-Google Attendee (advisory only)",
-        compute="_compute_sgc_attendee_domain_advisory",
-        help="Best-effort, advisory-only signal -- do not branch logic on "
-        "this field. There is no API that answers 'does this address have "
-        "a Google account' (Google blocks that deliberately to prevent "
-        "account enumeration), so this can only check whether an "
-        "attendee's domain is Google-*hosted* (MX resolves to Google's "
-        "mail servers), which covers Gmail and any Workspace domain. It "
-        "CANNOT detect a personal Google account registered on a "
-        "non-Google-hosted address (e.g. an outlook.com address with a "
-        "Google account attached) -- those show as flagged even though "
-        "they may join fine, and conversely nothing here guarantees a "
-        "Google-hosted address's owner will actually sign into that exact "
-        "account when joining. The waiting-room bypass depends on the "
-        "guest signing into Meet with the invited address; this field is "
-        "a hint for support triage, not a predictor of that outcome.",
+    sgc_has_non_google_attendee = fields.Boolean(
+        string="May Need to Knock",
+        compute="_compute_sgc_has_non_google_attendee",
+        help="At least one attendee's email is not on a domain we can "
+        "reasonably assume is a Google account. The waiting-room bypass "
+        "only works when a guest signs into Meet with the exact address "
+        "they were invited on -- a non-Google address means they'll be "
+        "asked to knock regardless of this being fixed.",
     )
 
-    @api.model
-    def _sgc_domain_is_google_hosted(self, domain):
-        """MX-based check: does `domain` route mail through Google?
-
-        Cached per-domain for the life of the worker process -- MX records
-        for a real mail domain essentially never change, and this avoids a
-        DNS round-trip on every form load. Returns None (not False) on a
-        lookup failure so a transient DNS hiccup doesn't get recorded as
-        a false "not Google" -- callers should treat None as "unknown",
-        not "no".
-        """
-        if domain in _SGC_GOOGLE_MX_CACHE:
-            return _SGC_GOOGLE_MX_CACHE[domain]
-        try:
-            import dns.resolver
-            answer = dns.resolver.resolve(domain, "MX", lifetime=3)
-            is_google = any(
-                str(r.exchange).rstrip(".").endswith("google.com")
-                for r in answer
-            )
-        except Exception:
-            # NXDOMAIN, timeout, no MX record, dnspython not installed,
-            # etc -- all "unknown", not "not Google". Don't cache failures:
-            # a transient DNS blip shouldn't stick for the worker's lifetime.
-            return None
-        _SGC_GOOGLE_MX_CACHE[domain] = is_google
-        return is_google
+    # Domains we can safely assume resolve to a real Google Account. Not
+    # exhaustive (any Google Workspace domain also qualifies, which this
+    # can't detect from the address alone) -- a False here is a hint to
+    # double-check, not a hard guarantee either way.
+    _SGC_KNOWN_GOOGLE_DOMAINS = ("gmail.com", "googlemail.com")
 
     @api.depends("partner_ids.email")
-    def _compute_sgc_attendee_domain_advisory(self):
+    def _compute_sgc_has_non_google_attendee(self):
         for event in self:
             flagged = False
             for partner in event.partner_ids:
@@ -120,11 +83,10 @@ class CalendarEvent(models.Model):
                 if not email or "@" not in email:
                     continue
                 domain = email.rsplit("@", 1)[-1]
-                is_google = event._sgc_domain_is_google_hosted(domain)
-                if is_google is False:
+                if domain not in event._SGC_KNOWN_GOOGLE_DOMAINS:
                     flagged = True
                     break
-            event.sgc_attendee_domain_advisory = flagged
+            event.sgc_has_non_google_attendee = flagged
 
     def _compute_sgc_notes_count(self):
         for event in self:
