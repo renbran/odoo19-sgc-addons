@@ -264,6 +264,20 @@ class SgcEmployeeDocument(models.Model):
     def message_post(self, **kwargs):
         if self.env.context.get('mark_doc_as_sent'):
             self.filtered(lambda d: d.state == 'draft').with_context(tracking_disable=True).write({'state': 'sent'})
+            # the composer routes recipients through each partner's own
+            # notification preference (inbox vs email), so admin does not
+            # reliably get an actual email even when added as a recipient.
+            # Send a direct, preference-independent confirmation instead.
+            doc_type_labels = dict(self._fields['doc_type'].selection)
+            for doc in self:
+                self.env['mail.mail'].sudo().create({
+                    'subject': _('Confirmed: %s sent to %s') % (
+                        doc_type_labels.get(doc.doc_type, doc.doc_type), doc.employee_id.name),
+                    'body_html': _('<p>The %s (%s) for <b>%s</b> was just sent.</p>') % (
+                        doc_type_labels.get(doc.doc_type, doc.doc_type), doc.name, doc.employee_id.name),
+                    'email_to': 'bran@sgctech.ai',
+                    'auto_delete': False,
+                }).send()
         return super().message_post(**kwargs)
 
     def action_store_pdf(self):
