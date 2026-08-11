@@ -59,6 +59,28 @@
                                 white-space: pre-line;
                                 padding: 6px 0 4px 0;
                             }
+                            .sgc-warning-letter-report .sgc-letter-body {
+                                line-height: 1.5;
+                                font-size: 9pt !important;
+                                color: #1C2430;
+                            }
+                            .sgc-warning-letter-report .sgc-letter-body p {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                            }
+                            .sgc-warning-letter-report .sgc-letter-body ul,
+                            .sgc-warning-letter-report .sgc-letter-body ol {
+                                font-size: 9pt !important;
+                                margin: 0 0 8px 0;
+                                padding-left: 16px;
+                            }
+                            .sgc-warning-letter-report .sgc-letter-body li {
+                                font-size: 9pt !important;
+                                margin-bottom: 3px;
+                            }
+                            .sgc-warning-letter-report .sgc-letter-body strong {
+                                font-weight: 600;
+                            }
                             .sgc-warning-letter-report ul {
                                 font-size: 9pt !important;
                                 margin: 0 0 8px 0;
@@ -140,27 +162,32 @@
                         </table>
 
                         <div>
-                            <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at <t t-esc="company.name"/>.</p>
-
-                            <t t-if="o.warning_letter_reason">
-                                <p>The specific issues observed are as follows:</p>
-                                <div class="sgc-reason-body" t-esc="o.warning_letter_reason"/>
+                            <t t-if="o.warning_letter_body">
+                                <div class="sgc-letter-body" t-field="o.warning_letter_body"/>
                             </t>
                             <t t-else="">
-                                <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
-                                <ul>
-                                    <li>Consistently failing to meet deadlines and performance targets</li>
-                                    <li>Lack of improvement despite feedback and coaching</li>
-                                    <li>Quality of work below acceptable standards</li>
-                                    <li>Inadequate communication and collaboration with team members</li>
-                                </ul>
+                                <p>This letter serves as a formal warning regarding your recent performance, which has been identified as below the expected standards for your position at <t t-esc="company.name"/>.</p>
+
+                                <t t-if="o.warning_letter_reason">
+                                    <p>The specific issues observed are as follows:</p>
+                                    <div class="sgc-reason-body" t-esc="o.warning_letter_reason"/>
+                                </t>
+                                <t t-else="">
+                                    <p>Despite previous discussions and guidance, the following performance issues have been observed:</p>
+                                    <ul>
+                                        <li>Consistently failing to meet deadlines and performance targets</li>
+                                        <li>Lack of improvement despite feedback and coaching</li>
+                                        <li>Quality of work below acceptable standards</li>
+                                        <li>Inadequate communication and collaboration with team members</li>
+                                    </ul>
+                                </t>
+
+                                <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
+
+                                <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
+
+                                <p>We believe in your potential to succeed and are committed to supporting your development. However, we must ensure that all employees meet the performance standards required for our organization's success.</p>
                             </t>
-
-                            <p>You are hereby given a period of <span t-esc="o.warning_letter_improvement_period or 30"/> days to demonstrate significant improvement in your performance. Failure to improve within this period may result in further disciplinary action, up to and including termination of employment.</p>
-
-                            <p>Please schedule a meeting with your immediate supervisor to discuss a performance improvement plan.</p>
-
-                            <p>We believe in your potential to succeed and are committed to supporting your development. However, we must ensure that all employees meet the performance standards required for our organization's success.</p>
                         </div>
 
                         <table class="sgc-sign">

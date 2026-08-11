@@ -89,6 +89,11 @@ class SgcEmployeeDocument(models.Model):
         ("dismissal", "Notice of Dismissal"),
     ], string="Warning Type", readonly=True)
     warning_letter_reason = fields.Text("Reason for Warning", readonly=True)
+    warning_letter_body = fields.Html(
+        string="Warning Letter Body",
+        sanitize=False,
+        optional=True,
+        help="Customizable HTML body content for the warning letter. If empty, the default template content will be used.")
     warning_letter_supervisor_id = fields.Many2one(
         "hr.employee", string="Supervisor", readonly=True)
     warning_letter_improvement_period = fields.Integer(

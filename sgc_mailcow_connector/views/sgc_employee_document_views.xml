@@ -72,8 +72,13 @@
                                     <field name="warning_letter_improvement_period"/>
                                 </group>
                             </group>
-                            <group string="Reason for Warning">
-                                <field name="warning_letter_reason" nolabel="1"
+                            <group string="Warning Letter Content">
+                                <field name="warning_letter_body" widget="html"
+                                       class="o_wdrug_body"
+                                       placeholder="Enter custom warning letter content here, or leave empty to use the default template."/>
+                            </group>
+                            <group string="Original Reason (Read-only)">
+                                <field name="warning_letter_reason" nolabel="1" readonly="1"
                                        placeholder="Snapshot of the reason entered on the employee record at issuance time"/>
                             </group>
                         </page>
