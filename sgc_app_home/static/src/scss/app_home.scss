@@ -1,13 +1,17 @@
 // SGC TECH AI Enterprise App Home
 // Palette matches the brand accent already used across sgc_crm_dashboard /
-// sgc_theme_aurum / sgc_tech_ai_theme (navy + gold + cream).
+// sgc_theme_aurum / sgc_tech_ai_theme (navy + gold + cream). Page surface is
+// cream/ivory; navy is reserved for text and the icon tiles themselves
+// (baked into the sliced sprite art), with gold as the accent.
 $sgc-navy-deep: #0b1b33;
 $sgc-navy: #10254a;
 $sgc-navy-light: #16305e;
 $sgc-gold: #c7a23a;
-$sgc-gold-bright: #e0bf5c;
+$sgc-gold-bright: #a9822b;
 $sgc-cream: #f5f1e6;
-$sgc-cream-dim: rgba(245, 241, 230, 0.65);
+$sgc-cream-soft: #faf7ef;
+$sgc-ink: #1c2b45;
+$sgc-ink-dim: rgba(28, 43, 69, 0.6);
 
 .o_sgc_app_home {
     display: flex;
@@ -17,8 +21,8 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     max-width: 100%;
     overflow-x: hidden;
     overflow-y: auto;
-    background: linear-gradient(180deg, $sgc-navy-deep 0%, $sgc-navy 100%);
-    color: $sgc-cream;
+    background: linear-gradient(180deg, $sgc-cream-soft 0%, $sgc-cream 100%);
+    color: $sgc-ink;
     font-family: "IBM Plex Sans", Roboto, sans-serif;
 }
 
@@ -29,7 +33,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     gap: 24px;
     flex-wrap: wrap;
     padding: 28px clamp(20px, 4vw, 56px);
-    border-bottom: 1px solid rgba($sgc-gold, 0.25);
+    border-bottom: 1px solid rgba($sgc-gold, 0.4);
 }
 
 .o_sgc_app_home_brand {
@@ -48,7 +52,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     &_full {
         font-size: 14px;
         font-weight: 500;
-        color: $sgc-cream-dim;
+        color: $sgc-ink-dim;
         text-transform: uppercase;
     }
 }
@@ -63,7 +67,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
         top: 50%;
         left: 16px;
         transform: translateY(-50%);
-        color: $sgc-cream-dim;
+        color: $sgc-ink-dim;
         pointer-events: none;
     }
 
@@ -71,21 +75,21 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
         width: 100%;
         padding: 10px 16px 10px 40px;
         border-radius: 8px;
-        border: 1px solid rgba($sgc-gold, 0.35);
-        background: rgba($sgc-cream, 0.06);
-        color: $sgc-cream;
+        border: 1px solid rgba($sgc-navy, 0.18);
+        background: $sgc-cream-soft;
+        color: $sgc-ink;
         font-size: 14px;
         outline: none;
         transition: border-color 0.15s ease, background 0.15s ease;
 
         &::placeholder {
-            color: $sgc-cream-dim;
+            color: $sgc-ink-dim;
         }
 
         &:focus {
             border-color: $sgc-gold;
-            background: rgba($sgc-cream, 0.1);
-            box-shadow: 0 0 0 3px rgba($sgc-gold, 0.18);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba($sgc-gold, 0.22);
         }
     }
 }
@@ -97,14 +101,17 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
 }
 
 .o_sgc_app_home_empty {
-    color: $sgc-cream-dim;
+    color: $sgc-ink-dim;
     padding: 48px 0;
     text-align: center;
 }
 
+// Fixed 9 columns x 5 rows on desktop - compact enterprise grid rather than
+// a loosely reflowing one. Steps down on tablet/mobile (see media queries
+// below) so nothing ever overflows horizontally.
 .o_sgc_app_home_grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    grid-template-columns: repeat(9, 1fr);
     gap: 20px;
     max-width: 100%;
 }
@@ -117,15 +124,15 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     padding: 16px 8px;
     border-radius: 12px;
     cursor: pointer;
-    background: rgba($sgc-cream, 0.02);
+    background: rgba($sgc-navy, 0.03);
     border: 1px solid transparent;
     transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
     -webkit-tap-highlight-color: transparent;
     min-height: 44px;
 
     &:hover {
-        background: rgba($sgc-gold, 0.08);
-        border-color: rgba($sgc-gold, 0.3);
+        background: rgba($sgc-gold, 0.12);
+        border-color: rgba($sgc-gold, 0.4);
     }
 
     &:active {
@@ -135,7 +142,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     &:focus-visible {
         outline: none;
         border-color: $sgc-gold;
-        box-shadow: 0 0 0 3px rgba($sgc-gold, 0.25);
+        box-shadow: 0 0 0 3px rgba($sgc-gold, 0.28);
     }
 }
 
@@ -157,7 +164,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     font-size: 12.5px;
     font-weight: 500;
     text-align: center;
-    color: $sgc-cream;
+    color: $sgc-ink;
     line-height: 1.3;
     max-width: 100%;
     word-break: break-word;
@@ -166,7 +173,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
 // Tablet
 @media (max-width: 992px) {
     .o_sgc_app_home_grid {
-        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+        grid-template-columns: repeat(6, 1fr);
         gap: 16px;
     }
 
@@ -188,7 +195,7 @@ $sgc-cream-dim: rgba(245, 241, 230, 0.65);
     }
 
     .o_sgc_app_home_grid {
-        grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
     }
 
