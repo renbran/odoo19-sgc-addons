@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sgc_app_home.Home">
+        <div class="o_sgc_app_home">
+            <div class="o_sgc_app_home_header">
+                <div class="o_sgc_app_home_brand">
+                    <span class="o_sgc_app_home_brand_mark">SGC</span>
+                    <span class="o_sgc_app_home_brand_full">TECH AI</span>
+                </div>
+                <div class="o_sgc_app_home_search">
+                    <i class="fa fa-search o_sgc_app_home_search_icon" role="img" aria-label="Search"/>
+                    <input type="text"
+                           class="o_sgc_app_home_search_input"
+                           placeholder="Search applications…"
+                           t-model="state.query"
+                           autofocus="autofocus"/>
+                </div>
+            </div>
+
+            <div class="o_sgc_app_home_main">
+                <div t-if="!apps.length" class="o_sgc_app_home_empty">
+                    No applications match "<t t-esc="state.query"/>".
+                </div>
+                <div t-else="" class="o_sgc_app_home_grid">
+                    <div t-foreach="apps" t-as="app" t-key="app.id"
+                         class="o_sgc_app_tile"
+                         tabindex="0"
+                         role="button"
+                         t-att-aria-label="app.label"
+                         t-on-click="() => this.openApp(app)"
+                         t-on-keydown="(ev) => this.onTileKeydown(app, ev)">
+                        <div class="o_sgc_app_tile_icon">
+                            <img t-att-src="app.icon" t-att-alt="app.label" loading="lazy"/>
+                        </div>
+                        <span class="o_sgc_app_tile_label" t-esc="app.label"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
