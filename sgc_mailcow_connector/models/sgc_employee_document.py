@@ -267,15 +267,31 @@ class SgcEmployeeDocument(models.Model):
             # the composer routes recipients through each partner's own
             # notification preference (inbox vs email), so admin does not
             # reliably get an actual email even when added as a recipient.
-            # Send a direct, preference-independent confirmation instead.
-            doc_type_labels = dict(self._fields['doc_type'].selection)
+            # Build the exact same rendered email (subject, body, report
+            # attachment) the employee received and send admin a real,
+            # standalone copy of it, independent of any notification prefs.
             for doc in self:
+                email_template_xmlid = self._EMAIL_TEMPLATE_XMLIDS.get(doc.doc_type)
+                if not email_template_xmlid:
+                    continue
+                template = self.env.ref(email_template_xmlid).sudo()
+                generated = template._generate_template(
+                    [doc.id], ['subject', 'body_html', 'report_template_ids']
+                ).get(doc.id, {})
+                attachment_ids = list(generated.get('attachment_ids') or [])
+                for attach_name, attach_data in (generated.get('attachments') or []):
+                    attachment = self.env['ir.attachment'].sudo().create({
+                        'name': attach_name,
+                        'datas': attach_data,
+                        'res_model': 'mail.message',
+                        'type': 'binary',
+                    })
+                    attachment_ids.append(attachment.id)
                 self.env['mail.mail'].sudo().create({
-                    'subject': _('Confirmed: %s sent to %s') % (
-                        doc_type_labels.get(doc.doc_type, doc.doc_type), doc.employee_id.name),
-                    'body_html': _('<p>The %s (%s) for <b>%s</b> was just sent.</p>') % (
-                        doc_type_labels.get(doc.doc_type, doc.doc_type), doc.name, doc.employee_id.name),
+                    'subject': _('[Admin copy] %s') % (generated.get('subject') or doc.name),
+                    'body_html': generated.get('body_html') or '',
                     'email_to': 'bran@sgctech.ai',
+                    'attachment_ids': [(6, 0, attachment_ids)],
                     'auto_delete': False,
                 }).send()
         return super().message_post(**kwargs)

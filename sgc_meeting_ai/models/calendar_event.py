@@ -310,6 +310,34 @@ class CalendarEvent(models.Model):
         organizer._sgc_ensure_google_sync_enabled()
         return organizer
 
+    def _sgc_get_meet_cohost_partner(self):
+        """Human fallback attendee added to every customer meeting.
+
+        The shared Meet organizer (crm@sgctech.ai) is a non-Workspace
+        Google account, so Meet's Space API can't grant it accessType=OPEN
+        (confirmed: PERMISSION_DENIED on spaces it created itself) --
+        customers are stuck on the host-approval waiting room with nobody
+        watching to let them in. Until that account is upgraded to Google
+        Workspace, keep a real person on every invite as an attendee who
+        can actually admit guests. Configurable via ir.config_parameter
+        'sgc_meeting_ai.meet_cohost_email'.
+        """
+        email = self.env["ir.config_parameter"].sudo().get_param(
+            "sgc_meeting_ai.meet_cohost_email"
+        )
+        if not email:
+            return self.env["res.partner"]
+        partner = self.env["res.partner"].sudo().search(
+            [("email", "=", email)], limit=1
+        )
+        if not partner:
+            _logger.warning(
+                "sgc_meeting_ai.meet_cohost_email is set to %r but no "
+                "matching partner exists: meetings will not include the "
+                "fallback human attendee.", email,
+            )
+        return partner
+
     def _sgc_apply_meet_organizer(self):
         """Reassign the organizer of CRM/SDR customer meetings to the
         shared Meet organizer, keeping the actual salesperson as an
@@ -319,8 +347,9 @@ class CalendarEvent(models.Model):
         organizer = self._sgc_get_meet_organizer()
         if not organizer:
             return
+        cohost = self._sgc_get_meet_cohost_partner()
         for event in self:
-            if event.user_id == organizer:
+            if event.user_id == organizer and cohost in event.partner_ids:
                 continue
             # The shared organizer must also be an *attendee*, not just
             # user_id: google_calendar._get_sync_domain() selects events with
@@ -331,6 +360,7 @@ class CalendarEvent(models.Model):
                 event.partner_ids
                 | event.user_id.partner_id
                 | organizer.partner_id
+                | cohost
             )
             event.with_context(sgc_applying_meet_organizer=True).write({
                 "partner_ids": [(6, 0, attendee_partners.ids)],
