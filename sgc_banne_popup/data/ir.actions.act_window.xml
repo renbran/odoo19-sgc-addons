@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="view_sgc_banne_popup_config_form" model="ir.ui.view">
+            <field name="name">sgc_banne_popup.config.form</field>
+            <field name="model">sgc_banne_popup.config</field>
+            <field name="arch" type="xml">
+                <form string="SGC Banner Configuration">
+                    <sheet>
+                        <group>
+                            <field name="price_pool"/>
+                            <field name="banner_text"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Apply" class="btn-primary" x="terp.click" />
+                        <button string="Cancel" class="btn-default" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_sgc_banne_popup_config" model="ir.actions.act_window">
+            <field name="name">SGC Banner Configuration</field>
+            <field name="res_model">sgc_banne_popup.config</field>
+            <field name="view_mode">form</field>
+        </record>
+    </data>
+</odoo>

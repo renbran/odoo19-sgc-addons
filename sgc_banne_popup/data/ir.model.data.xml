@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Action to configure the banner -->
+        <record id="action_sgc_banne_popup_config" model="ir.actions.act_window">
+            <field name="name">SGC Banner Configuration</field>
+            <field name="res_model">sgc_banne_popup.config</field>
+            <field name="view_mode">form</field>
+            <field name="help" type="html">
+                <p>Configure the SGC gamification banner settings.</p>
+            </field>
+        </record>
+
+        <!-- Configuration model -->
+        <record id="model_sgc_banne_popup_config" model="ir.model">
+            <field name="name">sgc_banne_popup.config</field>
+            <field name="model">sgc_banne_popup.config</field>
+            <field name="name": True/>
+            <field name="field": True/>
+        </record>
+
+        <!-- Fields for the configuration -->
+        <record id="field_sgc_banne_popup_price_pool" model="ir.model.fields">
+            <field name="name">price_pool</field>
+            <field name="model">sgc_banne_popup.config</field>
+            <field name="ttype">char</field>
+            <field name="size">64</field>
+        </record>
+
+        <record id="field_sgc_banne_popup_banner_text" model="ir.model.fields">
+            <field name="name">banner_text</field>
+            <field name="model">sgc_banne_popup.config</field>
+            <field name="ttype">char</field>
+            <field name="size">256</field>
+        </record>
+
+        <!-- Default configuration record -->
+        <record id="config_sgc_banne_popup" model="sgc_banne_popup.config">
+            <field name="price_pool">0</field>
+            <field name="banner_text">Welcome to SGC Gamification! Participate to earn rewards.</field>
+        </record>
+
+        <!-- QWeb template action -->
+        <record id="action_sgc_banne_popup_banner" model="ir.actions.act_url">
+            <field name="name">SGC Gamification Banner</field>
+            <field name="url">/sgc/banne_popup</field>
+            <field name="highlights">banner</field>
+        </record>
+    </data>
+</odoo>

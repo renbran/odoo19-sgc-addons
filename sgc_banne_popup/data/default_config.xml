@@ -1,0 +1,14 @@
+<!-- Default configuration for SGC Banner/Popup -->
+<odoo>
+    <data>
+        <!-- Set default price pool to 0 and default banner text -->
+        <record id="default_sgc_banne_popup_config" model="ir.config_parameter">
+            <field name="key">sgc_banne_popup.price_pool</field>
+            <field name="value">0</field>
+        </record>
+        <record id="default_sgc_banne_popup_banner_text" model="ir.config_parameter">
+            <field name="key">sgc_banne_popup.banner_text</field>
+            <field name="value">Welcome to SGC Gamification! Participate to earn rewards.</field>
+        </record>
+    </data>
+</odoo>
