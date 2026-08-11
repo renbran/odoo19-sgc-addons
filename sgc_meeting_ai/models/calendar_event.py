@@ -64,8 +64,13 @@ class CalendarEvent(models.Model):
         readonly=True,
         copy=False,
     )
-    sgc_attendee_domain_advisory = fields.Boolean(
-        string="Possibly Non-Google Attendee (advisory only)",
+    sgc_attendee_domain_advisory = fields.Selection(
+        [
+            ("clear", "All attendee domains resolved, none flagged"),
+            ("flagged", "Possibly non-Google attendee domain"),
+            ("unknown", "MX lookup failed for one or more domains"),
+        ],
+        string="Attendee Domain Advisory",
         compute="_compute_sgc_attendee_domain_advisory",
         help="Best-effort, advisory-only signal -- do not branch logic on "
         "this field. There is no API that answers 'does this address have "
@@ -80,7 +85,10 @@ class CalendarEvent(models.Model):
         "Google-hosted address's owner will actually sign into that exact "
         "account when joining. The waiting-room bypass depends on the "
         "guest signing into Meet with the invited address; this field is "
-        "a hint for support triage, not a predictor of that outcome.",
+        "a hint for support triage, not a predictor of that outcome. "
+        "'unknown' means MX resolution failed (timeout/NXDOMAIN/resolver "
+        "error) for at least one attendee domain -- it is NOT evidence "
+        "the domain is non-Google, just that we could not check.",
     )
 
     @api.model
@@ -115,16 +123,23 @@ class CalendarEvent(models.Model):
     def _compute_sgc_attendee_domain_advisory(self):
         for event in self:
             flagged = False
+            saw_unknown = False
             for partner in event.partner_ids:
                 email = (partner.email or "").lower().strip()
                 if not email or "@" not in email:
                     continue
                 domain = email.rsplit("@", 1)[-1]
                 is_google = event._sgc_domain_is_google_hosted(domain)
-                if is_google is False:
+                if is_google is None:
+                    saw_unknown = True
+                elif is_google is False:
                     flagged = True
-                    break
-            event.sgc_attendee_domain_advisory = flagged
+            if flagged:
+                event.sgc_attendee_domain_advisory = "flagged"
+            elif saw_unknown:
+                event.sgc_attendee_domain_advisory = "unknown"
+            else:
+                event.sgc_attendee_domain_advisory = "clear"
 
     def _compute_sgc_notes_count(self):
         for event in self:
