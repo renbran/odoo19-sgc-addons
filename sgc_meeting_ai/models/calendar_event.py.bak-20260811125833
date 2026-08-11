@@ -4,8 +4,6 @@
 import logging
 from uuid import uuid4
 
-import requests
-
 from odoo import _, api, fields, models
 from odoo.tools import email_normalize
 
@@ -398,108 +396,7 @@ class CalendarEvent(models.Model):
             meet_url = self._sgc_extract_meet_url(google_values)
             if meet_url:
                 values["videocall_location"] = meet_url
-        conference_id = (
-            (google_values or {}).get("conferenceData") or {}
-        ).get("conferenceId")
-        if conference_id:
-            self._sgc_set_meet_open_access(conference_id)
         return values
-
-    @staticmethod
-    def _sgc_extract_conference_id(meet_url):
-        """meet.google.com/xxx-xxxx-xxx -> xxx-xxxx-xxx (== Meet API space id)."""
-        if not meet_url or "meet.google.com/" not in meet_url:
-            return False
-        tail = meet_url.split("meet.google.com/", 1)[1]
-        code = tail.split("?", 1)[0].strip("/")
-        return code or False
-
-    def _sgc_set_meet_open_access(self, conference_id):
-        """Disable Meet's host-approval waiting room for the shared
-        organizer's rooms, so customers/SDRs join instantly instead of
-        waiting on crm@sgctech.ai -- a service account nobody is watching --
-        to admit them.
-
-        Requires the organizer's Google connection to include the
-        meetings.space.settings scope (see google_calendar_meet_scope.py).
-        A token from before that scope was added will 403 here; this
-        silently logs and moves on rather than blocking the booking, since
-        the calendar entry and Meet room themselves are still valid.
-        """
-        organizer = self.user_id
-        if not organizer or not organizer.sudo().google_calendar_rtoken:
-            return
-        try:
-            token = organizer.sudo()._get_google_calendar_token()
-        except Exception:
-            _logger.exception(
-                "Could not get Google token to set Meet open access "
-                "for event %s", self.id,
-            )
-            return
-        if not token:
-            return
-        url = (
-            f"https://meet.googleapis.com/v2/spaces/{conference_id}"
-            "?updateMask=config.accessType"
-        )
-        try:
-            resp = requests.patch(
-                url,
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                },
-                json={"config": {"accessType": "OPEN"}},
-                timeout=10,
-            )
-            if resp.status_code >= 400:
-                _logger.warning(
-                    "Could not set Meet space %s to OPEN access (%s): %s. "
-                    "Organizer %s may need to reconnect Google Calendar to "
-                    "grant the new Meet scopes.",
-                    conference_id, resp.status_code, resp.text, organizer.login,
-                )
-            else:
-                _logger.info(
-                    "Meet space %s set to OPEN access (event %s)",
-                    conference_id, self.id,
-                )
-        except Exception:
-            _logger.exception(
-                "Failed to set Meet open access for space %s (event %s)",
-                conference_id, self.id,
-            )
-
-    @api.model
-    def _sgc_backfill_meet_open_access(self, limit=None):
-        """One-off/cron-callable: apply OPEN access to every existing
-        customer meeting that already has a real Meet room, so meetings
-        booked before this fix shipped stop waiting on the host too.
-        Returns (attempted, skipped_no_token) counts for a status message.
-        """
-        domain = [
-            ("videocall_location", "like", "meet.google.com/"),
-            ("user_id.google_calendar_rtoken", "!=", False),
-        ]
-        events = self.search(domain, limit=limit)
-        attempted = 0
-        skipped = 0
-        for event in events:
-            conference_id = event._sgc_extract_conference_id(
-                event.videocall_location
-            )
-            if not conference_id:
-                skipped += 1
-                continue
-            event._sgc_set_meet_open_access(conference_id)
-            attempted += 1
-        _logger.info(
-            "Meet open-access backfill: attempted %s, skipped %s (no "
-            "extractable conference id) out of %s matching events",
-            attempted, skipped, len(events),
-        )
-        return attempted, skipped
 
     def _skip_send_mail_status_update(self):
         """Keep sending the SGC invitation even while Google sync is active.

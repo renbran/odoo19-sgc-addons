@@ -3,6 +3,7 @@ from . import sgc_meeting_session
 from . import sgc_meeting_recording
 from . import sgc_meeting_transcript
 from . import sgc_meeting_notes
+from . import google_calendar_meet_scope
 from . import calendar_event
 from . import resource_booking
 from . import calendar_attendee

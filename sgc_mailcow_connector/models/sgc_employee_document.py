@@ -232,12 +232,20 @@ class SgcEmployeeDocument(models.Model):
             raise ValueError(_(
                 "Employee %s has no work contact or user account to send this document to."
             ) % self.employee_id.name)
+        # admin is added as a second, separate recipient (Odoo sends each
+        # partner their own individual copy through the notification system,
+        # so this behaves like a BCC: admin gets confirmation the send worked
+        # without either party seeing the other on their copy).
+        recipient_ids = [recipient_partner.id]
+        admin_partner = self.env['res.partner'].search([('email', '=', 'bran@sgctech.ai')], limit=1)
+        if admin_partner and admin_partner.id != recipient_partner.id:
+            recipient_ids.append(admin_partner.id)
         ctx = {
             'default_model': 'sgc.employee.document',
             'default_res_ids': self.ids,
             'default_composition_mode': 'comment',
             'default_template_id': template_id,
-            'default_partner_ids': [(6, 0, [recipient_partner.id])],
+            'default_partner_ids': [(6, 0, recipient_ids)],
             'default_email_layout_xmlid': 'mail.mail_notification_layout_with_responsible_signature',
             'force_email': True,
             'mark_doc_as_sent': True,
