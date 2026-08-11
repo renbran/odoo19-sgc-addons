@@ -14,7 +14,7 @@
         <field name="name">SGC Leaderboard</field>
         <field name="sequence">60</field>
         <field name="action" ref="action_sgc_leaderboard"/>
-        <field name="group_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="group_ids" eval="[]"/>
     </record>
 
     <template id="sgc_leaderboard_template" name="SGC Leaderboard">
