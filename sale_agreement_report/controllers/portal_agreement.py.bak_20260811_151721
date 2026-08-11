@@ -10,12 +10,11 @@ class CustomerPortalAgreement(CustomerPortal):
 
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
-        if 'agreement_count' in counters:
-            partner = request.env.user.partner_id.commercial_partner_id
-            count = request.env['sale.agreement'].sudo().search_count([
-                ('partner_id', 'child_of', partner.id)
-            ])
-            values['agreement_count'] = count
+        partner = request.env.user.partner_id.commercial_partner_id
+        count = request.env['sale.agreement'].sudo().search_count([
+            ('partner_id', 'child_of', partner.id)
+        ])
+        values['agreement_count'] = count
         return values
 
     @http.route(['/my/agreements', '/my/agreements/page/<int:page>'], type='http', auth='user', website=True)
