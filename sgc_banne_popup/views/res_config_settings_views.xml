@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sgc_banner" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sgc.banne.popup</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="SGC Gamification Banner" string="SGC Gamification Banner" name="sgc_banne_popup">
+                    <block title="Session Banner">
+                        <setting string="Banner Text"
+                                 help="Shown once per browser session across the backend. Leave blank to disable the banner.">
+                            <field name="sgc_banner_text"
+                                   placeholder="Welcome to SGC Gamification! Participate to earn rewards."/>
+                        </setting>
+                        <setting string="Prize Pool (AED)"
+                                 help="Current prize pool figure. Leave at 0 to hide it from the banner.">
+                            <field name="sgc_banner_price_pool" placeholder="0"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

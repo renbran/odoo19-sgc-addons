@@ -1,0 +1,92 @@
+// SGC Banner/Popup - navy + gold, matches sgc_employee_badges' leaderboard palette.
+$sgc-navy: #0f1b3d;
+$sgc-navy-2: #1a2b5e;
+$sgc-gold: #c9a24b;
+$sgc-gold-soft: #e5c782;
+$sgc-cream: #faf7f1;
+
+.o_sgc_banner {
+    position: relative;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 10px 44px;
+    background: linear-gradient(135deg, $sgc-navy 0%, $sgc-navy-2 100%);
+    color: $sgc-cream;
+    border-bottom: 1px solid rgba($sgc-gold, 0.3);
+    font-size: 13px;
+    flex: 0 0 auto;
+}
+
+.o_sgc_banner_inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.o_sgc_banner_pool {
+    font-weight: 700;
+    color: $sgc-gold-soft;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba($sgc-gold, 0.15);
+}
+
+.o_sgc_banner_text {
+    font-weight: 500;
+}
+
+.o_sgc_banner_close {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: $sgc-cream;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+// Standalone /sgc/banne_popup preview page
+.sgc-banner-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #fbf9f4 0%, #f4f1e8 100%);
+    padding: 40px;
+    box-sizing: border-box;
+
+    &__inner {
+        background: white;
+        border-radius: 16px;
+        padding: 32px 40px;
+        box-shadow: 0 12px 32px rgba(15, 27, 61, 0.12);
+        border: 1px solid rgba(15, 27, 61, 0.08);
+        text-align: center;
+        max-width: 480px;
+    }
+
+    &__pool {
+        font-size: 20px;
+        font-weight: 700;
+        color: $sgc-gold;
+        margin-bottom: 12px;
+    }
+
+    &__text {
+        font-size: 15px;
+        color: $sgc-navy;
+    }
+}

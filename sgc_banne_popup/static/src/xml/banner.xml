@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sgc_banne_popup.Banner">
+        <div class="o_sgc_banner" t-if="state.visible" role="status">
+            <div class="o_sgc_banner_inner">
+                <span class="o_sgc_banner_pool" t-if="state.pricePool > 0">
+                    <t t-esc="state.pricePool"/> AED prize pool
+                </span>
+                <span class="o_sgc_banner_text" t-esc="state.bannerText"/>
+            </div>
+            <button class="o_sgc_banner_close" t-on-click="dismiss" aria-label="Dismiss">×</button>
+        </div>
+    </t>
+</templates>

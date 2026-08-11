@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <template id="sgc_banne_popup.banner" name="SGC Gamification Banner">
-        <t t-set="price_pool" t-value="env['ir.config_parameter'].sudo().get_param('sgc_banne_popup.price_pool') or '0'"/>
-        <t-set="banner_text" t-value="env['ir.config_parameter'].sudo().get_param('sgc_banne_popup.banner_text') or ''"/>
-        <t t-if="not price_pool or float_to_float(price_pool) > 0">
-            <div t-att-class="['sgc-banner', {'sgc-banner--has-pool': float_to_float(price_pool) > 0]}">
-                <div class="sgc-banner__inner">
-                    <t t-if="float_to_float(price_pool) > 0">
-                        <div class="sgc-banner__pool">
-                            <t t-esc="price_pool"/> <t t-if="price_pool != '0'"/> AED prize pool
+        <t t-call="web.layout">
+            <t t-set="head">
+                <link rel="stylesheet" href="/sgc_banne_popup/static/src/scss/banner.css"/>
+            </t>
+            <div class="o_action_manager">
+                <div class="sgc-banner-page">
+                    <div class="sgc-banner-page__inner">
+                        <div class="sgc-banner-page__pool" t-if="price_pool and float(price_pool) > 0">
+                            <t t-esc="price_pool"/> AED prize pool
                         </div>
-                    </t>
-                    <t t-else="">
-                        <div class="sgc-banner__pool-empty">
-                            <t t-esc="'/welcome-to-sgc'/"/> <t t-esc="'/get-started'/"/> <t t-esc="'/new-campaign'/"/>
-                        </div>
-                    </t>
-                    <div class="sgc-banner__text">
-                        <t t-esc="banner_text"/> <t t-if="banner_text"/>: 
-                        <t t-esc="'/earn rewards'/"/> <t t-if="banner_text"/> <t t-esc="'/by/participating'/"/> <t t-elif="not banner_text"/> <t t-esc="'/participate in gamification activities'/}/>
+                        <div class="sgc-banner-page__text" t-esc="banner_text or 'Welcome to SGC Gamification! Participate to earn rewards.'"/>
                     </div>
-                    <button class="sgc-banner__close" t-on-click="dismissBanner" aria-label="Close banner">
-                        <span>×</span>
-                    </button>
                 </div>
             </div>
         </t>
