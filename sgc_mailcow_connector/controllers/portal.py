@@ -1,4 +1,4 @@
-from odoo import http, _
+from odoo import http, fields, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.exceptions import AccessError, MissingError
@@ -59,10 +59,10 @@ class SgcEmployeeDocumentPortal(CustomerPortal):
         report_xmlid = doc_sudo._REPORT_XMLIDS.get(doc_sudo.doc_type)
         if not report_xmlid:
             raise ValueError(_("No report configured for document type: %s") % doc_sudo.doc_type)
+        pdf_content, _fmt = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
+            report_xmlid, [doc_sudo.id])
         doc_sudo.message_post(
-            pdf = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
-                report_xmlid, [doc_sudo.id])[0],
-            attachments=[('%s.pdf' % doc_sudo.name, pdf)],
+            attachments=[('%s.pdf' % doc_sudo.name, pdf_content)],
             body=_('Document signed by %s', name),
             subtype_xmlid='mail.mt_comment',
         )
