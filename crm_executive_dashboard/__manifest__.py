@@ -67,6 +67,7 @@ Compatibility:
         'security/crm_dashboard_security.xml',
         'security/ir.model.access.csv',
         'data/crm_dashboard_data.xml',
+        'data/crm_lead_redistribution_data.xml',
         'views/crm_dashboard_views.xml',
         'views/crm_dashboard_templates.xml',
         'views/crm_dashboard_charts.xml',

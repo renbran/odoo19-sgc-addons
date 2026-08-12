@@ -8,3 +8,4 @@ from . import crm_dashboard_report
 from . import crm_dashboard_export
 from . import crm_lead_extension
 from . import crm_team_extension
+from . import crm_lead_redistribution

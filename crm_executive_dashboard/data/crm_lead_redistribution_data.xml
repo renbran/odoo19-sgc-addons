@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================
+         CRM LEAD REDISTRIBUTION AUTOMATION
+         Server Action + Scheduled Action
+         ============================================================ -->
+
+    <!-- Server Action: Redistribute Dead Leads -->
+    <record id="action_crm_lead_redistribution" model="ir.actions.server">
+        <field name="name">Redistribute Dead Leads</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = env['crm.lead.redistribution'].redistribute_dead_leads()
+        </field>
+    </record>
+
+    <!-- Scheduled Action (Cron): Run Daily at 6:00 AM -->
+    <record id="cron_crm_lead_redistribution" model="ir.cron">
+        <field name="name">CRM: Redistribute Dead Leads Daily</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="number_of_calls">-1</field>
+        <field name="doall">0</field>
+        <field name="interval_type">days</field>
+        <field name="interval_number">1</field>
+        <!-- Run daily at 06:00 AM -->
+        <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 06:00:00')"/>
+        <field name="code">
+            action = env['crm.lead.redistribution'].redistribute_dead_leads()
+        </field>
+    </record>
+
+    <!-- Add to Menu: CRM Settings > Automation > Redistribute Dead Leads -->
+    <menuitem id="menu_crm_lead_redistribution"
+              name="Redistribute Dead Leads"
+              parent="crm.menu_crm_config_main"
+              action="action_crm_lead_redistribution"
+              sequence="100"/>
+
+</odoo>
