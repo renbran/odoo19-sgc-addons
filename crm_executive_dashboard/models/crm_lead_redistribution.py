@@ -34,6 +34,9 @@ class CrmLeadRedistribution(models.Model):
         redistributed_count = 0
         skipped_count = 0
 
+        # TRUE round-robin: use a counter, not lead.id
+        user_index = 0
+
         for lead in dead_leads:
             # Only count messages created AFTER last redistribution
             # If never redistributed (last_redistribution_date is False/null), count all messages
@@ -67,8 +70,9 @@ class CrmLeadRedistribution(models.Model):
                     skipped_count += 1
                     continue
 
-                idx = lead.id % len(eligible_users)
-                new_owner_id = eligible_users[idx]
+                # TRUE round-robin: cycle through users evenly
+                new_owner_id = eligible_users[user_index % len(eligible_users)]
+                user_index += 1
 
                 if new_owner_id:
                     lead.write({
