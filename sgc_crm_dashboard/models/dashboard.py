@@ -903,6 +903,11 @@ class CRMDashboard(models.AbstractModel):
         groups don't compete), plus the current user's own rank if they
         aren't already in the top 5. Requires sgc_employee_badges (declared
         as a hard dependency) for the karma field and gamification models.
+
+        Each entry also carries pipeline_value: the sum of expected_revenue
+        across that user's open leads (active, 0 < probability < 100) - an
+        estimate of what their current pipeline is worth if every deal in
+        it closed, mirroring the "In Pipeline" KPI's own domain.
         """
         admin_group_ids = [
             g.id for g in (
@@ -924,17 +929,38 @@ class CRMDashboard(models.AbstractModel):
         for i, u in enumerate(users):
             u["rank"] = i + 1
 
+        user_ids = [u["id"] for u in users]
+        pipeline_by_user = {}
+        if user_ids:
+            self.env.cr.execute("""
+                SELECT user_id, COALESCE(SUM(expected_revenue), 0) AS pipeline_value
+                  FROM crm_lead
+                 WHERE active = TRUE
+                   AND probability > 0 AND probability < 100
+                   AND user_id = ANY(%s)
+              GROUP BY user_id
+            """, (user_ids,))
+            pipeline_by_user = {
+                row["user_id"]: float(row["pipeline_value"] or 0)
+                for row in self.env.cr.dictfetchall()
+            }
+        for u in users:
+            u["pipeline_value"] = pipeline_by_user.get(u["id"], 0.0)
+
         top = users[:5]
         me = next((u for u in users if u["id"] == self.env.uid), None)
         me_in_top = bool(me) and me["rank"] <= 5
 
+        def _entry(u):
+            return {
+                "id": u["id"],
+                "name": u["name"],
+                "karma": u.get("karma", 0),
+                "rank": u["rank"],
+                "pipeline_value": u.get("pipeline_value", 0.0),
+            }
+
         return {
-            "top": [
-                {"id": u["id"], "name": u["name"], "karma": u.get("karma", 0), "rank": u["rank"]}
-                for u in top
-            ],
-            "me": (
-                {"id": me["id"], "name": me["name"], "karma": me.get("karma", 0), "rank": me["rank"]}
-                if me and not me_in_top else None
-            ),
+            "top": [_entry(u) for u in top],
+            "me": _entry(me) if me and not me_in_top else None,
         }

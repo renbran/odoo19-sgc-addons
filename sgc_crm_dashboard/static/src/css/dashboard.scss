@@ -177,13 +177,28 @@ $_radius-sm: 10px;
         border: 1px solid $_border-soft;
     }
 
-    .o_lb_panel_name {
+    .o_lb_panel_id {
         flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+
+    .o_lb_panel_name {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         color: $_text-secondary;
         font-weight: 500;
+    }
+
+    .o_lb_panel_pipeline {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.68rem;
+        color: $_text-muted;
     }
 
     .o_lb_panel_score {

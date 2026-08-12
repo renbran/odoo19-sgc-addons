@@ -388,10 +388,10 @@
             </div>
 
             <!-- Qualification &amp; Gate Compliance (sgc_sales_playbook) · Leaderboard.
-                 Proportional split (8/4) so the leaderboard gets real, readable
-                 space instead of being squeezed into a KPI-card slot. -->
+                 Even 6/6 split - both get equal, readable space instead of the
+                 leaderboard being squeezed into a KPI-card slot. -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-lg-8">
+                <div class="col-lg-6">
                     <div class="card o_dash_card o_dash_card_compact h-100">
                         <div class="card-header">
                             <h6 class="mb-0 fw-semibold"><i class="fa fa-check-square-o me-2" style="color:#C7A23A;"/>Qualification &amp; Gate Compliance</h6>
@@ -461,14 +461,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-6">
                     <div class="card o_dash_card o_lb_panel h-100" role="button" tabindex="0"
                          t-on-click="() => this.openLeaderboard()"
                          t-on-keydown="(ev) => this.onLeaderboardKeydown(ev)">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0 fw-semibold"><i class="fa fa-trophy me-2" style="color:#C7A23A;"/>Leaderboard</h6>
-                                <small>Sales team ranking by karma</small>
+                                <small>Sales team ranking by karma · pipeline value if closed</small>
                             </div>
                             <span class="o_lb_panel_badge">
                                 <i class="fa fa-star"/>
@@ -488,7 +488,12 @@
                                     <img class="o_lb_panel_avatar"
                                          t-attf-src="/web/image/res.users/{{row.id}}/avatar_128/32x32"
                                          t-att-alt="row.name"/>
-                                    <span class="o_lb_panel_name" t-esc="row.name"/>
+                                    <span class="o_lb_panel_id">
+                                        <span class="o_lb_panel_name" t-esc="row.name"/>
+                                        <span class="o_lb_panel_pipeline">
+                                            Pipeline: <t t-esc="formatCurrency(row.pipeline_value)"/>
+                                        </span>
+                                    </span>
                                     <span class="o_lb_panel_score" t-esc="row.karma"/>
                                 </li>
                             </ol>
@@ -497,7 +502,12 @@
                                 <img class="o_lb_panel_avatar"
                                      t-attf-src="/web/image/res.users/{{state.leaderboard.me.id}}/avatar_128/32x32"
                                      alt="You"/>
-                                <span class="o_lb_panel_name">You</span>
+                                <span class="o_lb_panel_id">
+                                    <span class="o_lb_panel_name">You</span>
+                                    <span class="o_lb_panel_pipeline">
+                                        Pipeline: <t t-esc="formatCurrency(state.leaderboard.me.pipeline_value)"/>
+                                    </span>
+                                </span>
                                 <span class="o_lb_panel_score" t-esc="state.leaderboard.me.karma"/>
                             </div>
                             <div class="text-muted small text-center py-3" t-if="!state.leaderboard.top.length">
