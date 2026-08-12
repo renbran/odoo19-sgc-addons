@@ -53,11 +53,10 @@ class CrmLeadRedistribution(models.Model):
         if not team_user_ids:
             return "No active sales team members found"
 
-        # Find leads in dead stages that are still active
+        # Find leads/opportunities in dead stages that are still active
         dead_leads = Lead.search([
             ('stage_id', 'in', dead_stages.ids),
             ('active', '=', True),
-            ('type', '=', 'lead'),
         ])
 
         archived_count = 0
