@@ -33,12 +33,11 @@ class CrmLeadRedistribution(models.Model):
         Stage = self.env['crm.stage']
         MailMessage = self.env['mail.message']
 
-        # Find the dead stages (No Answer and Not Interested)
+        # Find only the main pipeline dead stages (No Answer and Not Interested)
         dead_stages = Stage.search([
-            '|', '|',
+            '|',
             ('name', 'ilike', 'no answer'),
             ('name', 'ilike', 'not interested'),
-            ('name', 'ilike', 'lost')
         ])
 
         if not dead_stages:
