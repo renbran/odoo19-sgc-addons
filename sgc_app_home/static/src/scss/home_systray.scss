@@ -2,11 +2,12 @@
     border: none;
     padding: 0 12px;
     height: 100%;
-    color: inherit;
+    color: rgba(255, 255, 255, 0.85);
     opacity: 0.85;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, color 0.15s ease;
 
     &:hover {
         opacity: 1;
+        color: #fff;
     }
 }
