@@ -34,7 +34,7 @@ export class SgcBannePopup extends Component {
         });
     }
 
-    dismiss() {
+    close() {
         this.state.visible = false;
     }
 }

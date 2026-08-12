@@ -298,11 +298,8 @@
                 </div>
             </div>
 
-            <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked ·
-                 Revenue · Leaderboard. The leaderboard tile sits beside the other
-                 score cards (row-cols-md-6, not a full-width row) so it reads as
-                 one more KPI, not an interruption. -->
-            <div class="row row-cols-2 row-cols-md-6 g-3 mb-4 px-3">
+            <!-- Row 2: Follow Up · Research Done · Email Outreach · Meeting Booked · Revenue -->
+            <div class="row row-cols-2 row-cols-md-5 g-3 mb-4 px-3">
                 <div class="col">
                     <div class="card o_kpi_card o_kpi_clickable o_kpi-follow-up h-100" role="button" tabindex="0"
                          t-on-click="() => this.openRecords('kpi_follow_up')"
@@ -388,42 +385,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col">
-                    <div class="card o_kpi_card o_kpi_clickable o_kpi-leaderboard h-100" role="button" tabindex="0"
-                         t-on-click="() => this.openLeaderboard()"
-                         t-on-keydown="(ev) => this.onLeaderboardKeydown(ev)">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-1">
-                                <div class="o_kpi_label">Leaderboard</div>
-                                <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
-                                    <i class="fa fa-trophy fa-lg" style="color:#C7A23A;"/>
-                                </div>
-                            </div>
-                            <ol class="o_lb_mini_list" t-if="state.leaderboard.top.length">
-                                <li t-foreach="state.leaderboard.top.slice(0, 3)" t-as="row" t-key="row.id"
-                                    class="o_lb_mini_row" t-att-class="{ o_lb_mini_me: row.id === state.currentUserId }">
-                                    <span class="o_lb_mini_rank" t-esc="row.rank"/>
-                                    <span class="o_lb_mini_name" t-esc="row.name"/>
-                                    <span class="o_lb_mini_score" t-esc="row.karma"/>
-                                </li>
-                            </ol>
-                            <div class="o_lb_mini_me_row" t-if="state.leaderboard.me">
-                                <span class="o_lb_mini_rank">#<t t-esc="state.leaderboard.me.rank"/></span>
-                                <span class="o_lb_mini_name">You</span>
-                                <span class="o_lb_mini_score" t-esc="state.leaderboard.me.karma"/>
-                            </div>
-                            <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;" t-if="!state.leaderboard.top.length">
-                                No ranked activity yet
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Qualification &amp; Gate Compliance (sgc_sales_playbook) -->
+            <!-- Qualification &amp; Gate Compliance (sgc_sales_playbook) · Leaderboard.
+                 Proportional split (8/4) so the leaderboard gets real, readable
+                 space instead of being squeezed into a KPI-card slot. -->
             <div class="row g-3 mb-4 px-3">
-                <div class="col-md-12">
-                    <div class="card o_dash_card">
+                <div class="col-lg-8">
+                    <div class="card o_dash_card o_dash_card_compact h-100">
                         <div class="card-header">
                             <h6 class="mb-0 fw-semibold"><i class="fa fa-check-square-o me-2" style="color:#C7A23A;"/>Qualification &amp; Gate Compliance</h6>
                             <small>Are deals being properly qualified before advancing? (Playbook Phase 4)</small>
@@ -439,9 +408,9 @@
                                 gate is currently failing OPEN (not enforced) until this is corrected in
                                 Settings &gt; Technical &gt; System Parameters.
                             </div>
-                            <div class="row g-3">
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box o_stat_clickable" role="button" tabindex="0"
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="o_stat_box o_stat_box_compact o_stat_clickable" role="button" tabindex="0"
                                          t-on-click="() => this.openRecords('qual_gate_pass_rate')"
                                          t-on-keydown="(ev) => this.onClickableKeydown(ev, 'qual_gate_pass_rate')"
                                          t-att-class="{
@@ -452,7 +421,7 @@
                                     }">
                                         <div class="o_stat_value" t-esc="state.qualification.gate_pass_rate === null or state.qualification.gate_pass_rate === undefined ? 'N/A' : state.qualification.gate_pass_rate + '%'"/>
                                         <div class="o_stat_label">Gate Pass Rate</div>
-                                        <div class="small text-muted" style="font-size:0.7rem;">
+                                        <div class="small text-muted" style="font-size:0.65rem;">
                                             n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_n)"/>
                                             <t t-if="state.qualification.gate_pass_rate_ai_n or state.qualification.gate_pass_rate_human_n">
                                                 · AI <t t-esc="state.qualification.gate_pass_rate_ai === null ? 'N/A' : state.qualification.gate_pass_rate_ai + '%'"/> (n=<t t-esc="formatNumber(state.qualification.gate_pass_rate_ai_n)"/>)
@@ -461,8 +430,8 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box o_stat_clickable" role="button" tabindex="0"
+                                <div class="col-6">
+                                    <div class="o_stat_box o_stat_box_compact o_stat_clickable" role="button" tabindex="0"
                                          t-on-click="() => this.openRecords('qual_stalled')"
                                          t-on-keydown="(ev) => this.onClickableKeydown(ev, 'qual_stalled')"
                                          t-att-class="state.qualification.stalled_deals_count === null or state.qualification.stalled_deals_count === undefined ? 'o_stat-muted' : 'o_stat-red'">
@@ -470,18 +439,18 @@
                                         <div class="o_stat_label">Stalled 3+ Weeks</div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box o_stat_clickable" role="button" tabindex="0"
+                                <div class="col-6">
+                                    <div class="o_stat_box o_stat_box_compact o_stat_clickable" role="button" tabindex="0"
                                          t-on-click="() => this.openRecords('qual_objection_conversion')"
                                          t-on-keydown="(ev) => this.onClickableKeydown(ev, 'qual_objection_conversion')"
                                          t-att-class="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'o_stat-muted' : 'o_stat-mauve'">
                                         <div class="o_stat_value" t-esc="state.qualification.objection_conversion_rate === null or state.qualification.objection_conversion_rate === undefined ? 'N/A' : state.qualification.objection_conversion_rate + '%'"/>
                                         <div class="o_stat_label">Objection → Meeting</div>
-                                        <div class="small text-muted" style="font-size:0.7rem;">n=<t t-esc="formatNumber(state.qualification.objection_conversion_rate_n)"/></div>
+                                        <div class="small text-muted" style="font-size:0.65rem;">n=<t t-esc="formatNumber(state.qualification.objection_conversion_rate_n)"/></div>
                                     </div>
                                 </div>
-                                <div class="col-6 col-md-3">
-                                    <div class="o_stat_box o_stat_clickable o_stat-yellow" role="button" tabindex="0"
+                                <div class="col-6">
+                                    <div class="o_stat_box o_stat_box_compact o_stat_clickable o_stat-yellow" role="button" tabindex="0"
                                          t-on-click="() => this.openRecords('qual_stale')"
                                          t-on-keydown="(ev) => this.onClickableKeydown(ev, 'qual_stale')">
                                         <div class="o_stat_value" t-esc="formatNumber(state.qualification.stale_lead_count)"/>
@@ -489,6 +458,54 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card o_dash_card o_lb_panel h-100" role="button" tabindex="0"
+                         t-on-click="() => this.openLeaderboard()"
+                         t-on-keydown="(ev) => this.onLeaderboardKeydown(ev)">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-semibold"><i class="fa fa-trophy me-2" style="color:#C7A23A;"/>Leaderboard</h6>
+                                <small>Sales team ranking by karma</small>
+                            </div>
+                            <span class="o_lb_panel_badge">
+                                <i class="fa fa-star"/>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <ol class="o_lb_panel_list" t-if="state.leaderboard.top.length">
+                                <li t-foreach="state.leaderboard.top" t-as="row" t-key="row.id"
+                                    class="o_lb_panel_row" t-att-class="{ o_lb_panel_me: row.id === state.currentUserId }"
+                                    t-att-data-rank="row.rank &lt;= 3 ? row.rank : ''">
+                                    <span class="o_lb_panel_rank" t-att-data-rank="row.rank">
+                                        <t t-if="row.rank === 1">🥇</t>
+                                        <t t-elif="row.rank === 2">🥈</t>
+                                        <t t-elif="row.rank === 3">🥉</t>
+                                        <t t-else=""><t t-esc="row.rank"/></t>
+                                    </span>
+                                    <img class="o_lb_panel_avatar"
+                                         t-attf-src="/web/image/res.users/{{row.id}}/avatar_128/32x32"
+                                         t-att-alt="row.name"/>
+                                    <span class="o_lb_panel_name" t-esc="row.name"/>
+                                    <span class="o_lb_panel_score" t-esc="row.karma"/>
+                                </li>
+                            </ol>
+                            <div class="o_lb_panel_me_row" t-if="state.leaderboard.me">
+                                <span class="o_lb_panel_rank" t-esc="'#' + state.leaderboard.me.rank"/>
+                                <img class="o_lb_panel_avatar"
+                                     t-attf-src="/web/image/res.users/{{state.leaderboard.me.id}}/avatar_128/32x32"
+                                     alt="You"/>
+                                <span class="o_lb_panel_name">You</span>
+                                <span class="o_lb_panel_score" t-esc="state.leaderboard.me.karma"/>
+                            </div>
+                            <div class="text-muted small text-center py-3" t-if="!state.leaderboard.top.length">
+                                No ranked activity yet
+                            </div>
+                        </div>
+                        <div class="o_lb_panel_footer">
+                            View Full Leaderboard <i class="fa fa-arrow-right ms-1"/>
                         </div>
                     </div>
                 </div>

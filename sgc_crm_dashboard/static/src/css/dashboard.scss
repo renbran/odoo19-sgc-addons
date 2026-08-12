@@ -100,62 +100,123 @@ $_radius-sm: 10px;
         &.o_kpi-activity { border-left: 4px solid $_blue-info !important; }
 
         &.o_kpi-lost { border-left: 4px solid $_coral !important; }
-        &.o_kpi-leaderboard { border-left: 4px solid $_gold !important; }
     }
 
-    // Compact top-3 list inside the Leaderboard KPI tile - deliberately
-    // smaller than the o_kpi_value number tiles since it packs 3 rows
-    // (plus an optional "you" row) into the same card footprint.
-    .o_lb_mini_list {
+    // Leaderboard panel - beside the (now compact) Qualification & Gate
+    // Compliance card, given real vertical room (col-lg-4) instead of being
+    // squeezed into a single KPI-card slot.
+    .o_lb_panel {
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            border-color: $_gold !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            align-items: flex-start;
+        }
+    }
+
+    .o_lb_panel_badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba($_gold, 0.15);
+        color: $_gold;
+        flex: 0 0 auto;
+    }
+
+    .o_lb_panel_list {
         list-style: none;
-        margin: 4px 0 0;
+        margin: 0;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 10px;
     }
 
-    .o_lb_mini_row,
-    .o_lb_mini_me_row {
+    .o_lb_panel_row,
+    .o_lb_panel_me_row {
         display: flex;
         align-items: center;
-        gap: 6px;
-        font-size: 0.72rem;
+        gap: 10px;
+        font-size: 0.85rem;
         line-height: 1.3;
     }
 
-    .o_lb_mini_rank {
+    .o_lb_panel_rank {
         flex: 0 0 auto;
-        min-width: 16px;
-        color: $_gold;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 0.85rem;
         font-weight: 700;
+        color: $_text-muted;
+        background: rgba(255, 255, 255, 0.06);
+
+        &[data-rank="1"] { background: rgba($_gold, 0.22); font-size: 1rem; }
+        &[data-rank="2"] { background: rgba(199, 199, 199, 0.18); font-size: 1rem; }
+        &[data-rank="3"] { background: rgba(205, 127, 50, 0.2); font-size: 1rem; }
     }
 
-    .o_lb_mini_name {
+    .o_lb_panel_avatar {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid $_border-soft;
+    }
+
+    .o_lb_panel_name {
         flex: 1 1 auto;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: $_text-muted;
+        color: $_text-secondary;
+        font-weight: 500;
     }
 
-    .o_lb_mini_score {
+    .o_lb_panel_score {
         flex: 0 0 auto;
         font-weight: 700;
-        color: $_text-primary;
+        color: $_gold;
+        font-variant-numeric: tabular-nums;
     }
 
-    .o_lb_mini_row.o_lb_mini_me .o_lb_mini_name {
-        color: $_text-primary;
-        font-weight: 600;
+    .o_lb_panel_row.o_lb_panel_me {
+        background: rgba($_gold, 0.08);
+        border-radius: $_radius-md;
+        padding: 4px 8px;
+        margin: -4px -8px;
+
+        .o_lb_panel_name { color: $_text-primary; font-weight: 700; }
     }
 
-    .o_lb_mini_me_row {
-        margin-top: 4px;
-        padding-top: 4px;
+    .o_lb_panel_me_row {
+        margin-top: 10px;
+        padding-top: 10px;
         border-top: 1px dashed $_border-soft;
 
-        .o_lb_mini_name { color: $_text-primary; font-weight: 600; }
+        .o_lb_panel_name { color: $_text-primary; font-weight: 700; }
+    }
+
+    .o_lb_panel_footer {
+        padding: 10px 20px;
+        text-align: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: $_gold;
+        border-top: 1px solid $_border-soft;
     }
 
     .o_dash_card {
@@ -217,11 +278,25 @@ $_radius-sm: 10px;
         }
     }
 
+    // Compact card: tighter header/body padding, used by Qualification &
+    // Gate Compliance now that it shares its row with the Leaderboard panel.
+    .o_dash_card_compact {
+        .card-header { padding: 10px 16px; }
+        .card-body { padding: 12px 16px; }
+    }
+
     .o_stat_box {
         text-align: center;
         padding: 16px 12px;
         border-radius: $_radius-md;
         transition: all 0.3s ease;
+
+        &.o_stat_box_compact {
+            padding: 10px 8px;
+
+            .o_stat_value { font-size: 1.15rem; }
+            .o_stat_label { font-size: 0.68rem; }
+        }
 
         .o_stat_value {
             font-size: 1.5rem;
