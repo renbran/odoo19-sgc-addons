@@ -29,6 +29,7 @@ existing app, menu, action, or permission.
             "sgc_app_home/static/src/scss/home_systray.scss",
             "sgc_app_home/static/src/js/home_systray.js",
             "sgc_app_home/static/src/xml/home_systray.xml",
+            "sgc_app_home/static/src/xml/control_panel_home_button.xml",
         ],
     },
     "images": ["static/description/icon.png"],
