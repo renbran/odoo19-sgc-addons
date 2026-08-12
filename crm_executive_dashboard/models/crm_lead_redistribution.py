@@ -1,12 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-CRM Lead Redistribution Automation
----------------------------------
-Server action + scheduled action to:
-1. Find leads in "No Answer" or "Not Interested" stages
-2. If touch_count (message count) >= 3: archive the lead
-3. Otherwise: redistribute to a different owner (not the same as current owner)
-"""
 from odoo import models
 
 
@@ -14,43 +6,25 @@ class CrmLeadRedistribution(models.Model):
     _name = 'crm.lead.redistribution'
     _description = 'CRM Lead Redistribution Automation'
 
-    def get_touch_count(self, lead_id):
-        """Get the touch count for a lead based on message interactions."""
-        return self.env['mail.message'].search_count([
-            ('res_id', '=', lead_id),
-            ('model', '=', 'crm.lead'),
-            ('message_type', '!=', 'notification'),
-        ])
-
     def redistribute_dead_leads(self):
-        """
-        Redistribute dead leads (No Answer / Not Interested) across sales team.
-        - If lead has >= 3 message interactions, archive it
-        - Otherwise, reassign to a different owner from the sales team
-        """
         Lead = self.env['crm.lead']
         TeamMember = self.env['crm.team.member']
         Stage = self.env['crm.stage']
         MailMessage = self.env['mail.message']
 
-        # Find only the main pipeline dead stages (No Answer and Not Interested)
-        dead_stages = Stage.search([
-            ('id', 'in', [5, 7]),
-        ])
+        dead_stages = Stage.search([('id', 'in', [5, 7])])
 
         if not dead_stages:
             return "No dead stages found"
 
-        # Get all sales team members
-        sales_team = TeamMember.search([
-            ('crm_team_id.name', 'ilike', 'Sales')
-        ])
+        sales_team = TeamMember.search([('crm_team_id.name', 'ilike', 'Sales')])
         team_user_ids = [tm.user_id.id for tm in sales_team if tm.user_id and tm.user_id.active]
 
         if not team_user_ids:
             return "No active sales team members found"
 
-        # Find leads/opportunities in dead stages that are still active
+        new_stage = Stage.search([('id', '=', 1)], limit=1)
+
         dead_leads = Lead.search([
             ('stage_id', 'in', dead_stages.ids),
             ('active', '=', True),
@@ -59,8 +33,6 @@ class CrmLeadRedistribution(models.Model):
         archived_count = 0
         redistributed_count = 0
         skipped_count = 0
-
-        new_stage = Stage.search([('id', '=', 1)], limit=1)
 
         for lead in dead_leads:
             message_count = MailMessage.search_count([
