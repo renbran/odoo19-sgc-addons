@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates xml:space="preserve">
-    <t t-inherit="web.ControlPanel" t-inherit-mode="extension">
-        <xpath expr="//t[@t-slot='control-panel-navigation-additional']" position="before">
-            <button class="o_sgc_home_switcher btn btn-secondary d-print-none"
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <xpath expr="//t[@t-call='web.NavBar.AppsMenu']" position="after">
+            <button t-if="!this.ui.isSmall" class="o_nav_entry o_sgc_home_navbar_btn border-0"
                     title="SGC TECH AI Home" aria-label="SGC TECH AI Home"
                     t-on-click="() => env.services.action.doAction('sgc_app_home.action_sgc_app_home')">
                 <i class="fa fa-home" role="img"/>
