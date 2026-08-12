@@ -897,17 +897,28 @@ class CRMDashboard(models.AbstractModel):
     @api.model
     def get_leaderboard_mini(self):
         """Compact leaderboard snippet for the dashboard: top 5 salespeople
-        by karma, restricted to actual sales team members (a linked
-        hr.employee, on a crm.team) with the same admin exclusion as
+        by a computed score, restricted to actual sales team members (a
+        linked hr.employee, on a crm.team) with the same admin exclusion as
         sgc_employee_badges' /sgc/leaderboard (Administrator / Settings
         groups don't compete), plus the current user's own rank if they
         aren't already in the top 5. Requires sgc_employee_badges (declared
-        as a hard dependency) for the karma field and gamification models.
+        as a hard dependency) for the gamification models this dashboard
+        otherwise touches.
 
-        Each entry also carries pipeline_value: the sum of expected_revenue
-        across that user's open leads (active, 0 < probability < 100) - an
-        estimate of what their current pipeline is worth if every deal in
-        it closed, mirroring the "In Pipeline" KPI's own domain.
+        The rank/score here is a display-only computation, NOT real Odoo
+        karma - it is never written to gamification.badge.user or
+        res.users.karma. It rewards two behaviors:
+          - meetings_booked: all-time count of calendar.event records the
+            rep created against an opportunity.
+          - pipeline_value: expected_revenue summed over the rep's *active
+            Proposal-stage* leads only - the same gate stage
+            sgc_sales_playbook's Qualification & Gate Compliance card
+            enforces (crm.lead._get_gate_stage()), so both cards agree on
+            what "Proposal" means. Falls back to 0 for everyone if
+            sgc_sales_playbook isn't installed or its gate stage is
+            misconfigured (fails open, same as the qualification card).
+        Provisional weights (50 pts/meeting, 1 pt per AED 1,000 of
+        proposal pipeline) - tune if these don't feel right in practice.
         """
         admin_group_ids = [
             g.id for g in (
@@ -924,28 +935,51 @@ class CRMDashboard(models.AbstractModel):
         ]
         if admin_group_ids:
             domain.append(("group_ids", "not in", admin_group_ids))
-        users = self.env["res.users"].sudo().search_read(domain, ["id", "name", "karma"])
-        users.sort(key=lambda u: u.get("karma", 0), reverse=True)
-        for i, u in enumerate(users):
-            u["rank"] = i + 1
-
+        users = self.env["res.users"].sudo().search_read(domain, ["id", "name"])
         user_ids = [u["id"] for u in users]
-        pipeline_by_user = {}
+
+        meetings_by_user = {}
         if user_ids:
             self.env.cr.execute("""
-                SELECT user_id, COALESCE(SUM(expected_revenue), 0) AS pipeline_value
-                  FROM crm_lead
-                 WHERE active = TRUE
-                   AND probability > 0 AND probability < 100
-                   AND user_id = ANY(%s)
-              GROUP BY user_id
+                SELECT create_uid, COUNT(*) AS meetings
+                  FROM calendar_event
+                 WHERE opportunity_id IS NOT NULL
+                   AND create_uid = ANY(%s)
+              GROUP BY create_uid
             """, (user_ids,))
-            pipeline_by_user = {
-                row["user_id"]: float(row["pipeline_value"] or 0)
+            meetings_by_user = {
+                row["create_uid"]: int(row["meetings"] or 0)
                 for row in self.env.cr.dictfetchall()
             }
+
+        sgc_playbook_installed = bool(self.env["ir.module.module"].sudo().search_count([
+            ("name", "=", "sgc_sales_playbook"), ("state", "=", "installed"),
+        ]))
+        proposal_pipeline_by_user = {}
+        if sgc_playbook_installed and user_ids:
+            gate_stage = self.env["crm.lead"]._get_gate_stage()
+            if gate_stage:
+                self.env.cr.execute("""
+                    SELECT user_id, COALESCE(SUM(expected_revenue), 0) AS pipeline_value
+                      FROM crm_lead
+                     WHERE active = TRUE
+                       AND stage_id = %s
+                       AND user_id = ANY(%s)
+                  GROUP BY user_id
+                """, (gate_stage.id, user_ids))
+                proposal_pipeline_by_user = {
+                    row["user_id"]: float(row["pipeline_value"] or 0)
+                    for row in self.env.cr.dictfetchall()
+                }
+
         for u in users:
-            u["pipeline_value"] = pipeline_by_user.get(u["id"], 0.0)
+            u["meetings_booked"] = meetings_by_user.get(u["id"], 0)
+            u["pipeline_value"] = proposal_pipeline_by_user.get(u["id"], 0.0)
+            u["score"] = u["meetings_booked"] * 50 + u["pipeline_value"] / 1000.0
+
+        users.sort(key=lambda u: u["score"], reverse=True)
+        for i, u in enumerate(users):
+            u["rank"] = i + 1
 
         top = users[:5]
         me = next((u for u in users if u["id"] == self.env.uid), None)
@@ -955,9 +989,10 @@ class CRMDashboard(models.AbstractModel):
             return {
                 "id": u["id"],
                 "name": u["name"],
-                "karma": u.get("karma", 0),
                 "rank": u["rank"],
-                "pipeline_value": u.get("pipeline_value", 0.0),
+                "score": round(u["score"]),
+                "meetings_booked": u["meetings_booked"],
+                "pipeline_value": u["pipeline_value"],
             }
 
         return {

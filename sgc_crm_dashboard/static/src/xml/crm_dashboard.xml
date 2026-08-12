@@ -468,13 +468,21 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="mb-0 fw-semibold"><i class="fa fa-trophy me-2" style="color:#C7A23A;"/>Leaderboard</h6>
-                                <small>Sales team ranking by karma · pipeline value if closed</small>
+                                <small>Ranked by meetings booked &amp; Proposal-stage pipeline</small>
                             </div>
                             <span class="o_lb_panel_badge">
                                 <i class="fa fa-star"/>
                             </span>
                         </div>
                         <div class="card-body">
+                            <div class="o_lb_panel_colheads" t-if="state.leaderboard.top.length">
+                                <span/>
+                                <span/>
+                                <span>Rep</span>
+                                <span class="text-center">Mtgs</span>
+                                <span class="text-end">Pipeline (Proposal)</span>
+                                <span class="text-end">Score</span>
+                            </div>
                             <ol class="o_lb_panel_list" t-if="state.leaderboard.top.length">
                                 <li t-foreach="state.leaderboard.top" t-as="row" t-key="row.id"
                                     class="o_lb_panel_row" t-att-class="{ o_lb_panel_me: row.id === state.currentUserId }"
@@ -488,13 +496,10 @@
                                     <img class="o_lb_panel_avatar"
                                          t-attf-src="/web/image/res.users/{{row.id}}/avatar_128/32x32"
                                          t-att-alt="row.name"/>
-                                    <span class="o_lb_panel_id">
-                                        <span class="o_lb_panel_name" t-esc="row.name"/>
-                                        <span class="o_lb_panel_pipeline">
-                                            Pipeline: <t t-esc="formatCurrency(row.pipeline_value)"/>
-                                        </span>
-                                    </span>
-                                    <span class="o_lb_panel_score" t-esc="row.karma"/>
+                                    <span class="o_lb_panel_name" t-esc="row.name"/>
+                                    <span class="o_lb_panel_meetings text-center" t-esc="row.meetings_booked"/>
+                                    <span class="o_lb_panel_pipeline text-end" t-esc="formatCurrency(row.pipeline_value)"/>
+                                    <span class="o_lb_panel_score text-end" t-esc="row.score"/>
                                 </li>
                             </ol>
                             <div class="o_lb_panel_me_row" t-if="state.leaderboard.me">
@@ -502,13 +507,10 @@
                                 <img class="o_lb_panel_avatar"
                                      t-attf-src="/web/image/res.users/{{state.leaderboard.me.id}}/avatar_128/32x32"
                                      alt="You"/>
-                                <span class="o_lb_panel_id">
-                                    <span class="o_lb_panel_name">You</span>
-                                    <span class="o_lb_panel_pipeline">
-                                        Pipeline: <t t-esc="formatCurrency(state.leaderboard.me.pipeline_value)"/>
-                                    </span>
-                                </span>
-                                <span class="o_lb_panel_score" t-esc="state.leaderboard.me.karma"/>
+                                <span class="o_lb_panel_name">You</span>
+                                <span class="o_lb_panel_meetings text-center" t-esc="state.leaderboard.me.meetings_booked"/>
+                                <span class="o_lb_panel_pipeline text-end" t-esc="formatCurrency(state.leaderboard.me.pipeline_value)"/>
+                                <span class="o_lb_panel_score text-end" t-esc="state.leaderboard.me.score"/>
                             </div>
                             <div class="text-muted small text-center py-3" t-if="!state.leaderboard.top.length">
                                 No ranked activity yet

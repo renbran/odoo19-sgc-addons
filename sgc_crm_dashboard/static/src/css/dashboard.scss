@@ -132,6 +132,26 @@ $_radius-sm: 10px;
         flex: 0 0 auto;
     }
 
+    // Shared column template across the header row and every data row so
+    // rank / avatar / name / meetings / pipeline / score all line up like a
+    // compact table rather than a stacked list.
+    $_lb-cols: 26px 28px minmax(0, 1fr) 44px 96px 48px;
+
+    .o_lb_panel_colheads {
+        display: grid;
+        grid-template-columns: $_lb-cols;
+        gap: 10px;
+        align-items: center;
+        padding: 0 0 6px;
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: $_text-muted;
+        border-bottom: 1px solid $_border-soft;
+        margin-bottom: 8px;
+    }
+
     .o_lb_panel_list {
         list-style: none;
         margin: 0;
@@ -143,15 +163,15 @@ $_radius-sm: 10px;
 
     .o_lb_panel_row,
     .o_lb_panel_me_row {
-        display: flex;
-        align-items: center;
+        display: grid;
+        grid-template-columns: $_lb-cols;
         gap: 10px;
-        font-size: 0.85rem;
+        align-items: center;
+        font-size: 0.82rem;
         line-height: 1.3;
     }
 
     .o_lb_panel_rank {
-        flex: 0 0 auto;
         width: 26px;
         height: 26px;
         display: flex;
@@ -169,7 +189,6 @@ $_radius-sm: 10px;
     }
 
     .o_lb_panel_avatar {
-        flex: 0 0 auto;
         width: 28px;
         height: 28px;
         border-radius: 50%;
@@ -177,15 +196,8 @@ $_radius-sm: 10px;
         border: 1px solid $_border-soft;
     }
 
-    .o_lb_panel_id {
-        flex: 1 1 auto;
-        min-width: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-    }
-
     .o_lb_panel_name {
+        min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -193,16 +205,22 @@ $_radius-sm: 10px;
         font-weight: 500;
     }
 
+    .o_lb_panel_meetings {
+        font-weight: 600;
+        color: $_text-secondary;
+        font-variant-numeric: tabular-nums;
+    }
+
     .o_lb_panel_pipeline {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: 0.68rem;
-        color: $_text-muted;
+        font-weight: 600;
+        color: $_text-primary;
+        font-variant-numeric: tabular-nums;
     }
 
     .o_lb_panel_score {
-        flex: 0 0 auto;
         font-weight: 700;
         color: $_gold;
         font-variant-numeric: tabular-nums;
