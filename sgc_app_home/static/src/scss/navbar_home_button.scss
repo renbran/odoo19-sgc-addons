@@ -1,3 +1,5 @@
 .o_sgc_home_navbar_btn {
-    font-size: 1.1rem;
+    // Match the Apps Menu waffle icon's size ($o-navbar-brand-font-size)
+    // so both entries read as equally prominent.
+    font-size: 1.2em;
 }
