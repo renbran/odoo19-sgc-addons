@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from odoo import models
+from odoo import models, fields, api
 
 
 class CrmLeadRedistribution(models.Model):
@@ -35,11 +35,26 @@ class CrmLeadRedistribution(models.Model):
         skipped_count = 0
 
         for lead in dead_leads:
-            message_count = MailMessage.search_count([
-                ('res_id', '=', lead.id),
-                ('model', '=', 'crm.lead'),
-                ('message_type', '!=', 'notification'),
-            ])
+            # Only count messages created AFTER last redistribution
+            # If never redistributed (last_redistribution_date is False/null), count all messages
+            last_redist = lead.last_redistribution_date
+
+            if last_redist:
+                message_domain = [
+                    ('res_id', '=', lead.id),
+                    ('model', '=', 'crm.lead'),
+                    ('message_type', '!=', 'notification'),
+                    ('create_date', '>', last_redist),
+                ]
+            else:
+                # Never redistributed - count all messages (initial touches)
+                message_domain = [
+                    ('res_id', '=', lead.id),
+                    ('model', '=', 'crm.lead'),
+                    ('message_type', '!=', 'notification'),
+                ]
+
+            message_count = MailMessage.search_count(message_domain)
 
             if message_count >= 3:
                 lead.write({'active': False})
@@ -59,7 +74,8 @@ class CrmLeadRedistribution(models.Model):
                     lead.write({
                         'user_id': new_owner_id,
                         'stage_id': new_stage.id,
+                        'last_redistribution_date': fields.Datetime.now(),
                     })
                     redistributed_count += 1
 
-        return f"Archived: {archived_count}, Redistributed: {redistributed_count}, Skipped: {skipped_count}"
+        return "Archived: %s, Redistributed: %s, Skipped: %s" % (archived_count, redistributed_count, skipped_count)
