@@ -1,6 +1,6 @@
 .o_sgc_home_navbar_btn {
     // Match the Apps Menu waffle icon's rendered size exactly (16.8px).
-    // Uses rem instead of em so it doesn't depend on this button's own
-    // ancestor font-size context, which differs from the waffle icon's.
-    font-size: 1.05rem;
+    // !important: a same-specificity core rule was winning the cascade
+    // by source order and silently overriding a plain font-size here.
+    font-size: 16.8px !important;
 }
