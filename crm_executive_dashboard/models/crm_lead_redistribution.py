@@ -60,8 +60,9 @@ class CrmLeadRedistribution(models.Model):
         redistributed_count = 0
         skipped_count = 0
 
+        new_stage = Stage.search([('id', '=', 1)], limit=1)
+
         for lead in dead_leads:
-            # Count touch interactions via message count (excluding notifications)
             message_count = MailMessage.search_count([
                 ('res_id', '=', lead.id),
                 ('model', '=', 'crm.lead'),
@@ -69,11 +70,9 @@ class CrmLeadRedistribution(models.Model):
             ])
 
             if message_count >= 3:
-                # Archive the lead after 3+ touches without conversion
                 lead.write({'active': False})
                 archived_count += 1
             else:
-                # Redistribute to a different owner
                 current_owner = lead.user_id.id
                 eligible_users = [uid for uid in team_user_ids if uid != current_owner]
 
@@ -81,12 +80,14 @@ class CrmLeadRedistribution(models.Model):
                     skipped_count += 1
                     continue
 
-                # Round-robin based on lead ID to ensure even distribution
                 idx = lead.id % len(eligible_users)
                 new_owner_id = eligible_users[idx]
 
                 if new_owner_id:
-                    lead.write({'user_id': new_owner_id})
+                    lead.write({
+                        'user_id': new_owner_id,
+                        'stage_id': new_stage.id,
+                    })
                     redistributed_count += 1
 
         return f"Archived: {archived_count}, Redistributed: {redistributed_count}, Skipped: {skipped_count}"
