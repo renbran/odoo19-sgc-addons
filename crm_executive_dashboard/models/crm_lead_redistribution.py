@@ -35,9 +35,7 @@ class CrmLeadRedistribution(models.Model):
 
         # Find only the main pipeline dead stages (No Answer and Not Interested)
         dead_stages = Stage.search([
-            '|',
-            ('name', 'ilike', 'no answer'),
-            ('name', 'ilike', 'not interested'),
+            ('id', 'in', [5, 7]),
         ])
 
         if not dead_stages:
