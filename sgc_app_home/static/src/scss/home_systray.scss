@@ -1,0 +1,12 @@
+.o_sgc_home_systray {
+    border: none;
+    padding: 0 12px;
+    height: 100%;
+    color: inherit;
+    opacity: 0.85;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+        opacity: 1;
+    }
+}

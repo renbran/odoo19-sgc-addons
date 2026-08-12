@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sgc_app_home.HomeSystray">
+        <button class="o_sgc_home_systray bg-transparent" t-on-click="goHome"
+                title="SGC TECH AI Home" aria-label="SGC TECH AI Home">
+            <i class="fa fa-lg fa-home" role="img"/>
+        </button>
+    </t>
+</templates>
