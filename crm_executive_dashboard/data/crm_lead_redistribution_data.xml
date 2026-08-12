@@ -15,11 +15,4 @@
         </field>
     </record>
 
-    <!-- Add to Menu: CRM Settings > Automation > Redistribute Dead Leads -->
-    <menuitem id="menu_crm_lead_redistribution"
-              name="Redistribute Dead Leads"
-              parent="crm.menu_crm_config_main"
-              action="action_crm_lead_redistribution"
-              sequence="100"/>
-
 </odoo>
