@@ -23,7 +23,7 @@ class SgcOnboardingSurveyUpload(http.Controller):
 
         # The question must belong to that survey and be a file_upload type
         try:
-            question = request.env['survey.question'].browse(int(question_id))
+            question = request.env['survey.question'].sudo().browse(int(question_id))
         except (TypeError, ValueError):
             question = request.env['survey.question']
         if (not question.exists()
