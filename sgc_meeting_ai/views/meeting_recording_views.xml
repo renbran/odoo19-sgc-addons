@@ -17,9 +17,15 @@
                     <button
                         name="action_dispatch_bot"
                         type="object"
-                        string="Dispatch Bot"
+                        string="Schedule Bot"
                         class="oe_highlight"
                         invisible="bot_dispatched or not bot_enabled"
+                    />
+                    <button
+                        name="action_cancel_bot"
+                        type="object"
+                        string="Cancel Bot"
+                        invisible="not bot_dispatched"
                     />
                     <button
                         name="action_process_recording"
@@ -59,7 +65,9 @@
                         <group name="ai" string="AI Pipeline">
                             <field name="bot_enabled" />
                             <field name="bot_dispatched" />
+                            <field name="bot_join_at" />
                             <field name="bot_id" />
+                            <field name="bot_state" />
                             <field name="transcript_id" />
                             <field name="notes_id" />
                             <field name="state_message" />

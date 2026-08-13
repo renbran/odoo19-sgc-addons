@@ -323,6 +323,20 @@ class CalendarEvent(models.Model):
             or Provider.search([], limit=1)
         )
 
+    def _sgc_sessions(self):
+        """Every AI session attached to these events.
+
+        ``sgc_session_id`` is a denormalized convenience pointer and is not
+        guaranteed to be set (a session created directly on
+        ``sgc.meeting.session`` never fills it in), so the meeting link is the
+        authoritative side of the relation. Anything that has to find the
+        notetaker for an event must go through here.
+        """
+        sessions = self.env["sgc.meeting.session"].search(
+            [("meeting_id", "in", self.ids)]
+        )
+        return sessions | self.sgc_session_id
+
     def _sgc_get_or_create_session(self, bot_enabled=None):
         self.ensure_one()
         session = self.sgc_session_id or self.env["sgc.meeting.session"].search(
@@ -1085,7 +1099,36 @@ class CalendarEvent(models.Model):
                     "Failed to re-send CRM invitation with Meet link for events %s",
                     resend_events.ids,
                 )
+        # A cancelled meeting must take its notetaker with it. Odoo cancels a
+        # meeting by archiving it, so active=False is the cancel signal; the
+        # bot is scheduled days ahead and would otherwise still walk into the
+        # room on the day. Same when the user simply switches the bot off.
+        if vals.get("active") is False or vals.get("sgc_bot_enabled") is False:
+            self._sgc_sessions().cancel_bot(
+                reason=_("the meeting was cancelled")
+                if vals.get("active") is False
+                else _("the AI notetaker was switched off"),
+            )
         self._sgc_register_meeting()
+        # An un-archived meeting needs its bot back: _sgc_register_meeting only
+        # dispatches when no session exists yet, and the cancel above cleared
+        # bot_dispatched, so this hands it to the normal dispatch path.
+        if vals.get("active") is True:
+            self._sgc_sessions().filtered(
+                lambda s: s.bot_enabled and not s.bot_dispatched
+            ).action_dispatch_bot()
+        # A moved meeting (or one whose Meet room changed) must drag its
+        # already-scheduled notetaker along with it, otherwise the bot turns up
+        # at the old time in the old room.
+        if {"start", "stop", "videocall_location"} & set(vals):
+            sessions = self._sgc_sessions().filtered("bot_dispatched")
+            if sessions:
+                try:
+                    sessions._sync_bot_schedule()
+                except Exception:
+                    _logger.exception(
+                        "Failed to re-schedule AI notetaker for events %s", self.ids
+                    )
         # A meeting linked to its opportunity after creation reaches the same
         # state a fresh CRM booking does, and would otherwise wait for the 12h
         # cron. The internal writes made by _sgc_register_meeting carry
@@ -1093,3 +1136,9 @@ class CalendarEvent(models.Model):
         if not self.env.context.get("sgc_applying_meet_organizer"):
             self._sgc_push_to_google()
         return res
+
+    def unlink(self):
+        # Deleting the meeting cascades the session away, so the bot has to be
+        # called off first or it would join a meeting Odoo no longer knows about.
+        self._sgc_sessions().cancel_bot(reason=_("the meeting was deleted"))
+        return super().unlink()

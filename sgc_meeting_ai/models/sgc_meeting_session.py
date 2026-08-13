@@ -5,11 +5,12 @@ import base64
 import logging
 import mimetypes
 import os
-import secrets
 from datetime import datetime, timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+from ..services.attendee_service import PLACEHOLDER_PREFIX
 
 _logger = logging.getLogger(__name__)
 
@@ -103,6 +104,12 @@ class SGCMeetingSession(models.Model):
         readonly=True,
         help="Last known state of the external meeting bot (Attendee).",
     )
+    bot_join_at = fields.Datetime(
+        string="Bot Joins At",
+        readonly=True,
+        help="When the external bot is scheduled to enter the meeting. "
+        "Set from the meeting start time, not the booking time.",
+    )
     video_url = fields.Char(
         related="meeting_id.videocall_location", string="Meeting Link"
     )
@@ -139,71 +146,205 @@ class SGCMeetingSession(models.Model):
                 session.duration_minutes = 0
 
     def action_dispatch_bot(self):
-        """Send an AI notetaker bot into the meeting.
+        """Schedule an AI notetaker bot for the meeting.
 
-        Uses the Attendee service (open-source, self-hostable, free) when it is
-        configured. If Attendee is not configured or the meeting has no video
-        link, we fall back to recording the intent so nothing breaks.
+        Uses the Attendee service (open-source, self-hostable, free). The bot
+        is scheduled against the meeting's own start time, not dispatched on
+        the spot: a session is created when the meeting is *booked*, which is
+        usually days before it happens.
+
+        A session that cannot be dispatched yet (no API key, or the Google Meet
+        link has not synced back from Google yet) is deliberately left with
+        ``bot_dispatched = False`` so ``_cron_dispatch_due_bots`` retries it.
         """
         attendee = self.env["sgc.meeting.attendee.service"]
         configured = attendee.is_configured()
         for session in self:
             if not session.bot_enabled:
                 session.bot_enabled = True
-            meeting_url = session.video_url
-            if configured and meeting_url:
-                try:
-                    session._invite_bot_to_meeting()
-                    bot = attendee.create_bot(session)
-                    session.write({
-                        "bot_dispatched": True,
-                        "bot_id": bot.get("id"),
-                        "bot_state": bot.get("state"),
-                        "state": "in_progress",
-                        "state_message": False,
-                    })
-                    session.message_post(
-                        body=_(
-                            "AI notetaker bot dispatched to the meeting via "
-                            "Attendee (bot %s). It will join, record "
-                            "and transcribe automatically.",
-                            bot.get("id"),
-                        )
-                    )
-                    continue
-                except Exception as exc:  # noqa: BLE001
-                    _logger.exception(
-                        "Attendee bot dispatch failed for session %s", session.id
-                    )
-                    session.write({
-                        "bot_dispatched": True,
-                        "state_message": f"Attendee dispatch failed: {exc}"[:250],
-                    })
-                    session.message_post(
-                        body=_(
-                            "Could not dispatch the AI bot via Attendee: "
-                            "%s",
-                            str(exc),
-                        )
-                    )
-                    continue
-            # Fallback: record intent (Attendee not configured or no link yet).
-            session.bot_dispatched = True
-            session.bot_id = f"sgc-pending-{secrets.token_hex(4)}"
+            if configured and session.video_url:
+                session._dispatch_bot_now(attendee)
+                continue
+            # Not dispatchable yet. Record why, but do NOT set bot_dispatched:
+            # that flag is the "a bot is on its way" latch, and setting it here
+            # is what silently retired every session that was booked before its
+            # Meet link existed.
             reason = (
-                _("no meeting link is set yet")
+                _("the meeting link has not synced from Google yet")
                 if configured
-                else _("no bot provider is configured")
+                else _("no bot provider is configured "
+                       "(set sgc_meeting_ai.attendee_api_key)")
             )
-            session.message_post(
-                body=_(
-                    "AI bot dispatch requested, but %s. Set "
-                    "sgc_meeting_ai.attendee_api_key (and a meeting "
-                    "link) so the bot can auto-join, record and transcribe.",
-                    reason,
-                )
-            )
+            message = _("Waiting to dispatch AI notetaker: %s.", reason)
+            # Only speak up when something actually changed — this runs on
+            # every write to the meeting and would otherwise flood the log.
+            if session.state_message != message:
+                session.sudo().write({"state_message": message[:250]})
+                session.message_post(body=message)
         return True
+
+    def _dispatch_bot_now(self, attendee=None):
+        """Create the Attendee bot for this session. Assumes a link exists."""
+        self.ensure_one()
+        attendee = attendee or self.env["sgc.meeting.attendee.service"]
+        try:
+            self._invite_bot_to_meeting()
+            bot = attendee.create_bot(self)
+        except Exception as exc:  # noqa: BLE001
+            # A rejected deduplication key means the bot we wanted is already
+            # live over at Attendee and only Odoo lost track of it. Adopt it,
+            # otherwise the cron retries this session every 5 minutes forever.
+            bot = attendee.find_bot_by_dedup_key(f"odoo-session-{self.id}")
+            if not bot:
+                _logger.exception(
+                    "Attendee bot dispatch failed for session %s", self.id
+                )
+                # Left undispatched on purpose so the cron picks it up again:
+                # most failures here are transient (network, 5xx, rate limit).
+                message = _("Could not schedule the AI notetaker: %s", str(exc))
+                if self.state_message != message:
+                    self.message_post(body=message)
+                self.sudo().write({"state_message": message[:250]})
+                return False
+            _logger.info(
+                "Adopted existing Attendee bot %s for session %s",
+                bot.get("id"), self.id,
+            )
+        # Trust the bot's own join_at when Attendee reports one (it is
+        # authoritative, and on the adopt path it may differ from ours).
+        join_at = attendee.parse_join_at(bot) or attendee.compute_join_at(self)
+        self.sudo().write({
+            "bot_dispatched": True,
+            "bot_id": bot.get("id"),
+            "bot_state": bot.get("state"),
+            "bot_join_at": join_at or False,
+            "state_message": False,
+        })
+        self.message_post(
+            body=_(
+                "AI notetaker scheduled via Attendee (bot %(bot)s). It will "
+                "join at %(when)s UTC, then record and transcribe "
+                "automatically.",
+                bot=bot.get("id"),
+                when=fields.Datetime.to_string(join_at) if join_at
+                else _("the start of the meeting"),
+            )
+        )
+        return True
+
+    def cancel_bot(self, reason=None):
+        """Call off the notetaker for these sessions.
+
+        Safe to call on sessions that never had a bot. Clears the dispatch
+        latch so the session can be re-armed if the meeting comes back.
+        """
+        attendee = self.env["sgc.meeting.attendee.service"]
+        for session in self:
+            if not session.bot_id or session.bot_id.startswith(PLACEHOLDER_PREFIX):
+                # Nothing live at Attendee, but still drop the latch so an
+                # un-cancelled meeting re-arms cleanly.
+                session.sudo().write({"bot_dispatched": False, "bot_id": False,
+                                      "bot_join_at": False})
+                continue
+            cancelled = False
+            if attendee.is_configured():
+                try:
+                    cancelled = attendee.delete_bot(session.bot_id)
+                except Exception:
+                    _logger.exception(
+                        "Failed to cancel Attendee bot %s for session %s",
+                        session.bot_id, session.id,
+                    )
+            body = (
+                _("AI notetaker cancelled: %s.", reason)
+                if reason
+                else _("AI notetaker cancelled.")
+            )
+            if not cancelled:
+                body += _(
+                    " Attendee would not call the bot back — it may have "
+                    "already joined or already finished."
+                )
+            session.message_post(body=body)
+            session.sudo().write({
+                "bot_dispatched": False,
+                "bot_id": False,
+                "bot_join_at": False,
+                "bot_state": False,
+            })
+        return True
+
+    def action_cancel_bot(self):
+        return self.cancel_bot(reason=_("cancelled from the session"))
+
+    def _sync_bot_schedule(self):
+        """Keep an already-scheduled bot aligned with the meeting.
+
+        A meeting that gets moved after the bot was scheduled would otherwise
+        keep the bot pointed at the old time (or the old room).
+        """
+        attendee = self.env["sgc.meeting.attendee.service"]
+        if not attendee.is_configured():
+            return
+        for session in self:
+            if not session.bot_dispatched or not session.bot_id:
+                continue
+            if session.bot_id.startswith(PLACEHOLDER_PREFIX):
+                continue
+            join_at = attendee.compute_join_at(session)
+            if not join_at:
+                continue
+            payload = {"join_at": attendee._to_iso_utc(join_at)}
+            if session.video_url:
+                payload["meeting_url"] = session.video_url
+            try:
+                attendee.update_bot(session.bot_id, payload)
+            except Exception:
+                # Attendee refuses the PATCH once the bot has left "scheduled".
+                # Nothing to do then — the bot is already in the room.
+                _logger.info(
+                    "Could not re-schedule Attendee bot %s for session %s "
+                    "(likely no longer in the scheduled state)",
+                    session.bot_id, session.id,
+                )
+                continue
+            session.sudo().write({"bot_join_at": join_at})
+
+    def _cron_dispatch_due_bots(self):
+        """Dispatch bots for meetings that could not be dispatched at booking.
+
+        Covers the normal CRM flow: the session is created the moment the
+        meeting is booked, but its Google Meet link only appears minutes later
+        when google_calendar syncs the event back. Without this the bot is
+        never scheduled at all.
+        """
+        attendee = self.env["sgc.meeting.attendee.service"]
+        if not attendee.is_configured():
+            return
+        now = fields.Datetime.now()
+        sessions = self.search([
+            ("bot_enabled", "=", True),
+            ("state", "=", "scheduled"),
+            # Don't chase meetings that already finished.
+            ("stop", ">", now - timedelta(minutes=5)),
+            # ...or ones booked absurdly far out; they get picked up later.
+            ("start", "<", now + timedelta(days=30)),
+            "|",
+            ("bot_dispatched", "=", False),
+            ("bot_id", "=like", f"{PLACEHOLDER_PREFIX}%"),
+        ])
+        for session in sessions:
+            if not session.video_url:
+                continue
+            try:
+                # Self-heal sessions retired by the old placeholder behaviour.
+                if session.bot_id and session.bot_id.startswith(PLACEHOLDER_PREFIX):
+                    session.sudo().write({"bot_id": False, "bot_dispatched": False})
+                session._dispatch_bot_now(attendee)
+            except Exception:
+                _logger.exception(
+                    "Attendee bot dispatch cron failed for session %s", session.id
+                )
 
     def _invite_bot_to_meeting(self):
         """Add the bot's Google account as a meeting attendee.
@@ -233,10 +374,11 @@ class SGCMeetingSession(models.Model):
         sessions = self.search([
             ("bot_dispatched", "=", True),
             ("bot_id", "!=", False),
+            ("bot_id", "not like", PLACEHOLDER_PREFIX),
             ("state", "in", ["scheduled", "in_progress"]),
         ])
         for session in sessions:
-            if not session.bot_id or session.bot_id.startswith("sgc-pending-"):
+            if not session.bot_id or session.bot_id.startswith(PLACEHOLDER_PREFIX):
                 continue
             try:
                 attendee.ingest(session)

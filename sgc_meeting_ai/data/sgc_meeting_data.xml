@@ -51,6 +51,19 @@
         <field name="value">https://app.attendee.dev</field>
     </record>
 
+    <!-- Sessions are created when a meeting is booked, but its Google Meet
+         link only appears once google_calendar syncs the event back. This
+         picks up every session that was not dispatchable at booking time. -->
+    <record id="cron_dispatch_attendee_bots" model="ir.cron">
+        <field name="name">SGC Meeting AI: Dispatch Attendee bots</field>
+        <field name="model_id" ref="model_sgc_meeting_session" />
+        <field name="state">code</field>
+        <field name="code">model._cron_dispatch_due_bots()</field>
+        <field name="interval_number">5</field>
+        <field name="interval_type">minutes</field>
+        <field name="active">True</field>
+    </record>
+
     <record id="cron_poll_attendee_bots" model="ir.cron">
         <field name="name">SGC Meeting AI: Poll Attendee bots</field>
         <field name="model_id" ref="model_sgc_meeting_session" />
