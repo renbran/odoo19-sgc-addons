@@ -36,4 +36,6 @@ class SurveyUserInputLine(models.Model):
                     _('A question can either be skipped or answered, not both.'))
             if not line.skipped and not line.answer_attachment_ids:
                 raise ValidationError(_('The answer must be in the right type'))
-        super()._check_answer_type_skipped()
+        other_lines = self.filtered(lambda l: l.answer_type != 'file_upload')
+        if other_lines:
+            super(SurveyUserInputLine, other_lines)._check_answer_type_skipped()
