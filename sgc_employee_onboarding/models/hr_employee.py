@@ -85,6 +85,11 @@ class HrEmployee(models.Model):
             'users_login_required': False,
             'scoring_type': 'no_scoring',
         })
+        # Force English on the copy: lang_ids default to the install context
+        # language, which historically caused Arabic-only surveys in this DB.
+        en_lang = self.env['res.lang'].search([('code', '=', 'en_US')], limit=1)
+        if en_lang:
+            survey_copy.write({'lang_ids': [(6, 0, [en_lang.id])]})
         # Mint a fresh public access token for this employee's copy
         survey_copy.access_token = survey_copy._get_default_access_token()
 
