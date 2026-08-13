@@ -189,6 +189,35 @@
         <field name="survey_id" ref="survey_employee_onboarding_template"/>
     </record>
 
+    <!-- Page 4: Document Uploads (survey file_upload questions mapped to employee binary fields) -->
+    <record id="sgc_employee_onboarding.page_document_uploads" model="survey.question">
+        <field name="is_page">True</field>
+        <field name="title">Document Uploads</field>
+        <field name="sequence">40</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_upload_work_permit" model="survey.question">
+        <field name="title">Upload Work Permit</field>
+        <field name="question_type">file_upload</field>
+        <field name="sequence">401</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_upload_id_card" model="survey.question">
+        <field name="title">Upload ID Card</field>
+        <field name="question_type">file_upload</field>
+        <field name="sequence">402</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
+    <record id="sgc_employee_onboarding.question_upload_driving_license" model="survey.question">
+        <field name="title">Upload Driving License</field>
+        <field name="question_type">file_upload</field>
+        <field name="sequence">403</field>
+        <field name="survey_id" ref="survey_employee_onboarding_template"/>
+    </record>
+
     <!-- Suggested Answers: Marital Status -->
     <record id="sgc_employee_onboarding.suggested_answer_single" model="survey.question.answer">
         <field name="value">Single</field>

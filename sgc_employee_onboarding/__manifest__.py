@@ -1,6 +1,6 @@
 {
     'name': 'SGC Employee Onboarding Surveys',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Human Resources',
     'summary': 'Employee onboarding with survey forms mapped to employee fields',
     'description': """
@@ -28,6 +28,12 @@ Features:
         'data/email_templates.xml',
         'views/hr_employee_views.xml',
     ],
+    'assets': {
+        'survey.survey_assets': [
+            'sgc_employee_onboarding/static/src/xml/survey_file_upload.xml',
+            'sgc_employee_onboarding/static/src/interactions/survey_file_upload.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,

@@ -78,6 +78,11 @@ class HrEmployee(models.Model):
         if qtype == 'datetime':
             lines = lines.filtered('value_datetime')
             return lines[0].value_datetime if lines else None
+        if qtype == 'file_upload':
+            lines = lines.filtered(lambda line: line.answer_attachment_ids)
+            if not lines:
+                return None
+            return lines[0].answer_attachment_ids[:1]
         return None
 
     @api.model
@@ -95,6 +100,19 @@ class HrEmployee(models.Model):
         """Return the {field: value} dict to write on the employee, or {} if unmapped."""
         title = (question.title or '').strip().lower()
         if not title or answer_value is None:
+            return {}
+
+        # Binary document uploads (survey file_upload questions) -> employee binary attachments
+        if isinstance(answer_value, models.BaseModel) and answer_value._name == 'ir.attachment':
+            attachment = answer_value[:1]
+            if not attachment or not attachment.datas:
+                return {}
+            if 'work permit' in title:
+                return {'has_work_permit': attachment.datas}
+            if 'id card' in title or 'identity card' in title:
+                return {'id_card': attachment.datas}
+            if 'driving license' in title or 'driving licence' in title:
+                return {'driving_license': attachment.datas}
             return {}
 
         simple_mappings = {
