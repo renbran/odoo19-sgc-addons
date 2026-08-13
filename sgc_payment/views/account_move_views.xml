@@ -31,10 +31,15 @@
         <field name="inherit_id" ref="account.view_move_tree"/>
         <field name="arch" type="xml">
 
-            <!-- Add the js_class for bulk printing -->
-            <xpath expr="//list" position="attributes">
-                <attribute name="js_class">osus_bulk_print_list</attribute>
-            </xpath>
+            <!-- This view used to set the list's js_class to
+                 "osus_bulk_print_list", but no JS in this codebase ever
+                 registered that view type; it came from an OSUS project whose
+                 asset was never ported. Odoo resolves js_class through the
+                 client side "views" registry, so an unregistered name is not
+                 ignored: it raises KeyNotFoundError inside the Owl lifecycle
+                 and the list never renders, taking Journal Entries and the
+                 invoice lists down with it. Do not re-add it without also
+                 shipping the JS that registers the view. -->
 
             <!-- Declare required fields -->
             <xpath expr="//field[@name='name']" position="before">
