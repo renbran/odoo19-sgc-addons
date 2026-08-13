@@ -1,5 +1,6 @@
 """Extend survey.user_input.line to store uploaded files for file_upload questions."""
 from odoo import api, fields, models, _
+from odoo.exceptions import ValidationError
 
 
 class SurveyUserInputLine(models.Model):
@@ -24,3 +25,15 @@ class SurveyUserInputLine(models.Model):
         for line in self.filtered(lambda l: l.answer_type == 'file_upload'):
             attachment = line.answer_attachment_ids[:1]
             line.display_name = attachment.name if attachment else _('Skipped')
+
+    @api.constrains('skipped', 'answer_type')
+    def _check_answer_type_skipped(self):
+        # given/when: file_upload lines store the answer in answer_attachment_ids,
+        # not in a value_* field (which would be 'value_file_upload' and does not exist)
+        for line in self.filtered(lambda l: l.answer_type == 'file_upload'):
+            if line.skipped == bool(line.answer_type):
+                raise ValidationError(
+                    _('A question can either be skipped or answered, not both.'))
+            if not line.skipped and not line.answer_attachment_ids:
+                raise ValidationError(_('The answer must be in the right type'))
+        super()._check_answer_type_skipped()
