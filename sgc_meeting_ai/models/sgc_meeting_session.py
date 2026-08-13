@@ -324,22 +324,38 @@ class SGCMeetingSession(models.Model):
         now = fields.Datetime.now()
         sessions = self.search([
             ("bot_enabled", "=", True),
-            ("state", "=", "scheduled"),
+            # "failed" is in scope because a bot that died before the meeting
+            # even started (the early-join bug, or a transient Attendee error)
+            # left the session failed while the meeting is still ahead of us.
+            # Nothing was captured yet, so it is safe to try again.
+            ("state", "in", ["scheduled", "failed"]),
+            ("transcript_id", "=", False),
             # Don't chase meetings that already finished.
             ("stop", ">", now - timedelta(minutes=5)),
             # ...or ones booked absurdly far out; they get picked up later.
             ("start", "<", now + timedelta(days=30)),
-            "|",
+            "|", "|",
             ("bot_dispatched", "=", False),
             ("bot_id", "=like", f"{PLACEHOLDER_PREFIX}%"),
+            ("bot_state", "in", ["fatal_error", "data_deleted"]),
         ])
         for session in sessions:
             if not session.video_url:
                 continue
             try:
-                # Self-heal sessions retired by the old placeholder behaviour.
-                if session.bot_id and session.bot_id.startswith(PLACEHOLDER_PREFIX):
-                    session.sudo().write({"bot_id": False, "bot_dispatched": False})
+                # Self-heal sessions retired by the old placeholder behaviour,
+                # and re-arm ones whose bot died before the meeting happened.
+                if (
+                    (session.bot_id or "").startswith(PLACEHOLDER_PREFIX)
+                    or session.bot_state in ("fatal_error", "data_deleted")
+                ):
+                    session.sudo().write({
+                        "bot_id": False,
+                        "bot_dispatched": False,
+                        "bot_state": False,
+                        "state": "scheduled",
+                        "state_message": False,
+                    })
                 session._dispatch_bot_now(attendee)
             except Exception:
                 _logger.exception(

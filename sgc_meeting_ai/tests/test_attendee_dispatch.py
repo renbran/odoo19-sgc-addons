@@ -17,6 +17,7 @@ from unittest.mock import patch
 import requests
 
 from odoo import fields
+from odoo.addons.sgc_meeting_ai.services.attendee_service import PLACEHOLDER_PREFIX
 from odoo.tests import TransactionCase, tagged
 
 _SERVICE = "odoo.addons.sgc_meeting_ai.services.attendee_service"
@@ -151,6 +152,57 @@ class TestAttendeeDispatch(TransactionCase):
 
         self.assertEqual(session.bot_id, "bot_healed789")
 
+    def test_cron_rearms_a_bot_that_died_before_a_future_meeting(self):
+        """A bot killed by the early-join bug must not cost the meeting its
+        notetaker: the meeting has not happened yet, so try again."""
+        session = self._make_session(days_ahead=5)
+        session.sudo().write({
+            "bot_dispatched": True,
+            "bot_id": "bot_dead1",
+            "bot_state": "fatal_error",
+            "state": "failed",
+            "state_message": "Attendee bot failed (state=fatal_error)",
+        })
+
+        def fake_request(self_svc, method, path, cfg=None, **kwargs):
+            return {"id": "bot_rearm999", "state": "scheduled"}
+
+        with patch(f"{_SERVICE}.SGCMeetingAttendeeService._request", fake_request):
+            self.env["sgc.meeting.session"]._cron_dispatch_due_bots()
+
+        self.assertEqual(session.bot_id, "bot_rearm999")
+        self.assertEqual(session.state, "scheduled")
+        self.assertFalse(session.state_message)
+
+    def test_cron_leaves_a_past_failed_meeting_alone(self):
+        """Don't send a bot to a meeting that already happened."""
+        session = self._make_session(days_ahead=5)
+        session.meeting_id.write({
+            "start": fields.Datetime.now() - timedelta(days=2),
+            "stop": fields.Datetime.now() - timedelta(days=2) + timedelta(hours=1),
+        })
+        session.sudo().write({
+            "bot_dispatched": True,
+            "bot_id": "bot_old1",
+            "bot_state": "fatal_error",
+            "state": "failed",
+        })
+        # The cron sweeps every session in the database, so assert on this
+        # session specifically rather than on a global call count.
+        dedup_keys = []
+
+        def fake_request(self_svc, method, path, cfg=None, **kwargs):
+            payload = kwargs.get("json") or {}
+            dedup_keys.append(payload.get("deduplication_key"))
+            return {"id": "bot_nope", "state": "scheduled"}
+
+        with patch(f"{_SERVICE}.SGCMeetingAttendeeService._request", fake_request):
+            self.env["sgc.meeting.session"]._cron_dispatch_due_bots()
+
+        self.assertNotIn(f"odoo-session-{session.id}", dedup_keys)
+        self.assertEqual(session.bot_id, "bot_old1")
+        self.assertEqual(session.state, "failed")
+
     def test_poller_ignores_placeholder_bot_ids(self):
         session = self._make_session()
         session.sudo().write({
@@ -165,7 +217,12 @@ class TestAttendeeDispatch(TransactionCase):
 
         with patch(f"{_SERVICE}.SGCMeetingAttendeeService._request", fake_request):
             self.env["sgc.meeting.session"]._cron_poll_attendee_bots()
-        self.assertEqual(calls, [], "Poller called Attendee with a placeholder id.")
+        # Other sessions in the database may legitimately be polled; what must
+        # never happen is a call carrying a placeholder id.
+        self.assertFalse(
+            [p for p in calls if PLACEHOLDER_PREFIX in p],
+            "Poller called Attendee with a placeholder id.",
+        )
 
     # ── cancellation ──────────────────────────────────────────────────────
 
