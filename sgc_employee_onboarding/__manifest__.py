@@ -26,11 +26,11 @@ Features:
         'security/ir.model.access.csv',
         'data/employee_onboarding_survey_template.xml',
         'data/email_templates.xml',
+        'static/src/xml/survey_file_upload.xml',
         'views/hr_employee_views.xml',
     ],
     'assets': {
         'survey.survey_assets': [
-            'sgc_employee_onboarding/static/src/xml/survey_file_upload.xml',
             'sgc_employee_onboarding/static/src/interactions/survey_file_upload.js',
         ],
     },

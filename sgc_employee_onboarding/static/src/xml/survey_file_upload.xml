@@ -2,7 +2,7 @@
 <odoo>
     <!-- Inject the file_upload question rendering into the stock question container -->
     <template id="question_container_add_file_upload" inherit_id="survey.question_container">
-        <xpath expr="//t[@t-if=&quot;question.question_type == 'matrix'&quot;]" position="after">
+        <xpath expr="//t[@t-call='survey.question_matrix']" position="after">
             <t t-if="question.question_type == 'file_upload'"
                t-call="sgc_employee_onboarding.question_file_upload"/>
         </xpath>
