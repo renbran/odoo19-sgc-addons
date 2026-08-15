@@ -34,7 +34,10 @@ class LeadIngestionWebhookController(http.Controller):
             return request.make_response('Not found', status=404)
 
         raw_body = request.httprequest.get_data()
-        headers = {k: v for k, v in request.httprequest.headers.items()}
+        # Werkzeug's Headers object does case-insensitive lookups; a plain
+        # dict built from .items() does not, and headers like
+        # X-LI-Signature / X-TikTok-Signature get re-cased on the wire.
+        headers = request.httprequest.headers
 
         if not adapter.verify_signature(headers, query_params, raw_body, config):
             _logger.warning('Rejected webhook for provider=%s token=%s: signature verification failed', provider, token)
