@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="crm_celebration_action_meeting_booked" model="ir.actions.server">
+        <field name="name">Celebration Popup: Meeting Booked</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">
+lead = env['crm.lead'].browse(record.id)
+env['bus.bus']._sendone('sgc_crm_celebration', 'sgc_crm_celebration', {
+    'effect': 'pop',
+    'title': '📅 Meeting Booked!',
+    'lines': [
+        lead.name or '',
+        'Owner: %s' % (lead.user_id.name if lead.user_id else '(unassigned)'),
+    ],
+})
+        </field>
+    </record>
+
+    <record id="crm_celebration_automation_meeting_booked" model="base.automation">
+        <field name="name">CRM: Celebration Popup - Meeting Booked</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="filter_pre_domain">[('stage_id', '!=', 3)]</field>
+        <field name="filter_domain">[('stage_id', '=', 3)]</field>
+        <field name="action_server_ids" eval="[(6, 0, [ref('crm_celebration_action_meeting_booked')])]"/>
+        <field name="active">True</field>
+    </record>
+
+    <record id="crm_celebration_action_won" model="ir.actions.server">
+        <field name="name">Celebration Popup: Deal Won</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">
+lead = env['crm.lead'].browse(record.id)
+amount = lead.expected_revenue or 0.0
+env['bus.bus']._sendone('sgc_crm_celebration', 'sgc_crm_celebration', {
+    'effect': 'confetti',
+    'title': '🏆 Deal WON!',
+    'lines': [
+        lead.name or '',
+        'AED %s' % format(amount, ',.0f'),
+        'Owner: %s' % (lead.user_id.name if lead.user_id else '(unassigned)'),
+    ],
+})
+        </field>
+    </record>
+
+    <record id="crm_celebration_automation_won" model="base.automation">
+        <field name="name">CRM: Celebration Popup - Won</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="trigger">on_write</field>
+        <field name="filter_pre_domain">[('won_status', '!=', 'won')]</field>
+        <field name="filter_domain">[('won_status', '=', 'won')]</field>
+        <field name="action_server_ids" eval="[(6, 0, [ref('crm_celebration_action_won')])]"/>
+        <field name="active">True</field>
+    </record>
+</odoo>

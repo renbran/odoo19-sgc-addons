@@ -1,6 +1,6 @@
 {
     "name": "SGC Banner/Popup",
-    "version": "19.0.2.0.0",
+    "version": "19.0.3.0.0",
     "summary": "First-login welcome banner and configurable gamification announcements",
     "description": """
 SGC Banner/Popup
@@ -21,12 +21,17 @@ Settings > SGC Gamification Banner.
         "data/default_config.xml",
         "views/res_config_settings_views.xml",
         "views/sgc_banne_popup.xml",
+        "data/crm_celebration_automations.xml",
     ],
     "assets": {
         "web.assets_backend": [
             "sgc_banne_popup/static/src/scss/banner.scss",
             "sgc_banne_popup/static/src/js/banner.js",
             "sgc_banne_popup/static/src/xml/banner.xml",
+            "sgc_banne_popup/static/src/scss/celebration_popup.scss",
+            "sgc_banne_popup/static/src/js/celebration/confetti.js",
+            "sgc_banne_popup/static/src/js/celebration/celebration_popup.js",
+            "sgc_banne_popup/static/src/xml/celebration_popup.xml",
         ],
     },
     "installable": True,

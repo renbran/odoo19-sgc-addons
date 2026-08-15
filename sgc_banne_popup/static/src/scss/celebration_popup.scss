@@ -1,0 +1,75 @@
+// SGC Celebration Popup - live bus-driven events (Meeting Booked / Won)
+$sgc-navy: #0f1b3d;
+$sgc-navy-2: #1a2b5e;
+$sgc-gold: #c9a24b;
+$sgc-gold-soft: #e5c782;
+$sgc-cream: #faf7f1;
+
+@keyframes sgc-pop-in {
+    0% { transform: scale(0.7); opacity: 0; }
+    60% { transform: scale(1.05); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.o_sgc_celebration_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 12, 28, 0.55);
+    backdrop-filter: blur(2px);
+    pointer-events: none;
+
+    &--won {
+        background: rgba(6, 12, 28, 0.35);
+    }
+}
+
+.o_sgc_celebration_canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 2101;
+    pointer-events: none;
+}
+
+.o_sgc_celebration_card {
+    position: relative;
+    z-index: 2102;
+    pointer-events: auto;
+    width: 100%;
+    max-width: 420px;
+    margin: 24px;
+    background: linear-gradient(160deg, $sgc-navy 0%, $sgc-navy-2 100%);
+    border: 1px solid rgba($sgc-gold, 0.4);
+    border-radius: 18px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    padding: 32px 28px 26px;
+    text-align: center;
+    color: $sgc-cream;
+    animation: sgc-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.o_sgc_celebration_icon {
+    font-size: 40px;
+    margin-bottom: 8px;
+}
+
+.o_sgc_celebration_title {
+    font-size: 19px;
+    font-weight: 800;
+    color: $sgc-gold-soft;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+}
+
+.o_sgc_celebration_lines {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba($sgc-cream, 0.9);
+}
+
+.o_sgc_celebration_line {
+    white-space: pre-wrap;
+}

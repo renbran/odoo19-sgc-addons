@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sgc_banne_popup.CelebrationPopup">
+        <div t-if="state.visible" class="o_sgc_celebration_overlay" t-att-class="{ 'o_sgc_celebration_overlay--won': state.effect === 'confetti' }" role="alert">
+            <canvas t-if="state.effect === 'confetti'" t-ref="confettiCanvas" class="o_sgc_celebration_canvas"/>
+            <div class="o_sgc_celebration_card">
+                <button class="o_sgc_popup_close" t-on-click="close" aria-label="Close">×</button>
+                <div class="o_sgc_celebration_icon" t-esc="state.effect === 'confetti' ? '🏆' : '📅'"/>
+                <div class="o_sgc_celebration_title" t-esc="state.title"/>
+                <div class="o_sgc_celebration_lines">
+                    <div t-foreach="state.lines" t-as="line" t-key="line_index" class="o_sgc_celebration_line" t-esc="line"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
