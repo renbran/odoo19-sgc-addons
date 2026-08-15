@@ -1,0 +1,70 @@
+<odoo>
+    <record id="view_crm_lead_source_config_form" model="ir.ui.view">
+        <field name="name">crm.lead.source.config.form</field>
+        <field name="model">crm.lead.source.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_regenerate_token" type="object" string="Regenerate Token"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(action_crm_lead_ingestion_log)d" type="action"
+                                class="oe_stat_button" icon="fa-list">
+                            <field name="log_count" widget="statinfo" string="Logs"/>
+                        </button>
+                    </div>
+                    <group>
+                        <field name="name"/>
+                        <field name="provider"/>
+                        <field name="active"/>
+                        <field name="test_mode"/>
+                    </group>
+                    <group string="Webhook">
+                        <field name="webhook_token"/>
+                        <field name="app_secret" password="True"/>
+                        <field name="verify_token"/>
+                    </group>
+                    <group string="Assignment">
+                        <field name="team_id"/>
+                        <field name="user_id"/>
+                    </group>
+                    <group string="Retry &amp; Retention">
+                        <field name="max_retries"/>
+                        <field name="backoff_interval_minutes"/>
+                        <field name="retention_days"/>
+                    </group>
+                    <notebook>
+                        <page string="Field Mapping">
+                            <field name="field_mapping_ids">
+                                <list editable="bottom">
+                                    <field name="source_key"/>
+                                    <field name="target_field"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_source_config_list" model="ir.ui.view">
+        <field name="name">crm.lead.source.config.list</field>
+        <field name="model">crm.lead.source.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="provider"/>
+                <field name="test_mode"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_crm_lead_source_config" model="ir.actions.act_window">
+        <field name="name">Lead Ingestion Sources</field>
+        <field name="res_model">crm.lead.source.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,19 @@
+<odoo>
+    <menuitem id="menu_crm_lead_ingestion_root"
+              name="Lead Ingestion"
+              parent="crm.crm_menu_root"
+              sequence="90"/>
+
+    <menuitem id="menu_crm_lead_ingestion_log"
+              name="Ingestion Logs"
+              parent="menu_crm_lead_ingestion_root"
+              action="action_crm_lead_ingestion_log"
+              sequence="10"/>
+
+    <menuitem id="menu_crm_lead_source_config"
+              name="Sources"
+              parent="menu_crm_lead_ingestion_root"
+              action="action_crm_lead_source_config"
+              sequence="20"
+              groups="sales_team.group_sale_manager"/>
+</odoo>
