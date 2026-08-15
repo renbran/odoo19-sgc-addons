@@ -8,6 +8,8 @@ from .base import LeadProviderAdapter, register
 @register
 class MetaLeadAdapter(LeadProviderAdapter):
     provider_code = 'meta'
+    source_label = 'Meta Lead Ads'
+    medium_label = 'Social'
 
     def verify_signature(self, headers, query_params, raw_body, config):
         signature_header = headers.get('X-Hub-Signature-256', '')
@@ -39,11 +41,15 @@ class MetaLeadAdapter(LeadProviderAdapter):
 
     def map_to_lead_values(self, parsed_payload, config):
         field_data = {}
+        campaign_label = None
         try:
             entry = parsed_payload['entry'][0]
             change = entry['changes'][0]
             for field in change['value'].get('field_data', []):
                 field_data[field['name']] = ','.join(field.get('values', []))
+            form_id = change['value'].get('form_id')
+            ad_id = change['value'].get('ad_id')
+            campaign_label = f'Form {form_id}' if form_id else (f'Ad {ad_id}' if ad_id else None)
         except (KeyError, IndexError, TypeError):
             pass
         values = self._base_lead_values(
@@ -52,5 +58,6 @@ class MetaLeadAdapter(LeadProviderAdapter):
             email=field_data.get('email'),
             phone=field_data.get('phone_number'),
             company=field_data.get('company_name'),
+            campaign_label=campaign_label,
         )
         return self._apply_field_mapping(values, parsed_payload, config)

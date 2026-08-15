@@ -9,6 +9,8 @@ from .base import LeadProviderAdapter, register
 @register
 class UniversalWebhookAdapter(LeadProviderAdapter):
     provider_code = 'universal'
+    source_label = 'Universal Webhook'
+    medium_label = None
 
     def verify_signature(self, headers, query_params, raw_body, config):
         if not config.app_secret:
@@ -33,5 +35,6 @@ class UniversalWebhookAdapter(LeadProviderAdapter):
         return self._sha256_of(json.dumps(parsed_payload, sort_keys=True).encode())
 
     def map_to_lead_values(self, parsed_payload, config):
-        values = self._base_lead_values(config)
+        campaign_label = parsed_payload.get('source') if isinstance(parsed_payload, dict) else None
+        values = self._base_lead_values(config, campaign_label=campaign_label)
         return self._apply_field_mapping(values, parsed_payload, config)

@@ -8,6 +8,8 @@ from .base import LeadProviderAdapter, register
 @register
 class LinkedInLeadAdapter(LeadProviderAdapter):
     provider_code = 'linkedin'
+    source_label = 'LinkedIn Lead Gen Forms'
+    medium_label = 'Social'
 
     def verify_signature(self, headers, query_params, raw_body, config):
         if not config.app_secret:
@@ -45,11 +47,16 @@ class LinkedInLeadAdapter(LeadProviderAdapter):
 
     def map_to_lead_values(self, parsed_payload, config):
         answers = self._form_answers(parsed_payload)
+        form_id = parsed_payload.get('formId')
+        campaign_id = parsed_payload.get('campaignId')
+        campaign_label = f'Campaign {campaign_id}' if campaign_id else (
+            f'Form {form_id}' if form_id else None)
         values = self._base_lead_values(
             config,
             contact_name=answers.get('First Name', '') + ' ' + answers.get('Last Name', ''),
             email=answers.get('Email Address') or answers.get('Work Email'),
             phone=answers.get('Phone Number'),
             company=answers.get('Company Name'),
+            campaign_label=campaign_label,
         )
         return self._apply_field_mapping(values, parsed_payload, config)

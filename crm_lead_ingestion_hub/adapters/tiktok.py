@@ -8,6 +8,8 @@ from .base import LeadProviderAdapter, register
 @register
 class TikTokLeadAdapter(LeadProviderAdapter):
     provider_code = 'tiktok'
+    source_label = 'TikTok Lead Generation'
+    medium_label = 'Social'
 
     def verify_signature(self, headers, query_params, raw_body, config):
         signature_header = headers.get('X-TikTok-Signature', '')
@@ -37,11 +39,14 @@ class TikTokLeadAdapter(LeadProviderAdapter):
 
     def map_to_lead_values(self, parsed_payload, config):
         fields_map = self._field_map(parsed_payload)
+        form_id = parsed_payload.get('form_id')
+        campaign_label = f'Form {form_id}' if form_id else None
         values = self._base_lead_values(
             config,
             contact_name=fields_map.get('name'),
             email=fields_map.get('email'),
             phone=fields_map.get('phone_number'),
             company=fields_map.get('company_name'),
+            campaign_label=campaign_label,
         )
         return self._apply_field_mapping(values, parsed_payload, config)

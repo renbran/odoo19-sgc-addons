@@ -8,6 +8,8 @@ from .base import LeadProviderAdapter, register
 @register
 class SnapchatLeadAdapter(LeadProviderAdapter):
     provider_code = 'snapchat'
+    source_label = 'Snapchat Lead Generation'
+    medium_label = 'Social'
 
     def verify_signature(self, headers, query_params, raw_body, config):
         signature_header = headers.get('X-Snap-Signature', '')
@@ -37,11 +39,14 @@ class SnapchatLeadAdapter(LeadProviderAdapter):
 
     def map_to_lead_values(self, parsed_payload, config):
         answers = self._answers(parsed_payload)
+        campaign_id = parsed_payload.get('campaign_id')
+        campaign_label = f'Campaign {campaign_id}' if campaign_id else None
         values = self._base_lead_values(
             config,
             contact_name=answers.get('name'),
             email=answers.get('email'),
             phone=answers.get('phone'),
             company=answers.get('company'),
+            campaign_label=campaign_label,
         )
         return self._apply_field_mapping(values, parsed_payload, config)

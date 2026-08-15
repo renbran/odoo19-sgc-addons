@@ -51,8 +51,14 @@ class LeadProviderAdapter(abc.ABC):
     def _sha256_of(self, raw_body):
         return hashlib.sha256(raw_body or b'').hexdigest()
 
+    #: Human-readable UTM source label per provider, e.g. "Meta Lead Ads".
+    source_label = None
+    #: UTM medium label, e.g. "Social" or "Search".
+    medium_label = 'Social'
+
     def _base_lead_values(self, config, contact_name=None, email=None,
-                           phone=None, company=None, description=None):
+                           phone=None, company=None, description=None,
+                           campaign_label=None):
         values = {}
         if contact_name:
             values['contact_name'] = contact_name
@@ -69,7 +75,25 @@ class LeadProviderAdapter(abc.ABC):
         if config.user_id:
             values['user_id'] = config.user_id.id
         values.setdefault('name', contact_name or company or 'New lead')
+
+        env = config.env
+        if self.source_label:
+            values['source_id'] = self._get_or_create(
+                env, 'utm.source', self.source_label).id
+        if self.medium_label:
+            values['medium_id'] = self._get_or_create(
+                env, 'utm.medium', self.medium_label).id
+        if campaign_label:
+            values['campaign_id'] = self._get_or_create(
+                env, 'utm.campaign', campaign_label).id
         return values
+
+    @staticmethod
+    def _get_or_create(env, model_name, name):
+        record = env[model_name].sudo().search([('name', '=', name)], limit=1)
+        if not record:
+            record = env[model_name].sudo().create({'name': name})
+        return record
 
     def _apply_field_mapping(self, values, parsed_payload, config):
         for mapping in config.field_mapping_ids:
