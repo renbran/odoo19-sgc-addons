@@ -29,7 +29,7 @@ Adds a "Commercial Proposal" print option on quotations / sales orders.
         'report/quotation_proposal_report.xml',
         'report/quotation_proposal_template.xml',
     ],
-    'installable': True,
+    'installable': False,  # RETIRED 2026-08-15 Phase 15 item 4b - superseded by sgc_proposal_engine governance
     'application': False,
     'auto_install': False,
 }
