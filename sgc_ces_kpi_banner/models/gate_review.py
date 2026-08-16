@@ -85,7 +85,7 @@ class SgcCesGateReview(models.Model):
     last_reminder_on = fields.Date(readonly=True)
 
     snapshot_score = fields.Float(readonly=True)
-    snapshot_summary = fields.Text(readonly=True)
+    snapshot_summary = fields.Html(readonly=True, sanitize=False)
 
     _instance_alert_uniq = models.Constraint(
         "UNIQUE(instance_id, alert_type, alert_scheduled_date)",
