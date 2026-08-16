@@ -1,4 +1,5 @@
-from odoo import models, api, fields
+from odoo import models, api, fields, _
+from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
@@ -31,14 +32,16 @@ class CRMDashboard(models.AbstractModel):
         return cr.fetchone() is not None
 
     @api.model
-    def get_dashboard_data(self, user_id=None):
-        lead = self.env["crm.lead"]
-        order = self.env["sale.order"]
-        team = self.env["crm.team"]
+    def _scope(self, user_id):
+        """(is_admin, target_ids, lead_domain_base) for the given salesperson
+        filter. Shared by get_dashboard_data (to compute the numbers) and
+        open_records (to compute the domain behind a click) so the two can
+        never silently diverge — the count shown and the list it opens must
+        always describe the same records.
+        """
         is_admin = self._is_admin()
         current_user = self.env.user
 
-        # Determine which users to show
         if user_id:
             target_users = self.env["res.users"].browse(user_id)
         elif is_admin:
@@ -48,10 +51,19 @@ class CRMDashboard(models.AbstractModel):
 
         target_ids = target_users.ids
 
-        # KPIs scoped to target users
         lead_domain_base = [("user_id", "in", target_ids)] if not user_id and not is_admin else []
         if user_id:
             lead_domain_base = [("user_id", "=", user_id)]
+
+        return is_admin, target_ids, lead_domain_base
+
+    @api.model
+    def get_dashboard_data(self, user_id=None):
+        lead = self.env["crm.lead"]
+        order = self.env["sale.order"]
+        team = self.env["crm.team"]
+        is_admin, target_ids, lead_domain_base = self._scope(user_id)
+        current_user = self.env.user
 
         # Get won stage ids dynamically from CRM stages
         won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
@@ -96,19 +108,6 @@ class CRMDashboard(models.AbstractModel):
         """, fu_params)
         outreach_email = cr.fetchone()[0] or 0
 
-        # Objection Ranking: count of objections per objection name
-        cr.execute(f"""
-            SELECT o.name->>'en_US' as objection, COUNT(l.id) as count
-            FROM crm_lead l
-            JOIN crm_lead_objection_rel rel ON rel.lead_id = l.id
-            JOIN crm_objection o ON o.id = rel.objection_id
-            WHERE l.active = true
-              {fu_user_filter}
-            GROUP BY o.name
-            ORDER BY count DESC
-        """, fu_params)
-        objection_ranking = [{"objection": r[0], "count": r[1]} for r in cr.fetchall()]
-
         # Meeting Booked: active leads in "Meeting Booked" stage (stage_id = 3)
         cr.execute(f"""
             SELECT COUNT(*)
@@ -141,7 +140,42 @@ class CRMDashboard(models.AbstractModel):
         for o in order.search([("state", "=", "sale")]):
             confirmed_revenue += o.amount_total
 
-        # Funnel: ordered stages
+        # ─── Stage-flow KPIs (the New-stage pipeline monitor) ────────────
+        # 1) New Leads Today: leads created today (they enter the
+        #    "New" stage by default). This is the input side.
+        # 2) Moved Out of New Today: leads that were moved OUT of the
+        #    "New" stage today. The user wants to monitor whether the
+        #    team is working the top-of-funnel backlog. We approximate
+        #    via write_date::date = today AND current stage != New.
+        new_stage_id = self.env["crm.stage"].search(
+            [("sequence", "=", 0)], limit=1
+        ).id  # New = sequence 0 in this DB
+        new_leads_today = lead.search_count([
+            ("create_date", ">=", fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )),
+        ])
+        moved_out_of_new_today = 0
+        if new_stage_id:
+            moved_user_filter = ""
+            moved_params = []
+            if user_id:
+                moved_user_filter = "AND user_id = %s"
+                moved_params.append(user_id)
+            elif not is_admin:
+                moved_user_filter = "AND user_id IN %s"
+                moved_params.append(tuple(target_ids))
+            cr.execute(f"""
+                SELECT COUNT(*)
+                FROM crm_lead
+                WHERE active = true
+                  AND stage_id != %s
+                  AND write_date::date = CURRENT_DATE
+                  {moved_user_filter}
+            """, [new_stage_id] + moved_params)
+            moved_out_of_new_today = cr.fetchone()[0] or 0
+
+        # Funnel: ordered stages (kept for the existing Conversion Funnel widget)
         funnel_stages = []
         for s in self.env["crm.stage"].search([], order="sequence"):
             f_domain = [("stage_id", "=", s.id)]
@@ -163,6 +197,212 @@ class CRMDashboard(models.AbstractModel):
             stage_leads = lead.search_count(s_domain)
             if stage_leads > 0:
                 stages.append({"name": s.name, "count": stage_leads})
+
+        # ─── Pipeline Aging (replace Conversion Funnel insight) ─────────
+        # Age = days since create_date. Buckets surface how much of the
+        # open pipeline is rotting vs. fresh.
+        aging_domain = [("active", "=", True)]
+        if user_id:
+            aging_domain.append(("user_id", "=", user_id))
+        elif not is_admin:
+            aging_domain.append(("user_id", "in", target_ids))
+        aging_user_filter = ""
+        aging_params = []
+        if user_id:
+            aging_user_filter = "AND user_id = %s"
+            aging_params.append(user_id)
+        elif not is_admin:
+            aging_user_filter = "AND user_id IN %s"
+            aging_params.append(tuple(target_ids))
+        cr.execute("""
+            SELECT
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 0 AND 7 THEN 1 ELSE 0 END) AS b_0_7,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 8 AND 30 THEN 1 ELSE 0 END) AS b_8_30,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 31 AND 60 THEN 1 ELSE 0 END) AS b_31_60,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) BETWEEN 61 AND 90 THEN 1 ELSE 0 END) AS b_61_90,
+              SUM(CASE WHEN (CURRENT_DATE - create_date::date) > 90 THEN 1 ELSE 0 END) AS b_90p
+            FROM crm_lead WHERE active = true
+              """ + aging_user_filter + """
+        """, tuple(aging_params))
+        row = cr.dictfetchone() or {}
+        pipeline_aging = [
+            {"bucket": "0-7d",   "count": row.get("b_0_7") or 0},
+            {"bucket": "8-30d",  "count": row.get("b_8_30") or 0},
+            {"bucket": "31-60d", "count": row.get("b_31_60") or 0},
+            {"bucket": "61-90d", "count": row.get("b_61_90") or 0},
+            {"bucket": "90d+",   "count": row.get("b_90p") or 0},
+        ]
+
+        # ─── Pipeline by Owner (concentration insight) ───────────────────
+        owner_domain = [("active", "=", True)]
+        if user_id:
+            owner_domain.append(("user_id", "=", user_id))
+        cr.execute("""
+            SELECT u.id as user_id, COALESCE(p.name, u.login) as name,
+                   COUNT(l.id) as active_leads
+            FROM res_users u
+            LEFT JOIN res_partner p ON u.partner_id = p.id
+            JOIN crm_lead l ON l.user_id = u.id AND l.active = true
+            WHERE u.active = true AND u.id > 2
+              """ + ("AND l.user_id = %s" if user_id else "") + """
+            GROUP BY u.id, p.name, u.login
+            HAVING COUNT(l.id) > 0
+            ORDER BY active_leads DESC
+            LIMIT 10
+        """, ([user_id] if user_id else []))
+        owner_pipeline = [
+            {"id": r["user_id"], "name": r["name"], "count": r["active_leads"]}
+            for r in cr.dictfetchall()
+        ]
+
+        # ─── Pipeline by Source (replaces meaningless Teams widget) ──────
+        # NOTE: utm_source.name is varchar (not jsonb like crm_stage.name),
+        # so do NOT use the ->> operator — read it directly.
+        source_params = []
+        source_user_filter = ""
+        if user_id:
+            source_user_filter = "AND l.user_id = %s"
+            source_params.append(user_id)
+        elif not is_admin:
+            source_user_filter = "AND l.user_id IN %s"
+            source_params.append(tuple(target_ids))
+        cr.execute("""
+            SELECT
+              COALESCE(NULLIF(s.name, ''), 'Unassigned') as source_name,
+              COUNT(l.id) as cnt
+            FROM crm_lead l
+            LEFT JOIN utm_source s ON l.source_id = s.id
+            WHERE l.active = true
+              """ + source_user_filter + """
+            GROUP BY source_name
+            ORDER BY cnt DESC
+            LIMIT 10
+        """, tuple(source_params))
+        pipeline_by_source = [
+            {"name": r["source_name"] or "Unassigned", "count": r["cnt"]}
+            for r in cr.dictfetchall()
+        ]
+        # If everything is "Unassigned", drop the breakdown — it's noise.
+        if pipeline_by_source and pipeline_by_source[0]["name"] == "Unassigned" and len(pipeline_by_source) == 1:
+            pipeline_by_source = []
+
+        # ─── Qualification & Gate Compliance (sgc_sales_playbook) ────────
+        # gate_pass_rate / stalled_deals_count / objection_conversion_rate
+        # need x_gate_status / sgc.lead.objection, which only exist once
+        # sgc_sales_playbook is installed (stalled_deals_count itself reads
+        # only stock date_last_stage_update, but is gated the same way for
+        # consistency with the rest of this panel) — this dashboard
+        # doesn't depend on that module, so gate on its install state rather
+        # than assuming the fields/model are present.
+        sgc_playbook_installed = bool(self.env["ir.module.module"].sudo().search_count([
+            ("name", "=", "sgc_sales_playbook"), ("state", "=", "installed"),
+        ]))
+        gate_pass_rate = None
+        gate_pass_rate_n = 0
+        gate_pass_rate_ai = None
+        gate_pass_rate_ai_n = 0
+        gate_pass_rate_human = None
+        gate_pass_rate_human_n = 0
+        stalled_deals_count = None
+        objection_conversion_rate = None
+        objection_conversion_rate_n = 0
+        gate_stage_configured = True
+        if sgc_playbook_installed:
+            # Surface a misconfigured gate_stage_id here rather than let the
+            # gate fail open silently in crm_lead.py — reps would otherwise
+            # have no visibility that Proposal-stage qualification isn't
+            # actually being enforced.
+            gate_stage_configured = bool(lead._get_gate_stage())
+
+            # gate_pass_rate: % of deals at/after Meeting Booked (stage
+            # sequence >= 7) with all 4 Verifiable Buyer Exit Criteria
+            # answered right now. Numerator: x_gate_status == 'qualified'.
+            # Denominator: all such deals, active only, respecting the
+            # current salesperson filter. Window: point-in-time snapshot —
+            # there is no historical gate-pass table, so this is not a
+            # date-ranged rate. Excludes non-opportunity leads and archived
+            # deals. None (not 0%) when the denominator is 0, so the UI can
+            # tell "no gateable deals yet" apart from "0% pass rate" — at
+            # n=4-5 (current Meeting Booked/Proposal volume) one record
+            # swings the percentage 20-25 points, so a bare number without
+            # n= is actively misleading (S5).
+            gateable_domain = (lead_domain_base or []) + [
+                ("active", "=", True), ("stage_id.sequence", ">=", 7),
+            ]
+            gate_pass_rate_n = lead.search_count(gateable_domain)
+            if gate_pass_rate_n:
+                qualified = lead.search_count(gateable_domain + [("x_gate_status", "=", "qualified")])
+                gate_pass_rate = round(qualified / gate_pass_rate_n * 100.0, 1)
+
+                # Split by provenance: were the 4 answers typed by the rep,
+                # or copied from an AI transcript summary (sgc_meeting_ai)?
+                # A gate that passes mostly on AI-inferred answers isn't
+                # measuring discovery discipline the way a rep-typed answer
+                # does. 'ai' = at least one of the 4 fields is AI-confirmed;
+                # 'human' = all 4 are manual — see
+                # crm.lead._get_gate_provenance_domain() for why these
+                # partition cleanly.
+                ai_domain = gateable_domain + lead._get_gate_provenance_domain("ai")
+                human_domain = gateable_domain + lead._get_gate_provenance_domain("human")
+                gate_pass_rate_ai_n = lead.search_count(ai_domain)
+                if gate_pass_rate_ai_n:
+                    ai_qualified = lead.search_count(ai_domain + [("x_gate_status", "=", "qualified")])
+                    gate_pass_rate_ai = round(ai_qualified / gate_pass_rate_ai_n * 100.0, 1)
+                gate_pass_rate_human_n = lead.search_count(human_domain)
+                if gate_pass_rate_human_n:
+                    human_qualified = lead.search_count(human_domain + [("x_gate_status", "=", "qualified")])
+                    gate_pass_rate_human = round(human_qualified / gate_pass_rate_human_n * 100.0, 1)
+
+            # stalled_deals_count: active opportunities (any stage, current
+            # salesperson filter applied) whose date_last_stage_update is
+            # 21+ days old. Always a raw count, not a percentage — no
+            # denominator to guard.
+            stall_cutoff = fields.Datetime.to_string(datetime.now() - timedelta(weeks=3))
+            stalled_deals_count = lead.search_count((lead_domain_base or []) + [
+                ("active", "=", True),
+                ("date_last_stage_update", "!=", False),
+                ("date_last_stage_update", "<=", stall_cutoff),
+            ])
+
+            # objection_conversion_rate: % of sgc.lead.objection records
+            # (all-time, current salesperson filter applied) where
+            # resulted_in_meeting is True. Numerator: resulted_in_meeting
+            # == True. Denominator: all logged objections. Excludes
+            # nothing else — every objection a rep logs counts. None when
+            # 0 objections logged, same N/A-vs-0% reasoning as above.
+            Objection = self.env["sgc.lead.objection"].sudo()
+            obj_domain = [("lead_id.user_id", "in", target_ids)] if (not user_id and not is_admin) else (
+                [("lead_id.user_id", "=", user_id)] if user_id else []
+            )
+            objection_conversion_rate_n = Objection.search_count(obj_domain)
+            if objection_conversion_rate_n:
+                won_objections = Objection.search_count(obj_domain + [("resulted_in_meeting", "=", True)])
+                objection_conversion_rate = round(
+                    won_objections / objection_conversion_rate_n * 100.0, 1
+                )
+
+        # Stale-lead count: parked 30+ days in No Answer(5)/Not Interested(7)
+        # with no lost_reason_id ever set. Uses only stock crm.lead fields,
+        # so it's meaningful with or without sgc_sales_playbook installed.
+        stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
+        stale_lead_filter = ""
+        stale_params = [stale_cutoff_dt]
+        if user_id:
+            stale_lead_filter = "AND user_id = %s"
+            stale_params.append(user_id)
+        elif not is_admin:
+            stale_lead_filter = "AND user_id IN %s"
+            stale_params.append(tuple(target_ids))
+        cr.execute(f"""
+            SELECT COUNT(*)
+            FROM crm_lead
+            WHERE active = true
+              AND stage_id IN (5, 7)
+              AND lost_reason_id IS NULL
+              AND write_date <= %s
+              {stale_lead_filter}
+        """, stale_params)
+        stale_lead_count = cr.fetchone()[0] or 0
 
         # Per-salesperson summary with days-since-booking
         cr = self.env.cr
@@ -223,42 +463,56 @@ class CRMDashboard(models.AbstractModel):
                 "days_without_booking": days_without_booking,
             })
 
-        # Monthly trend
+        # Monthly activity: last 6 months of created / won / archived.
+        # date_closed is preferred over create_date because it tells us when
+        # the deal actually moved, not when it was imported.
         monthly = []
         now = datetime.now()
         months = OrderedDict()
-        for i in range(11, -1, -1):
+        for i in range(5, -1, -1):
             d = now - timedelta(days=30 * i)
             key = d.strftime("%Y-%m")
-            months[key] = {"new": 0, "won": 0}
+            months[key] = {"created": 0, "won": 0, "lost": 0}
 
-        month_domain = [("create_date", ">=", (now - timedelta(days=365)).strftime("%Y-%m-%d"))]
+        range_start = (now - timedelta(days=180)).strftime("%Y-%m-%d")
+        month_domain = [("create_date", ">=", range_start)]
         if user_id:
             month_domain.append(("user_id", "=", user_id))
         elif not is_admin:
             month_domain.append(("user_id", "in", target_ids))
 
-        for l in lead.search(month_domain):
-            m = l.create_date.strftime("%Y-%m") if l.create_date else False
-            if m and m in months:
-                months[m]["new"] += 1
-                if l.active and l.stage_id in won_stage_ids:
-                    months[m]["won"] += 1
+        for l in lead.search(month_domain, order="create_date"):
+            key = l.create_date.strftime("%Y-%m") if l.create_date else False
+            if key in months:
+                months[key]["created"] += 1
+        # Bug fix (found while wiring the drill-down click for this chart):
+        # this search must see archived leads too, since "lost" IS
+        # archived — but plain search() implicitly filters active=True
+        # whenever the domain doesn't mention 'active' itself, so every
+        # archived (lost) lead was silently excluded and the Lost bar was
+        # always 0 regardless of real data. with_context(active_test=False)
+        # restores the archived leads the loop below already branches on.
+        for l in lead.with_context(active_test=False).search([("date_closed", ">=", range_start)] + (
+            [("user_id", "=", user_id)] if user_id else (
+                [("user_id", "in", target_ids)] if not is_admin else []
+            )
+        )):
+            key = l.date_closed.strftime("%Y-%m") if l.date_closed else False
+            if key not in months:
+                continue
+            # Bug fix: l.stage_id is a crm.stage recordset; comparing it
+            # against won_stage_ids (a list of ints) with `in` was always
+            # False, so the Won bar was also always 0 regardless of real
+            # data. Compare the id instead.
+            if l.active and l.stage_id.id in won_stage_ids:
+                months[key]["won"] += 1
+            elif not l.active:
+                months[key]["lost"] += 1
         for k, v in months.items():
-            monthly.append({"month": k, "new": v["new"], "won": v["won"]})
+            monthly.append({"month": k, "created": v["created"], "won": v["won"], "lost": v["lost"]})
 
-        # Teams
-        teams = []
-        for t in team.search([("active", "=", True)]):
-            t_domain = [("team_id", "=", t.id)]
-            t_leads = lead.search_count(t_domain)
-            t_won = lead.search_count(t_domain + [("stage_id", "in", won_stage_ids)])
-            teams.append({
-                "name": t.name,
-                "leads": t_leads,
-                "won": t_won,
-                "target": t.dashboard_target_revenue or 0,
-            })
+        # (Teams block removed — DB has only 1 team, no insight. Replaced
+        # by owner_pipeline + pipeline_by_source above.)
 
         # All users for filter dropdown (admin only, exclude inactive)
         all_users = []
@@ -274,6 +528,8 @@ class CRMDashboard(models.AbstractModel):
             "kpi": {
                 "total_leads": total_leads,
                 "pipeline": pipeline,
+                "new_leads_today": new_leads_today,
+                "moved_out_of_new_today": moved_out_of_new_today,
                 "won": won,
                 "lost": lost,
                 "follow_up": follow_up,
@@ -285,13 +541,254 @@ class CRMDashboard(models.AbstractModel):
                 "confirmed_orders": confirmed_orders,
                 "confirmed_revenue": confirmed_revenue,
             },
-            "objection_ranking": objection_ranking,
+            # ─── Charts (replaces Conversion Funnel, Teams) ─────────────
+            "pipeline_aging": pipeline_aging,
+            "owner_pipeline": owner_pipeline,
+            "pipeline_by_source": pipeline_by_source,
+            # ─── Qualification & Gate Compliance (sgc_sales_playbook) ───
+            "qualification": {
+                "enabled": sgc_playbook_installed,
+                "gate_stage_configured": gate_stage_configured,
+                "gate_pass_rate": gate_pass_rate,
+                "gate_pass_rate_n": gate_pass_rate_n,
+                "gate_pass_rate_ai": gate_pass_rate_ai,
+                "gate_pass_rate_ai_n": gate_pass_rate_ai_n,
+                "gate_pass_rate_human": gate_pass_rate_human,
+                "gate_pass_rate_human_n": gate_pass_rate_human_n,
+                "stalled_deals_count": stalled_deals_count,
+                "objection_conversion_rate": objection_conversion_rate,
+                "objection_conversion_rate_n": objection_conversion_rate_n,
+                "stale_lead_count": stale_lead_count,
+            },
+            # ─── Kept widgets ──────────────────────────────────────────
             "funnel": funnel_stages,
             "stages": stages,
             "salesperson": salesperson_data[:10] if is_admin and not user_id else salesperson_data,
             "monthly": monthly,
-            "teams": teams,
         }
+
+    # ─── Drill-down: "what records are behind this number?" ─────────────
+    # Every KPI card, qualification tile and chart segment on the
+    # dashboard is a count or a rate computed above. open_records() maps a
+    # click on one of those back to the crm.lead (or sale.order /
+    # sgc.lead.objection) records that produced it, as a real window
+    # action — so clicking "Won: 12" opens exactly those 12 leads, not an
+    # approximation. Domains here intentionally mirror the ones above
+    # rather than sharing helper functions with them line-for-line: most
+    # already funnel through the shared _scope()/lead_domain_base, and
+    # keeping the rest as short, self-contained blocks (each next to a
+    # comment naming which KPI it must match) makes it possible to spot a
+    # drift between "the number" and "the list" by reading the two blocks
+    # side by side, which a deeper shared abstraction would hide.
+    _AGING_BUCKETS = {
+        # bucket key -> (days_ago_low, days_ago_high); mirrors the SQL CASE
+        # in get_dashboard_data's pipeline_aging query exactly.
+        "0-7": (0, 7),
+        "8-30": (8, 30),
+        "31-60": (31, 60),
+        "61-90": (61, 90),
+        "90p": (91, None),
+    }
+
+    def _aging_bucket_domain(self, bucket):
+        if bucket not in self._AGING_BUCKETS:
+            raise UserError(_("Unknown pipeline-aging bucket: %s", bucket))
+        lo, hi = self._AGING_BUCKETS[bucket]
+        today = fields.Date.context_today(self)
+        domain = []
+        if hi is not None:
+            start = today - timedelta(days=hi)
+            domain.append(("create_date", ">=", fields.Datetime.to_string(datetime.combine(start, datetime.min.time()))))
+        end = today - timedelta(days=lo)
+        domain.append(("create_date", "<=", fields.Datetime.to_string(datetime.combine(end, datetime.max.time()))))
+        return domain
+
+    @staticmethod
+    def _month_bounds(month_key):
+        """('2026-07', ) -> (datetime str, datetime str) covering that month."""
+        year, month = (int(p) for p in month_key.split("-"))
+        start = datetime(year, month, 1)
+        end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+        return fields.Datetime.to_string(start), fields.Datetime.to_string(end)
+
+    @staticmethod
+    def _lead_action(name, domain, extra_context=None):
+        return {
+            "type": "ir.actions.act_window",
+            "name": name,
+            "res_model": "crm.lead",
+            "view_mode": "list,kanban,form",
+            "views": [[False, "list"], [False, "kanban"], [False, "form"]],
+            "domain": domain,
+            "context": {"create": False, **(extra_context or {})},
+            "target": "current",
+        }
+
+    @api.model
+    def open_records(self, kind, params=None, user_id=None):
+        """Return an ir.actions.act_window dict for the records behind a
+        dashboard KPI/chart segment.
+
+        `user_id` must be the salesperson-filter value the dashboard was
+        showing when the user clicked (the admin dropdown selection) so the
+        opened list always matches what was on screen — the frontend passes
+        state.selectedUserId on every call.
+        """
+        params = params or {}
+        is_admin, target_ids, lead_domain_base = self._scope(user_id)
+
+        # ── Scorecard row 1 ──────────────────────────────────────────
+        if kind == "kpi_pipeline":
+            return self._lead_action(_("In Pipeline"), lead_domain_base + [
+                ("active", "=", True), ("probability", ">", 0), ("probability", "<", 100),
+            ])
+        if kind == "kpi_new_leads_today":
+            # Matches new_leads_today above, which is NOT scoped to
+            # target_ids there either — preserved here so the count and the
+            # opened list always agree, even though that's arguably a bug.
+            start = fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )
+            return self._lead_action(_("New Leads Today"), [("create_date", ">=", start)])
+        if kind == "kpi_moved_out_of_new":
+            new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
+            today_start = fields.Datetime.to_string(
+                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            )
+            domain = [("active", "=", True), ("write_date", ">=", today_start)]
+            if new_stage_id:
+                domain.append(("stage_id", "!=", new_stage_id))
+            if user_id:
+                domain.append(("user_id", "=", user_id))
+            elif not is_admin:
+                domain.append(("user_id", "in", target_ids))
+            return self._lead_action(_("Moved Out of New Today"), domain)
+        if kind == "kpi_won":
+            won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
+            return self._lead_action(_("Won"), lead_domain_base + [("stage_id", "in", won_stage_ids)])
+        if kind == "kpi_lost":
+            return self._lead_action(_("Lost"), lead_domain_base + [
+                "|", ("active", "=", False), ("probability", "=", 0),
+            ])
+
+        # ── Scorecard row 2 ──────────────────────────────────────────
+        if kind == "kpi_follow_up":
+            return self._lead_action(_("Follow Up"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 6)])
+        if kind == "kpi_research_done":
+            return self._lead_action(_("Research Done"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 2)])
+        if kind == "kpi_outreach_email":
+            return self._lead_action(_("Email Outreach"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 10)])
+        if kind == "kpi_booked":
+            return self._lead_action(_("Meeting Booked"), lead_domain_base + [("active", "=", True), ("stage_id", "=", 3)])
+        if kind == "kpi_revenue":
+            # confirmed_revenue sums ALL confirmed sale.order regardless of
+            # salesperson filter — mirrored here, not scoped either.
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Confirmed Revenue"),
+                "res_model": "sale.order",
+                "view_mode": "list,form",
+                "views": [[False, "list"], [False, "form"]],
+                "domain": [("state", "=", "sale")],
+                "context": {"create": False},
+                "target": "current",
+            }
+
+        # ── Qualification & Gate Compliance (sgc_sales_playbook) ──────
+        if kind == "qual_gate_pass_rate":
+            return self._lead_action(_("Gateable Deals (Meeting Booked+)"), lead_domain_base + [
+                ("active", "=", True), ("stage_id.sequence", ">=", 7),
+            ])
+        if kind == "qual_stalled":
+            stall_cutoff = fields.Datetime.to_string(datetime.now() - timedelta(weeks=3))
+            return self._lead_action(_("Stalled 3+ Weeks"), lead_domain_base + [
+                ("active", "=", True),
+                ("date_last_stage_update", "!=", False),
+                ("date_last_stage_update", "<=", stall_cutoff),
+            ])
+        if kind == "qual_objection_conversion":
+            if "sgc.lead.objection" not in self.env:
+                raise UserError(_("Objection tracking isn't installed (sgc_sales_playbook)."))
+            if user_id:
+                obj_domain = [("lead_id.user_id", "=", user_id)]
+            elif not is_admin:
+                obj_domain = [("lead_id.user_id", "in", target_ids)]
+            else:
+                obj_domain = []
+            return {
+                "type": "ir.actions.act_window",
+                "name": _("Objections"),
+                "res_model": "sgc.lead.objection",
+                "view_mode": "list,form",
+                "views": [[False, "list"], [False, "form"]],
+                "domain": obj_domain,
+                "context": {"create": False},
+                "target": "current",
+            }
+        if kind == "qual_stale":
+            stale_cutoff_dt = fields.Datetime.to_string(datetime.now() - timedelta(days=30))
+            return self._lead_action(_("Stale, Pending Cleanup"), lead_domain_base + [
+                ("active", "=", True),
+                ("stage_id", "in", [5, 7]),
+                ("lost_reason_id", "=", False),
+                ("write_date", "<=", stale_cutoff_dt),
+            ])
+
+        # ── Charts ─────────────────────────────────────────────────────
+        if kind == "chart_stage":
+            # "Pipeline by Stage (Active)" donut — segment identified by
+            # stage name, matching the stages[] the chart already renders.
+            stage_name = params.get("stage_name")
+            return self._lead_action(_("Pipeline: %s", stage_name), lead_domain_base + [
+                ("active", "=", True), ("stage_id.name", "=", stage_name),
+            ])
+        if kind == "chart_funnel":
+            # "Conversion Funnel" — all-time (active + archived) per stage,
+            # matching funnel_stages' f_domain (no active filter).
+            stage_name = params.get("stage_name")
+            return self._lead_action(_("Funnel: %s", stage_name), lead_domain_base + [
+                ("stage_id.name", "=", stage_name),
+            ])
+        if kind == "chart_aging":
+            bucket = params.get("bucket")
+            return self._lead_action(_("Pipeline Age: %s", bucket), lead_domain_base + [
+                ("active", "=", True),
+            ] + self._aging_bucket_domain(bucket))
+        if kind == "chart_owner":
+            owner_id = params.get("owner_id")
+            owner = self.env["res.users"].browse(owner_id)
+            return self._lead_action(_("Pipeline: %s", owner.display_name), [
+                ("active", "=", True), ("user_id", "=", owner_id),
+            ])
+        if kind == "chart_source":
+            # Matches pipeline_by_source, which collapses NULL/blank UTM
+            # source into a single "Unassigned" bucket by display name.
+            source_name = params.get("source_name")
+            domain = lead_domain_base + [("active", "=", True)]
+            domain += [("source_id", "=", False)] if source_name == "Unassigned" else [("source_id.name", "=", source_name)]
+            return self._lead_action(_("Pipeline Source: %s", source_name), domain)
+        if kind == "chart_monthly":
+            month = params.get("month")
+            series = params.get("series")
+            start, end = self._month_bounds(month)
+            if series == "created":
+                domain = lead_domain_base + [("create_date", ">=", start), ("create_date", "<", end)]
+            elif series == "won":
+                won_stage_ids = self.env["crm.stage"].search([("is_won", "=", True)]).ids
+                domain = lead_domain_base + [
+                    ("date_closed", ">=", start), ("date_closed", "<", end),
+                    ("active", "=", True), ("stage_id", "in", won_stage_ids),
+                ]
+            elif series == "lost":
+                domain = lead_domain_base + [
+                    ("date_closed", ">=", start), ("date_closed", "<", end),
+                    ("active", "=", False),
+                ]
+            else:
+                raise UserError(_("Unknown Pipeline Movement series: %s", series))
+            return self._lead_action(_("%(series)s — %(month)s", series=series.capitalize(), month=month), domain)
+
+        raise UserError(_("Unknown dashboard drill-down: %s", kind))
 
     @api.model
     def get_salesperson_detail(self, user_id):
@@ -395,4 +892,110 @@ class CRMDashboard(models.AbstractModel):
             },
             "activity_types": act_types,
             "recent_leads": recent_leads,
+        }
+
+    @api.model
+    def get_leaderboard_mini(self):
+        """Compact leaderboard snippet for the dashboard: top 5 salespeople
+        by a computed score, restricted to actual sales team members (a
+        linked hr.employee, on a crm.team) with the same admin exclusion as
+        sgc_employee_badges' /sgc/leaderboard (Administrator / Settings
+        groups don't compete), plus the current user's own rank if they
+        aren't already in the top 5. Requires sgc_employee_badges (declared
+        as a hard dependency) for the gamification models this dashboard
+        otherwise touches.
+
+        The rank/score here is a display-only computation, NOT real Odoo
+        karma - it is never written to gamification.badge.user or
+        res.users.karma. It rewards two behaviors:
+          - meetings_booked: all-time count of calendar.event records the
+            rep created against an opportunity.
+          - pipeline_value: expected_revenue summed over the rep's *active
+            Proposal-stage* leads only - the same gate stage
+            sgc_sales_playbook's Qualification & Gate Compliance card
+            enforces (crm.lead._get_gate_stage()), so both cards agree on
+            what "Proposal" means. Falls back to 0 for everyone if
+            sgc_sales_playbook isn't installed or its gate stage is
+            misconfigured (fails open, same as the qualification card).
+        Provisional weights (50 pts/meeting, 1 pt per AED 1,000 of
+        proposal pipeline) - tune if these don't feel right in practice.
+        """
+        admin_group_ids = [
+            g.id for g in (
+                self.env.ref("base.group_erp_manager", raise_if_not_found=False),
+                self.env.ref("base.group_system", raise_if_not_found=False),
+            ) if g
+        ]
+        sales_team_user_ids = self.env["crm.team.member"].sudo().search([]).mapped("user_id").ids
+        domain = [
+            ("share", "=", False),
+            ("active", "=", True),
+            ("employee_ids", "!=", False),
+            ("id", "in", sales_team_user_ids),
+        ]
+        if admin_group_ids:
+            domain.append(("group_ids", "not in", admin_group_ids))
+        users = self.env["res.users"].sudo().search_read(domain, ["id", "name"])
+        user_ids = [u["id"] for u in users]
+
+        meetings_by_user = {}
+        if user_ids:
+            self.env.cr.execute("""
+                SELECT create_uid, COUNT(*) AS meetings
+                  FROM calendar_event
+                 WHERE opportunity_id IS NOT NULL
+                   AND create_uid = ANY(%s)
+              GROUP BY create_uid
+            """, (user_ids,))
+            meetings_by_user = {
+                row["create_uid"]: int(row["meetings"] or 0)
+                for row in self.env.cr.dictfetchall()
+            }
+
+        sgc_playbook_installed = bool(self.env["ir.module.module"].sudo().search_count([
+            ("name", "=", "sgc_sales_playbook"), ("state", "=", "installed"),
+        ]))
+        proposal_pipeline_by_user = {}
+        if sgc_playbook_installed and user_ids:
+            gate_stage = self.env["crm.lead"]._get_gate_stage()
+            if gate_stage:
+                self.env.cr.execute("""
+                    SELECT user_id, COALESCE(SUM(expected_revenue), 0) AS pipeline_value
+                      FROM crm_lead
+                     WHERE active = TRUE
+                       AND stage_id = %s
+                       AND user_id = ANY(%s)
+                  GROUP BY user_id
+                """, (gate_stage.id, user_ids))
+                proposal_pipeline_by_user = {
+                    row["user_id"]: float(row["pipeline_value"] or 0)
+                    for row in self.env.cr.dictfetchall()
+                }
+
+        for u in users:
+            u["meetings_booked"] = meetings_by_user.get(u["id"], 0)
+            u["pipeline_value"] = proposal_pipeline_by_user.get(u["id"], 0.0)
+            u["score"] = u["meetings_booked"] * 50 + u["pipeline_value"] / 1000.0
+
+        users.sort(key=lambda u: u["score"], reverse=True)
+        for i, u in enumerate(users):
+            u["rank"] = i + 1
+
+        top = users[:5]
+        me = next((u for u in users if u["id"] == self.env.uid), None)
+        me_in_top = bool(me) and me["rank"] <= 5
+
+        def _entry(u):
+            return {
+                "id": u["id"],
+                "name": u["name"],
+                "rank": u["rank"],
+                "score": round(u["score"]),
+                "meetings_booked": u["meetings_booked"],
+                "pipeline_value": u["pipeline_value"],
+            }
+
+        return {
+            "top": [_entry(u) for u in top],
+            "me": _entry(me) if me and not me_in_top else None,
         }
