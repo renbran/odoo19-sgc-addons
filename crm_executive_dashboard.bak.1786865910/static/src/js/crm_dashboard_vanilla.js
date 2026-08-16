@@ -70,73 +70,6 @@
     }
 
     // ------------------------------------------------------------------
-    // Drill-down — click a card/row/chart segment to see the records
-    // behind the number.
-    // ------------------------------------------------------------------
-
-    function drillAttrs(type, key) {
-        // Emitted on any clickable element. `key` may be an id, a
-        // string, or null (e.g. "Undefined" source bucket).
-        return ' data-drill-type="' + escapeHtml(type) + '"' +
-            ' data-drill-key="' + (key === null || key === undefined ? "" : escapeHtml(String(key))) + '"' +
-            ' role="button" tabindex="0"';
-    }
-
-    function openDrilldown(drillType, drillKey, filter) {
-        fetch("/crm-dashboard/drilldown", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRF-Token": getCsrfToken(),
-            },
-            body: JSON.stringify({
-                jsonrpc: "2.0",
-                method: "call",
-                params: { drill_type: drillType, drill_key: drillKey, filter: filter },
-                id: Math.floor(Math.random() * 1000000),
-            }),
-        }).then(function (resp) {
-            if (!resp.ok) throw new Error("HTTP " + resp.status);
-            return resp.json();
-        }).then(function (data) {
-            if (data && data.error) throw new Error(data.error.message || "Drill-down failed");
-            var r = data && data.result;
-            if (!r || r.ok === false) throw new Error((r && r.error) || "Nothing to show");
-            var action = r.payload;
-            var domainStr = encodeURIComponent(JSON.stringify(action.domain || []));
-            var url = "/web#model=" + encodeURIComponent(action.res_model) +
-                "&view_type=list&domain=" + domainStr +
-                "&action_name=" + encodeURIComponent(action.name || "");
-            window.open(url, "_blank");
-        }).catch(function (err) {
-            console.error("CED: drilldown failed", err);
-        });
-    }
-
-    function wireDrilldowns(rootEl, filter) {
-        function trigger(el) {
-            var type = el.getAttribute("data-drill-type");
-            var key = el.getAttribute("data-drill-key");
-            if (!type) return;
-            openDrilldown(type, key === "" ? null : key, filter);
-        }
-        rootEl.addEventListener("click", function (ev) {
-            var el = ev.target.closest("[data-drill-type]");
-            if (el && rootEl.contains(el)) trigger(el);
-        });
-        rootEl.addEventListener("keydown", function (ev) {
-            if (ev.key !== "Enter" && ev.key !== " ") return;
-            var el = ev.target.closest("[data-drill-type]");
-            if (el && rootEl.contains(el)) {
-                ev.preventDefault();
-                trigger(el);
-            }
-        });
-    }
-
-    // ------------------------------------------------------------------
     // Section renderers — each returns an HTML string
     // ------------------------------------------------------------------
 
@@ -188,16 +121,14 @@
         }).join("");
     }
 
-    function renderKpiCard(title, value, icon, level, format, drillKey) {
+    function renderKpiCard(title, value, icon, level, format) {
         var fmt = format || "number";
         var v;
         if (fmt === "currency") v = formatCurrency(value);
         else if (fmt === "percent") v = formatPercent(value);
         else v = formatNumber(value);
-        var clickable = drillKey ? " ced-kpi-card--clickable" : "";
-        var attrs = drillKey ? drillAttrs("kpi", drillKey) : "";
         return (
-            '<div class="ced-kpi-card ced-kpi-card--' + (level || "default") + clickable + '"' + attrs + '>' +
+            '<div class="ced-kpi-card ced-kpi-card--' + (level || "default") + '">' +
             '<div class="ced-kpi-card__icon"><i class="fa ' + escapeHtml(icon) + '"></i></div>' +
             '<div class="ced-kpi-card__body">' +
             '<div class="ced-kpi-card__title">' + escapeHtml(title) + '</div>' +
@@ -209,17 +140,17 @@
 
     function renderKpiOverview(kpi) {
         var cards = [
-            renderKpiCard("Total Leads", kpi.leads.total, "fa-user-plus", "default", "number", "leads_total"),
-            renderKpiCard("New Today", kpi.leads.new_today, "fa-user-clock", "info", "number", "leads_new_today"),
-            renderKpiCard("New This Week", kpi.leads.new_week, "fa-calendar-week", "default", "number", "leads_new_week"),
-            renderKpiCard("New This Month", kpi.leads.new_month, "fa-calendar-alt", "default", "number", "leads_new_month"),
-            renderKpiCard("Qualified", kpi.leads.qualified, "fa-user-check", "success", "number", "leads_qualified"),
-            renderKpiCard("Open Opps", kpi.opportunities.open, "fa-briefcase", "info", "number", "opps_open"),
-            renderKpiCard("Won", kpi.opportunities.won, "fa-trophy", "success", "number", "opps_won"),
-            renderKpiCard("Lost", kpi.opportunities.lost, "fa-times-circle", "danger", "number", "opps_lost"),
-            renderKpiCard("Pipeline", kpi.revenue.pipeline_value, "fa-money-bill-wave", "gold", "currency", "revenue_pipeline"),
-            renderKpiCard("Forecast", kpi.revenue.forecast, "fa-chart-line", "gold", "currency", "revenue_pipeline"),
-            renderKpiCard("Won Revenue", kpi.revenue.won, "fa-dollar-sign", "success", "currency", "revenue_won"),
+            renderKpiCard("Total Leads", kpi.leads.total, "fa-user-plus", "default", "number"),
+            renderKpiCard("New Today", kpi.leads.new_today, "fa-user-clock", "info", "number"),
+            renderKpiCard("New This Week", kpi.leads.new_week, "fa-calendar-week", "default", "number"),
+            renderKpiCard("New This Month", kpi.leads.new_month, "fa-calendar-alt", "default", "number"),
+            renderKpiCard("Qualified", kpi.leads.qualified, "fa-user-check", "success", "number"),
+            renderKpiCard("Open Opps", kpi.opportunities.open, "fa-briefcase", "info", "number"),
+            renderKpiCard("Won", kpi.opportunities.won, "fa-trophy", "success", "number"),
+            renderKpiCard("Lost", kpi.opportunities.lost, "fa-times-circle", "danger", "number"),
+            renderKpiCard("Pipeline", kpi.revenue.pipeline_value, "fa-money-bill-wave", "gold", "currency"),
+            renderKpiCard("Forecast", kpi.revenue.forecast, "fa-chart-line", "gold", "currency"),
+            renderKpiCard("Won Revenue", kpi.revenue.won, "fa-dollar-sign", "success", "currency"),
             renderKpiCard("Lead Conv.", kpi.conversion.lead_conversion_rate, "fa-percentage", "info", "percent"),
             renderKpiCard("Win Rate", kpi.conversion.opp_win_rate, "fa-trophy", "success", "percent"),
             renderKpiCard("Avg Conv. (days)", kpi.conversion.avg_conversion_days, "fa-clock", "default", "number"),
@@ -322,8 +253,8 @@
             '<div class="ced-kpi-grid">' +
             renderKpiCard("Days Since Last Booking", ds, "fa-calendar-times-o",
                 ds != null && ds > 7 ? "warning" : "success", "number") +
-            renderKpiCard("Stale Opps", r.stagnant_opps, "fa-hourglass-half", "warning", "number", "stale_opps") +
-            renderKpiCard("Overdue Follow-ups", r.overdue_followups, "fa-exclamation-triangle", "danger", "number", "overdue_followups") +
+            renderKpiCard("Stale Opps", r.stagnant_opps, "fa-hourglass-half", "warning", "number") +
+            renderKpiCard("Overdue Follow-ups", r.overdue_followups, "fa-exclamation-triangle", "danger", "number") +
             renderKpiCard("Pipeline Coverage", p.coverage_ratio, "fa-shield-alt", "info", "number") +
             renderKpiCard("Weekly Lead Growth", g.weekly_growth, "fa-chart-line", "info", "percent") +
             renderKpiCard("Revenue Growth", g.revenue_growth, "fa-dollar-sign", "success", "percent") +
@@ -336,7 +267,7 @@
         if (!oa || !oa.owners || !oa.owners.length) return "";
         var rows = oa.owners.slice(0, 10).map(function (o) {
             return (
-                '<tr class="ced-row--clickable"' + drillAttrs("owner", o.user_id) + '>' +
+                '<tr>' +
                 '<td>' + escapeHtml(o.name) + '</td>' +
                 '<td>' + formatNumber(o.opportunities) + '</td>' +
                 '<td>' + formatCurrency(o.pipeline_value) + '</td>' +
@@ -358,63 +289,6 @@
         );
     }
 
-    function renderCampaignAnalytics(ca) {
-        if (!ca) return "";
-        var sources = ca.sources || [];
-        var campaigns = ca.campaigns || [];
-
-        var sourceRows = sources.map(function (s) {
-            return (
-                '<tr class="ced-row--clickable"' + drillAttrs("source", s.source_id) + '>' +
-                '<td>' + escapeHtml(s.name) + '</td>' +
-                '<td>' + formatNumber(s.count) + '</td>' +
-                '<td>' + formatPercent(s.share) + '</td>' +
-                '<td>' + formatNumber(s.won) + '</td>' +
-                '</tr>'
-            );
-        }).join("");
-
-        var campaignRows = campaigns.map(function (c) {
-            var roiStr = c.roi === null || c.roi === undefined ? "—" : formatPercent(c.roi);
-            var roiClass = c.roi == null ? "" : (c.roi >= 0 ? "ced-text--success" : "ced-text--danger");
-            return (
-                '<tr class="ced-row--clickable"' + drillAttrs("campaign", c.campaign_id) + '>' +
-                '<td>' + escapeHtml(c.name) + '</td>' +
-                '<td>' + formatNumber(c.leads) + '</td>' +
-                '<td>' + formatCurrency(c.won_revenue) + '</td>' +
-                '<td>' + formatCurrency(c.budget) + '</td>' +
-                '<td class="' + roiClass + '">' + roiStr + '</td>' +
-                '</tr>'
-            );
-        }).join("");
-
-        return (
-            '<section class="ced-section">' +
-            '<h2 class="ced-section__title">Campaign, Source &amp; ROI</h2>' +
-            '<div class="ced-productivity-grid">' +
-            '<div class="ced-productivity-card">' +
-            '<h3>Source of Leads</h3>' +
-            (sourceRows ?
-                '<table>' +
-                '<thead><tr><th>Source</th><th>Leads</th><th>Share</th><th>Won</th></tr></thead>' +
-                '<tbody>' + sourceRows + '</tbody>' +
-                '</table>' : '<div class="ced-empty-state">No source data</div>') +
-            '</div>' +
-            '<div class="ced-productivity-card">' +
-            '<h3>Campaign Performance &amp; ROI</h3>' +
-            (campaignRows ?
-                '<table>' +
-                '<thead><tr><th>Campaign</th><th>Leads</th><th>Won Revenue</th><th>Budget</th><th>ROI</th></tr></thead>' +
-                '<tbody>' + campaignRows + '</tbody>' +
-                '</table>' :
-                '<div class="ced-empty-state">No campaigns with data for the current filter. ' +
-                'Set a Budget on Marketing &gt; Campaigns to see ROI.</div>') +
-            '</div>' +
-            '</div>' +
-            '</section>'
-        );
-    }
-
     function renderFunnel(funnel) {
         if (!funnel || !funnel.stages || !funnel.stages.length) return "";
         var max = 0;
@@ -423,8 +297,7 @@
             var pct = max > 0 ? (s.count / max) * 100 : 0;
             var stageClass = s.is_won ? "ced-funnel__stage--won" : "";
             return (
-                '<div class="ced-funnel__stage ced-funnel__stage--clickable ' + stageClass + '"' +
-                drillAttrs("funnel_stage", s.stage_id) + '>' +
+                '<div class="ced-funnel__stage ' + stageClass + '">' +
                 '<div class="ced-funnel__stage-name">' + escapeHtml(s.name) + '</div>' +
                 '<div class="ced-funnel__bar">' +
                 '<div class="ced-funnel__bar-fill" style="width: ' + pct.toFixed(1) + '%"></div>' +
@@ -463,8 +336,8 @@
             renderKpiCard("Contact Rate", disp.contact_rate, "fa-phone", "info", "percent") +
             renderKpiCard("Worked This Period", disp.worked_period, "fa-hand-pointer-o", "success", "number") +
             renderKpiCard("Still Untouched (New)", disp.in_entry_stage, "fa-inbox",
-                disp.in_entry_stage > 0 ? "warning" : "success", "number", "untouched") +
-            renderKpiCard("Active Opportunities", disp.total_active, "fa-briefcase", "default", "number", "active_opps") +
+                disp.in_entry_stage > 0 ? "warning" : "success", "number") +
+            renderKpiCard("Active Opportunities", disp.total_active, "fa-briefcase", "default", "number") +
             '</div>' +
             (rows ?
                 '<div class="ced-leads-card">' +
@@ -658,30 +531,11 @@
         );
     }
 
-    function chartClickOptions(onLabelClick) {
-        return {
-            onClick: function (evt, elements, chart) {
-                if (!elements || !elements.length) return;
-                var idx = elements[0].index;
-                var label = chart.data.labels[idx];
-                onLabelClick(label, idx);
-            },
-        };
-    }
-
-    function mountCharts(charts, payload, filter) {
+    function mountCharts(charts) {
         if (!window.Chart) {
             // Chart.js not loaded — just show the section without canvases
             return;
         }
-        payload = payload || {};
-        // Name -> id lookups so bar-chart segments can drill exactly
-        // like their table-row counterparts.
-        var ownerByName = {};
-        ((payload.owner_analytics || {}).owners || []).forEach(function (o) {
-            ownerByName[o.name] = o.user_id;
-        });
-
         var defs = [
             { id: "chart-aging", type: "bar", data: charts.pipeline_aging },
             { id: "chart-opp-trend", type: "line", data: charts.opportunity_trend },
@@ -691,16 +545,11 @@
             { id: "chart-revenue", type: "line", data: charts.revenue_trend },
             { id: "chart-conv", type: "line", data: charts.conversion_trend },
             { id: "chart-disposition", type: "bar", data: charts.disposition_trend },
-            {
-                id: "chart-owner", type: "bar", data: charts.owner_pipeline,
-                extraOptions: chartClickOptions(function (label) {
-                    openDrilldown("owner", ownerByName[label], filter);
-                }),
-            },
+            { id: "chart-owner", type: "bar", data: charts.owner_pipeline },
             { id: "chart-team", type: "bar", data: charts.team_performance },
             { id: "chart-forecast", type: "bar", data: charts.revenue_forecast },
         ];
-        defs.forEach(function (d) { makeChart(d.id, d.type, d.data, d.extraOptions); });
+        defs.forEach(function (d) { makeChart(d.id, d.type, d.data); });
     }
 
     // ------------------------------------------------------------------
@@ -716,7 +565,6 @@
             renderDisposition(payload.disposition) +
             renderProductivity(payload.productivity) +
             renderOwnerBreakdown(payload.owner_analytics) +
-            renderCampaignAnalytics(payload.campaign_analytics) +
             renderFunnel(payload.funnel) +
             renderChartsSection(payload.charts) +
             renderExportBar() +
@@ -724,11 +572,9 @@
         rootEl.innerHTML = html;
         // Wire export buttons
         wireExportButtons(filter);
-        // Wire click-through drill-down on cards/rows/chart segments
-        wireDrilldowns(rootEl, filter);
         // Load and mount charts (lazy CDN load)
         loadChartJs().then(function () {
-            mountCharts(payload.charts || {}, payload, filter);
+            mountCharts(payload.charts || {});
         }).catch(function (e) {
             console.warn("CED: charts not loaded, showing data only", e);
         });

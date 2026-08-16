@@ -9,4 +9,3 @@ from . import crm_dashboard_export
 from . import crm_lead_extension
 from . import crm_team_extension
 from . import crm_lead_redistribution
-from . import utm_campaign_extension

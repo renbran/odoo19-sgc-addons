@@ -3,7 +3,7 @@
 
 {
     'name': 'CRM Executive Dashboard',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.0.0',
     'category': 'Sales/CRM',
     'summary': 'Premium Executive CRM KPI Dashboard with Real-time Analytics',
     'description': """
@@ -68,7 +68,6 @@ Compatibility:
         'security/ir.model.access.csv',
         'data/crm_dashboard_data.xml',
         'data/crm_lead_redistribution_data.xml',
-        'views/utm_campaign_views.xml',
         'views/crm_dashboard_views.xml',
         'views/crm_dashboard_templates.xml',
         'views/crm_dashboard_charts.xml',

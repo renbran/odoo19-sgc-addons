@@ -384,53 +384,6 @@ class CrmDashboardController(http.Controller):
             return _envelope(None, error=str(e), code='filters_failed')
 
     # ------------------------------------------------------------------
-    # Drill-down (click-through from KPI cards / charts to records)
-    # ------------------------------------------------------------------
-
-    @http.route(
-        '/crm-dashboard/drilldown',
-        type='jsonrpc',
-        auth='user',
-        methods=['POST'],
-        readonly=True,
-        csrf=False,
-    )
-    def dashboard_drilldown(self, drill_type=None, drill_key=None, filter=None, **kw):
-        """Resolve a clicked KPI card / chart segment / table row into an
-        ``ir.actions.act_window`` the JS can open, so the user can see
-        exactly which records are behind a number on the dashboard.
-        """
-        if not _user_has_group(_GROUP_USER):
-            raise AccessDenied()
-        try:
-            from odoo.addons.crm_executive_dashboard.services import drilldown
-
-            filt = _parse_filter(post=filter or {}, **kw)
-
-            if not drill_type:
-                return _envelope(None, error='Missing drill_type', code='bad_request')
-
-            resolved = drilldown.resolve(request.env, drill_type, drill_key, filt)
-            if not resolved:
-                return _envelope(None, error='Nothing to show for this selection', code='not_drillable')
-
-            action = {
-                'type': 'ir.actions.act_window',
-                'name': resolved['name'],
-                'res_model': resolved['model'],
-                'view_mode': 'list,form',
-                'views': [(False, 'list'), (False, 'form')],
-                'domain': resolved['domain'],
-                'target': 'current',
-            }
-            return _envelope(action)
-        except AccessDenied:
-            raise
-        except Exception as e:
-            _logger.exception("CED: drilldown failed: %s", e)
-            return _envelope(None, error=str(e), code='drilldown_failed')
-
-    # ------------------------------------------------------------------
     # Public health-check (no auth)
     # ------------------------------------------------------------------
 

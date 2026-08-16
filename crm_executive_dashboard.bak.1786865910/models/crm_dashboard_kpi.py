@@ -269,7 +269,6 @@ class CrmDashboardKpi(models.TransientModel):
             'productivity': self._compute_productivity(filter_dict),
             'startup': self._compute_startup_metrics(filter_dict),
             'owner_analytics': self._compute_owner_analytics(filter_dict),
-            'campaign_analytics': self._compute_campaign_analytics(filter_dict),
             'funnel': self._compute_sales_funnel(filter_dict),
             'alerts': self._compute_alerts(filter_dict),
             'charts': self._compute_chart_data(filter_dict),
@@ -996,88 +995,6 @@ class CrmDashboardKpi(models.TransientModel):
             'owners': owners,
             'total': total,
             'top_owner_share': top_owner_share,
-        }
-
-    # ===================================================================
-    # SECTION 5B — CAMPAIGN PERFORMANCE, LEAD SOURCE & ROI
-    # ===================================================================
-
-    @api.model
-    def _compute_campaign_analytics(self, filter_dict):
-        """Lead-source breakdown and per-campaign performance/ROI.
-
-        ROI per campaign = ``(won_revenue - budget) / budget * 100``.
-        Budget is a manually-entered figure (``ced_budget`` on
-        ``utm.campaign``) since Odoo CRM has no native ad-spend
-        tracking. ROI is ``None`` (not shown) when budget is 0/unset
-        to avoid a divide-by-zero or a misleading infinite figure.
-        """
-        Lead = self.env['crm.lead']
-        base_domain = _build_domain(filter_dict, 'create_date')
-        won_stage_ids = self._get_won_stage_ids()
-
-        # --- Source of leads ------------------------------------------
-        source_groups = Lead.read_group(base_domain, fields=['id'], groupby='source_id', lazy=False)
-        total_with_source = sum(g['__count'] for g in source_groups)
-        sources = []
-        for g in source_groups:
-            sid = g['source_id'][0] if g['source_id'] else False
-            sname = g['source_id'][1] if g['source_id'] else _('Undefined')
-            count = g['__count']
-            won_count = Lead.search_count(
-                base_domain + [
-                    ('source_id', '=', sid), ('type', '=', 'opportunity'),
-                    ('stage_id', 'in', won_stage_ids),
-                ]
-            )
-            sources.append({
-                'source_id': sid,
-                'name': sname,
-                'count': count,
-                'share': round(count / total_with_source * 100.0, 2) if total_with_source else 0.0,
-                'won': won_count,
-            })
-        sources.sort(key=lambda s: s['count'], reverse=True)
-
-        # --- Campaign performance + ROI ---------------------------------
-        campaign_groups = Lead.read_group(
-            base_domain + [('campaign_id', '!=', False)],
-            fields=['id', 'expected_revenue'],
-            groupby='campaign_id',
-            lazy=False,
-        )
-        campaign_ids = [g['campaign_id'][0] for g in campaign_groups if g['campaign_id']]
-        budgets = {c.id: c.ced_budget for c in self.env['utm.campaign'].browse(campaign_ids)}
-
-        campaigns = []
-        for g in campaign_groups:
-            if not g['campaign_id']:
-                continue
-            cid = g['campaign_id'][0]
-            cname = g['campaign_id'][1]
-            count = g['__count']
-            won_revenue = self._sum_field(
-                base_domain + [
-                    ('campaign_id', '=', cid), ('type', '=', 'opportunity'),
-                    ('stage_id', 'in', won_stage_ids),
-                ],
-                'expected_revenue',
-            )
-            budget = budgets.get(cid) or 0.0
-            roi = round((won_revenue - budget) / budget * 100.0, 2) if budget else None
-            campaigns.append({
-                'campaign_id': cid,
-                'name': cname,
-                'leads': count,
-                'won_revenue': round(won_revenue, 2),
-                'budget': round(budget, 2),
-                'roi': roi,
-            })
-        campaigns.sort(key=lambda c: c['won_revenue'], reverse=True)
-
-        return {
-            'sources': sources,
-            'campaigns': campaigns,
         }
 
     # ===================================================================

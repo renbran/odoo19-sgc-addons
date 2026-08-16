@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Expose the ROI budget field on Marketing > Campaigns so it can be
+         entered by the user; consumed by crm.dashboard.kpi._compute_campaign_analytics. -->
+    <record id="utm_campaign_view_form_ced_budget" model="ir.ui.view">
+        <field name="name">utm.campaign.form.ced.budget</field>
+        <field name="model">utm.campaign</field>
+        <field name="inherit_id" ref="utm.utm_campaign_view_form"/>
+        <field name="arch" type="xml">
+            <field name="title" position="after">
+                <field name="ced_budget" widget="monetary"/>
+                <field name="ced_currency_id" invisible="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- =============================================================
+             Saved Filter — tree
+             ============================================================= -->
+        <record id="view_crm_dashboard_filter_tree" model="ir.ui.view">
+            <field name="name">crm.dashboard.filter.tree</field>
+            <field name="model">crm.dashboard.filter</field>
+            <field name="arch" type="xml">
+                <list string="Saved Filters"
+                      decoration-muted="not shared and user_id != uid"
+                      decoration-success="is_default">
+                    <field name="name"/>
+                    <field name="user_id" widget="many2one_avatar"/>
+                    <field name="shared" widget="boolean_toggle"/>
+                    <field name="is_default" widget="boolean_toggle"/>
+                    <field name="description"/>
+                    <field name="color" widget="color_picker"
+                           invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Saved Filter — form
+             ============================================================= -->
+        <record id="view_crm_dashboard_filter_form" model="ir.ui.view">
+            <field name="name">crm.dashboard.filter.form</field>
+            <field name="model">crm.dashboard.filter</field>
+            <field name="arch" type="xml">
+                <form string="Saved Filter">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1><field name="name" placeholder="e.g. My Q3 sales pipeline"/></h1>
+                        </div>
+                        <group>
+                            <group string="Ownership" name="ownership">
+                                <field name="user_id" readonly="1"/>
+                                <field name="shared"/>
+                                <field name="is_default"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group string="Notes" name="notes">
+                                <field name="description"
+                                       placeholder="What is this filter for?"/>
+                            </group>
+                        </group>
+                        <group string="Filter Definition" name="filter">
+                            <field name="filter_dict"
+                                   widget="ace"
+                                   options="{'mode': 'json', 'theme': 'monokai'}"
+                                   nolabel="1"
+                                   placeholder='{"period": "last_30_days"}'/>
+                            <p class="text-muted">
+                                Allowed keys:
+                                <code>period</code>,
+                                <code>date_from</code>,
+                                <code>date_to</code>,
+                                <code>user_id</code>,
+                                <code>team_id</code>,
+                                <code>source_id</code>,
+                                <code>stage_id</code>,
+                                <code>company_id</code>
+                            </p>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Saved Filter — search
+             (Odoo 19: removed <group expand="0" string="Group By">; use
+             searchpanel or just filters without grouping wrapper)
+             ============================================================= -->
+        <record id="view_crm_dashboard_filter_search" model="ir.ui.view">
+            <field name="name">crm.dashboard.filter.search</field>
+            <field name="model">crm.dashboard.filter</field>
+            <field name="arch" type="xml">
+                <search string="Saved Filters">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="description"/>
+                    <filter name="mine" string="My filters"
+                            domain="[('user_id', '=', uid)]"/>
+                    <filter name="shared" string="Shared"
+                            domain="[('shared', '=', True)]"/>
+                    <filter name="default" string="Default"
+                            domain="[('is_default', '=', True)]"/>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>
