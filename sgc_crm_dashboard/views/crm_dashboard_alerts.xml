@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- =============================================================
+             Alert Rule — tree
+             ============================================================= -->
+        <record id="view_crm_dashboard_alert_rule_tree" model="ir.ui.view">
+            <field name="name">crm.dashboard.alert.rule.tree</field>
+            <field name="model">crm.dashboard.alert.rule</field>
+            <field name="arch" type="xml">
+                <list string="Alert Rules"
+                      decoration-muted="not active"
+                      decoration-danger="severity=='danger'"
+                      decoration-warning="severity=='warn'">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="rule_type"/>
+                    <field name="severity" widget="badge"
+                           decoration-info="severity=='info'"
+                           decoration-warning="severity=='warn'"
+                           decoration-danger="severity=='danger'"/>
+                    <field name="threshold"/>
+                    <field name="active" widget="boolean_toggle"/>
+                    <field name="last_triggered"/>
+                    <field name="trigger_count"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Alert Rule — form
+             ============================================================= -->
+        <record id="view_crm_dashboard_alert_rule_form" model="ir.ui.view">
+            <field name="name">crm.dashboard.alert.rule.form</field>
+            <field name="model">crm.dashboard.alert.rule</field>
+            <field name="arch" type="xml">
+                <form string="Alert Rule">
+                    <header>
+                        <button name="action_evaluate" type="object"
+                                string="Test Now" class="btn-secondary"
+                                icon="fa-bolt"
+                                help="Evaluate this rule against current data without saving"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1><field name="name" placeholder="e.g. Stale pipeline warning"/></h1>
+                        </div>
+                        <group>
+                            <group string="Rule Definition" name="rule">
+                                <field name="rule_type"/>
+                                <field name="threshold"/>
+                                <field name="severity"/>
+                                <field name="sequence"/>
+                            </group>
+                            <group string="Status" name="status">
+                                <field name="active" widget="boolean_toggle"/>
+                                <field name="last_triggered" readonly="1"/>
+                                <field name="trigger_count" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <group string="Message" name="message">
+                            <field name="message_template"
+                                   placeholder="e.g. {title}: {value} {unit} (threshold {threshold})"/>
+                            <p class="text-muted">
+                                Placeholders: <code>{value}</code>,
+                                <code>{days}</code>, <code>{threshold}</code>,
+                                <code>{title}</code>, <code>{unit}</code>
+                            </p>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Alert Rule — search
+             ============================================================= -->
+        <record id="view_crm_dashboard_alert_rule_search" model="ir.ui.view">
+            <field name="name">crm.dashboard.alert.rule.search</field>
+            <field name="model">crm.dashboard.alert.rule</field>
+            <field name="arch" type="xml">
+                <search string="Alert Rules">
+                    <field name="name"/>
+                    <field name="rule_type"/>
+                    <field name="severity"/>
+                    <filter name="active" string="Active"
+                            domain="[('active', '=', True)]"/>
+                    <filter name="inactive" string="Inactive"
+                            domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

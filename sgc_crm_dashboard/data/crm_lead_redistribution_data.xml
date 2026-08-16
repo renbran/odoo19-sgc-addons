@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================
+         CRM LEAD REDISTRIBUTION AUTOMATION
+         Server Action
+         ============================================================ -->
+
+    <!-- Server Action: Redistribute Dead Leads -->
+    <record id="action_crm_lead_redistribution" model="ir.actions.server">
+        <field name="name">Redistribute Dead Leads</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = env['crm.lead.redistribution'].redistribute_dead_leads()
+        </field>
+    </record>
+
+</odoo>

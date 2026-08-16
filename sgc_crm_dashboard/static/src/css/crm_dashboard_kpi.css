@@ -1,0 +1,224 @@
+/* =====================================================================
+   CRM Executive Dashboard — KPI Cards
+   =====================================================================
+   Grid of metric tiles, card anatomy, level-based accent colours.
+   ===================================================================== */
+
+.ced-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--ced-space-md);
+}
+
+.ced-kpi-card {
+    background: var(--ced-primary-light);
+    border-radius: var(--ced-radius-md);
+    padding: var(--ced-space-md);
+    box-shadow: var(--ced-shadow-sm);
+    border-left: 4px solid var(--ced-secondary);
+    display: flex;
+    align-items: center;
+    gap: var(--ced-space-md);
+    transition: all var(--ced-transition);
+    min-height: 88px;
+}
+
+.ced-kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ced-shadow-md);
+}
+
+.ced-kpi-card--default {
+    border-left-color: var(--ced-secondary);
+}
+
+.ced-kpi-card--info {
+    border-left-color: var(--ced-secondary);
+}
+
+.ced-kpi-card--success {
+    border-left-color: var(--ced-success);
+}
+
+.ced-kpi-card--warning {
+    border-left-color: var(--ced-warning);
+}
+
+.ced-kpi-card--danger {
+    border-left-color: var(--ced-danger);
+}
+
+.ced-kpi-card--gold {
+    border-left-color: var(--ced-secondary);
+    background: linear-gradient(135deg, var(--ced-primary-light) 0%, var(--ced-secondary-soft) 100%);
+}
+
+.ced-kpi-card__icon {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--ced-radius-md);
+    background: var(--ced-secondary-soft);
+    color: var(--ced-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.ced-kpi-card--info .ced-kpi-card__icon {
+    background: var(--ced-secondary-soft);
+    color: var(--ced-secondary);
+}
+
+.ced-kpi-card--success .ced-kpi-card__icon {
+    background: rgba(30, 193, 152, 0.12);
+    color: var(--ced-success);
+}
+
+.ced-kpi-card--warning .ced-kpi-card__icon {
+    background: rgba(243, 156, 18, 0.15);
+    color: var(--ced-warning);
+}
+
+.ced-kpi-card--danger .ced-kpi-card__icon {
+    background: rgba(231, 76, 60, 0.12);
+    color: var(--ced-danger);
+}
+
+.ced-kpi-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ced-kpi-card__title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ced-white);
+    opacity: 0.75;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.ced-kpi-card__value {
+    font-family: var(--ced-font-display);
+    font-size: 24px;
+    color: var(--ced-white);
+    font-weight: 700;
+    line-height: 1.1;
+    word-break: break-word;
+}
+
+.ced-kpi-card__subtitle {
+    font-size: 11px;
+    color: var(--ced-white);
+    opacity: 0.6;
+    margin-top: 2px;
+}
+
+/* --- Sub-grids for productivity and leads --- */
+.ced-productivity-grid,
+.ced-leads-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ced-space-md);
+    margin-top: var(--ced-space-md);
+}
+
+.ced-productivity-card,
+.ced-leads-card {
+    background: var(--ced-primary-light);
+    border-radius: var(--ced-radius-md);
+    padding: var(--ced-space-md);
+    box-shadow: var(--ced-shadow-sm);
+    border-top: 2px solid var(--ced-secondary);
+}
+
+.ced-productivity-card h3,
+.ced-leads-card h3 {
+    font-family: var(--ced-font-display);
+    font-size: 14px;
+    margin: 0 0 var(--ced-space-sm) 0;
+    color: var(--ced-secondary);
+}
+
+.ced-productivity-card table,
+.ced-leads-card table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.ced-productivity-card th,
+.ced-leads-card th {
+    color: var(--ced-secondary);
+    font-weight: 600;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--ced-secondary-soft);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+}
+
+.ced-productivity-card td,
+.ced-leads-card td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--ced-white);
+}
+
+.ced-productivity-card tr:last-child td,
+.ced-leads-card tr:last-child td {
+    border-bottom: none;
+}
+
+.ced-productivity-card td:first-child,
+.ced-leads-card td:first-child {
+    font-weight: 500;
+}
+
+.ced-productivity-card td:last-child,
+.ced-leads-card td:last-child {
+    text-align: right;
+    font-family: var(--ced-font-mono);
+    color: var(--ced-secondary);
+}
+/* --- Click-through drill-down affordances (added for record-level detail) --- */
+.ced-kpi-card--clickable,
+.ced-row--clickable,
+.ced-funnel__stage--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.ced-kpi-card--clickable:hover,
+.ced-funnel__stage--clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.ced-row--clickable:hover {
+    background-color: rgba(216, 192, 140, 0.08);
+}
+
+.ced-kpi-card--clickable:focus-visible,
+.ced-row--clickable:focus-visible,
+.ced-funnel__stage--clickable:focus-visible {
+    outline: 2px solid var(--ced-secondary);
+    outline-offset: 2px;
+}
+
+.ced-canvas {
+    cursor: pointer;
+}
+
+.ced-text--success {
+    color: var(--ced-success, #198754);
+    font-weight: 600;
+}
+
+.ced-text--danger {
+    color: var(--ced-danger, #DC3545);
+    font-weight: 600;
+}

@@ -33,8 +33,3 @@ class CRMSalesTeam(models.Model):
                                         store=True,
                                         help="CRM Lead stage for leads "
                                              "associated with this sales team.")
-
-    dashboard_target_revenue = fields.Float(
-        string="Target Revenue",
-        digits=(16, 2),
-        help="Target revenue for this sales team, displayed in the CRM Dashboard.")

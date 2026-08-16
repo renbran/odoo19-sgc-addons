@@ -19,9 +19,20 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 ################################################################################
+# Cybrosys-origin models — retained from the original CRM Dashboard module.
 from . import crm_team
 from . import res_user
 from . import sale_order
 from . import utm_campaign
 from . import dashboard
 from . import crm_objection
+# Executive-origin models — merged from CRM Executive Dashboard.
+from . import crm_dashboard_kpi
+from . import crm_dashboard_filter
+from . import crm_dashboard_alert
+from . import crm_dashboard_report
+from . import crm_dashboard_export
+from . import crm_lead_extension
+from . import crm_team_extension
+from . import crm_lead_redistribution
+from . import utm_campaign_extension
