@@ -28,8 +28,11 @@
                 <header>
                     <button name="action_refresh_measurements" type="object"
                             string="Refresh Measurements" invisible="state in ('completed','canceled')"/>
-                    <button name="action_apply_decision" type="object" string="Apply Decision"
-                            class="btn-primary" invisible="state in ('completed','canceled') or not decision"/>
+                    <button name="action_apply_decision_and_activate" type="object"
+                            string="Apply Decision and Activate" class="btn-primary"
+                            invisible="state in ('completed','canceled') or not decision"/>
+                    <button name="action_apply_decision" type="object" string="Apply Decision Only"
+                            invisible="state in ('completed','canceled') or not decision"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             invisible="state in ('completed','canceled')"/>
                     <field name="state" widget="statusbar"

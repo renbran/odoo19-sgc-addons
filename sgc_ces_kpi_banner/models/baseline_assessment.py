@@ -199,7 +199,11 @@ class SgcCesBaselineAssessment(models.Model):
         return True
 
     # -------------------------------------------------------------- decision
-    def action_apply_decision(self):
+    def _apply_decision(self, activate=False):
+        """Shared logic. ``activate=False`` is "Apply Decision Only" (leaves
+        the assignment in draft); ``activate=True`` is "Apply Decision and
+        Activate" (validates start date/gate/manager, then activates in the
+        same transaction)."""
         for record in self:
             if record.state in ("completed", "canceled"):
                 raise UserError(_("This assessment is already closed."))
@@ -227,15 +231,73 @@ class SgcCesBaselineAssessment(models.Model):
             if record.decision == "grant_consideration" and not record.manager_notes:
                 raise UserError(_("Record the reason for the consideration in manager notes."))
 
+            if activate:
+                if not record.ces_start_date:
+                    raise UserError(_("No CES start date resolved - cannot activate."))
+                if not record.assigned_gate_template_id:
+                    raise UserError(_("No gate assigned - cannot activate."))
+                if not record.manager_user_id:
+                    raise UserError(_("No manager resolved - cannot activate."))
+
             record.state = "completed"
             record.assignment_id.write({"state": "draft"})
-            record.message_post(
-                body=_("Baseline assessment completed - decision: %s. Gate assignment "
-                       "unlocked to draft; activate it to start normal gate enforcement.")
-                % dict(record._fields["decision"].selection).get(record.decision)
-            )
+
+            if activate:
+                record.assignment_id.action_activate()
+                record.message_post(
+                    body=_("Baseline assessment completed and activated - decision: %s. "
+                           "Gate: %s. Prospective gate instances created; no historical "
+                           "period was measured or alerted.")
+                    % (
+                        dict(record._fields["decision"].selection).get(record.decision),
+                        record.assigned_gate_template_id.display_name,
+                    )
+                )
+            else:
+                record.message_post(
+                    body=_("Baseline assessment completed - decision: %s. Gate assignment "
+                           "unlocked to draft; activate it to start normal gate enforcement.")
+                    % dict(record._fields["decision"].selection).get(record.decision)
+                )
         return True
+
+    def action_apply_decision(self):
+        """Secondary action: apply the decision, leave the assignment in draft
+        for further administrative review before activation."""
+        return self._apply_decision(activate=False)
+
+    def action_apply_decision_and_activate(self):
+        """Primary action: apply the decision and activate the assignment in
+        one confirmed step."""
+        return self._apply_decision(activate=True)
 
     def action_cancel(self):
         self.write({"state": "canceled"})
         return True
+
+    def _create_required_activity(self):
+        """One 'CES Baseline Assessment Required' activity per employee,
+        assigned to the resolved manager. Idempotent per assessment."""
+        Activity = self.env["mail.activity"]
+        activity_type = self.env.ref(
+            "sgc_ces_kpi_banner.mail_activity_type_ces_gate_review", raise_if_not_found=False
+        ) or self.env.ref("mail.mail_activity_data_todo", raise_if_not_found=False)
+        model_id = self.env["ir.model"]._get_id(self._name)
+        for record in self:
+            if not record.manager_user_id:
+                continue
+            existing = Activity.search_count(
+                [("res_model", "=", self._name), ("res_id", "=", record.id)]
+            )
+            if existing:
+                continue
+            Activity.sudo().create(
+                {
+                    "res_model_id": model_id,
+                    "res_id": record.id,
+                    "activity_type_id": activity_type.id if activity_type else False,
+                    "summary": _("CES Baseline Assessment Required - %s") % record.employee_id.name,
+                    "user_id": record.manager_user_id.id,
+                    "date_deadline": record.assessment_due_date,
+                }
+            )

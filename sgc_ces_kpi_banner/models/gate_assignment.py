@@ -190,8 +190,28 @@ class SgcCesGateAssignment(models.Model):
                 }
             )
             record.action_refresh_measurements()
+            record._create_required_activity()
             created |= record
         return created
+
+    def action_baseline_retrofit(self, reason=None):
+        """Cancel any already-overdue gate instances with an explicit auditable
+        reason, then create the baseline assessment. Use this instead of
+        calling action_cancel() + action_create_baseline_assessment() by hand -
+        it's the one path that keeps the retrofit reason on the record."""
+        reason = reason or _(
+            "Cancelled during baseline-assessment retrofit: this gate was measured "
+            "before the employee's baseline was reviewed. See the linked baseline "
+            "assessment for the tenure-based context."
+        )
+        for assignment in self:
+            overdue = assignment.instance_ids.filtered(lambda i: i.state == "pending_review")
+            if overdue:
+                for instance in overdue:
+                    instance.message_post(body=reason)
+                overdue.action_cancel()
+            assignment.state = "pending_baseline"
+        return self.action_create_baseline_assessment()
 
     def action_view_baseline_assessments(self):
         self.ensure_one()
