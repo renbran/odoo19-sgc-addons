@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_ces_gate_consideration_list" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.consideration.list</field>
+        <field name="model">sgc.ces.gate.consideration</field>
+        <field name="arch" type="xml">
+            <list string="Considerations">
+                <field name="employee_id"/>
+                <field name="instance_id"/>
+                <field name="consideration_type"/>
+                <field name="state" widget="badge"/>
+                <field name="original_due_date"/>
+                <field name="new_due_date"/>
+                <field name="adjusted_target"/>
+                <field name="requested_by_id"/>
+                <field name="approved_by_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_ces_gate_consideration_form" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.consideration.form</field>
+        <field name="model">sgc.ces.gate.consideration</field>
+        <field name="arch" type="xml">
+            <form string="Consideration">
+                <header>
+                    <button name="action_approve" type="object" string="Approve"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_reject" type="object" string="Reject"
+                            invisible="state != 'draft'"/>
+                    <button name="action_revoke" type="object" string="Revoke"
+                            invisible="state != 'approved'"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="instance_id"/>
+                            <field name="requirement_result_id"/>
+                            <field name="consideration_type"/>
+                            <field name="review_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="original_due_date" readonly="1"/>
+                            <field name="new_due_date"
+                                   invisible="consideration_type != 'extension'"/>
+                            <field name="adjusted_target"
+                                   invisible="consideration_type != 'target_adjustment'"/>
+                            <field name="requested_by_id" readonly="1"/>
+                            <field name="approved_by_id" readonly="1"/>
+                            <field name="approved_on" readonly="1"/>
+                        </group>
+                    </group>
+                    <field name="reason" placeholder="Why is this consideration justified?"/>
+                    <div class="alert alert-info" role="alert">
+                        This record is additive: the gate's original due date and the
+                        requirement's original target are never modified.
+                    </div>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sgc_ces_gate_consideration" model="ir.actions.act_window">
+        <field name="name">Considerations</field>
+        <field name="res_model">sgc.ces.gate.consideration</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

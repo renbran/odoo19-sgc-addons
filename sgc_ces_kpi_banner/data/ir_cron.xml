@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Hourly, bounded, idempotent. Creates at most one review per
+             (gate instance, alert type, scheduled date); catch-up safe after
+             downtime; each record is isolated in its own try/except. -->
+        <record id="cron_ces_gate_alerts" model="ir.cron">
+            <field name="name">SGC CES: Gate review alerts</field>
+            <field name="model_id" ref="model_sgc_ces_gate_instance"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_gate_alerts()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- At most one reminder per open review per day. -->
+        <record id="cron_ces_review_reminders" model="ir.cron">
+            <field name="name">SGC CES: Gate review reminders</field>
+            <field name="model_id" ref="model_sgc_ces_gate_review"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_send_review_reminders()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

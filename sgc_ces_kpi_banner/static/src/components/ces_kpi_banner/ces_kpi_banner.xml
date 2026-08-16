@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sgc_ces_kpi_banner.Banner">
+        <div t-if="state.visible" class="o_sgc_ces_kpi_root" t-on-keydown="onKeydown">
+
+            <!-- Collapsed tab -->
+            <button t-if="state.collapsed"
+                    class="o_sgc_ces_kpi_tab"
+                    t-att-class="primaryGate ? healthClass(primaryGate.health) : ''"
+                    t-on-click="toggle"
+                    aria-expanded="false"
+                    aria-controls="o_sgc_ces_kpi_panel"
+                    t-att-title="headlineLabel">
+                <span class="o_sgc_ces_kpi_tab_icon" aria-hidden="true">&#9650;</span>
+                <span class="o_sgc_ces_kpi_tab_label" t-esc="headlineLabel"/>
+            </button>
+
+            <!-- Expanded panel -->
+            <section t-if="!state.collapsed"
+                     id="o_sgc_ces_kpi_panel"
+                     class="o_sgc_ces_kpi_panel"
+                     role="region"
+                     aria-label="CES KPI summary"
+                     t-ref="panel">
+
+                <header class="o_sgc_ces_kpi_header">
+                    <h2 class="o_sgc_ces_kpi_title">My CES KPIs</h2>
+                    <button class="o_sgc_ces_kpi_close"
+                            t-on-click="toggle"
+                            aria-label="Collapse the CES KPI panel">&#215;</button>
+                </header>
+
+                <div class="o_sgc_ces_kpi_body">
+
+                    <p t-if="state.error" class="o_sgc_ces_kpi_error" role="alert">
+                        KPI data is unavailable right now.
+                    </p>
+
+                    <t t-foreach="state.summary.warnings or []" t-as="warning" t-key="warning_index">
+                        <p class="o_sgc_ces_kpi_warning" role="status" t-esc="warning"/>
+                    </t>
+
+                    <!-- Next recommended action -->
+                    <div t-if="nextAction" class="o_sgc_ces_kpi_next">
+                        <span class="o_sgc_ces_kpi_next_head">Next</span>
+                        <button class="o_sgc_ces_kpi_next_body"
+                                t-att-disabled="!nextAction.has_drilldown"
+                                t-on-click="openNextAction">
+                            <span class="o_sgc_ces_kpi_next_label" t-esc="nextAction.label"/>
+                            <span t-if="nextAction.reason"
+                                  class="o_sgc_ces_kpi_next_reason"
+                                  t-esc="nextAction.reason"/>
+                        </button>
+                    </div>
+
+                    <!-- Gates -->
+                    <t t-foreach="state.summary.gates or []" t-as="gate" t-key="gate.id">
+                        <div class="o_sgc_ces_kpi_gate">
+                            <div class="o_sgc_ces_kpi_gate_head">
+                                <span class="o_sgc_ces_kpi_gate_name" t-esc="gate.name"/>
+                                <span class="o_sgc_ces_kpi_badge"
+                                      t-att-class="healthClass(gate.health)"
+                                      t-esc="gate.state_label"/>
+                            </div>
+                            <div class="o_sgc_ces_kpi_gate_meta">
+                                <span>Due <t t-esc="gate.effective_due_date"/></span>
+                                <span t-if="gate.days_remaining >= 0">
+                                    <t t-esc="gate.days_remaining"/> days left
+                                </span>
+                                <span t-else="" class="o_sgc_ces_kpi_bad_text">Overdue</span>
+                            </div>
+
+                            <t t-foreach="gate.requirements or []" t-as="req" t-key="req.id">
+                                <div class="o_sgc_ces_kpi_req">
+                                    <button class="o_sgc_ces_kpi_req_label"
+                                            t-att-disabled="!req.has_drilldown"
+                                            t-att-title="req.help_text"
+                                            t-on-click="() => this.openRequirement(req)">
+                                        <t t-esc="req.name"/>
+                                    </button>
+                                    <div class="o_sgc_ces_kpi_bar"
+                                         role="progressbar"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"
+                                         t-att-aria-valuenow="req.progress"
+                                         t-att-aria-label="req.name">
+                                        <span class="o_sgc_ces_kpi_bar_fill"
+                                              t-att-class="barClass(req)"
+                                              t-attf-style="width: {{ req.progress }}%"/>
+                                    </div>
+                                    <span class="o_sgc_ces_kpi_req_value">
+                                        <t t-esc="req.value"/> / <t t-esc="req.target"/>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Daily / monthly KPIs -->
+                    <t t-foreach="['daily', 'monthly']" t-as="period" t-key="period">
+                        <div t-if="(state.summary.kpis[period] or []).length"
+                             class="o_sgc_ces_kpi_group">
+                            <h3 class="o_sgc_ces_kpi_group_title">
+                                <t t-if="period === 'daily'">Today</t>
+                                <t t-else="">This month</t>
+                            </h3>
+                            <t t-foreach="state.summary.kpis[period]" t-as="kpi"
+                               t-key="kpi.target_id">
+                                <div class="o_sgc_ces_kpi_req">
+                                    <button class="o_sgc_ces_kpi_req_label"
+                                            t-att-disabled="!kpi.has_drilldown"
+                                            t-att-title="kpi.help_text"
+                                            t-on-click="() => this.openKpi(kpi)">
+                                        <t t-esc="kpi.name"/>
+                                    </button>
+                                    <div class="o_sgc_ces_kpi_bar"
+                                         role="progressbar"
+                                         aria-valuemin="0"
+                                         aria-valuemax="100"
+                                         t-att-aria-valuenow="kpi.progress"
+                                         t-att-aria-label="kpi.name">
+                                        <span class="o_sgc_ces_kpi_bar_fill"
+                                              t-att-class="kpi.achieved ? 'o_sgc_ces_kpi_ok' : 'o_sgc_ces_kpi_warn'"
+                                              t-attf-style="width: {{ kpi.progress }}%"/>
+                                    </div>
+                                    <span class="o_sgc_ces_kpi_req_value">
+                                        <t t-esc="kpi.value"/> / <t t-esc="kpi.target"/>
+                                    </span>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <p t-if="!(state.summary.gates or []).length"
+                       class="o_sgc_ces_kpi_empty">
+                        No active gate yet.
+                    </p>
+                </div>
+
+                <footer class="o_sgc_ces_kpi_footer">
+                    <span>Updated <t t-esc="state.summary.generated_on"/></span>
+                </footer>
+            </section>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_ces_gate_review_list" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.review.list</field>
+        <field name="model">sgc.ces.gate.review</field>
+        <field name="arch" type="xml">
+            <list string="Gate Reviews" decoration-warning="alert_type == 'overdue'">
+                <field name="employee_id"/>
+                <field name="instance_id"/>
+                <field name="alert_type"/>
+                <field name="alert_scheduled_date"/>
+                <field name="due_date"/>
+                <field name="reviewer_user_id"/>
+                <field name="snapshot_score" widget="percentage"/>
+                <field name="state" widget="badge"/>
+                <field name="decision"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_ces_gate_review_form" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.review.form</field>
+        <field name="model">sgc.ces.gate.review</field>
+        <field name="arch" type="xml">
+            <form string="Gate Review">
+                <header>
+                    <button name="action_start" type="object" string="Start"
+                            invisible="state != 'pending'"/>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'in_progress'"/>
+                    <button name="action_apply" type="object" string="Apply decision"
+                            class="btn-primary" invisible="state != 'submitted'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state in ('done','cancelled')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,in_progress,submitted,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="instance_id" readonly="1"/>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="reviewer_user_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="alert_type"/>
+                            <field name="alert_scheduled_date"/>
+                            <field name="due_date"/>
+                            <field name="snapshot_score" widget="percentage"/>
+                            <field name="reminder_count"/>
+                        </group>
+                    </group>
+                    <group string="Decision">
+                        <field name="decision"/>
+                        <field name="decision_notes"
+                               required="decision in ('fail','waive','extend')"/>
+                        <field name="decided_by_id" readonly="1"/>
+                        <field name="decided_on" readonly="1"/>
+                    </group>
+                    <group string="Snapshot at alert time">
+                        <field name="snapshot_summary" nolabel="1" colspan="2" readonly="1"
+                               widget="html"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sgc_ces_gate_review_search" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.review.search</field>
+        <field name="model">sgc.ces.gate.review</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <filter name="mine" string="Assigned to me"
+                        domain="[('reviewer_user_id', '=', uid)]"/>
+                <filter name="open" string="Open"
+                        domain="[('state', 'in', ['pending','in_progress','submitted'])]"/>
+                <separator/>
+                <filter name="group_reviewer" string="Reviewer"
+                        context="{'group_by': 'reviewer_user_id'}"/>
+                <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sgc_ces_gate_review" model="ir.actions.act_window">
+        <field name="name">Gate Reviews</field>
+        <field name="res_model">sgc.ces.gate.review</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_open': 1, 'search_default_mine': 1}</field>
+    </record>
+</odoo>

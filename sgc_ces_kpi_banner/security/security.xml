@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="privilege_sgc_ces_kpi" model="res.groups.privilege">
+            <field name="name">CES KPI &amp; Gates</field>
+            <field name="sequence">45</field>
+        </record>
+
+        <!-- CES KPI User: sees their own banner, their own gates, read-only config. -->
+        <record id="group_ces_kpi_user" model="res.groups">
+            <field name="name">CES KPI User</field>
+            <field name="privilege_id" ref="privilege_sgc_ces_kpi"/>
+            <field name="comment">Can see their own KPI banner, their own gate instances and
+                the requirement definitions that apply to them. Cannot see anyone else's
+                figures and cannot change configuration.</field>
+        </record>
+
+        <!-- CES KPI Manager: everything a user can do, plus reviews for their reports. -->
+        <record id="group_ces_kpi_manager" model="res.groups">
+            <field name="name">CES KPI Manager</field>
+            <field name="privilege_id" ref="privilege_sgc_ces_kpi"/>
+            <field name="implied_ids" eval="[(4, ref('group_ces_kpi_user'))]"/>
+            <field name="comment">Can read the gates and KPI summaries of the specialists whose
+                resolved manager they are, run reviews, and approve considerations. Cannot edit
+                gate plans.</field>
+        </record>
+
+        <!-- CES KPI Administrator: full configuration. -->
+        <record id="group_ces_kpi_admin" model="res.groups">
+            <field name="name">CES KPI Administrator</field>
+            <field name="privilege_id" ref="privilege_sgc_ces_kpi"/>
+            <field name="implied_ids" eval="[(4, ref('group_ces_kpi_manager'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="comment">Full control over gate plans, templates, requirements,
+                assignments, KPI targets and every gate instance.</field>
+        </record>
+
+        <!--
+             Record rules.
+             Gate data is scoped to (a) the specialist themselves, (b) their
+             resolved reviewer, (c) administrators. Multi-company isolation is
+             enforced separately on every model that carries company_id.
+        -->
+
+        <record id="rule_gate_instance_own" model="ir.rule">
+            <field name="name">CES gate instance: own records</field>
+            <field name="model_id" ref="model_sgc_ces_gate_instance"/>
+            <field name="domain_force">['|', ('user_id', '=', user.id), ('manager_user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_gate_instance_admin" model="ir.rule">
+            <field name="name">CES gate instance: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_gate_instance"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_gate_instance_company" model="ir.rule">
+            <field name="name">CES gate instance: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_instance"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_gate_result_own" model="ir.rule">
+            <field name="name">CES requirement result: own records</field>
+            <field name="model_id" ref="model_sgc_ces_gate_requirement_result"/>
+            <field name="domain_force">['|', ('instance_id.user_id', '=', user.id), ('instance_id.manager_user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_user'))]"/>
+        </record>
+
+        <record id="rule_gate_result_admin" model="ir.rule">
+            <field name="name">CES requirement result: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_gate_requirement_result"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_gate_result_company" model="ir.rule">
+            <field name="name">CES requirement result: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_requirement_result"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_gate_review_reviewer" model="ir.rule">
+            <field name="name">CES gate review: reviewer or subject</field>
+            <field name="model_id" ref="model_sgc_ces_gate_review"/>
+            <field name="domain_force">['|', ('reviewer_user_id', '=', user.id), ('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_user'))]"/>
+        </record>
+
+        <record id="rule_gate_review_admin" model="ir.rule">
+            <field name="name">CES gate review: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_gate_review"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_gate_review_company" model="ir.rule">
+            <field name="name">CES gate review: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_review"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_gate_consideration_own" model="ir.rule">
+            <field name="name">CES consideration: own or reviewed records</field>
+            <field name="model_id" ref="model_sgc_ces_gate_consideration"/>
+            <field name="domain_force">['|', ('instance_id.user_id', '=', user.id), ('instance_id.manager_user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_user'))]"/>
+        </record>
+
+        <record id="rule_gate_consideration_admin" model="ir.rule">
+            <field name="name">CES consideration: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_gate_consideration"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_gate_consideration_company" model="ir.rule">
+            <field name="name">CES consideration: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_consideration"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_gate_assignment_own" model="ir.rule">
+            <field name="name">CES assignment: own or managed</field>
+            <field name="model_id" ref="model_sgc_ces_gate_assignment"/>
+            <field name="domain_force">['|', ('user_id', '=', user.id), ('manager_user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_user'))]"/>
+        </record>
+
+        <record id="rule_gate_assignment_admin" model="ir.rule">
+            <field name="name">CES assignment: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_gate_assignment"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_gate_assignment_company" model="ir.rule">
+            <field name="name">CES assignment: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_assignment"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_gate_plan_company" model="ir.rule">
+            <field name="name">CES gate plan: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_gate_plan"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="rule_kpi_target_company" model="ir.rule">
+            <field name="name">CES KPI target: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_kpi_target"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

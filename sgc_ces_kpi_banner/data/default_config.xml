@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Defaults only. Every one of these can be changed in Settings without a
+         code deploy, which is why no production record id is ever hard coded in
+         Python. -->
+    <data noupdate="1">
+
+        <record id="param_ces_job_name" model="ir.config_parameter">
+            <field name="key">sgc_ces_kpi_banner.ces_job_name</field>
+            <field name="value">Telesales/Client Engagement Specialist</field>
+        </record>
+
+        <record id="param_banner_enabled" model="ir.config_parameter">
+            <field name="key">sgc_ces_kpi_banner.banner_enabled</field>
+            <field name="value">True</field>
+        </record>
+
+        <record id="param_cache_seconds" model="ir.config_parameter">
+            <field name="key">sgc_ces_kpi_banner.cache_seconds</field>
+            <field name="value">60</field>
+        </record>
+
+        <!-- Email is opt-in. Reviewers get an activity and an inbox message only. -->
+        <record id="param_review_email_enabled" model="ir.config_parameter">
+            <field name="key">sgc_ces_kpi_banner.review_email_enabled</field>
+            <field name="value">False</field>
+        </record>
+
+    </data>
+</odoo>

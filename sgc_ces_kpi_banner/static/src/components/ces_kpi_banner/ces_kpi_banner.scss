@@ -1,0 +1,254 @@
+// Every selector is namespaced with .o_sgc_ces_kpi_ so nothing can collide
+// with sgc_app_home, sgc_crm_dashboard, sgc_crm_outreach_popup or core Odoo.
+
+.o_sgc_ces_kpi_root {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    z-index: 1035; // below Odoo dialogs (1055), above the sheet
+    font-size: 13px;
+    pointer-events: none;
+
+    > * {
+        pointer-events: auto;
+    }
+}
+
+.o_sgc_ces_kpi_tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    border-radius: 6px 6px 0 0;
+    padding: 6px 14px;
+    margin-right: 18px;
+    color: #fff;
+    background: #6c757d;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+    max-width: 60vw;
+
+    &.o_sgc_ces_kpi_ok { background: #28a745; }
+    &.o_sgc_ces_kpi_warn { background: #f0ad4e; color: #212529; }
+    &.o_sgc_ces_kpi_bad { background: #dc3545; }
+
+    &:focus-visible {
+        outline: 2px solid #0d6efd;
+        outline-offset: 2px;
+    }
+}
+
+.o_sgc_ces_kpi_tab_label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.o_sgc_ces_kpi_panel {
+    display: flex;
+    flex-direction: column;
+    width: 380px;
+    max-width: calc(100vw - 16px);
+    max-height: 70vh;
+    margin: 0 18px 0 0;
+    background: #fff;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.o_sgc_ces_kpi_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.o_sgc_ces_kpi_title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.o_sgc_ces_kpi_close {
+    border: 0;
+    background: transparent;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+
+    &:focus-visible {
+        outline: 2px solid #0d6efd;
+    }
+}
+
+.o_sgc_ces_kpi_body {
+    overflow-y: auto;
+    padding: 10px 12px;
+}
+
+.o_sgc_ces_kpi_footer {
+    padding: 6px 12px;
+    border-top: 1px solid #e9ecef;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.o_sgc_ces_kpi_next {
+    margin-bottom: 12px;
+    padding: 8px;
+    border-left: 3px solid #0d6efd;
+    background: #f1f6ff;
+}
+
+.o_sgc_ces_kpi_next_head {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #0d6efd;
+}
+
+.o_sgc_ces_kpi_next_body {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+
+    &[disabled] { cursor: default; }
+    &:focus-visible { outline: 2px solid #0d6efd; }
+}
+
+.o_sgc_ces_kpi_next_label { font-weight: 600; }
+.o_sgc_ces_kpi_next_reason { display: block; font-size: 11px; color: #6c757d; }
+
+.o_sgc_ces_kpi_gate,
+.o_sgc_ces_kpi_group {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #e9ecef;
+
+    &:last-child { border-bottom: 0; }
+}
+
+.o_sgc_ces_kpi_gate_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.o_sgc_ces_kpi_gate_name { font-weight: 600; }
+
+.o_sgc_ces_kpi_gate_meta {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: #6c757d;
+    margin-bottom: 6px;
+}
+
+.o_sgc_ces_kpi_group_title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #6c757d;
+    margin: 0 0 6px;
+}
+
+.o_sgc_ces_kpi_badge {
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 11px;
+    color: #fff;
+    background: #6c757d;
+
+    &.o_sgc_ces_kpi_ok { background: #28a745; }
+    &.o_sgc_ces_kpi_warn { background: #f0ad4e; color: #212529; }
+    &.o_sgc_ces_kpi_bad { background: #dc3545; }
+}
+
+.o_sgc_ces_kpi_req {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.o_sgc_ces_kpi_req_label {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline dotted;
+
+    &[disabled] {
+        cursor: default;
+        text-decoration: none;
+    }
+    &:focus-visible { outline: 2px solid #0d6efd; }
+}
+
+.o_sgc_ces_kpi_req_value {
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.o_sgc_ces_kpi_bar {
+    height: 6px;
+    border-radius: 3px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.o_sgc_ces_kpi_bar_fill {
+    display: block;
+    height: 100%;
+    background: #6c757d;
+    transition: width 0.25s ease;
+
+    &.o_sgc_ces_kpi_ok { background: #28a745; }
+    &.o_sgc_ces_kpi_warn { background: #f0ad4e; }
+    &.o_sgc_ces_kpi_bad { background: #dc3545; }
+}
+
+.o_sgc_ces_kpi_warning,
+.o_sgc_ces_kpi_error {
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.o_sgc_ces_kpi_warning { background: #fff8e1; color: #7a5d00; }
+.o_sgc_ces_kpi_error { background: #fdecea; color: #8a1c13; }
+.o_sgc_ces_kpi_bad_text { color: #dc3545; font-weight: 600; }
+.o_sgc_ces_kpi_empty { color: #6c757d; font-style: italic; }
+
+// Responsive: full-width bottom sheet on small screens.
+@media (max-width: 575.98px) {
+    .o_sgc_ces_kpi_panel {
+        width: 100vw;
+        max-width: 100vw;
+        margin: 0;
+        border-radius: 0;
+        max-height: 80vh;
+    }
+    .o_sgc_ces_kpi_tab {
+        margin-right: 0;
+        width: 100vw;
+        justify-content: center;
+        border-radius: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .o_sgc_ces_kpi_bar_fill { transition: none; }
+}

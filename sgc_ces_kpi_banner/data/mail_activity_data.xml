@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_activity_type_ces_gate_review" model="mail.activity.type">
+            <field name="name">CES Gate Review</field>
+            <field name="icon">fa-flag-checkered</field>
+            <field name="delay_count">0</field>
+            <field name="delay_unit">days</field>
+            <field name="delay_from">current_date</field>
+            <field name="res_model">sgc.ces.gate.review</field>
+            <field name="summary">Review the specialist's gate progress</field>
+        </record>
+    </data>
+</odoo>

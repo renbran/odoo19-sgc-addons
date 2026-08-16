@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_ces_gate_requirement_list" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.requirement.list</field>
+        <field name="model">sgc.ces.gate.requirement</field>
+        <field name="arch" type="xml">
+            <list string="Requirements">
+                <field name="sequence" widget="handle"/>
+                <field name="template_id"/>
+                <field name="name"/>
+                <field name="metric_code"/>
+                <field name="comparator"/>
+                <field name="target_value"/>
+                <field name="measurement_window"/>
+                <field name="level"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_ces_gate_requirement_form" model="ir.ui.view">
+        <field name="name">sgc.ces.gate.requirement.form</field>
+        <field name="model">sgc.ces.gate.requirement</field>
+        <field name="arch" type="xml">
+            <form string="Requirement">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Requirement name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Measurement">
+                            <field name="template_id"/>
+                            <field name="metric_code"/>
+                            <field name="comparator"/>
+                            <field name="target_value"/>
+                            <field name="measurement_window"/>
+                            <field name="window_days"
+                                   invisible="measurement_window != 'rolling_days'"/>
+                        </group>
+                        <group string="Scoring">
+                            <field name="level"/>
+                            <field name="weight" invisible="level != 'weighted'"/>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Pipeline options"
+                              invisible="metric_code not in ('pipeline_qualified_value','pipeline_qualified_count','pipeline_proposal_value')">
+                            <group>
+                                <field name="min_expected_revenue"/>
+                                <field name="probability_min"/>
+                                <field name="proposal_only"/>
+                                <field name="include_won"/>
+                                <field name="date_field"/>
+                            </group>
+                        </page>
+                        <page string="Staleness options"
+                              invisible="metric_code not in ('staleness_stale_count','staleness_stale_ratio','staleness_healthy_ratio')">
+                            <group>
+                                <field name="staleness_field"/>
+                                <field name="stale_days"/>
+                                <field name="warn_days"/>
+                                <field name="proposal_only"/>
+                            </group>
+                        </page>
+                        <page string="Signature options"
+                              invisible="metric_code not in ('signed_proposal_count','signed_proposal_value')">
+                            <group>
+                                <field name="signature_strategy"/>
+                                <field name="require_signature_only"/>
+                                <field name="order_states"/>
+                                <field name="require_opportunity"/>
+                            </group>
+                        </page>
+                        <page string="Payment options"
+                              invisible="metric_code not in ('paid_deal_count','paid_deal_value')">
+                            <group>
+                                <field name="qualifying_payment_mode"/>
+                                <field name="require_opportunity"/>
+                            </group>
+                            <div class="alert alert-info" role="alert">
+                                Reaching the Won stage never counts as payment on its own.
+                                Only posted customer invoices in a qualifying payment state do.
+                            </div>
+                        </page>
+                        <page string="Help text">
+                            <field name="help_text" placeholder="Shown in the banner tooltip"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sgc_ces_gate_requirement" model="ir.actions.act_window">
+        <field name="name">Requirements</field>
+        <field name="res_model">sgc.ces.gate.requirement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

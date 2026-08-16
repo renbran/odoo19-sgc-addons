@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_sgc_ces" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sgc.ces</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="crm.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="CES KPI &amp; Gates" name="sgc_ces_kpi_banner"
+                     groups="sgc_ces_kpi_banner.group_ces_kpi_admin">
+                    <block title="Banner" name="sgc_ces_banner_block">
+                        <setting string="CES KPI banner"
+                                 help="Show the floating KPI banner to Customer Engagement Specialists.">
+                            <field name="sgc_ces_banner_enabled"/>
+                        </setting>
+                        <setting string="KPI cache"
+                                 help="How long a computed summary is reused before recomputing.">
+                            <field name="sgc_ces_cache_seconds"/>
+                        </setting>
+                    </block>
+                    <block title="Identity and stages" name="sgc_ces_identity_block">
+                        <setting string="CES job position">
+                            <field name="sgc_ces_job_id"/>
+                        </setting>
+                        <setting string="CES job title (fallback lookup)">
+                            <field name="sgc_ces_job_name"/>
+                        </setting>
+                        <setting string="Proposal stage">
+                            <field name="sgc_ces_proposal_stage_id"/>
+                        </setting>
+                        <setting string="Won stage">
+                            <field name="sgc_ces_won_stage_id"/>
+                        </setting>
+                        <setting string="Stages excluded from live pipeline"
+                                 help="Comma separated crm.stage ids. Leave empty to auto-detect.">
+                            <field name="sgc_ces_excluded_stage_ids"/>
+                        </setting>
+                    </block>
+                    <block title="Reviews" name="sgc_ces_review_block">
+                        <setting string="Send review alerts by email"
+                                 help="Off by default. Reviewers always get an activity and an inbox message.">
+                            <field name="sgc_ces_review_email_enabled"/>
+                        </setting>
+                        <setting string="Fallback reviewer"
+                                 help="Used when no manager can be resolved for a specialist.">
+                            <field name="sgc_ces_fallback_manager_uid"/>
+                        </setting>
+                        <setting string="Configuration health">
+                            <button name="action_open_ces_health_check" type="object"
+                                    string="Run health check" class="btn-link"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

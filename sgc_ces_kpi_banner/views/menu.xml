@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menus live under CRM > Configuration and CRM > CES KPI so nothing
+         collides with sgc_app_home, sgc_crm_dashboard or the playbook menus. -->
+
+    <menuitem id="menu_sgc_ces_root"
+              name="CES KPI"
+              parent="crm.crm_menu_root"
+              sequence="90"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_user"/>
+
+    <menuitem id="menu_sgc_ces_my_gates"
+              name="My Gates"
+              parent="menu_sgc_ces_root"
+              action="action_sgc_ces_my_gates"
+              sequence="10"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_user"/>
+
+    <menuitem id="menu_sgc_ces_reviews"
+              name="Gate Reviews"
+              parent="menu_sgc_ces_root"
+              action="action_sgc_ces_gate_review"
+              sequence="20"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_manager"/>
+
+    <menuitem id="menu_sgc_ces_all_gates"
+              name="All Gates"
+              parent="menu_sgc_ces_root"
+              action="action_sgc_ces_gate_instance"
+              sequence="30"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_manager"/>
+
+    <menuitem id="menu_sgc_ces_considerations"
+              name="Considerations"
+              parent="menu_sgc_ces_root"
+              action="action_sgc_ces_gate_consideration"
+              sequence="40"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_manager"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_sgc_ces_config_root"
+              name="CES KPI &amp; Gates"
+              parent="crm.crm_menu_config"
+              sequence="80"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_admin"/>
+
+    <menuitem id="menu_sgc_ces_config_setup"
+              name="Setup Wizard"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_setup_wizard"
+              sequence="5"/>
+
+    <menuitem id="menu_sgc_ces_config_plans"
+              name="Gate Plans"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_gate_plan"
+              sequence="10"/>
+
+    <menuitem id="menu_sgc_ces_config_templates"
+              name="Gate Templates"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_gate_template"
+              sequence="20"/>
+
+    <menuitem id="menu_sgc_ces_config_requirements"
+              name="Requirements"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_gate_requirement"
+              sequence="30"/>
+
+    <menuitem id="menu_sgc_ces_config_assignments"
+              name="Assignments"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_gate_assignment"
+              sequence="40"/>
+
+    <menuitem id="menu_sgc_ces_config_targets"
+              name="KPI Targets"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_kpi_target"
+              sequence="50"/>
+
+    <menuitem id="menu_sgc_ces_config_health"
+              name="Configuration Health"
+              parent="menu_sgc_ces_config_root"
+              action="action_sgc_ces_health_wizard"
+              sequence="60"/>
+</odoo>

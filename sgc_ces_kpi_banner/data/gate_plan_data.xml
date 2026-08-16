@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- The three starter gates ship as CONFIGURATION DATA, not Python
+         constants: an administrator can edit, version or delete them.
+
+         The plan is created in DRAFT with every target at 0. No target value
+         is invented by this module; the setup wizard (or a direct edit) is
+         where the business enters the numbers it actually uses. Nothing is
+         measured until an administrator activates the plan AND activates an
+         employee assignment. -->
+    <data noupdate="1">
+
+        <record id="gate_plan_ces_ramp" model="sgc.ces.gate.plan">
+            <field name="name">CES Ramp Plan</field>
+            <field name="code">ces_ramp</field>
+            <field name="version">1</field>
+            <field name="state">draft</field>
+            <field name="is_default" eval="True"/>
+            <field name="start_date_strategy">auto</field>
+            <field name="description">Starter three-gate ramp plan for Customer Engagement
+Specialists. Targets are intentionally zero: enter your own numbers before
+activating this plan.</field>
+        </record>
+
+        <!-- Gate 1 -->
+        <record id="gate_template_1" model="sgc.ces.gate.template">
+            <field name="plan_id" ref="gate_plan_ces_ramp"/>
+            <field name="name">Gate 1 - Build the pipeline</field>
+            <field name="code">gate_1</field>
+            <field name="sequence">10</field>
+            <field name="offset_months">0</field>
+            <field name="duration_months">1</field>
+            <field name="anchor">ces_start</field>
+            <field name="due_day_policy">same_day</field>
+            <field name="working_day_adjustment">none</field>
+            <field name="review_lead_days">7</field>
+            <field name="outcome_policy">review_required</field>
+            <field name="pass_threshold">100.0</field>
+            <field name="description">First month: build a qualified pipeline.</field>
+        </record>
+
+        <record id="gate_requirement_1_pipeline" model="sgc.ces.gate.requirement">
+            <field name="template_id" ref="gate_template_1"/>
+            <field name="name">Qualified pipeline value</field>
+            <field name="sequence">10</field>
+            <field name="metric_code">pipeline_qualified_value</field>
+            <field name="comparator">&gt;=</field>
+            <field name="target_value">0.0</field>
+            <field name="measurement_window">since_gate_start</field>
+            <field name="level">mandatory</field>
+            <field name="help_text">Total expected revenue of your open opportunities,
+excluding dead-end and Won stages.</field>
+        </record>
+
+        <record id="gate_requirement_1_hygiene" model="sgc.ces.gate.requirement">
+            <field name="template_id" ref="gate_template_1"/>
+            <field name="name">Pipeline hygiene (stale ratio)</field>
+            <field name="sequence">20</field>
+            <field name="metric_code">staleness_stale_ratio</field>
+            <field name="comparator">&lt;=</field>
+            <field name="target_value">100.0</field>
+            <field name="measurement_window">all_time</field>
+            <field name="level">informational</field>
+            <field name="staleness_field">date_last_stage_update</field>
+            <field name="stale_days">45</field>
+            <field name="warn_days">30</field>
+            <field name="help_text">Share of your open opportunities that have not moved
+stage for 45 days. Informational until you set a real ceiling.</field>
+        </record>
+
+        <!-- Gate 2 -->
+        <record id="gate_template_2" model="sgc.ces.gate.template">
+            <field name="plan_id" ref="gate_plan_ces_ramp"/>
+            <field name="name">Gate 2 - Convert to signed proposals</field>
+            <field name="code">gate_2</field>
+            <field name="sequence">20</field>
+            <field name="offset_months">1</field>
+            <field name="duration_months">1</field>
+            <field name="anchor">ces_start</field>
+            <field name="due_day_policy">same_day</field>
+            <field name="working_day_adjustment">none</field>
+            <field name="review_lead_days">7</field>
+            <field name="outcome_policy">review_required</field>
+            <field name="pass_threshold">100.0</field>
+        </record>
+
+        <record id="gate_requirement_2_signed" model="sgc.ces.gate.requirement">
+            <field name="template_id" ref="gate_template_2"/>
+            <field name="name">Signed proposals</field>
+            <field name="sequence">10</field>
+            <field name="metric_code">signed_proposal_count</field>
+            <field name="comparator">&gt;=</field>
+            <field name="target_value">0.0</field>
+            <field name="measurement_window">since_gate_start</field>
+            <field name="level">mandatory</field>
+            <field name="signature_strategy">native</field>
+            <field name="help_text">Quotations you own that carry a signature date. Requires
+the native online-signature flow to be in use, or a write-back from your
+e-signature provider.</field>
+        </record>
+
+        <!-- Gate 3 -->
+        <record id="gate_template_3" model="sgc.ces.gate.template">
+            <field name="plan_id" ref="gate_plan_ces_ramp"/>
+            <field name="name">Gate 3 - Close and collect</field>
+            <field name="code">gate_3</field>
+            <field name="sequence">30</field>
+            <field name="offset_months">2</field>
+            <field name="duration_months">1</field>
+            <field name="anchor">ces_start</field>
+            <field name="due_day_policy">same_day</field>
+            <field name="working_day_adjustment">none</field>
+            <field name="review_lead_days">7</field>
+            <field name="outcome_policy">review_required</field>
+            <field name="pass_threshold">100.0</field>
+        </record>
+
+        <record id="gate_requirement_3_paid" model="sgc.ces.gate.requirement">
+            <field name="template_id" ref="gate_template_3"/>
+            <field name="name">Paid deals</field>
+            <field name="sequence">10</field>
+            <field name="metric_code">paid_deal_count</field>
+            <field name="comparator">&gt;=</field>
+            <field name="target_value">0.0</field>
+            <field name="measurement_window">since_gate_start</field>
+            <field name="level">mandatory</field>
+            <field name="qualifying_payment_mode">paid</field>
+            <field name="help_text">Orders you own with a posted, paid customer invoice.
+Reaching the Won stage alone never counts.</field>
+        </record>
+
+    </data>
+</odoo>
