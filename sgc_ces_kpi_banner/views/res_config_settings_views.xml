@@ -50,6 +50,12 @@
                                     string="Run health check" class="btn-link"/>
                         </setting>
                     </block>
+                    <block title="Baseline assessment" name="sgc_ces_baseline_block">
+                        <setting string="Baseline assessment period"
+                                 help="Days a manager has to assess an existing CES employee before it's due (default 7).">
+                            <field name="sgc_ces_baseline_assessment_days"/>
+                        </setting>
+                    </block>
                 </app>
             </xpath>
         </field>

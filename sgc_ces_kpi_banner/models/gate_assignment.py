@@ -20,6 +20,7 @@ class SgcCesGateAssignment(models.Model):
     )
     state = fields.Selection(
         [
+            ("pending_baseline", "Pending Baseline Assessment"),
             ("draft", "Draft"),
             ("active", "Active"),
             ("suspended", "Suspended"),
@@ -29,6 +30,8 @@ class SgcCesGateAssignment(models.Model):
         required=True,
         tracking=True,
     )
+    baseline_assessment_ids = fields.One2many("sgc.ces.baseline.assessment", "assignment_id")
+    baseline_assessment_count = fields.Integer(compute="_compute_baseline_assessment_count")
     start_date = fields.Date(
         required=True,
         default=fields.Date.context_today,
@@ -77,6 +80,11 @@ class SgcCesGateAssignment(models.Model):
         for assignment in self:
             assignment.instance_count = len(assignment.instance_ids)
 
+    @api.depends("baseline_assessment_ids")
+    def _compute_baseline_assessment_count(self):
+        for assignment in self:
+            assignment.baseline_assessment_count = len(assignment.baseline_assessment_ids)
+
     @api.depends("employee_id", "plan_id")
     def _compute_display_name(self):
         for assignment in self:
@@ -87,6 +95,15 @@ class SgcCesGateAssignment(models.Model):
 
     def action_activate(self):
         for assignment in self:
+            if assignment.state == "pending_baseline":
+                raise UserError(
+                    _(
+                        "%s has a pending baseline assessment; complete it before "
+                        "activating this assignment so no historical gate is wrongly "
+                        "measured from before they had this plan."
+                    )
+                    % assignment.employee_id.display_name
+                )
             if assignment.plan_id.state != "active":
                 raise UserError(
                     _("Plan '%s' must be active before an assignment can be activated.")
@@ -148,6 +165,44 @@ class SgcCesGateAssignment(models.Model):
                     continue
                 created |= Instance.create_from_template(assignment, template, anchor)
         return created
+
+    def action_create_baseline_assessment(self):
+        """Idempotent: one open baseline assessment per assignment. Requires the
+        default review period from ir.config_parameter (default 7 days)."""
+        Assessment = self.env["sgc.ces.baseline.assessment"]
+        Param = self.env["ir.config_parameter"].sudo()
+        due_days = int(Param.get_param("sgc_ces_kpi_banner.baseline_assessment_days", 7))
+        created = Assessment.browse()
+        for assignment in self:
+            existing = assignment.baseline_assessment_ids.filtered(
+                lambda a: a.state not in ("completed", "canceled")
+            )
+            if existing:
+                continue
+            assignment.state = "pending_baseline"
+            record = Assessment.create(
+                {
+                    "employee_id": assignment.employee_id.id,
+                    "assignment_id": assignment.id,
+                    "assessment_due_date": fields.Date.add(
+                        fields.Date.context_today(self), days=due_days
+                    ),
+                }
+            )
+            record.action_refresh_measurements()
+            created |= record
+        return created
+
+    def action_view_baseline_assessments(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": _("Baseline Assessments"),
+            "res_model": "sgc.ces.baseline.assessment",
+            "view_mode": "list,form",
+            "domain": [("assignment_id", "=", self.id)],
+            "context": {"default_assignment_id": self.id},
+        }
 
     def action_view_instances(self):
         self.ensure_one()

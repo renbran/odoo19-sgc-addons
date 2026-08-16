@@ -24,24 +24,32 @@
         <field name="arch" type="xml">
             <form string="Assignment">
                 <header>
+                    <button name="action_create_baseline_assessment" type="object"
+                            string="Create Baseline Assessment" class="btn-primary"
+                            invisible="state != 'pending_baseline' or baseline_assessment_count"/>
                     <button name="action_activate" type="object" string="Activate"
-                            class="btn-primary" invisible="state == 'active'"/>
+                            class="btn-primary" invisible="state in ('active', 'pending_baseline')"/>
                     <button name="generate_instances" type="object" string="Generate Gates"
                             invisible="state != 'active'"/>
                     <button name="action_suspend" type="object" string="Suspend"
                             invisible="state != 'active'"/>
                     <button name="action_close" type="object" string="Close"
-                            invisible="state in ('closed','draft')"/>
+                            invisible="state in ('closed','draft','pending_baseline')"/>
                     <button name="action_draft" type="object" string="Reset to Draft"
-                            invisible="state == 'draft'"/>
+                            invisible="state in ('draft', 'pending_baseline')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,active,closed"/>
+                           statusbar_visible="pending_baseline,draft,active,closed"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_instances" type="object" class="oe_stat_button"
                                 icon="fa-flag-checkered">
                             <field name="instance_count" widget="statinfo" string="Gates"/>
+                        </button>
+                        <button name="action_view_baseline_assessments" type="object"
+                                class="oe_stat_button" icon="fa-user-md"
+                                invisible="not baseline_assessment_count">
+                            <field name="baseline_assessment_count" widget="statinfo" string="Baseline"/>
                         </button>
                     </div>
                     <group>

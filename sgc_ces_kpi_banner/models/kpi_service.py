@@ -201,6 +201,7 @@ class SgcCesKpiService(models.AbstractModel):
         return {
             "is_ces": False,
             "enabled": False,
+            "baseline_pending": False,
             "user_id": self.env.uid,
             "user_name": self.env.user.name,
             "gates": [],
@@ -232,6 +233,16 @@ class SgcCesKpiService(models.AbstractModel):
             return self._cache_set(cache_key, payload)
 
         warnings = []
+        Assignment = self.env["sgc.ces.gate.assignment"].sudo()
+        pending_baseline = Assignment.search(
+            [("user_id", "=", user.id), ("state", "=", "pending_baseline")], limit=1
+        )
+        if pending_baseline:
+            payload["baseline_pending"] = True
+            payload["warnings"] = [_("CES Target Assessment Pending")]
+            payload["generated_on"] = fields.Datetime.to_string(fields.Datetime.now())
+            return self._cache_set(cache_key, payload)
+
         Instance = self.env["sgc.ces.gate.instance"].sudo()
         instances = Instance.search(
             [

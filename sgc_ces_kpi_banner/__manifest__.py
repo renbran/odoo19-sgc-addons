@@ -55,6 +55,7 @@ assignment on install.
         "views/gate_template_views.xml",
         "views/gate_requirement_views.xml",
         "views/gate_assignment_views.xml",
+        "views/baseline_assessment_views.xml",
         "views/gate_instance_views.xml",
         "views/gate_review_views.xml",
         "views/gate_consideration_views.xml",

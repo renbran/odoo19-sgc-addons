@@ -10,6 +10,7 @@ from . import gate_plan
 from . import gate_template
 from . import gate_requirement
 from . import gate_assignment
+from . import baseline_assessment
 from . import gate_instance
 from . import gate_requirement_result
 from . import gate_review

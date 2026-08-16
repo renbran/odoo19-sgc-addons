@@ -107,6 +107,26 @@
             <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         </record>
 
+        <record id="rule_baseline_assessment_manager" model="ir.rule">
+            <field name="name">CES baseline assessment: resolved manager</field>
+            <field name="model_id" ref="model_sgc_ces_baseline_assessment"/>
+            <field name="domain_force">[('manager_user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_manager'))]"/>
+        </record>
+
+        <record id="rule_baseline_assessment_admin" model="ir.rule">
+            <field name="name">CES baseline assessment: administrators</field>
+            <field name="model_id" ref="model_sgc_ces_baseline_assessment"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_ces_kpi_admin'))]"/>
+        </record>
+
+        <record id="rule_baseline_assessment_company" model="ir.rule">
+            <field name="name">CES baseline assessment: multi-company</field>
+            <field name="model_id" ref="model_sgc_ces_baseline_assessment"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
         <record id="rule_gate_consideration_own" model="ir.rule">
             <field name="name">CES consideration: own or reviewed records</field>
             <field name="model_id" ref="model_sgc_ces_gate_consideration"/>

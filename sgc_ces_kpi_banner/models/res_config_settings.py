@@ -44,6 +44,13 @@ class ResConfigSettings(models.TransientModel):
         default=False,
         help="Off by default: reviewers get an activity and an inbox notification only.",
     )
+    sgc_ces_baseline_assessment_days = fields.Integer(
+        string="Baseline assessment period (days)",
+        config_parameter="sgc_ces_kpi_banner.baseline_assessment_days",
+        default=7,
+        help="Existing CES employees: how many days a manager has to complete the "
+             "baseline assessment before it's due.",
+    )
     sgc_ces_fallback_manager_uid = fields.Many2one(
         "res.users",
         string="Fallback reviewer",

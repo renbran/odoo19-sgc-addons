@@ -20,6 +20,8 @@ access_gate_review_admin,ces.gate.review.admin,model_sgc_ces_gate_review,group_c
 access_gate_consideration_user,ces.gate.consideration.user,model_sgc_ces_gate_consideration,group_ces_kpi_user,1,0,0,0
 access_gate_consideration_manager,ces.gate.consideration.manager,model_sgc_ces_gate_consideration,group_ces_kpi_manager,1,1,1,0
 access_gate_consideration_admin,ces.gate.consideration.admin,model_sgc_ces_gate_consideration,group_ces_kpi_admin,1,1,1,1
+access_baseline_assessment_manager,ces.baseline.assessment.manager,model_sgc_ces_baseline_assessment,group_ces_kpi_manager,1,1,0,0
+access_baseline_assessment_admin,ces.baseline.assessment.admin,model_sgc_ces_baseline_assessment,group_ces_kpi_admin,1,1,1,1
 access_kpi_target_user,ces.kpi.target.user,model_sgc_ces_kpi_target,group_ces_kpi_user,1,0,0,0
 access_kpi_target_admin,ces.kpi.target.admin,model_sgc_ces_kpi_target,group_ces_kpi_admin,1,1,1,1
 access_health_wizard_manager,ces.health.wizard.manager,model_sgc_ces_health_wizard,group_ces_kpi_manager,1,1,1,1

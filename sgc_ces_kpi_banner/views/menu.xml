@@ -23,6 +23,13 @@
               sequence="20"
               groups="sgc_ces_kpi_banner.group_ces_kpi_manager"/>
 
+    <menuitem id="menu_sgc_ces_baseline_assessments"
+              name="Baseline Assessments"
+              parent="menu_sgc_ces_root"
+              action="action_sgc_ces_baseline_assessment"
+              sequence="15"
+              groups="sgc_ces_kpi_banner.group_ces_kpi_manager"/>
+
     <menuitem id="menu_sgc_ces_all_gates"
               name="All Gates"
               parent="menu_sgc_ces_root"
