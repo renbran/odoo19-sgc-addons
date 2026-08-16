@@ -57,7 +57,7 @@
                     <group string="Decision">
                         <field name="decision"/>
                         <field name="decision_notes"
-                               required="decision in ('fail','waive','extend')"/>
+                               required="decision in ('fail','extend')"/>
                         <field name="decided_by_id" readonly="1"/>
                         <field name="decided_on" readonly="1"/>
                     </group>

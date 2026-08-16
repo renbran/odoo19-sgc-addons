@@ -60,19 +60,6 @@ class TestReviews(CesKpiCase):
         types = instance.review_ids.mapped("alert_type")
         self.assertEqual(sorted(types), ["due_soon", "overdue"])
 
-    def test_waived_gate_raises_no_alert(self):
-        instance = self._due_gate(code="rev_waived")
-        self.env["sgc.ces.gate.consideration"].create(
-            {
-                "instance_id": instance.id,
-                "consideration_type": "waiver",
-                "reason": "Approved absence",
-                "state": "approved",
-            }
-        )
-        self.env["sgc.ces.gate.instance"]._cron_process_gate_alerts()
-        self.assertFalse(instance.review_ids)
-
     def test_review_is_assigned_to_resolved_manager(self):
         instance = self._due_gate(code="rev_mgr")
         self.env["sgc.ces.gate.instance"]._cron_process_gate_alerts()
@@ -128,17 +115,18 @@ class TestReviews(CesKpiCase):
         self.assertEqual(instance.state, "passed")
         self.assertTrue(instance.closed_on)
 
-    def test_waive_decision_creates_a_consideration(self):
-        instance = self._due_gate(code="rev_waive")
+    def test_extend_decision_creates_a_consideration(self):
+        instance = self._due_gate(code="rev_extend")
         self.env["sgc.ces.gate.instance"]._cron_process_gate_alerts()
         review = instance.review_ids
+        original_due = instance.due_date
         review.action_start()
-        review.decision = "waive"
-        review.decision_notes = "Medical leave."
+        review.decision = "extend"
+        review.decision_notes = "Onboarding delay."
         review.action_submit()
         review.action_apply()
-        self.assertEqual(instance.state, "waived")
-        self.assertTrue(instance.is_waived())
+        self.assertEqual(instance.state, "extended")
+        self.assertEqual(instance.due_date, original_due)
 
     def test_reminder_cron_is_daily_idempotent(self):
         instance = self._due_gate(code="rev_rem")

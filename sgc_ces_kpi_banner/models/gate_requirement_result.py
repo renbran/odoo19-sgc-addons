@@ -174,6 +174,7 @@ class SgcCesGateRequirementResult(models.Model):
             "name": self.name,
             "res_model": res_model,
             "view_mode": "list,form",
+            "views": [[False, "list"], [False, "form"]],
             "domain": domain,
             "target": "current",
         }

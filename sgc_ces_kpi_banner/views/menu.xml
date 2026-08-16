@@ -44,12 +44,6 @@
               sequence="80"
               groups="sgc_ces_kpi_banner.group_ces_kpi_admin"/>
 
-    <menuitem id="menu_sgc_ces_config_setup"
-              name="Setup Wizard"
-              parent="menu_sgc_ces_config_root"
-              action="action_sgc_ces_setup_wizard"
-              sequence="5"/>
-
     <menuitem id="menu_sgc_ces_config_plans"
               name="Gate Plans"
               parent="menu_sgc_ces_config_root"

@@ -71,7 +71,6 @@ class SgcCesGateInstance(models.Model):
             ("in_review", "In Review"),
             ("passed", "Passed"),
             ("failed", "Not Met"),
-            ("waived", "Waived"),
             ("extended", "Extended"),
             ("cancelled", "Cancelled"),
         ],
@@ -190,7 +189,7 @@ class SgcCesGateInstance(models.Model):
 
     def _health(self):
         self.ensure_one()
-        if self.state in ("passed", "waived"):
+        if self.state == "passed":
             return STATUS_ON_TRACK
         if self.state in ("failed",):
             return STATUS_OFF_TRACK
@@ -260,7 +259,7 @@ class SgcCesGateInstance(models.Model):
 
     def action_cancel(self):
         for instance in self:
-            if instance.state in ("passed", "failed", "waived"):
+            if instance.state in ("passed", "failed"):
                 raise UserError(_("A closed gate cannot be cancelled."))
         self.write({"state": "cancelled"})
         return True
@@ -275,14 +274,6 @@ class SgcCesGateInstance(models.Model):
         if not extensions:
             return self.due_date
         return max(extensions.mapped("new_due_date") + [self.due_date])
-
-    def is_waived(self):
-        self.ensure_one()
-        return bool(
-            self.consideration_ids.filtered(
-                lambda c: c.state == "approved" and c.consideration_type == "waiver"
-            )
-        )
 
     # -------------------------------------------------------------- summary
     def summary_dict(self):
@@ -301,7 +292,6 @@ class SgcCesGateInstance(models.Model):
             "pass_threshold": self.pass_threshold,
             "mandatory_met": self.mandatory_met,
             "health": self.health,
-            "waived": self.is_waived(),
             "requirements": [r.summary_dict() for r in self.result_ids.sorted(
                 key=lambda r: (r.sequence, r.id))],
         }
@@ -364,8 +354,6 @@ class SgcCesGateInstance(models.Model):
         created = 0
         for instance in candidates:
             try:
-                if instance.is_waived():
-                    continue
                 existing = Review.search_count(
                     [
                         ("instance_id", "=", instance.id),
@@ -396,7 +384,7 @@ class SgcCesGateInstance(models.Model):
         )
         for instance in overdue:
             try:
-                if instance.effective_due_date() >= today or instance.is_waived():
+                if instance.effective_due_date() >= today:
                     continue
                 existing = Review.search_count(
                     [

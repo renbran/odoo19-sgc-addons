@@ -96,41 +96,36 @@ class TestConsiderations(CesKpiCase):
 
     def test_approved_consideration_is_immutable(self):
         instance = self._gate("cons_immutable")
+        result = instance.result_ids
         consideration = self.env["sgc.ces.gate.consideration"].create(
             {
                 "instance_id": instance.id,
-                "consideration_type": "waiver",
+                "requirement_result_id": result.id,
+                "consideration_type": "target_adjustment",
+                "adjusted_target": 500.0,
                 "reason": "Approved",
                 "state": "approved",
             }
         )
         with self.assertRaises(UserError):
-            consideration.write({"consideration_type": "note"})
-
-    def test_waiver_marks_the_gate_waived(self):
-        instance = self._gate("cons_waiver")
-        self.env["sgc.ces.gate.consideration"].create(
-            {
-                "instance_id": instance.id,
-                "consideration_type": "waiver",
-                "reason": "Extended leave",
-                "state": "approved",
-            }
-        )
-        self.assertTrue(instance.is_waived())
+            consideration.write({"adjusted_target": 999.0})
 
     def test_revoked_consideration_stops_applying(self):
         instance = self._gate("cons_revoke")
+        result = instance.result_ids
         consideration = self.env["sgc.ces.gate.consideration"].create(
             {
                 "instance_id": instance.id,
-                "consideration_type": "waiver",
+                "requirement_result_id": result.id,
+                "consideration_type": "target_adjustment",
+                "adjusted_target": 400.0,
                 "reason": "Temporary",
                 "state": "approved",
             }
         )
         consideration.action_revoke()
-        self.assertFalse(instance.is_waived())
+        result.invalidate_recordset(["effective_target"])
+        self.assertEqual(result.effective_target, 1000.0)
 
     def test_extension_wizard_creates_approved_consideration(self):
         instance = self._gate("cons_wizard")

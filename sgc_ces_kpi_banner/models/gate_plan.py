@@ -39,15 +39,14 @@ class SgcCesGatePlan(models.Model):
         "res.company", default=lambda self: self.env.company, required=True, index=True
     )
     description = fields.Text()
-    sequence = fields.Integer(default=10, help="Lower wins when several plans could apply.")
 
-    # -- resolution hierarchy ------------------------------------------------
-    job_id = fields.Many2one("hr.job", string="Applies to Job",
-                             help="Leave empty to apply to every CES job.")
-    department_id = fields.Many2one("hr.department", string="Applies to Department")
+    # -- single default plan --------------------------------------------------
+    # No routing: exactly one active plan per company applies to every CES
+    # employee. Use action_new_version() to change it, not a second plan.
     is_default = fields.Boolean(
         string="Default plan",
-        help="Used when no more specific plan matches the employee.",
+        default=True,
+        help="Every CES employee uses the one active default plan for their company.",
     )
 
     start_date_strategy = fields.Selection(
@@ -180,27 +179,13 @@ class SgcCesGatePlan(models.Model):
     # -- resolution ----------------------------------------------------------
     @api.model
     def _resolve_plan_for_employee(self, employee):
-        """Most specific active plan wins: job+department > department > job > default."""
+        """No routing: the one active default plan for the employee's company."""
         employee = employee.sudo()
         if not employee:
             return self.browse()
-        identity = self.env["sgc.ces.identity"]
-        version = identity._current_version(employee)
-        job = version.job_id if version else self.env["hr.job"].browse()
-        department = employee.department_id
         company = employee.company_id or self.env.company
-        base = [("state", "=", "active"), ("company_id", "=", company.id)]
-        candidates = [
-            base + [("job_id", "=", job.id if job else False),
-                    ("department_id", "=", department.id if department else False)],
-            base + [("job_id", "=", False), ("department_id", "=", department.id if department else False)],
-            base + [("job_id", "=", job.id if job else False), ("department_id", "=", False)],
-            base + [("is_default", "=", True)],
-        ]
-        for domain in candidates:
-            if ("job_id", "=", False) in domain and not department:
-                continue
-            plan = self.sudo().search(domain, order="sequence asc, version desc", limit=1)
-            if plan:
-                return plan
-        return self.browse()
+        return self.sudo().search(
+            [("state", "=", "active"), ("company_id", "=", company.id), ("is_default", "=", True)],
+            order="version desc",
+            limit=1,
+        )

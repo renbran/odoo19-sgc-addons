@@ -18,7 +18,6 @@ class SgcCesReviewWizard(models.TransientModel):
             ("pass", "Met - pass the gate"),
             ("fail", "Not met - fail the gate"),
             ("extend", "Grant an extension"),
-            ("waive", "Waive the gate"),
             ("defer", "Defer the decision"),
         ],
         required=True,

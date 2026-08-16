@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Considerations: waivers, extensions and target adjustments.
+"""Considerations: extensions and target adjustments.
 
 Considerations are strictly ADDITIVE.  They never write back onto the gate
 instance's ``due_date`` or onto a requirement result's ``original_target``.
@@ -37,13 +37,11 @@ class SgcCesGateConsideration(models.Model):
 
     consideration_type = fields.Selection(
         [
-            ("waiver", "Waiver"),
             ("extension", "Extension"),
             ("target_adjustment", "Target adjustment"),
-            ("note", "Note only"),
         ],
         required=True,
-        default="note",
+        default="extension",
         tracking=True,
     )
     state = fields.Selection(

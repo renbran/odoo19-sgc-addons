@@ -6,7 +6,7 @@
         <field name="arch" type="xml">
             <list string="Gates" decoration-danger="health == 'off_track'"
                   decoration-warning="health == 'at_risk'"
-                  decoration-success="state in ('passed','waived')">
+                  decoration-success="state == 'passed'">
                 <field name="employee_id"/>
                 <field name="name"/>
                 <field name="plan_id"/>
@@ -32,13 +32,13 @@
                     <button name="action_open_review" type="object" string="Open Review"
                             class="btn-primary"/>
                     <button name="%(action_sgc_ces_consideration_wizard)d" type="action"
-                            string="Raise Consideration"
+                            string="Adjust Target"
                             context="{'default_instance_id': id}"/>
                     <button name="%(action_sgc_ces_extension_wizard)d" type="action"
                             string="Grant Extension"
                             context="{'default_instance_id': id}"/>
                     <button name="action_cancel" type="object" string="Cancel"
-                            invisible="state in ('passed','failed','waived','cancelled')"/>
+                            invisible="state in ('passed','failed','cancelled')"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="active,pending_review,in_review,passed"/>
                 </header>
@@ -136,7 +136,7 @@
                         domain="[('state', 'in', ['active','pending_review','in_review','extended'])]"/>
                 <separator/>
                 <filter name="overdue" string="Overdue"
-                        domain="[('due_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', 'not in', ['passed','failed','waived','cancelled'])]"/>
+                        domain="[('due_date', '&lt;', context_today().strftime('%Y-%m-%d')), ('state', 'not in', ['passed','failed','cancelled'])]"/>
                 <separator/>
                 <filter name="group_employee" string="Specialist" context="{'group_by': 'employee_id'}"/>
                 <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>

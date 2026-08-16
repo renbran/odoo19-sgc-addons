@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from . import setup_wizard
 from . import health_wizard
 from . import review_wizard
 from . import consideration_wizard

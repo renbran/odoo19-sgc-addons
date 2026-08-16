@@ -1,127 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- ================= Setup wizard (17 steps) ================= -->
-    <record id="view_sgc_ces_setup_wizard_form" model="ir.ui.view">
-        <field name="name">sgc.ces.setup.wizard.form</field>
-        <field name="model">sgc.ces.setup.wizard</field>
-        <field name="arch" type="xml">
-            <form string="CES KPI Setup">
-                <field name="step" invisible="1"/>
-                <field name="created_plan_id" invisible="1"/>
-                <group>
-                    <field name="step_index" string="Step" readonly="1"/>
-                </group>
-
-                <div invisible="step != 'step_1_intro'">
-                    <h2>Welcome</h2>
-                    <p>This wizard creates a gate plan, its gates and their requirements.
-                       It never activates an employee assignment and never sends email.
-                       Nothing is written until the final step.</p>
-                </div>
-
-                <group invisible="step != 'step_2_identity'" string="2. Identify the CES role">
-                    <field name="job_id"/>
-                    <field name="job_name"/>
-                </group>
-
-                <group invisible="step != 'step_3_stages'" string="3. Map the CRM stages">
-                    <field name="proposal_stage_id"/>
-                    <field name="won_stage_id"/>
-                    <field name="excluded_stage_ids" widget="many2many_tags"/>
-                </group>
-
-                <group invisible="step != 'step_4_plan'" string="4. Name the gate plan">
-                    <field name="plan_name"/>
-                    <field name="plan_code"/>
-                    <field name="plan_description"/>
-                </group>
-
-                <group invisible="step != 'step_5_anchor'" string="5. Start-date strategy">
-                    <field name="start_date_strategy"/>
-                </group>
-
-                <group invisible="step != 'step_6_gate1'" string="6. Gate 1 schedule">
-                    <field name="gate1_name"/>
-                    <field name="gate1_offset"/>
-                    <field name="gate1_duration"/>
-                </group>
-                <group invisible="step != 'step_7_gate1_req'" string="7. Gate 1 requirement">
-                    <field name="gate1_target"/>
-                </group>
-
-                <group invisible="step != 'step_8_gate2'" string="8. Gate 2 schedule">
-                    <field name="gate2_name"/>
-                    <field name="gate2_offset"/>
-                    <field name="gate2_duration"/>
-                </group>
-                <group invisible="step != 'step_9_gate2_req'" string="9. Gate 2 requirement">
-                    <field name="gate2_target"/>
-                </group>
-
-                <group invisible="step != 'step_10_gate3'" string="10. Gate 3 schedule">
-                    <field name="gate3_name"/>
-                    <field name="gate3_offset"/>
-                    <field name="gate3_duration"/>
-                </group>
-                <group invisible="step != 'step_11_gate3_req'" string="11. Gate 3 requirement">
-                    <field name="gate3_target"/>
-                </group>
-
-                <group invisible="step != 'step_12_staleness'" string="12. Staleness policy">
-                    <field name="staleness_field"/>
-                    <field name="stale_days"/>
-                    <field name="warn_days"/>
-                    <field name="stale_ceiling"/>
-                </group>
-
-                <group invisible="step != 'step_13_signature'" string="13. Signature source">
-                    <field name="signature_strategy"/>
-                </group>
-
-                <group invisible="step != 'step_14_payment'" string="14. Payment qualification">
-                    <field name="qualifying_payment_mode"/>
-                    <field name="require_opportunity"/>
-                </group>
-
-                <group invisible="step != 'step_15_review'" string="15. Review and alerting">
-                    <field name="review_lead_days"/>
-                    <field name="outcome_policy"/>
-                    <field name="review_email_enabled"/>
-                </group>
-
-                <group invisible="step != 'step_16_assignments'" string="16. Employees to enrol">
-                    <field name="employee_ids" widget="many2many_tags"/>
-                    <div class="alert alert-info" colspan="2" role="alert">
-                        Assignments are created in draft. You must activate each one manually
-                        before anything is measured.
-                    </div>
-                </group>
-
-                <group invisible="step != 'step_17_summary'" string="17. Review and apply">
-                    <field name="summary" readonly="1" nolabel="1" colspan="2"/>
-                </group>
-
-                <footer>
-                    <button name="action_previous" type="object" string="Back"
-                            invisible="step == 'step_1_intro'"/>
-                    <button name="action_next" type="object" string="Next" class="btn-primary"
-                            invisible="step == 'step_17_summary'"/>
-                    <button name="action_apply" type="object" string="Apply" class="btn-primary"
-                            invisible="step != 'step_17_summary'"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
-    <record id="action_sgc_ces_setup_wizard" model="ir.actions.act_window">
-        <field name="name">CES KPI Setup Wizard</field>
-        <field name="res_model">sgc.ces.setup.wizard</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
-
     <!-- ================= Health check ================= -->
     <record id="view_sgc_ces_health_wizard_form" model="ir.ui.view">
         <field name="name">sgc.ces.health.wizard.form</field>
@@ -162,7 +41,7 @@
                     <field name="new_due_date" invisible="decision != 'extend'"
                            required="decision == 'extend'"/>
                     <field name="decision_notes"
-                           required="decision in ('fail','waive','extend')"/>
+                           required="decision in ('fail','extend')"/>
                 </group>
                 <footer>
                     <button name="action_confirm" type="object" string="Submit decision"
@@ -182,26 +61,21 @@
         <field name="binding_view_types">list,form</field>
     </record>
 
-    <!-- ================= Consideration wizard ================= -->
+    <!-- ================= Target adjustment wizard ================= -->
     <record id="view_sgc_ces_consideration_wizard_form" model="ir.ui.view">
         <field name="name">sgc.ces.consideration.wizard.form</field>
         <field name="model">sgc.ces.consideration.wizard</field>
         <field name="arch" type="xml">
-            <form string="Raise a Consideration">
+            <form string="Adjust a Target">
                 <group>
                     <field name="instance_id" readonly="1"/>
-                    <field name="consideration_type"/>
-                    <field name="requirement_result_id"
-                           invisible="consideration_type != 'target_adjustment'"
-                           required="consideration_type == 'target_adjustment'"/>
-                    <field name="adjusted_target"
-                           invisible="consideration_type != 'target_adjustment'"/>
+                    <field name="requirement_result_id"/>
+                    <field name="adjusted_target"/>
                     <field name="reason"/>
                     <field name="approve_now"/>
                 </group>
                 <div class="alert alert-info" role="alert">
-                    Considerations are additive. The original target and due date are never
-                    overwritten.
+                    Additive: the original target is never overwritten.
                 </div>
                 <footer>
                     <button name="action_confirm" type="object" string="Create"
@@ -213,7 +87,7 @@
     </record>
 
     <record id="action_sgc_ces_consideration_wizard" model="ir.actions.act_window">
-        <field name="name">Raise a Consideration</field>
+        <field name="name">Adjust a Target</field>
         <field name="res_model">sgc.ces.consideration.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>

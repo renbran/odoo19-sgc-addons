@@ -54,24 +54,15 @@ class TestPlanVersioning(CesKpiCase):
         with self.assertRaises(UserError):
             plan.action_activate()
 
-    def test_resolution_prefers_job_specific_plan(self):
+    def test_resolution_returns_the_one_active_default_plan(self):
         default_plan = self._make_plan(code="ver_default", is_default=True)
         self._make_requirement(self._make_template(default_plan, code="g1"))
         default_plan.action_activate()
 
-        job_plan = self._make_plan(code="ver_job", is_default=False, job_id=self.ces_job.id)
-        self._make_requirement(self._make_template(job_plan, code="g1"))
-        job_plan.action_activate()
-
         resolved = self.env["sgc.ces.gate.plan"]._resolve_plan_for_employee(self.ces_employee)
-        self.assertEqual(resolved, job_plan)
-
-    def test_resolution_falls_back_to_default(self):
-        default_plan = self._make_plan(code="ver_default2", is_default=True)
-        self._make_requirement(self._make_template(default_plan, code="g1"))
-        default_plan.action_activate()
-        resolved = self.env["sgc.ces.gate.plan"]._resolve_plan_for_employee(self.other_employee)
         self.assertEqual(resolved, default_plan)
+        resolved_other = self.env["sgc.ces.gate.plan"]._resolve_plan_for_employee(self.other_employee)
+        self.assertEqual(resolved_other, default_plan)
 
     def test_historical_instances_keep_old_targets(self):
         plan = self._make_plan(code="ver_hist")

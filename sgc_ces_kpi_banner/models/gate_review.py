@@ -74,7 +74,6 @@ class SgcCesGateReview(models.Model):
             ("pass", "Met - pass the gate"),
             ("fail", "Not met - fail the gate"),
             ("extend", "Grant an extension"),
-            ("waive", "Waive the gate"),
             ("defer", "Defer the decision"),
         ],
         tracking=True,
@@ -182,7 +181,7 @@ class SgcCesGateReview(models.Model):
         for review in self:
             if not review.decision:
                 raise UserError(_("Choose a decision before submitting the review."))
-            if review.decision in ("fail", "waive", "extend") and not review.decision_notes:
+            if review.decision in ("fail", "extend") and not review.decision_notes:
                 raise UserError(_("A written justification is required for this decision."))
         self.write({"state": "submitted"})
         return True
@@ -190,7 +189,6 @@ class SgcCesGateReview(models.Model):
     def action_apply(self):
         """Apply the decision. Considerations are created, never in-place edits."""
         self._check_reviewer()
-        Consideration = self.env["sgc.ces.gate.consideration"]
         for review in self:
             if review.state not in ("submitted", "in_progress"):
                 raise UserError(_("Only a submitted review can be applied."))
@@ -199,17 +197,6 @@ class SgcCesGateReview(models.Model):
                 instance.action_mark_passed()
             elif review.decision == "fail":
                 instance.action_mark_failed()
-            elif review.decision == "waive":
-                Consideration.create(
-                    {
-                        "instance_id": instance.id,
-                        "consideration_type": "waiver",
-                        "reason": review.decision_notes,
-                        "state": "approved",
-                        "review_id": review.id,
-                    }
-                )
-                instance._close("waived")
             elif review.decision == "extend":
                 instance.state = "extended"
             elif review.decision == "defer":

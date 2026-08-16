@@ -22,7 +22,6 @@ access_gate_consideration_manager,ces.gate.consideration.manager,model_sgc_ces_g
 access_gate_consideration_admin,ces.gate.consideration.admin,model_sgc_ces_gate_consideration,group_ces_kpi_admin,1,1,1,1
 access_kpi_target_user,ces.kpi.target.user,model_sgc_ces_kpi_target,group_ces_kpi_user,1,0,0,0
 access_kpi_target_admin,ces.kpi.target.admin,model_sgc_ces_kpi_target,group_ces_kpi_admin,1,1,1,1
-access_setup_wizard_admin,ces.setup.wizard.admin,model_sgc_ces_setup_wizard,group_ces_kpi_admin,1,1,1,1
 access_health_wizard_manager,ces.health.wizard.manager,model_sgc_ces_health_wizard,group_ces_kpi_manager,1,1,1,1
 access_health_wizard_admin,ces.health.wizard.admin,model_sgc_ces_health_wizard,group_ces_kpi_admin,1,1,1,1
 access_review_wizard_manager,ces.review.wizard.manager,model_sgc_ces_review_wizard,group_ces_kpi_manager,1,1,1,1

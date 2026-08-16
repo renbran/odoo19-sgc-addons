@@ -190,6 +190,7 @@ class SgcCesKpiService(models.AbstractModel):
             "name": target.name,
             "res_model": outcome["res_model"],
             "view_mode": "list,form",
+            "views": [[False, "list"], [False, "form"]],
             "domain": outcome["domain"],
             "target": "current",
         }

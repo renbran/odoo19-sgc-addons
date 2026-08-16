@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
-"""Raise a consideration (waiver / target adjustment / note) against a gate."""
+"""Raise a target adjustment against a gate requirement.
+
+Extension has its own dedicated wizard (extension_wizard.py) since it needs
+a due-date picker; this one is target-adjustment only."""
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
 
 class SgcCesConsiderationWizard(models.TransientModel):
     _name = "sgc.ces.consideration.wizard"
-    _description = "SGC CES Consideration Wizard"
+    _description = "SGC CES Target Adjustment Wizard"
 
     instance_id = fields.Many2one("sgc.ces.gate.instance", required=True)
     requirement_result_id = fields.Many2one(
         "sgc.ces.gate.requirement.result",
         domain="[('instance_id', '=', instance_id)]",
         string="Applies to requirement",
-    )
-    consideration_type = fields.Selection(
-        [
-            ("waiver", "Waiver"),
-            ("target_adjustment", "Target adjustment"),
-            ("note", "Note only"),
-        ],
-        default="note",
         required=True,
     )
     adjusted_target = fields.Float(digits=(16, 2))
@@ -39,13 +34,11 @@ class SgcCesConsiderationWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
-        if self.consideration_type == "target_adjustment" and not self.requirement_result_id:
-            raise UserError(_("Choose which requirement the adjusted target applies to."))
         consideration = self.env["sgc.ces.gate.consideration"].create(
             {
                 "instance_id": self.instance_id.id,
-                "requirement_result_id": self.requirement_result_id.id or False,
-                "consideration_type": self.consideration_type,
+                "requirement_result_id": self.requirement_result_id.id,
+                "consideration_type": "target_adjustment",
                 "adjusted_target": self.adjusted_target,
                 "reason": self.reason,
             }

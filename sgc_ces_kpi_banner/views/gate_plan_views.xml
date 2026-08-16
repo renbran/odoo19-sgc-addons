@@ -9,8 +9,6 @@
                 <field name="code"/>
                 <field name="version"/>
                 <field name="state" widget="badge"/>
-                <field name="job_id"/>
-                <field name="department_id"/>
                 <field name="is_default"/>
                 <field name="template_count"/>
                 <field name="assignment_count"/>
@@ -44,12 +42,9 @@
                         <group>
                             <field name="code"/>
                             <field name="version"/>
-                            <field name="sequence"/>
                             <field name="is_default"/>
                         </group>
                         <group>
-                            <field name="job_id"/>
-                            <field name="department_id"/>
                             <field name="start_date_strategy"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="predecessor_id" readonly="1"/>
@@ -75,8 +70,8 @@
                             </field>
                         </page>
                         <page string="Assignments">
-                            <field name="assignment_ids" readonly="1">
-                                <list>
+                            <field name="assignment_ids" context="{'default_plan_id': id}">
+                                <list editable="bottom">
                                     <field name="employee_id"/>
                                     <field name="state"/>
                                     <field name="start_date"/>
