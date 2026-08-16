@@ -23,5 +23,6 @@ from . import crm_team
 from . import res_user
 from . import sale_order
 from . import utm_campaign
+from . import utm_campaign_extension
 from . import dashboard
 from . import crm_objection
