@@ -22,7 +22,7 @@ payments; it sends no email unless email is explicitly enabled.
 
 | Model | Purpose |
 |---|---|
-| `sgc.ces.gate.plan` | Versioned plan; resolution hierarchy; freeze-on-assign |
+| `sgc.ces.gate.plan` | Versioned plan; one active default plan per company (no routing); freeze-on-assign |
 | `sgc.ces.gate.template` | One gate's schedule and outcome policy |
 | `sgc.ces.gate.requirement` | Generic metric + comparator + target + window |
 | `sgc.ces.gate.assignment` | Employee to plan binding (draft by default) |

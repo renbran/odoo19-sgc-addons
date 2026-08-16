@@ -13,13 +13,13 @@ monthly KPI targets, and a deterministic "next recommended action".
 
 Everything is configuration, not code:
 
-* ``sgc.ces.gate.plan``        - versioned plan (resolution hierarchy)
+* ``sgc.ces.gate.plan``        - versioned plan; one active default plan per company, no routing
 * ``sgc.ces.gate.template``    - per-gate schedule and policy
 * ``sgc.ces.gate.requirement`` - generic metric + comparator + target
 * ``sgc.ces.gate.assignment``  - employee to plan binding
 * ``sgc.ces.gate.instance``    - snapshotted per-employee gate occurrence
 * ``sgc.ces.gate.review``      - manager review workflow
-* ``sgc.ces.gate.consideration`` - additive waivers / extensions / adjustments
+* ``sgc.ces.gate.consideration`` - additive extensions / target adjustments
 
 Metrics are dispatched by explicit ``metric_code`` string lookup in
 ``models/metric_registry.py``. No ``eval``, no ``exec``, no domains or SQL
