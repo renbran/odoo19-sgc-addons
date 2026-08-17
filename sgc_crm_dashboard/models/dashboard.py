@@ -118,27 +118,46 @@ class CRMDashboard(models.AbstractModel):
         booked = cr.fetchone()[0] or 0
 
         # Daily Activity: leads with any real activity today
-        # (write_date change OR mail_message OR activity done OR stage change)
+        # (write_date change OR mail_message OR activity done OR stage change).
+        # Use EXISTS + half-open timestamp ranges so PostgreSQL can use indexes
+        # instead of casting every row to date (the old query timed out at ~200s).
         cr.execute(f"""
             SELECT COUNT(DISTINCT l.id)
             FROM crm_lead l
-            LEFT JOIN mail_message m ON m.res_id = l.id AND m.model = 'crm.lead'
-                AND m.date::date = CURRENT_DATE
-            LEFT JOIN mail_activity a ON a.res_id = l.id AND a.res_model = 'crm.lead'
-                AND a.date_done::date = CURRENT_DATE
-            LEFT JOIN mail_tracking_value tv ON tv.mail_message_id IN (
-                SELECT id FROM mail_message WHERE res_id = l.id AND model = 'crm.lead'
-            ) AND tv.create_date::date = CURRENT_DATE
-            WHERE (l.write_date::date = CURRENT_DATE OR m.id IS NOT NULL OR a.id IS NOT NULL OR tv.id IS NOT NULL)
+            WHERE (
+                (l.write_date >= CURRENT_DATE AND l.write_date < CURRENT_DATE + INTERVAL '1 day')
+                OR EXISTS (
+                    SELECT 1 FROM mail_message m
+                    WHERE m.res_id = l.id AND m.model = 'crm.lead'
+                      AND m.date >= CURRENT_DATE
+                      AND m.date < CURRENT_DATE + INTERVAL '1 day'
+                )
+                OR EXISTS (
+                    SELECT 1 FROM mail_activity a
+                    WHERE a.res_id = l.id AND a.res_model = 'crm.lead'
+                      AND a.date_done >= CURRENT_DATE
+                      AND a.date_done < CURRENT_DATE + INTERVAL '1 day'
+                )
+                OR EXISTS (
+                    SELECT 1 FROM mail_tracking_value tv
+                    JOIN mail_message m2 ON m2.id = tv.mail_message_id
+                    WHERE m2.res_id = l.id AND m2.model = 'crm.lead'
+                      AND tv.create_date >= CURRENT_DATE
+                      AND tv.create_date < CURRENT_DATE + INTERVAL '1 day'
+                )
+            )
               {fu_user_filter}
         """, fu_params)
         daily_activity = cr.fetchone()[0] or 0
 
         total_orders = order.search_count([])
         confirmed_orders = order.search_count([("state", "=", "sale")])
-        confirmed_revenue = 0
-        for o in order.search([("state", "=", "sale")]):
-            confirmed_revenue += o.amount_total
+        cr.execute("""
+            SELECT COALESCE(SUM(amount_total), 0)
+            FROM sale_order
+            WHERE state = 'sale'
+        """)
+        confirmed_revenue = cr.fetchone()[0] or 0
 
         # ─── Stage-flow KPIs (the New-stage pipeline monitor) ────────────
         # 1) New Leads Today: leads created today (they enter the
@@ -175,28 +194,31 @@ class CRMDashboard(models.AbstractModel):
             """, [new_stage_id] + moved_params)
             moved_out_of_new_today = cr.fetchone()[0] or 0
 
-        # Funnel: ordered stages (kept for the existing Conversion Funnel widget)
-        funnel_stages = []
-        for s in self.env["crm.stage"].search([], order="sequence"):
-            f_domain = [("stage_id", "=", s.id)]
-            if user_id:
-                f_domain.append(("user_id", "=", user_id))
-            elif not is_admin:
-                f_domain.append(("user_id", "in", target_ids))
-            stage_leads = lead.search_count(f_domain)
-            funnel_stages.append({"name": s.name, "count": stage_leads})
+        # Funnel + Pipeline stages: single GROUP BY instead of one search_count
+        # per stage. Count active leads to match the implicit active_test the
+        # old ORM search_count applied.
+        lang = self.env.user.lang or 'en_US'
+        stage_user_filter = ""
+        stage_params = []
+        if user_id:
+            stage_user_filter = "AND l.user_id = %s"
+            stage_params = [user_id]
+        elif not is_admin:
+            stage_user_filter = "AND l.user_id IN %s"
+            stage_params = [tuple(target_ids)]
 
-        # Pipeline stages (active only)
-        stages = []
-        for s in self.env["crm.stage"].search([], order="sequence"):
-            s_domain = [("stage_id", "=", s.id), ("active", "=", True)]
-            if user_id:
-                s_domain.append(("user_id", "=", user_id))
-            elif not is_admin:
-                s_domain.append(("user_id", "in", target_ids))
-            stage_leads = lead.search_count(s_domain)
-            if stage_leads > 0:
-                stages.append({"name": s.name, "count": stage_leads})
+        cr.execute(f"""
+            SELECT s.id, s.name->>%s AS name,
+                   COUNT(l.id) FILTER (WHERE l.active = true) AS funnel_count,
+                   COUNT(l.id) FILTER (WHERE l.active = true) AS stage_count
+            FROM crm_stage s
+            LEFT JOIN crm_lead l ON l.stage_id = s.id {stage_user_filter}
+            GROUP BY s.id, s.name, s.sequence
+            ORDER BY s.sequence
+        """, (lang,) + tuple(stage_params))
+        funnel_rows = cr.dictfetchall()
+        funnel_stages = [{"name": r["name"], "count": r["funnel_count"]} for r in funnel_rows]
+        stages = [{"name": r["name"], "count": r["stage_count"]} for r in funnel_rows if r["stage_count"] > 0]
 
         # ─── Pipeline Aging (replace Conversion Funnel insight) ─────────
         # Age = days since create_date. Buckets surface how much of the
@@ -475,39 +497,41 @@ class CRMDashboard(models.AbstractModel):
             months[key] = {"created": 0, "won": 0, "lost": 0}
 
         range_start = (now - timedelta(days=180)).strftime("%Y-%m-%d")
-        month_domain = [("create_date", ">=", range_start)]
+        month_user_filter = ""
+        month_params = []
         if user_id:
-            month_domain.append(("user_id", "=", user_id))
+            month_user_filter = "AND user_id = %s"
+            month_params = [user_id]
         elif not is_admin:
-            month_domain.append(("user_id", "in", target_ids))
+            month_user_filter = "AND user_id IN %s"
+            month_params = [tuple(target_ids)]
 
-        for l in lead.search(month_domain, order="create_date"):
-            key = l.create_date.strftime("%Y-%m") if l.create_date else False
-            if key in months:
-                months[key]["created"] += 1
-        # Bug fix (found while wiring the drill-down click for this chart):
-        # this search must see archived leads too, since "lost" IS
-        # archived — but plain search() implicitly filters active=True
-        # whenever the domain doesn't mention 'active' itself, so every
-        # archived (lost) lead was silently excluded and the Lost bar was
-        # always 0 regardless of real data. with_context(active_test=False)
-        # restores the archived leads the loop below already branches on.
-        for l in lead.with_context(active_test=False).search([("date_closed", ">=", range_start)] + (
-            [("user_id", "=", user_id)] if user_id else (
-                [("user_id", "in", target_ids)] if not is_admin else []
-            )
-        )):
-            key = l.date_closed.strftime("%Y-%m") if l.date_closed else False
-            if key not in months:
-                continue
-            # Bug fix: l.stage_id is a crm.stage recordset; comparing it
-            # against won_stage_ids (a list of ints) with `in` was always
-            # False, so the Won bar was also always 0 regardless of real
-            # data. Compare the id instead.
-            if l.active and l.stage_id.id in won_stage_ids:
-                months[key]["won"] += 1
-            elif not l.active:
-                months[key]["lost"] += 1
+        cr.execute(f"""
+            SELECT TO_CHAR(create_date, 'YYYY-MM') AS month, COUNT(*) AS cnt
+            FROM crm_lead
+            WHERE create_date >= %s
+              {month_user_filter}
+            GROUP BY TO_CHAR(create_date, 'YYYY-MM')
+        """, [range_start] + month_params)
+        for r in cr.dictfetchall():
+            if r["month"] in months:
+                months[r["month"]]["created"] = r["cnt"]
+
+        won_stage_ids_tuple = tuple(won_stage_ids) if won_stage_ids else (0,)
+        cr.execute(f"""
+            SELECT TO_CHAR(date_closed, 'YYYY-MM') AS month,
+                   SUM(CASE WHEN active = true AND stage_id IN %s THEN 1 ELSE 0 END) AS won,
+                   SUM(CASE WHEN active = false THEN 1 ELSE 0 END) AS lost
+            FROM crm_lead
+            WHERE date_closed >= %s
+              {month_user_filter}
+            GROUP BY TO_CHAR(date_closed, 'YYYY-MM')
+        """, (won_stage_ids_tuple, range_start) + tuple(month_params))
+        for r in cr.dictfetchall():
+            if r["month"] in months:
+                months[r["month"]]["won"] = r["won"] or 0
+                months[r["month"]]["lost"] = r["lost"] or 0
+
         for k, v in months.items():
             monthly.append({"month": k, "created": v["created"], "won": v["won"], "lost": v["lost"]})
 
