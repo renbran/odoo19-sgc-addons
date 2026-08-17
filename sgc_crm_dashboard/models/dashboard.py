@@ -3,6 +3,8 @@ from odoo.exceptions import UserError
 from datetime import datetime, timedelta
 from collections import OrderedDict
 
+import psycopg2
+
 
 class CRMDashboard(models.AbstractModel):
     _name = "crm.dashboard"
@@ -121,6 +123,12 @@ class CRMDashboard(models.AbstractModel):
         # (write_date change OR mail_message OR activity done OR stage change).
         # Use EXISTS + half-open timestamp ranges so PostgreSQL can use indexes
         # instead of casting every row to date (the old query timed out at ~200s).
+        # Disable JIT for this query: the planner overestimates the cost and
+        # spends ~1s compiling, while the indexed execution is ~100ms.
+        try:
+            cr.execute("SET LOCAL jit = off")
+        except psycopg2.Error:
+            pass
         cr.execute(f"""
             SELECT COUNT(DISTINCT l.id)
             FROM crm_lead l
