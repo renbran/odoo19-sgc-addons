@@ -64,6 +64,14 @@ class CRMDashboard(models.AbstractModel):
         lead = self.env["crm.lead"]
         order = self.env["sale.order"]
         team = self.env["crm.team"]
+        cr = self.env.cr
+        # JIT compilation adds ~1s to several dashboard queries for no benefit
+        # once the targeted indexes are in place; disable it for this request.
+        try:
+            cr.execute("SET LOCAL jit = off")
+        except psycopg2.Error:
+            pass
+
         is_admin, target_ids, lead_domain_base = self._scope(user_id)
         current_user = self.env.user
 
@@ -75,14 +83,6 @@ class CRMDashboard(models.AbstractModel):
         pipeline = lead.search_count((lead_domain_base or []) + [("active", "=", True), ("probability", ">", 0), ("probability", "<", 100)])
         won = lead.search_count((lead_domain_base or []) + [("stage_id", "in", won_stage_ids)])
         lost = lead.search_count((lead_domain_base or []) + ["|", ("active", "=", False), ("probability", "=", 0)])
-
-        cr = self.env.cr
-        # JIT compilation adds ~1s to several dashboard queries for no benefit
-        # once the targeted indexes are in place; disable it for this request.
-        try:
-            cr.execute("SET LOCAL jit = off")
-        except psycopg2.Error:
-            pass
 
         fu_user_filter, fu_params = "", []
         if user_id:
