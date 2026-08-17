@@ -382,7 +382,8 @@ class SgcCesKpiService(models.AbstractModel):
         if unit == "percent":
             return "%.1f%%" % (value or 0.0)
         if unit == "currency":
-            symbol = self.env.company.currency_id.symbol or ""
+            # symbol removed - display only count
+ symbol = ""
             return "%s%s" % (symbol, "{:,.0f}".format(value or 0.0))
         return "{:,.0f}".format(value or 0.0)
 
