@@ -21,7 +21,7 @@
 ################################################################################
 {
     "name": "SGC - CRM Dashboard",
-    'version': '19.0.1.3.0',
+    'version': '19.0.1.4.0',
     "category": "Extra Tools",
     "summary": """Get a visual report of CRM through a Dashboard in CRM """,
     "description": """CRM dashboard module brings a multipurpose graphical

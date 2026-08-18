@@ -159,23 +159,42 @@ class CRMDashboard(models.AbstractModel):
         """, fu_params)
         daily_activity = cr.fetchone()[0] or 0
 
-        total_orders = order.search_count([])
-        confirmed_orders = order.search_count([("state", "=", "sale")])
-        cr.execute("""
-            SELECT COALESCE(SUM(amount_total), 0)
-            FROM sale_order
-            WHERE state = 'sale'
-        """)
+        # Scope every order-side KPI to the active user filter.
+        # Admin without user_id: ALL orders (overall revenue).
+        # Admin with user_id, or non-admin SDR: only that salesperson's orders.
+        order_user_filter = []
+        if user_id:
+            order_user_filter = [("user_id", "=", user_id)]
+        elif not is_admin:
+            order_user_filter = [("user_id", "in", target_ids)]
+
+        total_orders = order.search_count(order_user_filter)
+        confirmed_orders = order.search_count(order_user_filter + [("state", "=", "sale")])
+        if user_id:
+            rev_params = [user_id]
+            rev_user_sql = " AND user_id = %s"
+        elif not is_admin:
+            rev_params = [tuple(target_ids)]
+            rev_user_sql = " AND user_id IN %s"
+        else:
+            rev_params = []
+            rev_user_sql = ""
+        cr.execute(
+            "SELECT COALESCE(SUM(amount_total), 0) FROM sale_order WHERE state = 'sale'"
+            + rev_user_sql,
+            rev_params,
+        )
         confirmed_revenue = round(cr.fetchone()[0] or 0, 2)
 
         # Proposal pipeline: amount_total of quotations (draft + sent).
-        # "Converted to sales" is confirmed_revenue above. The REVENUE card
-        # renders both as `proposal / converted` with K/M/B abbreviation.
-        cr.execute("""
-            SELECT COALESCE(SUM(amount_total), 0)
-            FROM sale_order
-            WHERE state IN ('draft', 'sent')
-        """)
+        # "Converted to sales" is confirmed_revenue above. The PROPOSAL/REVENUE
+        # card renders both as `proposal / converted` with K/M/B abbreviation.
+        # Same scope rule as confirmed_revenue.
+        cr.execute(
+            "SELECT COALESCE(SUM(amount_total), 0) FROM sale_order WHERE state IN ('draft', 'sent')"
+            + rev_user_sql,
+            rev_params,
+        )
         revenue_proposal = round(cr.fetchone()[0] or 0, 2)
         revenue_converted = confirmed_revenue
 
