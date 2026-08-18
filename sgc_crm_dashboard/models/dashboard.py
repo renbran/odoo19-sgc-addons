@@ -168,6 +168,17 @@ class CRMDashboard(models.AbstractModel):
         """)
         confirmed_revenue = round(cr.fetchone()[0] or 0, 2)
 
+        # Proposal pipeline: amount_total of quotations (draft + sent).
+        # "Converted to sales" is confirmed_revenue above. The REVENUE card
+        # renders both as `proposal / converted` with K/M/B abbreviation.
+        cr.execute("""
+            SELECT COALESCE(SUM(amount_total), 0)
+            FROM sale_order
+            WHERE state IN ('draft', 'sent')
+        """)
+        revenue_proposal = round(cr.fetchone()[0] or 0, 2)
+        revenue_converted = confirmed_revenue
+
         # ─── Stage-flow KPIs (the New-stage pipeline monitor) ────────────
         # 1) New Leads Today: leads created today (they enter the
         #    "New" stage by default). This is the input side.
@@ -178,11 +189,17 @@ class CRMDashboard(models.AbstractModel):
         new_stage_id = self.env["crm.stage"].search(
             [("sequence", "=", 0)], limit=1
         ).id  # New = sequence 0 in this DB
-        new_leads_today = lead.search_count([
-            ("create_date", ">=", fields.Datetime.to_string(
-                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            )),
-        ])
+        # NEW LEADS TODAY now means: count of active leads currently sitting in
+        # the "New" stage. Scoped to the active user filter so the dropdown
+        # refetches it on filter change.
+        new_leads_domain = [("active", "=", True)]
+        if new_stage_id:
+            new_leads_domain.append(("stage_id", "=", new_stage_id))
+        if user_id:
+            new_leads_domain.append(("user_id", "=", user_id))
+        elif not is_admin:
+            new_leads_domain.append(("user_id", "in", target_ids))
+        new_leads_today = lead.search_count(new_leads_domain)
         moved_out_of_new_today = 0
         if new_stage_id:
             moved_user_filter = ""
@@ -574,6 +591,8 @@ class CRMDashboard(models.AbstractModel):
                 "total_orders": total_orders,
                 "confirmed_orders": confirmed_orders,
                 "confirmed_revenue": confirmed_revenue,
+                "revenue_proposal": revenue_proposal,
+                "revenue_converted": revenue_converted,
             },
             # ─── Charts (replaces Conversion Funnel, Teams) ─────────────
             "pipeline_aging": pipeline_aging,
@@ -677,13 +696,17 @@ class CRMDashboard(models.AbstractModel):
                 ("active", "=", True), ("probability", ">", 0), ("probability", "<", 100),
             ])
         if kind == "kpi_new_leads_today":
-            # Matches new_leads_today above, which is NOT scoped to
-            # target_ids there either — preserved here so the count and the
-            # opened list always agree, even though that's arguably a bug.
-            start = fields.Datetime.to_string(
-                datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-            )
-            return self._lead_action(_("New Leads Today"), [("create_date", ">=", start)])
+            # Opens the same set the count comes from: active leads currently
+            # in the New stage, scoped to the selected user filter.
+            new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
+            domain = [("active", "=", True)]
+            if new_stage_id:
+                domain.append(("stage_id", "=", new_stage_id))
+            if user_id:
+                domain.append(("user_id", "=", user_id))
+            elif not is_admin:
+                domain.append(("user_id", "in", target_ids))
+            return self._lead_action(_("New Leads Today"), domain)
         if kind == "kpi_moved_out_of_new":
             new_stage_id = self.env["crm.stage"].search([("sequence", "=", 0)], limit=1).id
             today_start = fields.Datetime.to_string(
