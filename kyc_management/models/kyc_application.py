@@ -1180,7 +1180,7 @@ class KYCApplication(models.Model):
             return
         
         officers = self.env['res.users'].sudo().search([
-            ('groups_id', 'in', [approver_group.id]),
+            ('group_ids', 'in', [approver_group.id]),
             ('active', '=', True),
         ], limit=5)
         
