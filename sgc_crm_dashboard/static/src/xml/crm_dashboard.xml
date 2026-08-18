@@ -235,7 +235,7 @@
                                 <div>
                                     <div class="o_kpi_label">New Leads Today</div>
                                     <div class="o_kpi_value" style="color:#4DA3FF;" t-esc="formatNumber(state.kpi.new_leads_today)"/>
-                                    <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">entered pipeline today</div>
+                                    <div class="o_kpi_sublabel" style="font-size:0.7rem;opacity:0.55;margin-top:2px;">currently in New stage</div>
                                 </div>
                                 <div class="o_kpi_icon" style="background:rgba(77,163,255,0.15);">
                                     <i class="fa fa-user-plus fa-lg" style="color:#4DA3FF;"/>
@@ -376,7 +376,8 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <div class="o_kpi_label">Revenue</div>
-                                    <div class="o_kpi_value" style="color:#C7A23A;" t-esc="formatCurrency(state.kpi.confirmed_revenue)"/>
+                                    <div class="o_kpi_value" style="color:#C7A23A;font-size:1.5rem;line-height:1.15;" t-esc="formatAbbrev(state.kpi.revenue_proposal) + ' / ' + formatAbbrev(state.kpi.revenue_converted)"/>
+                                    <div class="o_kpi_sublabel" style="font-size:0.65rem;opacity:0.55;margin-top:2px;">proposal / converted</div>
                                 </div>
                                 <div class="o_kpi_icon" style="background:rgba(199,162,58,0.15);">
                                     <i class="fa fa-money fa-lg" style="color:#C7A23A;"/>

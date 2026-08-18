@@ -458,6 +458,16 @@ export class CrmDashboard extends Component {
         return new Intl.NumberFormat("en-US").format(val || 0);
     }
 
+    formatAbbrev(val) {
+        // 1.2K / 49K / 15M / 1.2B. Drops the trailing .0 only when redundant.
+        const n = Number(val) || 0;
+        const abs = Math.abs(n);
+        if (abs >= 1e9) return (n / 1e9).toFixed(abs >= 1e10 ? 0 : 1).replace(/\.0$/, "") + "B";
+        if (abs >= 1e6) return (n / 1e6).toFixed(abs >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
+        if (abs >= 1e3) return (n / 1e3).toFixed(abs >= 1e4 ? 0 : 1).replace(/\.0$/, "") + "K";
+        return String(Math.round(n));
+    }
+
     daysColor(days) {
         if (days === null || days === undefined) return "#a0a0a0";
         if (days <= 3) return "#1EC198";
