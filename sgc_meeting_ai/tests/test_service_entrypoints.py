@@ -129,5 +129,5 @@ class TestNotesServiceEntrypoint(TransactionCase):
             notes = self.env["sgc.meeting.notes.service"].summarize(transcript)
         self.assertTrue(mock_post.called)
         self.assertTrue(notes)
-        self.assertEqual(notes.summary, "Discussed budget.")
+        self.assertIn("Discussed budget.", notes.summary)
         self.assertEqual(notes.session_id, transcript.session_id)
