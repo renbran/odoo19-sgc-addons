@@ -74,7 +74,8 @@ class SGCMetingTranscriptionService(models.AbstractModel):
                 "model": str,
             }
         """
-        self.ensure_one()
+        # AbstractModel service: self is always an empty recordset here, so
+        # ensure_one() would always raise. Operate on `recording`, not self.
         if not recording.attachment_id:
             raise UserError(_("Recording has no attachment."))
         cfg = self._get_config()

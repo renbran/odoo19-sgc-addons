@@ -192,7 +192,8 @@ never invent an answer:
 
         Creates an sgc.meeting.notes record and posts to chatter.
         """
-        self.ensure_one()
+        # AbstractModel service: self is always an empty recordset here, so
+        # ensure_one() would always raise. Operate on `transcript`, not self.
         if not transcript.text:
             raise UserError(_("Transcript is empty."))
         cfg = self._get_config()
