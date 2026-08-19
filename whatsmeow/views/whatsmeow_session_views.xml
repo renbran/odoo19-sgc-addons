@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="whatsmeow_session_view_form" model="ir.ui.view">
+    <field name="name">whatsmeow.session.form</field>
+    <field name="model">whatsmeow.session</field>
+    <field name="arch" type="xml">
+      <form>
+        <header>
+          <button name="action_start" type="object" string="Start / Pair" class="btn-primary"
+                  invisible="status in ('connected',)"/>
+          <button name="action_refresh" type="object" string="Refresh Status"
+                  invisible="status == 'draft'"/>
+          <button name="action_logout" type="object" string="Logout"
+                  invisible="status not in ('connected', 'qr', 'disconnected')"
+                  confirm="Unpair this WhatsApp number? It will need a new QR scan."/>
+          <field name="status" widget="statusbar"
+                 statusbar_visible="draft,qr,connected"/>
+        </header>
+        <sheet>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_view_inbound_rules" type="object"
+                    class="oe_stat_button" icon="fa-filter">
+              <field name="inbound_rule_count" widget="statinfo" string="Filter Rules"/>
+            </button>
+          </div>
+          <div class="oe_title">
+            <label for="name"/>
+            <h1><field name="name" placeholder="e.g. Client ACME"/></h1>
+          </div>
+          <group>
+            <group>
+              <field name="code" readonly="status != 'draft'" placeholder="client_acme"/>
+              <field name="connection_id" readonly="status != 'draft'"
+                     options="{'no_create': True}"/>
+              <field name="jid"/>
+              <field name="last_error" invisible="not last_error" class="text-danger"/>
+            </group>
+            <group string="Send Throttle" name="throttle">
+              <field name="send_delay_min"/>
+              <field name="send_delay_max"/>
+              <field name="next_send_at"/>
+              <div colspan="2" class="text-muted">
+                The queue waits a random pause between these bounds after every
+                message this number sends. Sending in bursts is the quickest way
+                to get a number banned; on a new number, raise them and let it
+                warm up slowly.
+              </div>
+            </group>
+            <group>
+              <field name="qr_image" widget="image" nolabel="1" invisible="status != 'qr'"/>
+              <div invisible="status != 'qr'" class="text-muted">
+                Open WhatsApp on the phone: Linked Devices &#8594; Link a Device &#8594; scan this code.
+              </div>
+            </group>
+          </group>
+          <notebook>
+            <page string="Volume &amp; Warm-Up" name="warmup">
+              <group>
+                <group string="Daily Allowance" name="warmup_caps">
+                  <field name="warmup_enabled"/>
+                  <field name="tz" invisible="not warmup_enabled"/>
+                  <field name="warmup_start_date" invisible="not warmup_enabled"/>
+                  <field name="daily_cap_base" invisible="not warmup_enabled"/>
+                  <field name="daily_cap_growth" invisible="not warmup_enabled"/>
+                  <field name="daily_cap_max" invisible="not warmup_enabled"/>
+                  <field name="hourly_cap" invisible="not warmup_enabled"/>
+                </group>
+                <group string="Today" name="warmup_usage" invisible="not warmup_enabled">
+                  <field name="daily_cap"/>
+                  <field name="sent_today"/>
+                  <field name="sent_this_hour"/>
+                </group>
+              </group>
+              <p class="text-muted">
+                A number that sends hundreds of messages on its first day looks
+                like a broadcaster whatever it says, so the queue bounds the day
+                as well as pacing the sends apart. The allowance grows from the
+                day-1 figure by the growth factor for every day since the first
+                send, up to the ceiling, and resets at midnight in the timezone
+                above. <b>Only queued traffic is capped</b> — an operator's
+                Discuss reply and a message sent by hand from the form are
+                answers to someone who wrote first, which is the safest traffic
+                there is, and they go out regardless.
+              </p>
+            </page>
+            <page string="Inbound Filtering" name="inbound_filtering">
+              <div class="alert alert-info" role="status"
+                   invisible="inbound_default != 'accept' or inbound_rule_count == 0">
+                <b>Blocklist</b> — accepting all inbound messages except those matched
+                by the rules below.
+              </div>
+              <div class="alert alert-warning" role="status"
+                   invisible="inbound_default != 'reject'">
+                <b>Allowlist</b> — rejecting all inbound messages except those matched
+                by the rules below.
+              </div>
+              <group>
+                <field name="inbound_default"/>
+                <field name="auto_mark_read"/>
+              </group>
+              <div class="text-muted" invisible="not auto_mark_read">
+                Accepted messages are marked read as soon as they arrive, so the
+                sender sees blue ticks before anyone has actually opened the
+                message — and the chat stops showing as unread on the phone.
+                Rejected messages are never marked.
+              </div>
+              <field name="inbound_rule_ids">
+                <list editable="bottom">
+                  <field name="sequence" widget="handle"/>
+                  <field name="name" string="Label" optional="show"/>
+                  <field name="action"/>
+                  <field name="chat_type"/>
+                  <field name="message_type"/>
+                  <field name="sender_state" optional="hide"/>
+                  <field name="partner_ids" widget="many2many_tags"
+                         options="{'no_create': True}"/>
+                  <field name="chat_jids"/>
+                  <field name="phones"/>
+                  <field name="sender_lids" optional="hide"/>
+                  <field name="keyword"/>
+                </list>
+              </field>
+              <p class="text-muted">
+                An <b>Opt the sender out</b> rule — typically a keyword like
+                <i>stop</i> or <i>unsubscribe</i> — flags the contact so nothing
+                is ever sent to them again, on any path, and then lets the
+                following rules decide whether to keep the message itself.
+                It is not a disposition of its own.
+              </p>
+              <p class="text-muted">
+                A rule matches when <b>every field you set</b> matches the message;
+                blank fields are wildcards, so a rule with nothing set matches
+                everything. The first matching rule (top to bottom) decides. A
+                keyword can't be judged on WhatsApp's empty first copy of a
+                double-delivered message, so such a rule waits for the real copy;
+                identity rules (chat, contact, phone, LID) apply immediately. A
+                LID-only contact has no partner or phone — match it by its Sender LID.
+              </p>
+            </page>
+            <page string="Messages" name="messages">
+              <field name="message_ids" readonly="1">
+                <list>
+                  <field name="create_date" string="Date"/>
+                  <field name="direction"/>
+                  <field name="partner_id"/>
+                  <field name="phone"/>
+                  <field name="body"/>
+                  <field name="state" widget="badge"/>
+                </list>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="whatsmeow_session_view_list" model="ir.ui.view">
+    <field name="name">whatsmeow.session.list</field>
+    <field name="model">whatsmeow.session</field>
+    <field name="arch" type="xml">
+      <list decoration-success="status == 'connected'"
+            decoration-danger="status in ('error', 'logged_out')"
+            decoration-muted="status == 'draft'">
+        <field name="name"/>
+        <field name="code"/>
+        <field name="connection_id"/>
+        <field name="jid"/>
+        <field name="status" widget="badge"/>
+      </list>
+    </field>
+  </record>
+
+  <record id="whatsmeow_session_view_search" model="ir.ui.view">
+    <field name="name">whatsmeow.session.search</field>
+    <field name="model">whatsmeow.session</field>
+    <field name="arch" type="xml">
+      <search>
+        <field name="name"/>
+        <field name="code"/>
+        <field name="connection_id"/>
+        <filter name="connected" string="Connected" domain="[('status','=','connected')]"/>
+        <filter name="needs_attention" string="Needs Attention"
+                domain="[('status','in',('error','logged_out','disconnected'))]"/>
+        <group name="group_by">
+          <filter name="group_connection" string="Gateway" domain="[]" context="{'group_by': 'connection_id'}"/>
+          <filter name="group_status" string="Status" domain="[]" context="{'group_by': 'status'}"/>
+        </group>
+      </search>
+    </field>
+  </record>
+
+  <record id="whatsmeow_session_action" model="ir.actions.act_window">
+    <field name="name">Sessions</field>
+    <field name="res_model">whatsmeow.session</field>
+    <field name="view_mode">list,form</field>
+    <field name="help" type="html">
+      <p class="o_view_nocontent_smiling_face">Pair your first WhatsApp number</p>
+      <p>Create a session, pick its gateway, then Start / Pair and scan the QR.</p>
+    </field>
+  </record>
+</odoo>

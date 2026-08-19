@@ -1,0 +1,50 @@
+// `w-100` on the field only stretches the .o_field_widget wrapper; the widget's
+// own div sits inside it and would still shrink to its content, so the width
+// has to be carried the rest of the way down to the textarea.
+.o_whatsmeow_body {
+    width: 100%;
+
+    > textarea {
+        width: 100%;
+    }
+}
+
+// The preview is the chatter bubble, borrowed whole from whatsmeow_message.scss
+// (hence the load order in the manifest: the placeholder must be defined first).
+// `white-space: pre-wrap` keeps the author's own spacing and indentation, the
+// way WhatsApp does; the renderer only converts newlines so that a `<br/>`
+// survives inside `<code>`.
+.o_whatsmeow_body_preview_bubble {
+    @extend %o-whatsmeow-bubble;
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    code {
+        // WhatsApp's monospace is a block that spans lines, not a code snippet
+        // chip, so it gets the font and none of Bootstrap's colouring.
+        color: inherit;
+        white-space: pre-wrap;
+    }
+}
+
+// A placeholder is not text the recipient will ever see, so it reads as a slot
+// rather than as part of the sentence.
+.o_whatsmeow_placeholder {
+    opacity: 0.65;
+    font-family: var(--bs-font-monospace);
+    font-size: 0.9em;
+}
+
+// The formatting toolbar floats over the textarea, anchored near the selection
+// (see `anchorFor`). It has to sit above the field's own input buttons, and it
+// must not take a drag with it — pointer events on the buttons only.
+.o_whatsmeow_body_toolbar {
+    z-index: 2;
+    white-space: nowrap;
+
+    .btn {
+        // The stock small-button padding leaves the toolbar taller than a line
+        // of text, which pushes it over the line above the selection.
+        padding: 0.1rem 0.4rem;
+    }
+}
