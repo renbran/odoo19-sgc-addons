@@ -54,7 +54,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models, tools, _
 
 
 # Module-level filter on import — silences the
