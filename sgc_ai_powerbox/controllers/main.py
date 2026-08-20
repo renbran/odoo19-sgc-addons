@@ -19,7 +19,7 @@ class SgcAIController(http.Controller):
 
     @http.route(
         '/sgc_ai_powerbox/get_response',
-        type='json',
+        type='jsonrpc',
         auth='user',
         methods=['POST'],
         csrf=False,

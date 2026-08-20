@@ -80,7 +80,7 @@ class SgcReportController(http.Controller):
 
     @http.route(
         "/sgc/dfr/metadata",
-        type="json",
+        type="jsonrpc",
         auth="user",
         methods=["POST"],
     )
@@ -100,7 +100,7 @@ class SgcReportController(http.Controller):
 
     @http.route(
         "/sgc/dfr/metadata/<string:report_type>",
-        type="json",
+        type="jsonrpc",
         auth="user",
         methods=["POST"],
     )
@@ -123,7 +123,7 @@ class SgcReportController(http.Controller):
 
     @http.route(
         "/sgc/dfr/account_type_mapping",
-        type="json",
+        type="jsonrpc",
         auth="user",
         methods=["POST"],
     )
@@ -157,7 +157,7 @@ class SgcReportController(http.Controller):
 
     @http.route(
         "/sgc/dfr/drilldown/<int:wizard_id>/<int:account_id>",
-        type="json",
+        type="jsonrpc",
         auth="user",
         methods=["POST"],
     )

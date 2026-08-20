@@ -98,7 +98,7 @@ class SgcPersonaController(http.Controller):
 
     @http.route(
         "/sgc/persona/start_chat",
-        type="json",
+        type="jsonrpc",
         auth="user",
         methods=["POST"],
         csrf=False,
