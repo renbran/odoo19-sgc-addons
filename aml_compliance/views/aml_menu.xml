@@ -54,15 +54,27 @@
               action="action_transaction_alert"
               sequence="10"/>
 
+    <!-- NOTE: DISABLED - action_investigation_case is defined in
+         investigation_case_views.xml which is NOT in the manifest, and
+         aml.investigation.case is not imported in models/__init__.py.
+         Loading this menu breaks module upgrades. Re-enable together
+         with the model + views. -->
+    <!--
     <menuitem id="menu_aml_investigation_cases"
               name="Investigation Cases"
               parent="menu_aml_monitoring"
               action="action_investigation_case"
               sequence="20"/>
+    -->
 
     <!-- ======================== -->
     <!-- EDD & Investigations     -->
     <!-- ======================== -->
+    <!-- NOTE: DISABLED - action_edd_workflow is defined in
+         edd_workflow_views.xml which is NOT in the manifest, and
+         aml.edd.workflow has no model. Loading this menu breaks module
+         upgrades. Re-enable together with the model + views. -->
+    <!--
     <menuitem id="menu_aml_edd"
               name="Enhanced Due Diligence"
               parent="menu_aml_section"
@@ -73,6 +85,7 @@
               parent="menu_aml_edd"
               action="action_edd_workflow"
               sequence="10"/>
+    -->
 
     <!-- ======================== -->
     <!-- Sanctions Screening      -->

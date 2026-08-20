@@ -160,6 +160,12 @@
     <!-- =============================== -->
     <!-- EDD Workflow Pivot & Graph      -->
     <!-- =============================== -->
+    <!-- NOTE: DISABLED - aml.edd.workflow model does not exist (no model
+         file in aml_compliance/models/, and edd_workflow_views.xml is not
+         in the manifest). Loading these records breaks every module upgrade
+         with "Model not found: aml.edd.workflow". Re-enable only together
+         with the model. -->
+    <!--
     <record id="view_edd_workflow_pivot" model="ir.ui.view">
         <field name="name">aml.edd.workflow.pivot</field>
         <field name="model">aml.edd.workflow</field>
@@ -191,10 +197,17 @@
             </p>
         </field>
     </record>
+    -->
 
     <!-- =============================== -->
     <!-- Investigation Case Pivot & Graph -->
     <!-- =============================== -->
+    <!-- NOTE: DISABLED - aml.investigation.case model exists
+         (models/investigation_case.py) but is NOT imported in
+         models/__init__.py, so it is not in the registry. Loading these
+         records breaks every module upgrade with "Model not found:
+         aml.investigation.case". Re-enable only together with the import. -->
+    <!--
     <record id="view_investigation_case_pivot" model="ir.ui.view">
         <field name="name">aml.investigation.case.pivot</field>
         <field name="model">aml.investigation.case</field>
@@ -226,6 +239,7 @@
             </p>
         </field>
     </record>
+    -->
 
     <!-- ============================================================ -->
     <!-- Overdue Reviews: Server Action (quick link from dashboard)    -->
