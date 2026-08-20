@@ -152,6 +152,46 @@ class TestMarkupEscaping(TemplateCommon):
 
 
 @tagged("post_install", "-at_install")
+class TestHtmlValues(TemplateCommon):
+    """A value pulled from an HTML field must reach the phone as plain text.
+
+    HTML fields (notes, descriptions, terms) store markup, and the render
+    engine does no escaping of its own — without conversion the customer
+    receives raw '<p>' tags and '&amp;' entities in their WhatsApp.
+    """
+
+    def _render(self, name):
+        self.alice.name = name
+        return self.template._render_body(self.alice.ids)[self.alice.id]
+
+    def test_tags_and_entities_become_plain_text(self):
+        self.assertEqual(
+            self._render("<p>Alice &amp; Co</p>"), "Hello Alice & Co, welcome.")
+
+    def test_block_tags_become_line_breaks(self):
+        self.assertEqual(
+            self._render("<p>One</p><p>Two</p>"), "Hello One\nTwo, welcome.")
+
+    def test_numeric_entities_are_decoded(self):
+        self.assertEqual(self._render("Caf&#233;"), "Hello Café, welcome.")
+
+    def test_a_plain_ampersand_is_not_touched(self):
+        """No tag, no entity: the value passes through byte-for-byte."""
+        self.assertEqual(
+            self._render("Fish & Chips"), "Hello Fish & Chips, welcome.")
+
+    def test_emphasis_from_html_is_flattened_safely(self):
+        """html2plaintext emits '*bold*' for <b>; those markers are still
+        value-side, so the markup guard neutralises them like any other."""
+        rendered = self._render("<b>Bold</b> move")
+        self.assertNotIn("*Bold*", rendered, "the markers still pair up")
+        self.assertEqual(
+            rendered.replace(ZERO_WIDTH_SPACE, "").replace("*", ""),
+            "Hello Bold move, welcome.",
+        )
+
+
+@tagged("post_install", "-at_install")
 class TestPhoneField(TemplateCommon):
 
     def test_explicit_path_is_used(self):

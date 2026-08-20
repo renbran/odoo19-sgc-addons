@@ -6,6 +6,7 @@ from odoo.exceptions import UserError, ValidationError
 # `time` here is safe_eval's *wrapped* module: Odoo 19 refuses a raw module in
 # an evaluation context, and this is the same object the report download route
 # and mail.template hand to print_report_name.
+from odoo.tools.mail import html2plaintext
 from odoo.tools.osutil import clean_filename
 from odoo.tools.rendering_tools import parse_inline_template
 from odoo.tools.safe_eval import safe_eval, time
@@ -54,6 +55,24 @@ ZERO_WIDTH_SPACE = "​"
 # prefixed because it shares a namespace with the template author's own
 # variables (object, user, company).
 MARKUP_ESCAPE_FN = "_whatsmeow_escape_markup"
+
+# A value pulled from an HTML field (notes, descriptions, terms & conditions)
+# arrives as markup: <p> tags, <br>s, &amp; entities. WhatsApp is plain text,
+# so the recipient would see raw source. Detection is deliberately narrow —
+# the tag list is what Odoo's HTML editor actually emits — because a plain
+# value like '5 < 6' or 'R&D' must pass through untouched. The trade-off
+# accepted here: a plain-text value containing a literal '<b>' string would be
+# treated as markup, which is vanishingly rare next to the everyday case of a
+# template author pointing {{ object.description }} at an HTML field.
+HTML_TAG_RE = re.compile(
+    r"</?(?:p|br|div|span|h[1-6]|ul|ol|li|dl|dt|dd|table|thead|tbody|tr|td|th|"
+    r"a|b|i|em|strong|u|s|strike|blockquote|pre|code|hr|img|figure|figcaption|"
+    r"section|article|aside|header|footer|nav|main|font|small|sub|sup)\b[^>]*>",
+    re.IGNORECASE,
+)
+# Named entities need 2+ letters so a stray '&x' in plain text never matches;
+# numeric (&#233;) and hex (&#xE9;) forms are always unambiguous.
+HTML_ENTITY_RE = re.compile(r"&(?:[a-zA-Z]{2,}|#\d+|#x[0-9a-fA-F]+);")
 
 
 class WhatsmeowTemplate(models.Model):
@@ -261,12 +280,20 @@ class WhatsmeowTemplate(models.Model):
 
         Override this to strip the markers instead if a client turns out to
         parse through the zero-width space — see ZERO_WIDTH_SPACE.
+
+        A value that is HTML (a notes or description field) is first flattened
+        to plain text: tags become the line breaks they represent and entities
+        are decoded, so the customer never sees raw source. Plain-text values
+        skip the conversion entirely — 'R&D' and '5 < 6' pass through as-is.
         """
         if not value:
             return value
+        text = str(value)
+        if HTML_TAG_RE.search(text) or HTML_ENTITY_RE.search(text):
+            text = html2plaintext(text).strip()
         return MARKUP_CHAR_RE.sub(
             lambda match: f"{ZERO_WIDTH_SPACE}{match.group(0)}{ZERO_WIDTH_SPACE}",
-            str(value),
+            text,
         )
 
     def _render_report(self, record):
