@@ -8,6 +8,8 @@ _APP_META = {
     "kyc_management.menu_kyc_enhanced_root": ("kyc_enhanced.png", ["kyc", "compliance", "verification"]),
     "sgc_executive_dashboard.menu_sgc_executive_root": ("executive.png", ["executive", "command center"]),
     "mail.menu_root_discuss": ("discuss.png", ["chat", "messages"]),
+    "whatsmeow.menu_whatsmeow_root": ("whatsapp.png", ["whatsapp", "whatsmeow", "chat", "messages"]),
+    "sgc_employee_badges.menu_sgc_leaderboard": ("leaderboard.png", ["leaderboard", "badges", "gamification", "awards"]),
     "hr_payroll_community.menu_hr_payroll_community_root": ("payroll.png", ["salary", "hr"]),
     "sgc_payment.menu_payment_executive_center": ("payment_center.png", ["payments", "finance"]),
     "calendar.mail_menu_calendar": ("calendar.png", ["schedule", "meetings"]),
