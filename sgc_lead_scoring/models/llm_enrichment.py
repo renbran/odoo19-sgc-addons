@@ -17,8 +17,26 @@ class LlmEnrichment(models.AbstractModel):
         key = self.env['ir.config_parameter'].sudo().get_param(
             'sgc_lead_scoring.groq_api_key', '')
         if not key:
-            key = os.environ.get('GROQ_API_KEY', '')
+            key = os.environ.get('FREELLM_API_KEY', os.environ.get('GROQ_API_KEY', ''))
         return key
+
+    def _get_groq_endpoint(self):
+        """LLM endpoint for enrichment. Defaults to the local freellmapi
+        gateway (multi-provider failover absorbs Groq rate limits).
+        Override via 'sgc_lead_scoring.groq_api_endpoint'."""
+        return self.env['ir.config_parameter'].sudo().get_param(
+            'sgc_lead_scoring.groq_api_endpoint',
+            os.environ.get(
+                'FREELLM_API_URL', 'http://freellmapi:3001/v1'
+            ) + '/chat/completions',
+        )
+
+    def _get_groq_model(self):
+        """Model for enrichment. Defaults to freellmapi's 'auto:smart'
+        router (capability-first failover across all configured providers).
+        Override via 'sgc_lead_scoring.groq_model'."""
+        return self.env['ir.config_parameter'].sudo().get_param(
+            'sgc_lead_scoring.groq_model', 'auto:smart')
 
     def _search_company(self, company_name, website=None):
         try:
@@ -46,9 +64,9 @@ class LlmEnrichment(models.AbstractModel):
 
         try:
             resp = requests.post(
-                'https://api.groq.com/openai/v1/chat/completions',
+                self._get_groq_endpoint(),
                 json={
-                    'model': 'llama-3.1-8b-instant',
+                    'model': self._get_groq_model(),
                     'messages': messages,
                     'temperature': 0.1,
                     'max_tokens': 1024,
