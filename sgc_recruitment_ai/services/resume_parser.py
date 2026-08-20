@@ -89,17 +89,25 @@ def extract_text(attachment_data):
 
 
 def _call_llm(system_prompt, user_text):
-    """Call Groq LLM directly for resume parsing."""
-    api_key = os.environ.get('GROQ_API_KEY', '')
+    """Call LLM for resume parsing via the local freellmapi gateway."""
+    free_url = os.environ.get('FREELLM_API_URL', '').rstrip('/')
+    if free_url:
+        api_url = f'{free_url}/chat/completions'
+        api_key = os.environ.get('FREELLM_API_KEY', '')
+        model = 'auto:smart'
+    else:
+        api_url = 'https://api.groq.com/openai/v1/chat/completions'
+        api_key = os.environ.get('GROQ_API_KEY', '')
+        model = 'llama-3.1-8b-instant'
     if not api_key:
-        _logger.error('GROQ_API_KEY not set')
+        _logger.error('LLM API key not set')
         return None
 
     try:
         resp = requests.post(
-            'https://api.groq.com/openai/v1/chat/completions',
+            api_url,
             json={
-                'model': 'llama-3.1-8b-instant',
+                'model': model,
                 'messages': [
                     {'role': 'system', 'content': system_prompt},
                     {'role': 'user', 'content': user_text[:15000]},

@@ -112,20 +112,27 @@ class LLMProviderGroq(models.Model):
         return OpenAI(api_key=api_key, base_url=api_base)
 
     def _get_api_key(self):
-        """Get API key from environment variable."""
+        """Get API key from the freellmapi gateway when configured,
+        otherwise fall back to the Groq key."""
         import os
+        if os.environ.get("FREELLM_API_URL"):
+            return os.environ.get("FREELLM_API_KEY") or self.api_key or ""
         return os.environ.get("GROQ_API_KEY") or self.api_key or ""
 
     def _get_api_base(self):
         """Get API base URL.
 
         Resolution order:
-        1. ``GROQ_API_BASE`` environment variable
-        2. ``api_base`` field on the provider record
-        3. Default per service (Groq → ``https://api.groq.com/openai/v1``)
+        1. ``FREELLM_API_URL`` environment variable (local gateway)
+        2. ``GROQ_API_BASE`` environment variable
+        3. ``api_base`` field on the provider record
+        4. Default per service (Groq → ``https://api.groq.com/openai/v1``)
         """
         import os
 
+        env_base = os.environ.get("FREELLM_API_URL")
+        if env_base:
+            return env_base.rstrip("/")
         env_base = os.environ.get("GROQ_API_BASE")
         if env_base:
             return env_base

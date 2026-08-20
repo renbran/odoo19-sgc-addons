@@ -100,9 +100,14 @@ def _call_llm_direct(prompt: str) -> dict | None:
         api_key = os.environ.get("GITHUB_TOKEN", "")
         model = os.environ.get("AI_BRAIN_LLM_MODEL", "openai/gpt-4o-mini")
     elif provider == "groq":
-        api_url = "https://api.groq.com/openai/v1/chat/completions"
-        api_key = os.environ.get("GROQ_API_KEY", "")
-        model = os.environ.get("AI_BRAIN_LLM_MODEL", "llama-3.1-8b-instant")
+        free_url = os.environ.get("FREELLM_API_URL", "").rstrip("/")
+        if free_url:
+            api_url = f"{free_url}/chat/completions"
+            api_key = os.environ.get("FREELLM_API_KEY", "")
+        else:
+            api_url = "https://api.groq.com/openai/v1/chat/completions"
+            api_key = os.environ.get("GROQ_API_KEY", "")
+        model = os.environ.get("AI_BRAIN_LLM_MODEL", "auto:smart")
     elif provider == "openai":
         api_url = "https://api.openai.com/v1/chat/completions"
         api_key = os.environ.get("OPENAI_API_KEY", "")

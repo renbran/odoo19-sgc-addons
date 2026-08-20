@@ -22,8 +22,8 @@ SUPPORTED_PROVIDERS = {
         'response_parser': lambda resp: resp.json()['choices'][0]['message']['content'],
     },
     'groq': {
-        'name': 'Groq',
-        'default_endpoint': 'https://api.groq.com/openai/v1/chat/completions',
+        'name': 'Groq (via freellmapi gateway)',
+        'default_endpoint': 'http://freellmapi:3001/v1/chat/completions',
         'model_key': 'model',
         'auth_header': 'Authorization',
         'auth_prefix': 'Bearer ',
