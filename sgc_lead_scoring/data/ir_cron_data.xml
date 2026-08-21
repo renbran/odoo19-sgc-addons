@@ -9,9 +9,15 @@
             <field name="code">model._cron_enrich_leads()</field>
             <field name="interval_number">1</field>
             <field name="interval_type">hours</field>
-            <field name="numbercall">-1</field>
             <field name="active" eval="True"/>
-            <field name="doall" eval="False"/>
+            <!-- Deliberate, permanent divergence from prod's file on disk:
+                 prod's copy still has numbercall/doall fields (Odoo 19
+                 removed them from ir.cron entirely — presence raises
+                 ValueError: Invalid field 'numbercall' in 'ir.cron' the
+                 next time this data file is reloaded). Prod's copy is
+                 only harmless because it hasn't been reloaded since the
+                 Odoo 17->19 migration. Do NOT "fix" this file to match
+                 prod's disk copy again — see bd0b4cc and 56f5e40. -->
         </record>
     </data>
 </odoo>
