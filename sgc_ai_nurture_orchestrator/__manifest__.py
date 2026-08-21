@@ -3,21 +3,34 @@
     "name": "SGC - AI Nurture Orchestrator",
     "version": "19.0.1.0.0",
     "category": "CRM",
-    "summary": "Automates the WhatsApp/email nurture sequence for leads flagged with a nurture activity",
+    "summary": "AI-drafted WhatsApp/email nurture touches for flagged leads -- every step is a manual button click, no cron",
     "description": """
 SGC AI Nurture Orchestrator
 ============================
-Executes, automatically, what `sgc_proposal_nurture` currently only flags
-for a human to do by hand: a bounded, AI-drafted WhatsApp + email touch
-sequence for a lead, gated entirely behind an assigned activity.
+Executes what `sgc_proposal_nurture` currently only flags for a human to
+do by hand: a bounded, AI-drafted WhatsApp + email touch sequence for a
+lead, gated behind an assigned activity AND behind an explicit person
+clicking a button at every single step. There is no cron in this module
+that sweeps leads or sequences -- see the README for the full rationale.
 
-Phase 0/1 scope (this build): the full sequence/touch state machine,
-centralized stop/pause matrix, business-hours scheduler, and AI drafting
-+ deterministic validation all run for real -- but every send is
-**dry-run only**. A drafted touch is posted as an internal note on the
-lead's chatter for review; nothing is queued on `whatsmeow.message` or
-`mail.mail`, and no lead is ever contacted. Flipping `dry_run` off per
-channel is a deliberate later phase, not a default here.
+Three buttons, three explicit human actions:
+    1. "Start Nurture Sequence" (crm.lead)   -- creates the sequence
+    2. "Draft Next Touch" (sequence)         -- drafts, sends nothing
+    3. "Send This Touch" (sequence, confirm) -- sends exactly that draft
+
+Sending is real: `_send_whatsapp` creates a `whatsmeow.message` row and
+lets whatsmeow's own always-on queue cron handle it; `_send_email` creates
+a `mail.mail` row (checked against `mail.blacklist` first) and lets Odoo's
+own mail queue handle it. Neither of those queues is part of this module
+or disabled by anything here -- this module only ever creates the row a
+person already decided, by clicking Send, should go out.
+
+Fields/models added:
+    * sgc.nurture.sequence -- one row per lead enrollment, owns the
+      touch counter, schedule, and status.
+    * sgc.nurture.touch -- one row per drafted/sent touch,
+      for observability (what was drafted, when, by which model, at
+      what cost, and what happened to it).
 
 Fields/models added:
     * sgc.nurture.sequence -- one row per lead enrollment, owns the

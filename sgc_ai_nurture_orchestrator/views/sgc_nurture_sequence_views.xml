@@ -26,8 +26,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_send_now" type="object" string="Send Next Touch Now"
+                    <button name="action_draft_next_touch" type="object" string="Draft Next Touch"
                             invisible="status != 'active'" class="oe_highlight"/>
+                    <button name="action_send_drafted_touch" type="object" string="Send This Touch"
+                            invisible="status != 'active' or not has_pending_draft" class="oe_highlight"
+                            confirm="This sends a real message to the contact. Continue?"/>
                     <button name="action_pause" type="object" string="Pause"
                             invisible="status != 'active'"/>
                     <button name="action_resume" type="object" string="Resume"
@@ -38,9 +41,14 @@
                            statusbar_visible="scheduled,active,responded,exhausted"/>
                 </header>
                 <sheet>
-                    <div class="alert alert-info" role="alert" invisible="not dry_run">
-                        Dry run: drafts are posted to this lead's chatter for review.
-                        Nothing is sent to the contact.
+                    <div class="alert alert-info" role="alert" invisible="not has_pending_draft">
+                        A touch is drafted below and waiting -- read it, then click
+                        "Send This Touch" to actually send it, or "Draft Next Touch"
+                        to regenerate it.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not dry_run">
+                        Dry-run override is on for this sequence: "Send This Touch" will
+                        mark a touch sent without a real message leaving the building.
                     </div>
                     <group>
                         <group>

@@ -3,14 +3,25 @@
 5-touch nurture run.
 
 Design note (see PLAN.md / the nurture-orchestration-plan artifact for the
-full architecture): this file deliberately implements the *whole* engine --
-enrollment, business-hours scheduling, AI drafting, deterministic
-validation, and a centralized stop/pause matrix -- but every touch is
-drafted in dry-run only. `_draft_touch` never creates a `whatsmeow.message`
-or `mail.mail` row; it stores the body on `sgc.nurture.touch` and posts it
-as an internal chatter note for a human to review. Flipping a channel to
-live send is a deliberate later phase (see the manifest description), not
-a config flag hiding in this file.
+full architecture): this file implements the whole engine -- business-hours
+scheduling, AI drafting, deterministic validation, a centralized stop/pause
+matrix, and real sending on both WhatsApp and email -- but nothing in it
+runs on a timer. There is no cron anywhere in this module. Every step is a
+person clicking a button:
+
+    crm.lead.action_start_nurture()        creates the sequence
+    action_draft_next_touch()              generates ONE draft, stores it,
+                                            sends nothing
+    action_send_drafted_touch()            sends exactly that draft for
+                                            real (whatsmeow.message /
+                                            mail.mail), only after a person
+                                            has seen it
+
+`next_touch_at` is informational only -- "not before this time" for the
+next draft -- never a trigger. Nothing polls it. A previous build of this
+module had `_enroll_pending_leads`/`_cron_process_due` wired to 15-minute
+crons; that was deliberately removed. Keep it that way -- see the
+`sgc_ai_nurture_orchestrator` README for why.
 
 Centralized stop/pause matrix (`_evaluate_stop_conditions`) -- the table
 this method implements:
@@ -56,10 +67,12 @@ import re
 from datetime import timedelta
 
 import pytz
+from markupsafe import Markup
 
 from odoo import api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import config as odoo_config
+from odoo.tools.mail import email_normalize
 
 _logger = logging.getLogger(__name__)
 
@@ -77,10 +90,8 @@ ENGAGEMENT_SLOW_DELAY = timedelta(days=2)
 # to go out, to count as "engaged since" for the 1-day gap (PLAN §05).
 ENGAGEMENT_LOOKBACK = timedelta(days=3)
 
-_MAX_SEQUENCES_PER_CRON_RUN = 20
-
-# Deterministic guardrails a draft must clear before it's even shown in
-# dry-run (PLAN §08/§09). Semantic checks (tone, hallucination) are Phase 5
+# Deterministic guardrails a draft must clear before a person is even shown
+# it for review (PLAN §08/§09). Semantic checks (tone, hallucination) are Phase 5
 # LLM-validator territory and out of scope here -- these are the checks that
 # don't need a second model call to get right.
 _FORBIDDEN_PATTERNS = [
@@ -134,10 +145,12 @@ class SgcNurtureSequence(models.Model):
         default="scheduled", required=True, tracking=True, index=True,
     )
     dry_run = fields.Boolean(
-        default=True, tracking=True,
-        help="While True (the only supported value in this build) no touch "
-             "is ever queued on whatsmeow.message or mail.mail -- drafts "
-             "are posted as an internal note only.",
+        default=False, tracking=True,
+        help="Per-sequence safety override, off by default. When True, "
+             "action_send_drafted_touch still requires the same explicit "
+             "click but stops short of creating a real whatsmeow.message or "
+             "mail.mail -- useful for a manager testing the flow on a real "
+             "lead without a real message reaching them.",
     )
 
     current_touch = fields.Integer(default=0)
@@ -177,6 +190,12 @@ class SgcNurtureSequence(models.Model):
 
     touch_ids = fields.One2many("sgc.nurture.touch", "sequence_id")
     touch_count = fields.Integer(compute="_compute_touch_count")
+    has_pending_draft = fields.Boolean(
+        compute="_compute_has_pending_draft",
+        help="A touch is drafted and waiting for 'Send This Touch' to be "
+             "clicked. Drives button visibility -- purely a UI convenience, "
+             "action_send_drafted_touch re-checks this for real.",
+    )
 
     company_id = fields.Many2one(
         related="lead_id.company_id", store=True, readonly=True,
@@ -187,9 +206,10 @@ class SgcNurtureSequence(models.Model):
     # sequence per lead". That needs a partial unique index (UNIQUE ...
     # WHERE status IN ('scheduled','active','paused')), which Odoo's
     # models.Constraint can't express -- it only emits a plain ALTER TABLE
-    # ... ADD CONSTRAINT, no WHERE clause. `_enroll_pending_leads` instead
-    # re-checks under a row lock on the lead at enrollment time (best-effort,
-    # not airtight against a write bypassing that method entirely).
+    # ... ADD CONSTRAINT, no WHERE clause. crm.lead.action_start_nurture
+    # checks nurture_eligible before creating instead (best-effort, no row
+    # lock -- acceptable given enrollment is now one person clicking one
+    # button, not a cron sweeping many leads at once).
     _current_touch_within_bounds = models.Constraint(
         "CHECK (current_touch >= 0 AND current_touch <= max_touches)",
         "current_touch must stay within 0..max_touches.",
@@ -199,6 +219,13 @@ class SgcNurtureSequence(models.Model):
     def _compute_touch_count(self):
         for seq in self:
             seq.touch_count = len(seq.touch_ids)
+
+    @api.depends("touch_ids.delivery_status", "touch_ids.touch_number", "current_touch")
+    def _compute_has_pending_draft(self):
+        for seq in self:
+            seq.has_pending_draft = bool(seq.touch_ids.filtered(
+                lambda t: t.touch_number == seq.current_touch + 1
+                and t.delivery_status == "drafted"))
 
     # -- business hours ------------------------------------------------------
     @api.model
@@ -230,53 +257,6 @@ class SgcNurtureSequence(models.Model):
 
         return local.astimezone(pytz.utc).replace(tzinfo=None)
 
-    # -- enrollment -----------------------------------------------------------
-    @api.model
-    def _enroll_pending_leads(self):
-        """Create a sequence for every lead flagged pending by
-        sgc_proposal_nurture's Rule B that doesn't already have a live one.
-        Called from the cron; also safe to call ad hoc.
-        """
-        live_statuses = ("scheduled", "active", "paused")
-        already_enrolled_leads = self.search([
-            ("status", "in", live_statuses),
-        ]).lead_id.ids
-
-        candidates = self.env["crm.lead"].search([
-            ("x_nurture_state", "=", "pending"),
-            ("id", "not in", already_enrolled_leads or [0]),
-        ])
-        for lead in candidates:
-            # Row-lock the lead for the duration of the check-then-create so
-            # two cron workers can't both pass the "not already enrolled"
-            # check for the same lead (see the constraint's comment above
-            # for why this can't just be a DB constraint instead).
-            self.env.cr.execute(
-                "SELECT id FROM crm_lead WHERE id = %s FOR UPDATE", (lead.id,),
-            )
-            if self.search_count([
-                ("lead_id", "=", lead.id), ("status", "in", live_statuses),
-            ]):
-                continue
-
-            activity = self.env["mail.activity"].search([
-                ("res_model", "=", "crm.lead"),
-                ("res_id", "=", lead.id),
-                ("summary", "=", "Generate proposal-nurture sequence"),
-            ], limit=1)
-
-            seq = self.create({
-                "lead_id": lead.id,
-                "trigger_activity_id": activity.id or False,
-                "status": "active",
-                "next_touch_at": self._get_next_business_datetime(),
-            })
-            seq.message_post(body=(
-                "Nurture sequence enrolled (dry-run). Touch 1 scheduled for "
-                f"{seq.next_touch_at} UTC."
-            ))
-        return len(candidates)
-
     def _sgc_commit(self):
         """No-op under --test-enable: a real commit() there would break the
         test runner's rollback-at-the-end transaction. `Registry.in_test_mode()`
@@ -293,45 +273,7 @@ class SgcNurtureSequence(models.Model):
             return
         self.env.cr.rollback()
 
-    # -- cron -------------------------------------------------------------
-    @api.model
-    def _cron_process_due(self):
-        due = self.search([
-            ("status", "=", "active"),
-            ("next_touch_at", "<=", fields.Datetime.now()),
-        ], limit=_MAX_SEQUENCES_PER_CRON_RUN)
-
-        for seq in due:
-            # SKIP LOCKED so a slow draft on one sequence never blocks -- or
-            # gets double-processed by -- the next cron tick on another.
-            self.env.cr.execute(
-                "SELECT id FROM sgc_nurture_sequence WHERE id = %s "
-                "FOR UPDATE SKIP LOCKED", (seq.id,),
-            )
-            if not self.env.cr.fetchone():
-                continue
-            try:
-                seq._process_one()
-                seq._sgc_commit()
-            except Exception:
-                _logger.exception("Nurture sequence %s failed to process", seq.id)
-                seq._sgc_rollback()
-
-    def _process_one(self):
-        self.ensure_one()
-        should_stop, reason, event = self._evaluate_stop_conditions()
-        if should_stop:
-            self._apply_stop(reason, event)
-            return
-
-        next_touch_number = self.current_touch + 1
-        if next_touch_number > self.max_touches:
-            self._apply_stop("All touches sent with no response.", "exhausted")
-            return
-
-        self._draft_touch(next_touch_number)
-
-    # -- drafting -----------------------------------------------------------
+    # -- drafting (manual trigger only) ----------------------------------------
     def _resolve_channel(self, touch_number):
         self.ensure_one()
         plan = self.env["sgc.nurture.touch"]._plan_for(touch_number)
@@ -357,19 +299,34 @@ class SgcNurtureSequence(models.Model):
         # unless it's already known-bad for this contact.
         return ("email" if wa_invalid else "whatsapp"), intent
 
-    def _draft_touch(self, touch_number):
+    def action_draft_next_touch(self):
+        """The only place a draft gets generated -- a person clicking
+        "Draft Next Touch". Never sends anything; a draft sits at
+        delivery_status='drafted' until action_send_drafted_touch is
+        separately clicked. Re-drafting an already-drafted (not yet sent)
+        touch is allowed -- it just regenerates that same touch_number's row
+        rather than advancing past it.
+        """
         self.ensure_one()
+        should_stop, reason, event = self._evaluate_stop_conditions()
+        if should_stop:
+            self._apply_stop(reason, event)
+            raise UserError(self.env._(
+                "This sequence just stopped instead of drafting: %s", reason))
+
+        touch_number = self.current_touch + 1
+        if touch_number > self.max_touches:
+            self._apply_stop(self.env._("All touches sent with no response."), "exhausted")
+            raise UserError(self.env._("All %s touches are already used.", self.max_touches))
+
         channel, intent = self._resolve_channel(touch_number)
         if not channel:
-            _logger.error("Nurture sequence %s: no plan for touch %s", self.id, touch_number)
-            return
+            raise UserError(self.env._("No touch plan for touch %s.", touch_number))
 
-        # A prior attempt at this same touch_number (a failed generation
-        # that left current_touch unadvanced, see the except block below)
-        # gets reused rather than re-created -- touch_number is unique per
-        # sequence, so creating a second row here would raise on retry.
+        # Re-drafting reuses the same row (touch_number is unique per
+        # sequence) rather than creating a second one.
         touch = self.touch_ids.filtered(lambda t: t.touch_number == touch_number)
-        vals = {"channel": channel, "intent": intent, "scheduled_at": self.next_touch_at}
+        vals = {"channel": channel, "intent": intent, "scheduled_at": fields.Datetime.now()}
         if touch:
             touch.write(vals)
         else:
@@ -386,11 +343,7 @@ class SgcNurtureSequence(models.Model):
                 "failure_reason": str(err)[:500],
                 "drafted_at": fields.Datetime.now(),
             })
-            # Don't advance the counter on a generation failure -- retry the
-            # same touch next cron tick rather than skipping it.
-            self.next_touch_at = self._get_next_business_datetime(
-                fields.Datetime.now() + timedelta(minutes=30))
-            return
+            raise UserError(self.env._("Draft generation failed: %s", str(err)[:300])) from err
 
         ok, block_reason = self._validate_draft(body, channel)
         touch.write({
@@ -408,21 +361,126 @@ class SgcNurtureSequence(models.Model):
                 f"Touch {touch_number} draft BLOCKED by validation: "
                 f"{block_reason}\n\nDraft was:\n{body}"
             ))
-            # A blocked draft still counts as an attempted touch -- it
-            # advances the counter so a systematically bad prompt can't
-            # wedge the sequence retrying the same touch forever. It does
-            # NOT advance next_touch_at's delay logic since nothing was
-            # sent for the recipient to engage with.
-            self._advance_after_touch(touch_number, engaged=False)
-            return
+            raise UserError(self.env._(
+                "Draft was blocked by validation: %s", block_reason))
 
-        # Dry-run: never reaches whatsmeow.message / mail.mail.
-        touch.write({"delivery_status": "skipped_dry_run"})
+        touch.delivery_status = "drafted"
         self.message_post(body=(
-            f"Touch {touch_number}/{self.max_touches} drafted ({channel}, dry-run "
-            f"-- not sent):\n\n{body}"
+            f"Touch {touch_number}/{self.max_touches} drafted ({channel}). "
+            f"Awaiting review -- use \"Send This Touch\" to actually send "
+            f"it:\n\n{body}"
         ))
+        return touch
+
+    def action_send_drafted_touch(self):
+        """The only place a real WhatsApp message or email gets created --
+        a person clicking "Send This Touch" after reading the draft
+        action_draft_next_touch produced. Re-checks the stop matrix first:
+        a lead can close, get lost, or reply in the time between drafting
+        and sending.
+        """
+        self.ensure_one()
+        touch_number = self.current_touch + 1
+        touch = self.touch_ids.filtered(
+            lambda t: t.touch_number == touch_number and t.delivery_status == "drafted")
+        if not touch:
+            raise UserError(self.env._(
+                "No drafted touch waiting to send. Use \"Draft Next Touch\" first."))
+
+        should_stop, reason, event = self._evaluate_stop_conditions()
+        if should_stop:
+            self._apply_stop(reason, event)
+            raise UserError(self.env._(
+                "This sequence just stopped instead of sending: %s", reason))
+
+        if self.dry_run:
+            touch.delivery_status = "skipped_dry_run"
+            self.message_post(body=self.env._(
+                "Touch %s marked sent (dry-run override on this sequence -- "
+                "nothing actually left the building).", touch_number))
+        else:
+            try:
+                if touch.channel == "whatsapp":
+                    self._send_whatsapp(touch)
+                else:
+                    self._send_email(touch)
+            except UserError:
+                raise
+            except Exception as err:
+                _logger.exception("Nurture sequence %s: send failed", self.id)
+                touch.write({"delivery_status": "failed", "failure_reason": str(err)[:500]})
+                raise UserError(self.env._("Send failed: %s", str(err)[:300])) from err
+
+            touch.write({"delivery_status": "sent", "sent_at": fields.Datetime.now()})
+            self.message_post(body=self.env._(
+                "Touch %s/%s sent via %s by %s.",
+                touch_number, self.max_touches, touch.channel, self.env.user.name))
+
         self._advance_after_touch(touch_number, engaged=self._is_recently_engaged())
+        return touch
+
+    # -- real sending -----------------------------------------------------------
+    def _send_whatsapp(self, touch):
+        """Creates a real, queued whatsmeow.message -- state defaults to
+        'outgoing', so whatsmeow's own cron_process_outgoing (unrelated to
+        this module, always-on) picks it up with its existing pacing,
+        retry, and opt-out enforcement. This method never calls a gateway
+        directly; it only ever creates the row whatsmeow already knows how
+        to send safely (PLAN §11.3 -- see whatsmeow_composer.py for the
+        exact same pattern this mirrors).
+        """
+        self.ensure_one()
+        lead = self.lead_id
+        digits = re.sub(r"\D", "", lead.phone or lead.mobile or
+                         lead.partner_id.phone or lead.partner_id.mobile or "")
+        if not digits:
+            raise UserError(self.env._("This lead has no phone number to WhatsApp."))
+
+        Message = self.env["whatsmeow.message"]
+        partner = Message._find_partner(digits)
+        session = self.env["whatsmeow.session"].search(
+            [("status", "=", "connected")], order="id", limit=1)
+        if not session:
+            raise UserError(self.env._("No connected WhatsApp session to send from."))
+
+        message = Message.create({
+            "session_id": session.id,
+            "direction": "out",
+            "phone": digits,
+            "partner_id": partner.id if partner else False,
+            "message_type": "text",
+            "body": touch.body,
+        })
+        touch.whatsmeow_message_id = message.id
+
+    def _send_email(self, touch):
+        """Creates a real, queued mail.mail -- state 'outgoing' is the
+        default, so the existing "Mail: Email Queue Manager" cron (unrelated
+        to this module, always-on) sends it on its own schedule. Checked
+        against mail.blacklist first since that list exists precisely to
+        stop exactly this kind of automated outbound mail.
+        """
+        self.ensure_one()
+        lead = self.lead_id
+        to_email = lead.email_from
+        if not to_email:
+            raise UserError(self.env._("This lead has no email address."))
+        normalized = email_normalize(to_email)
+        if normalized and self.env["mail.blacklist"].sudo().search_count(
+                [("email", "=", normalized)]):
+            raise UserError(self.env._("%s is on the mail blacklist.", to_email))
+
+        from_email = (lead.user_id.email if lead.user_id else False) or self.env.company.email
+        mail = self.env["mail.mail"].sudo().create({
+            "subject": self.env._("Following up -- %s", lead.partner_name or lead.name),
+            "body_html": Markup("<p>%s</p>") % touch.body.replace("\n", "<br/>"),
+            "email_to": to_email,
+            "email_from": from_email,
+            "model": "crm.lead",
+            "res_id": lead.id,
+            "auto_delete": False,
+        })
+        touch.mail_message_id = mail.id
 
     def _is_recently_engaged(self):
         """Whether `last_engagement_at` is recent enough to count as
@@ -436,6 +494,10 @@ class SgcNurtureSequence(models.Model):
         return self.last_engagement_at >= fields.Datetime.now() - ENGAGEMENT_LOOKBACK
 
     def _advance_after_touch(self, touch_number, engaged):
+        """Advances the counter and computes an informational
+        next_touch_at -- "not before this time" for whoever clicks "Draft
+        Next Touch" next. Nothing polls this field; there is no cron.
+        """
         self.ensure_one()
         delay = ENGAGEMENT_FAST_DELAY if engaged else ENGAGEMENT_SLOW_DELAY
         self.write({
@@ -698,13 +760,6 @@ Hard rules, do not violate any of them:
                 reason or self.env._("Stopped by %s", self.env.user.name),
                 "manual_stop",
             )
-
-    def action_send_now(self):
-        """Manual override: ignore next_touch_at and draft the next touch
-        immediately. Still dry-run, still runs the stop check first.
-        """
-        for seq in self.filtered(lambda s: s.status == "active"):
-            seq._process_one()
 
     @api.model
     def _cron_gc_stale(self):

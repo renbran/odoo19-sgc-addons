@@ -14,6 +14,11 @@
                     <field name="nurture_sequence_count" widget="statinfo" string="Nurture"/>
                 </button>
             </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_start_nurture" type="object"
+                        string="Start Nurture Sequence" class="btn-secondary"
+                        invisible="not nurture_eligible"/>
+            </xpath>
         </field>
     </record>
 

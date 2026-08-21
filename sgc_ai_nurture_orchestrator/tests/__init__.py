@@ -3,3 +3,4 @@ from . import test_enrollment
 from . import test_stop_matrix
 from . import test_validation
 from . import test_cadence
+from . import test_real_send
