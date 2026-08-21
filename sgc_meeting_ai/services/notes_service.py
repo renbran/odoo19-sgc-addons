@@ -3,23 +3,23 @@
 
 """LLM notes service.
 
-Sends the transcript to the orchestrator's /chat endpoint with a structured
-prompt asking for summary / key points / decisions / action items / risks.
-The orchestrator handles JWT auth, model routing, and cost control.
+Sends the transcript to the default `llm.provider` (sgc_lead_scoring's
+model -- see that module) with a structured prompt asking for summary /
+key points / decisions / action items / risks.
 
-Configuration:
-  - ORCHESTRATOR_URL (already in /opt/odoo-prod/.env, e.g. http://orchestrator:8088)
-  - ORCH_JWT_SECRET (shared between Odoo and orchestrator)
+Previously called the separate `orchestrator-prod` FastAPI service's
+`/chat` endpoint. That endpoint's real schema (`{"prompt": str,
+"thread_id": int}` -> `{"reply": str}`, built for a stateful chat-thread
+UI) never matched what this file sent it (an OpenAI-style
+`{"model", "messages", "temperature"}` payload) -- every real call 422'd.
+Nothing here ever worked against orchestrator-prod in production;
+routing through `llm.provider` instead reuses the same path
+`sgc_lead_scoring`'s lead scoring/research already uses successfully.
 """
 
 import json
 import logging
-import os
-import time
-import hmac
-import hashlib
 
-import requests
 from markupsafe import Markup
 
 from odoo import _, api, models
@@ -27,29 +27,6 @@ from odoo.exceptions import UserError
 from odoo.tools import html_escape
 
 _logger = logging.getLogger(__name__)
-
-JWT_TTL_SECONDS = 300  # 5 minutes — matches orchestrator default
-
-
-def _mint_jwt(secret: str, user_id: int) -> str:
-    """Mint a minimal HS256 JWT compatible with orchestrator's decode_access_token."""
-    import base64
-
-    def b64url(data: bytes) -> str:
-        return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
-
-    header = {"alg": "HS256", "typ": "JWT"}
-    now = int(time.time())
-    payload = {
-        "sub": str(user_id),
-        "iat": now,
-        "exp": now + JWT_TTL_SECONDS,
-    }
-    h = b64url(json.dumps(header, separators=(",", ":")).encode())
-    p = b64url(json.dumps(payload, separators=(",", ":")).encode())
-    signing_input = f"{h}.{p}".encode()
-    sig = hmac.new(secret.encode(), signing_input, hashlib.sha256).digest()
-    return f"{h}.{p}.{b64url(sig)}"
 
 
 class SGCMetingNotesService(models.AbstractModel):
@@ -101,17 +78,6 @@ never invent an answer:
   }}
 }}
 """
-
-    def _get_config(self):
-        ICP = self.env["ir.config_parameter"].sudo()
-        return {
-            "url": ICP.get_param("sgc_meeting_ai.orchestrator_url")
-            or os.getenv("ORCHESTRATOR_URL", "http://orchestrator:8088"),
-            "secret": ICP.get_param("sgc_meeting_ai.orch_jwt_secret")
-            or os.getenv("ORCH_JWT_SECRET"),
-            "model": ICP.get_param("sgc_meeting_ai.llm_model")
-            or os.getenv("DEFAULT_MODEL", "prod-default"),
-        }
 
     def _build_prompt(self, transcript):
         meeting = transcript.session_id.meeting_id
@@ -196,53 +162,18 @@ never invent an answer:
         # ensure_one() would always raise. Operate on `transcript`, not self.
         if not transcript.text:
             raise UserError(_("Transcript is empty."))
-        cfg = self._get_config()
-        if not cfg["secret"]:
-            raise UserError(
-                _(
-                    "ORCH_JWT_SECRET is not set. Configure it in /opt/odoo-prod/.env "
-                    "or via System Parameters (sgc_meeting_ai.orch_jwt_secret)."
-                )
-            )
-        prompt = self._build_prompt(transcript)
-        token = _mint_jwt(cfg["secret"], self.env.user.id or 1)
-        url = f"{cfg['url'].rstrip('/')}/chat"
-        try:
-            response = requests.post(
-                url,
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": cfg["model"],
-                    "messages": [
-                        {"role": "user", "content": prompt},
-                    ],
-                    "temperature": 0.2,
-                },
-                timeout=180,
-            )
-        except requests.RequestException as exc:
-            raise UserError(
-                _("Could not reach orchestrator at %s: %s", url, exc)
-            ) from exc
+        provider = self.env["llm.provider"].get_default_provider()
+        if not provider:
+            raise UserError(_("No default LLM provider is configured."))
 
-        if response.status_code != 200:
-            raise UserError(
-                _("Orchestrator error %s: %s", response.status_code, response.text[:500])
-            )
-        payload = response.json()
-        choices = payload.get("choices", [])
-        if not choices:
-            raise UserError(
-                _("Orchestrator returned no choices: %s", json.dumps(payload)[:500])
-            )
-        raw = choices[0].get("message", {}).get("content", "")
+        prompt = self._build_prompt(transcript)
+        # _make_request already raises UserError on timeout/HTTP/connection
+        # failure (see sgc_lead_scoring's llm_provider.py) -- nothing extra
+        # to catch here.
+        raw = provider._make_request(prompt)
         if not raw:
-            raise UserError(_("Orchestrator returned empty content."))
+            raise UserError(_("LLM provider returned empty content."))
         parsed = self._parse_response(raw)
-        usage = payload.get("usage", {})
         notes_vals = {
             "session_id": transcript.session_id.id,
             "transcript_id": transcript.id,
@@ -251,10 +182,13 @@ never invent an answer:
             "decisions": parsed["decisions"],
             "action_items": parsed["action_items"],
             "risks": parsed["risks"],
-            "model": cfg["model"],
-            "prompt_tokens": int(usage.get("prompt_tokens", 0)),
-            "completion_tokens": int(usage.get("completion_tokens", 0)),
-            "tokens_used": int(usage.get("total_tokens", 0)),
+            "model": provider.model_name,
+            # _make_request returns text only, no token-usage breakdown --
+            # unlike the old orchestrator response, this provider path
+            # doesn't expose prompt/completion token counts to the caller.
+            "prompt_tokens": 0,
+            "completion_tokens": 0,
+            "tokens_used": 0,
         }
         gate_answers = parsed.get("gate_answers") or {}
         gate_answers_html = self._build_gate_answers_html(gate_answers)
