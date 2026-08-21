@@ -67,7 +67,7 @@
                     <notebook>
                         <page string="Touches">
                             <field name="touch_ids">
-                                <list editable="false">
+                                <list>
                                     <field name="touch_number"/>
                                     <field name="channel"/>
                                     <field name="intent"/>
