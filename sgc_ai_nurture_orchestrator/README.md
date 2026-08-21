@@ -55,10 +55,14 @@ short of creating the real message/mail row.
    see below.
 2. **Business hours** = Sun-Thu, 09:00-18:00 Asia/Dubai. Used only to
    compute the informational `next_touch_at`.
-3. **Enrollment gate (v1)** = only `sgc_proposal_nurture`'s existing 3-day
-   Proposal-stall flag (`crm.lead.x_nurture_state == 'pending'`) makes the
-   "Start Nurture Sequence" button appear. No new CRM automation rule is
-   introduced by this module.
+3. **"Start Nurture Sequence" is available on any active lead, any stage**
+   -- not gated behind `sgc_proposal_nurture`'s 3-day Proposal-stall flag.
+   That flag, when present, is recorded as the sequence's *reason*
+   (`sequence_type = 'proposal_stall'` vs `'manual'`) but no longer decides
+   whether the button is clickable. A rep looking at a lead in New must be
+   able to start nurture on it right now, not wait for an automatic flag
+   that only ever fires for Proposal-stage leads. No new CRM automation
+   rule is introduced by this module either way.
 
 ## What's deliberately NOT wired yet
 

@@ -13,19 +13,25 @@ class CrmLead(models.Model):
     )
     nurture_eligible = fields.Boolean(
         compute="_compute_nurture_eligible",
-        help="x_nurture_state is 'pending' (sgc_proposal_nurture's flag) and "
-             "no live sequence already exists for this lead. Drives the "
-             "'Start Nurture Sequence' button's visibility -- nothing about "
-             "eligibility starts a sequence on its own; a person still has "
-             "to click the button.",
+        help="No live sequence already exists for this lead, and the lead "
+             "is still active (not Won/Lost/archived). Drives the "
+             "'Start Nurture Sequence' button's visibility on every lead, "
+             "any stage -- not just ones sgc_proposal_nurture's 3-day "
+             "Proposal-stall rule happened to flag. That flag (x_nurture_state "
+             "== 'pending') is still recorded on the sequence as the reason "
+             "when it applies, but is no longer a hard gate: a rep must be "
+             "able to start nurture on a lead they're looking at right now, "
+             "in any stage -- e.g. New -- not only wait for the automatic "
+             "flag. Nothing about eligibility starts a sequence on its own; "
+             "a person still has to click the button either way.",
     )
 
-    @api.depends("x_nurture_state", "nurture_sequence_ids.status")
+    @api.depends("active", "nurture_sequence_ids.status")
     def _compute_nurture_eligible(self):
         live = ("scheduled", "active", "paused")
         for lead in self:
             lead.nurture_eligible = (
-                lead.x_nurture_state == "pending"
+                lead.active
                 and not lead.nurture_sequence_ids.filtered(lambda s: s.status in live)
             )
 
@@ -51,7 +57,7 @@ class CrmLead(models.Model):
         if not self.nurture_eligible:
             raise UserError(_(
                 "This lead isn't eligible for nurture right now -- either "
-                "there's no pending nurture flag, or a sequence is already "
+                "it's closed (Won/Lost/archived), or a sequence is already "
                 "running."
             ))
         Sequence = self.env["sgc.nurture.sequence"].sudo()
@@ -60,15 +66,22 @@ class CrmLead(models.Model):
             ("res_id", "=", self.id),
             ("summary", "=", "Generate proposal-nurture sequence"),
         ], limit=1)
+        # sgc_proposal_nurture's flag, when present, is recorded as *why*
+        # this sequence exists -- it no longer gates whether the button was
+        # even clickable (see nurture_eligible's help text).
+        auto_flagged = self.x_nurture_state == "pending"
         seq = Sequence.create({
             "lead_id": self.id,
             "trigger_activity_id": activity.id or False,
             "status": "active",
+            "sequence_type": "proposal_stall" if auto_flagged else "manual",
         })
         seq.message_post(body=_(
-            "Nurture sequence started by %s. No touch has been drafted yet "
-            "-- use \"Draft Next Touch\" on the sequence to generate one.",
+            "Nurture sequence started by %s (%s). No touch has been drafted "
+            "yet -- use \"Draft Next Touch\" on the sequence to generate one.",
             self.env.user.name,
+            _("auto-flagged: 3 days stalled in Proposal") if auto_flagged
+            else _("manually started"),
         ))
         return {
             "type": "ir.actions.act_window",

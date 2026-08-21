@@ -39,11 +39,13 @@ Fields/models added:
       for observability (what was drafted, when, by which model, at
       what cost, and what happened to it).
 
-Enrollment trigger (v1, deliberately narrow): crm.lead.x_nurture_state
-turning 'pending' -- the exact flag `sgc_proposal_nurture`'s Rule B
-already sets today for a lead stalled 3+ days in Proposal. No new CRM
-automation rule is introduced by this module; it only starts executing
-what already gets flagged.
+Enrollment ("Start Nurture Sequence") is available on any active lead in
+any stage -- not gated behind sgc_proposal_nurture's 3-day Proposal-stall
+flag. That flag, when set, is recorded as the sequence's reason
+(sequence_type) but no longer decides whether the button is clickable; a
+rep must be able to start nurture on a lead in New, not only wait for an
+automatic flag scoped to Proposal-stage leads. No new CRM automation rule
+is introduced by this module.
 
 Stop/pause matrix (centralized in
 `sgc.nurture.sequence._evaluate_stop_conditions`, not scattered across

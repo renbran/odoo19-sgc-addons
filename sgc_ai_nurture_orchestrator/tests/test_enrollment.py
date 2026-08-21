@@ -8,18 +8,25 @@ class TestEnrollment(TransactionCase):
     """Enrollment is exactly crm.lead.action_start_nurture -- a person
     clicking a button. There is no sweep of any kind; these tests call the
     action directly, the same way the "Start Nurture Sequence" button does.
+
+    Eligibility is deliberately broad: any active lead with no live
+    sequence, any stage -- NOT gated behind sgc_proposal_nurture's 3-day
+    Proposal-stall flag. A rep must be able to start nurture on a lead in
+    New, not only wait for a flag scoped to Proposal-stage leads.
     """
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.stage = cls.env["crm.stage"].create({"name": "Test Proposal", "sequence": 8})
+        cls.stage_new = cls.env["crm.stage"].create({"name": "Test New", "sequence": 1})
+        cls.stage_proposal = cls.env["crm.stage"].create(
+            {"name": "Test Proposal", "sequence": 8})
 
     def _make_lead(self, **vals):
         defaults = {
             "name": "Test Opportunity",
             "type": "opportunity",
-            "stage_id": self.stage.id,
+            "stage_id": self.stage_new.id,
             # sgc_crm_ai_compat (unrelated to this module, if installed)
             # blocks any stage_id write until 3 of 4 BANT fields are filled --
             # pre-filled here so enrollment tests aren't incidentally blocked
@@ -32,9 +39,12 @@ class TestEnrollment(TransactionCase):
         defaults.update(vals)
         return self.env["crm.lead"].create(defaults)
 
-    def test_pending_lead_is_eligible_and_start_creates_sequence(self):
+    def test_new_stage_lead_with_no_flag_is_eligible(self):
+        """The exact gap reported: a lead in New, with no
+        sgc_proposal_nurture flag at all, must still be startable.
+        """
         lead = self._make_lead()
-        lead.x_nurture_state = "pending"
+        self.assertFalse(lead.x_nurture_state)
         self.assertTrue(lead.nurture_eligible)
 
         lead.action_start_nurture()
@@ -44,19 +54,26 @@ class TestEnrollment(TransactionCase):
         self.assertEqual(seqs.status, "active")
         self.assertFalse(seqs.dry_run)
         self.assertFalse(seqs.touch_ids, "starting a sequence must not draft anything")
+        self.assertEqual(seqs.sequence_type, "manual")
 
-    def test_lead_without_pending_state_not_eligible(self):
+    def test_proposal_stall_flag_recorded_as_reason_not_a_gate(self):
+        lead = self._make_lead(stage_id=self.stage_proposal.id)
+        lead.x_nurture_state = "pending"
+
+        lead.action_start_nurture()
+
+        seq = self.env["sgc.nurture.sequence"].search([("lead_id", "=", lead.id)])
+        self.assertEqual(seq.sequence_type, "proposal_stall")
+
+    def test_lost_lead_not_eligible(self):
         lead = self._make_lead()
+        lead.write({"active": False})
         self.assertFalse(lead.nurture_eligible)
         with self.assertRaises(UserError):
             lead.action_start_nurture()
-        self.assertFalse(
-            self.env["sgc.nurture.sequence"].search([("lead_id", "=", lead.id)])
-        )
 
     def test_cannot_start_twice_while_live(self):
         lead = self._make_lead()
-        lead.x_nurture_state = "pending"
         lead.action_start_nurture()
         self.assertFalse(lead.nurture_eligible)
         with self.assertRaises(UserError):
@@ -65,17 +82,14 @@ class TestEnrollment(TransactionCase):
             len(self.env["sgc.nurture.sequence"].search([("lead_id", "=", lead.id)])), 1)
 
     def test_re_enrollment_after_stop(self):
-        """A stopped sequence doesn't block starting a fresh one if the lead
-        gets flagged pending again later -- only scheduled/active/paused
-        count as 'already has a live sequence'.
+        """A stopped sequence doesn't block starting a fresh one later --
+        only scheduled/active/paused count as 'already has a live sequence'.
         """
         lead = self._make_lead()
-        lead.x_nurture_state = "pending"
         lead.action_start_nurture()
         first = self.env["sgc.nurture.sequence"].search([("lead_id", "=", lead.id)])
         first.action_stop("test teardown")
 
-        lead.x_nurture_state = "pending"
         self.assertTrue(lead.nurture_eligible)
         lead.action_start_nurture()
 

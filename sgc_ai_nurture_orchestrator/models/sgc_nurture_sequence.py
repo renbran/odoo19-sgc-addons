@@ -124,11 +124,14 @@ class SgcNurtureSequence(models.Model):
              "closed out on stop.",
     )
     sequence_type = fields.Char(
-        default="proposal_stall",
-        help="Which CRM rule fed this enrollment. Only one value exists in "
-             "v1 (sgc_proposal_nurture's 3-day Proposal-stall flag); this "
-             "is a string, not a selection, so a future gate doesn't need "
-             "a schema change to register a new type.",
+        default="manual",
+        help="Why this sequence exists, set by crm.lead.action_start_nurture: "
+             "'proposal_stall' when sgc_proposal_nurture's 3-day flag was set "
+             "on the lead when the button was clicked, 'manual' otherwise (a "
+             "rep starting nurture on a lead in any other stage -- e.g. New "
+             "-- with no automatic flag at all). A string, not a selection, "
+             "so a future gate doesn't need a schema change to register a "
+             "new reason.",
     )
 
     status = fields.Selection(
