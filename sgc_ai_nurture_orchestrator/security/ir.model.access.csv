@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sgc_nurture_sequence_user,sgc.nurture.sequence.user,model_sgc_nurture_sequence,sales_team.group_sale_salesman,1,1,0,0
+access_sgc_nurture_sequence_manager,sgc.nurture.sequence.manager,model_sgc_nurture_sequence,sales_team.group_sale_manager,1,1,1,1
+access_sgc_nurture_touch_user,sgc.nurture.touch.user,model_sgc_nurture_touch,sales_team.group_sale_salesman,1,0,0,0
+access_sgc_nurture_touch_manager,sgc.nurture.touch.manager,model_sgc_nurture_touch,sales_team.group_sale_manager,1,1,1,1

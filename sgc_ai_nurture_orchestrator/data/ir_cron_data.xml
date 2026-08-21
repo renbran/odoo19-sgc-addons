@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cron_nurture_enroll" model="ir.cron">
+        <field name="name">SGC AI Nurture: enroll flagged leads</field>
+        <field name="model_id" ref="model_sgc_nurture_sequence"/>
+        <field name="state">code</field>
+        <field name="code">model._enroll_pending_leads()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+    <record id="cron_nurture_process_due" model="ir.cron">
+        <field name="name">SGC AI Nurture: process due touches (dry-run)</field>
+        <field name="model_id" ref="model_sgc_nurture_sequence"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_process_due()</field>
+        <field name="interval_number">15</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+    <record id="cron_nurture_gc" model="ir.cron">
+        <field name="name">SGC AI Nurture: archive stale sequences</field>
+        <field name="model_id" ref="model_sgc_nurture_sequence"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_gc_stale()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+</odoo>

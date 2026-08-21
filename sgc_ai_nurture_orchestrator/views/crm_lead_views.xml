@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_crm_lead_form_nurture_button" model="ir.ui.view">
+        <field name="name">crm.lead.form.nurture.button</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="%(sgc_ai_nurture_orchestrator.action_sgc_nurture_sequence)d"
+                        type="action" class="oe_stat_button" icon="fa-comments-o"
+                        invisible="not nurture_sequence_count"
+                        context="{'search_default_lead_id': id}">
+                    <field name="nurture_sequence_count" widget="statinfo" string="Nurture"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

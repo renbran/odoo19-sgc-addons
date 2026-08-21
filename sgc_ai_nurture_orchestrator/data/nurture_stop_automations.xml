@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Email reply: same trigger sgc_proposal_nurture's Rule C2
+             uses, scoped to the new sequence model instead of x_nurture_state.
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_orch_email_reply" model="base.automation">
+            <field name="name">SGC AI Nurture: Stop on Email Reply</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_message_received</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="action_nurture_orch_email_reply" model="ir.actions.server">
+            <field name="name">SGC AI Nurture: Stop on Email Reply</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_orch_email_reply"/>
+            <field name="state">code</field>
+            <field name="code">records._sgc_nurture_on_message_received()</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Meeting booked: calendar_event fires this, not crm_lead,
+             since the booking event is what carries opportunity_id.
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_orch_meeting_booked" model="base.automation">
+            <field name="name">SGC AI Nurture: Stop on Meeting Booked</field>
+            <field name="model_id" ref="calendar.model_calendar_event"/>
+            <field name="trigger">on_create</field>
+            <field name="filter_domain">[('opportunity_id', '!=', False)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="action_nurture_orch_meeting_booked" model="ir.actions.server">
+            <field name="name">SGC AI Nurture: Stop on Meeting Booked</field>
+            <field name="model_id" ref="calendar.model_calendar_event"/>
+            <field name="base_automation_id" ref="automation_nurture_orch_meeting_booked"/>
+            <field name="state">code</field>
+            <field name="code">records.mapped('opportunity_id')._sgc_nurture_on_meeting_booked()</field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Won / Lost / archived: promptness only; the real guard is
+             sgc.nurture.sequence._evaluate_stop_conditions, re-checked
+             before every draft regardless of whether this rule ever fires.
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_orch_lead_closed" model="base.automation">
+            <field name="name">SGC AI Nurture: Stop on Won/Lost/Archived</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_write</field>
+            <field name="trigger_field_ids" eval="[(6, 0, [
+                ref('crm.field_crm_lead__stage_id'),
+                ref('crm.field_crm_lead__active'),
+                ref('crm.field_crm_lead__lost_reason_id'),
+            ])]"/>
+            <field name="filter_domain">['&amp;', ('active', 'in', [True, False]), '|', ('active', '=', False), ('stage_id.is_won', '=', True)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="action_nurture_orch_lead_closed" model="ir.actions.server">
+            <field name="name">SGC AI Nurture: Stop on Won/Lost/Archived</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_orch_lead_closed"/>
+            <field name="state">code</field>
+            <field name="code">records._sgc_nurture_on_lead_closed()</field>
+        </record>
+
+    </data>
+</odoo>

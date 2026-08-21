@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Rule A — stamp x_proposal_entered_on on entering Proposal
+             (once only; re-entry doesn't reset it)
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_rule_a" model="base.automation">
+            <field name="name">SGC Nurture Rule A: Stamp Proposal Entered On</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_write</field>
+            <field name="filter_pre_domain">[('stage_id', '!=', 9)]</field>
+            <field name="filter_domain">['&amp;', ('stage_id', '=', 9), ('x_proposal_entered_on', '=', False)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="automation_nurture_action_a" model="ir.actions.server">
+            <field name="name">SGC Nurture: Stamp Proposal Entered On</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_rule_a"/>
+            <field name="state">code</field>
+            <field name="code">
+for lead in records:
+    if not lead.x_proposal_entered_on:
+        lead.write({'x_proposal_entered_on': datetime.datetime.now()})
+            </field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Rule B — 3 days after x_proposal_entered_on, flag pending.
+             IMPORTANT: after installing/updating this rule, manually run
+             "Automation Rules: check and execute" once (Settings ->
+             Technical -> Scheduled Actions) before trusting it — an
+             uninitialized on_time rule can otherwise match every
+             already-eligible historical lead at once. See
+             scripts/odoo/check_rule_b_impact.py in the
+             marketing-and-lead-generation project for how to verify
+             impact is zero/expected before that first run.
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_rule_b" model="base.automation">
+            <field name="name">SGC Nurture Rule B: Flag at 3 Days</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_time</field>
+            <field name="trg_date_id" ref="field_crm_lead__x_proposal_entered_on"/>
+            <field name="trg_date_range">3</field>
+            <field name="trg_date_range_type">day</field>
+            <field name="trg_date_range_mode">after</field>
+            <field name="filter_domain">[('stage_id', '=', 9), ('active', '=', True), ('probability', '&lt;', 100), ('email_from', '!=', False), ('x_nurture_state', '=', False)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="automation_nurture_action_b" model="ir.actions.server">
+            <field name="name">SGC Nurture: Flag Pending (3-day Proposal)</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_rule_b"/>
+            <field name="state">code</field>
+            <field name="code">
+model_id = env['ir.model']._get_id('crm.lead')
+todo = env.ref('mail.mail_activity_data_todo')
+
+# Plain prose, no HTML tags: the sandbox forbids IMPORT_NAME/IMPORT_FROM
+# opcodes outright (confirmed live -- 'from markupsafe import Markup'
+# fails write() validation before the code ever runs), and message_post
+# HTML-escapes a plain str body rather than rendering it, so raw tags
+# would show up literally. Newlines render fine via message_post's own
+# plain-text handling.
+def _note_body(lead_id):
+    return (
+        "Nurture campaign due. This lead has been in Proposal for 3 days "
+        "with no movement.\n\n"
+        "Generate the sequence in Claude Code:\n"
+        "/nurture-queue %s\n\n"
+        "No email has been created or sent by Odoo."
+    ) % lead_id
+
+for lead in records:
+    lead.write({
+        'x_nurture_state': 'pending',
+        'x_nurture_flagged_on': datetime.datetime.now(),
+    })
+
+    lead.message_post(
+        body=_note_body(lead.id),
+        subtype_xmlid='mail.mt_note',
+    )
+
+    env['mail.activity'].create({
+        'res_model_id': model_id,
+        'res_id': lead.id,
+        'activity_type_id': todo.id,
+        'summary': 'Generate proposal-nurture sequence',
+        'note': 'Run /nurture-queue %s in Claude Code, review flagged numbers, then send manually.' % lead.id,
+        'user_id': lead.user_id.id or env.uid,
+        'date_deadline': datetime.date.today(),
+    })
+            </field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Rule C1 — stop condition: stage moved away from Proposal
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_rule_c1" model="base.automation">
+            <field name="name">SGC Nurture Rule C1: Stop on Stage Change</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_write</field>
+            <field name="trigger_field_ids" eval="[(6, 0, [ref('crm.field_crm_lead__stage_id')])]"/>
+            <field name="filter_domain">[('stage_id', '!=', 9)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="automation_nurture_action_c1" model="ir.actions.server">
+            <field name="name">SGC Nurture: Stop on Stage Change</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_rule_c1"/>
+            <field name="state">code</field>
+            <field name="code">
+todo = env.ref('mail.mail_activity_data_todo')
+
+for lead in records:
+    if lead.x_nurture_state in ('pending', 'generated', 'sent'):
+        lead.write({'x_nurture_state': 'stopped'})
+        activities = env['mail.activity'].search([
+            ('res_model', '=', 'crm.lead'),
+            ('res_id', '=', lead.id),
+            ('activity_type_id', '=', todo.id),
+        ])
+        if activities:
+            activities.action_feedback(feedback='Nurture campaign stopped.')
+            </field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Rule C2 — stop condition: prospect replied (incoming message)
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_rule_c2" model="base.automation">
+            <field name="name">SGC Nurture Rule C2: Stop on Incoming Message</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_message_received</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="automation_nurture_action_c2" model="ir.actions.server">
+            <field name="name">SGC Nurture: Stop on Incoming Message</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_rule_c2"/>
+            <field name="state">code</field>
+            <field name="code">
+todo = env.ref('mail.mail_activity_data_todo')
+
+for lead in records:
+    if lead.x_nurture_state in ('pending', 'generated', 'sent'):
+        lead.write({'x_nurture_state': 'stopped'})
+        activities = env['mail.activity'].search([
+            ('res_model', '=', 'crm.lead'),
+            ('res_id', '=', lead.id),
+            ('activity_type_id', '=', todo.id),
+        ])
+        if activities:
+            activities.action_feedback(feedback='Nurture campaign stopped.')
+            </field>
+        </record>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             Rule C3 — stop condition: lead marked Lost.
+             action_set_lost() sets active=False, probability=0, and
+             lost_reason_id — it does NOT touch stage_id, so a lead
+             flagged pending and marked lost while still in Proposal
+             would otherwise keep its open "campaign due" activity on an
+             archived record forever. Domain explicitly includes
+             ('active','in',[True,False]) since a domain evaluated
+             during archiving can otherwise silently match nothing.
+             ═══════════════════════════════════════════════════════════ -->
+        <record id="automation_nurture_rule_c3" model="base.automation">
+            <field name="name">SGC Nurture Rule C3: Stop on Lost</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_write</field>
+            <field name="trigger_field_ids" eval="[(6, 0, [ref('crm.field_crm_lead__lost_reason_id'), ref('crm.field_crm_lead__active')])]"/>
+            <field name="filter_domain">['&amp;', ('active', 'in', [True, False]), ('active', '=', False)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="automation_nurture_action_c3" model="ir.actions.server">
+            <field name="name">SGC Nurture: Stop on Lost</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_nurture_rule_c3"/>
+            <field name="state">code</field>
+            <field name="code">
+todo = env.ref('mail.mail_activity_data_todo')
+
+for lead in records:
+    if lead.x_nurture_state in ('pending', 'generated', 'sent'):
+        lead.write({'x_nurture_state': 'stopped'})
+        activities = env['mail.activity'].search([
+            ('res_model', '=', 'crm.lead'),
+            ('res_id', '=', lead.id),
+            ('activity_type_id', '=', todo.id),
+        ])
+        if activities:
+            activities.action_feedback(feedback='Nurture campaign stopped.')
+            </field>
+        </record>
+
+    </data>
+</odoo>

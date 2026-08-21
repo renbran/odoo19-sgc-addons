@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sgc_nurture_sequence_list" model="ir.ui.view">
+        <field name="name">sgc.nurture.sequence.list</field>
+        <field name="model">sgc.nurture.sequence</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="status in ('exhausted','stopped','opted_out')"
+                  decoration-info="status=='responded'"
+                  decoration-warning="status=='paused'">
+                <field name="lead_id"/>
+                <field name="status"/>
+                <field name="current_touch"/>
+                <field name="max_touches"/>
+                <field name="next_touch_at"/>
+                <field name="last_engagement_at"/>
+                <field name="dry_run"/>
+                <field name="stopped_reason" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_nurture_sequence_form" model="ir.ui.view">
+        <field name="name">sgc.nurture.sequence.form</field>
+        <field name="model">sgc.nurture.sequence</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_send_now" type="object" string="Send Next Touch Now"
+                            invisible="status != 'active'" class="oe_highlight"/>
+                    <button name="action_pause" type="object" string="Pause"
+                            invisible="status != 'active'"/>
+                    <button name="action_resume" type="object" string="Resume"
+                            invisible="status != 'paused'"/>
+                    <button name="action_stop" type="object" string="Stop"
+                            invisible="status not in ('active','paused')"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="scheduled,active,responded,exhausted"/>
+                </header>
+                <sheet>
+                    <div class="alert alert-info" role="alert" invisible="not dry_run">
+                        Dry run: drafts are posted to this lead's chatter for review.
+                        Nothing is sent to the contact.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="lead_id"/>
+                            <field name="sequence_type"/>
+                            <field name="dry_run"/>
+                            <field name="trigger_activity_id"/>
+                        </group>
+                        <group>
+                            <field name="current_touch"/>
+                            <field name="max_touches"/>
+                            <field name="next_touch_at"/>
+                            <field name="last_touch_at"/>
+                            <field name="last_engagement_at"/>
+                            <field name="engagement_state"/>
+                        </group>
+                    </group>
+                    <group invisible="status not in ('paused','stopped','opted_out','exhausted','responded')">
+                        <field name="stopped_reason"/>
+                        <field name="stop_event"/>
+                        <field name="pause_reason"/>
+                        <field name="pause_until"/>
+                    </group>
+                    <notebook>
+                        <page string="Touches">
+                            <field name="touch_ids">
+                                <list editable="false">
+                                    <field name="touch_number"/>
+                                    <field name="channel"/>
+                                    <field name="intent"/>
+                                    <field name="delivery_status"/>
+                                    <field name="engagement_status"/>
+                                    <field name="drafted_at"/>
+                                    <field name="body"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sgc_nurture_sequence" model="ir.actions.act_window">
+        <field name="name">Nurture Sequences</field>
+        <field name="res_model">sgc.nurture.sequence</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
