@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC - AI Nurture Orchestrator",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "CRM",
     "summary": "AI-drafted WhatsApp/email nurture touches for flagged leads -- every step is a manual button click, no cron",
     "description": """

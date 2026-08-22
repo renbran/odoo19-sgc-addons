@@ -260,6 +260,21 @@ class SgcNurtureSequence(models.Model):
 
         return local.astimezone(pytz.utc).replace(tzinfo=None)
 
+    def _log_to_lead(self, body):
+        """Mirrors an audit-trail entry onto the lead's OWN chatter, not
+        just this sequence's. `message_post` on `self` (the sequence) is
+        invisible to an SDR who is looking at the lead form and has never
+        clicked into the "Nurture" smart button -- that button is the best
+        drill-down, but a rep working the lead needs to see, right there in
+        the lead's own log, that a touch went out without hunting for it.
+        Uses `_message_log` (an internal log note, no follower notification)
+        rather than `message_post`, since this is an audit trail, not
+        something that should ping anyone.
+        """
+        self.ensure_one()
+        if self.lead_id:
+            self.lead_id._message_log(body=body)
+
     def _sgc_commit(self):
         """No-op under --test-enable: a real commit() there would break the
         test runner's rollback-at-the-end transaction. `Registry.in_test_mode()`
@@ -346,6 +361,10 @@ class SgcNurtureSequence(models.Model):
                 "failure_reason": str(err)[:500],
                 "drafted_at": fields.Datetime.now(),
             })
+            self._log_to_lead(self.env._(
+                "AI nurture draft FAILED to generate for touch %s/%s (%s): %s",
+                touch_number, self.max_touches, channel, str(err)[:300],
+            ))
             raise UserError(self.env._("Draft generation failed: %s", str(err)[:300])) from err
 
         ok, block_reason = self._validate_draft(body, channel)
@@ -364,6 +383,10 @@ class SgcNurtureSequence(models.Model):
                 f"Touch {touch_number} draft BLOCKED by validation: "
                 f"{block_reason}\n\nDraft was:\n{body}"
             ))
+            self._log_to_lead(self.env._(
+                "AI nurture draft BLOCKED for touch %s/%s (%s): %s",
+                touch_number, self.max_touches, channel, block_reason,
+            ))
             raise UserError(self.env._(
                 "Draft was blocked by validation: %s", block_reason))
 
@@ -372,6 +395,11 @@ class SgcNurtureSequence(models.Model):
             f"Touch {touch_number}/{self.max_touches} drafted ({channel}). "
             f"Awaiting review -- use \"Send This Touch\" to actually send "
             f"it:\n\n{body}"
+        ))
+        self._log_to_lead(self.env._(
+            "AI nurture draft ready for review -- touch %s/%s (%s, %s). "
+            "Not sent yet:\n\n%s",
+            touch_number, self.max_touches, channel, intent, body,
         ))
         return touch
 
@@ -401,23 +429,37 @@ class SgcNurtureSequence(models.Model):
             self.message_post(body=self.env._(
                 "Touch %s marked sent (dry-run override on this sequence -- "
                 "nothing actually left the building).", touch_number))
+            self._log_to_lead(self.env._(
+                "Nurture touch %s/%s (%s) marked sent -- DRY RUN, nothing "
+                "actually sent to the contact.",
+                touch_number, self.max_touches, touch.channel))
         else:
             try:
                 if touch.channel == "whatsapp":
                     self._send_whatsapp(touch)
                 else:
                     self._send_email(touch)
-            except UserError:
+            except UserError as err:
+                self._log_to_lead(self.env._(
+                    "Nurture touch %s/%s (%s) FAILED to send: %s",
+                    touch_number, self.max_touches, touch.channel, str(err)[:300]))
                 raise
             except Exception as err:
                 _logger.exception("Nurture sequence %s: send failed", self.id)
                 touch.write({"delivery_status": "failed", "failure_reason": str(err)[:500]})
+                self._log_to_lead(self.env._(
+                    "Nurture touch %s/%s (%s) FAILED to send: %s",
+                    touch_number, self.max_touches, touch.channel, str(err)[:300]))
                 raise UserError(self.env._("Send failed: %s", str(err)[:300])) from err
 
             touch.write({"delivery_status": "sent", "sent_at": fields.Datetime.now()})
             self.message_post(body=self.env._(
                 "Touch %s/%s sent via %s by %s.",
                 touch_number, self.max_touches, touch.channel, self.env.user.name))
+            self._log_to_lead(self.env._(
+                "Nurture touch %s/%s SENT via %s by %s:\n\n%s",
+                touch_number, self.max_touches, touch.channel,
+                self.env.user.name, touch.body))
 
         self._advance_after_touch(touch_number, engaged=self._is_recently_engaged())
         return touch
@@ -683,6 +725,7 @@ Hard rules, do not violate any of them:
             "next_touch_at": False,
         })
         self.message_post(body=f"Nurture sequence stopped: {reason}")
+        self._log_to_lead(self.env._("Nurture sequence stopped: %s", reason))
 
         if self.trigger_activity_id.exists():
             self.trigger_activity_id.action_feedback(feedback=reason)
@@ -745,6 +788,7 @@ Hard rules, do not violate any of them:
                 "paused_by": self.env.uid,
             })
             seq.message_post(body=f"Paused: {seq.pause_reason}")
+            seq._log_to_lead(self.env._("Nurture sequence paused: %s", seq.pause_reason))
 
     def action_resume(self):
         for seq in self:
@@ -756,6 +800,7 @@ Hard rules, do not violate any of them:
                 "next_touch_at": seq._get_next_business_datetime(),
             })
             seq.message_post(body="Resumed by " + self.env.user.name)
+            seq._log_to_lead(self.env._("Nurture sequence resumed by %s.", self.env.user.name))
 
     def action_stop(self, reason=None):
         for seq in self:

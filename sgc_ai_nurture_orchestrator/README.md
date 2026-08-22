@@ -47,6 +47,18 @@ draft/send button flow on a real lead without a real message reaching
 them -- "Send This Touch" still requires the same click, it just stops
 short of creating the real message/mail row.
 
+## Audit trail on the lead itself
+
+Every touch-point (`action_start_nurture`, a draft, a blocked/failed draft,
+a real send, a failed send, a stop/pause/resume) is logged twice: a full
+`message_post` on the `sgc.nurture.sequence` record (for anyone drilling in
+via the "Nurture" smart button), and an internal log note
+(`_message_log`, `sgc.nurture.sequence._log_to_lead`) posted directly onto
+the **lead's own chatter**. The second one is what makes this visible to a
+salesperson/SDR who never opens the sequence record at all -- they just see
+it in the log on the lead they're already looking at. Log notes don't
+notify followers; they're an audit trail, not a ping.
+
 ## Locked decisions (this build)
 
 1. **Handoff pool** = the whole Sales team (`crm.team.member`), same pool

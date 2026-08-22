@@ -76,12 +76,19 @@ class CrmLead(models.Model):
             "status": "active",
             "sequence_type": "proposal_stall" if auto_flagged else "manual",
         })
+        reason_label = (
+            _("auto-flagged: 3 days stalled in Proposal") if auto_flagged
+            else _("manually started")
+        )
         seq.message_post(body=_(
             "Nurture sequence started by %s (%s). No touch has been drafted "
             "yet -- use \"Draft Next Touch\" on the sequence to generate one.",
-            self.env.user.name,
-            _("auto-flagged: 3 days stalled in Proposal") if auto_flagged
-            else _("manually started"),
+            self.env.user.name, reason_label,
+        ))
+        self._message_log(body=_(
+            "Nurture sequence #%s started by %s (%s). Track it here or via "
+            "the \"Nurture\" smart button above.",
+            seq.id, self.env.user.name, reason_label,
         ))
         return {
             "type": "ir.actions.act_window",
