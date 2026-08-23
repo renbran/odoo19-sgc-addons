@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crm_lead_dedup_blocklist_list" model="ir.ui.view">
+        <field name="name">crm.lead.dedup.blocklist.list</field>
+        <field name="model">crm.lead.dedup.blocklist</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="value"/>
+                <field name="field_type"/>
+                <field name="lead_count"/>
+                <field name="source"/>
+                <field name="last_refreshed"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_crm_lead_dedup_blocklist" model="ir.actions.act_window">
+        <field name="name">Intermediary Identity Blocklist</field>
+        <field name="res_model">crm.lead.dedup.blocklist</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

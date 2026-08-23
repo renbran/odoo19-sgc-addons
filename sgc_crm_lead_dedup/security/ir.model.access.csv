@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_crm_lead_dedup_blocklist_user,crm.lead.dedup.blocklist.user,model_crm_lead_dedup_blocklist,sales_team.group_sale_salesman,1,0,0,0
+access_crm_lead_dedup_blocklist_manager,crm.lead.dedup.blocklist.manager,model_crm_lead_dedup_blocklist,sales_team.group_sale_manager,1,1,1,1
+access_crm_lead_dedup_cluster_user,crm.lead.dedup.cluster.user,model_crm_lead_dedup_cluster,sales_team.group_sale_salesman,1,0,0,0
+access_crm_lead_dedup_cluster_manager,crm.lead.dedup.cluster.manager,model_crm_lead_dedup_cluster,sales_team.group_sale_manager,1,1,1,1
+access_crm_lead_dedup_cluster_line_user,crm.lead.dedup.cluster.line.user,model_crm_lead_dedup_cluster_line,sales_team.group_sale_salesman,1,0,0,0
+access_crm_lead_dedup_cluster_line_manager,crm.lead.dedup.cluster.line.manager,model_crm_lead_dedup_cluster_line,sales_team.group_sale_manager,1,1,1,1
+access_crm_lead_dedup_merge_wizard,crm.lead.dedup.merge.wizard,model_crm_lead_dedup_merge_wizard,sales_team.group_sale_manager,1,1,1,1
