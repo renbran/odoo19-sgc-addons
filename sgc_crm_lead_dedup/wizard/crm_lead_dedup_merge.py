@@ -69,8 +69,11 @@ class CrmLeadDedupMergeWizard(models.TransientModel):
                     f"{len(non_entry)} members past entry stage" if len(non_entry) > 1
                     else f"entry-stage member(s) {entry_blocked.ids} are won/sale-linked"
                 )
-                cluster.write({'state': 'pending_review', 'notes': f"SCOPE check failed at merge time: {reason}. Reverted to pending review."})
-                lines.append(f"cluster {cluster.id} [{cluster.strategy}]: REVERTED to pending_review, {reason}")
+                if self.dry_run:
+                    lines.append(f"cluster {cluster.id} [{cluster.strategy}] DRY RUN would REVERT to pending_review: {reason}")
+                else:
+                    cluster.write({'state': 'pending_review', 'notes': f"SCOPE check failed at merge time: {reason}. Reverted to pending review."})
+                    lines.append(f"cluster {cluster.id} [{cluster.strategy}]: REVERTED to pending_review, {reason}")
                 continue
 
             pre_stage_ids = leads.mapped('stage_id.id')
