@@ -57,8 +57,28 @@ class CrmLeadDedupMergeWizard(models.TransientModel):
         processed_since_commit = 0
         for cluster in clusters:
             leads = cluster.line_ids.mapped('lead_id')
+
+            # Cluster membership was fixed at detection time. If an earlier
+            # batch (Tier 1, or an earlier run of this same wizard) already
+            # absorbed one of these members into a master elsewhere, using
+            # that stale member as-is would merge into a zombie: a record
+            # that's itself already archived and superseded, silently
+            # stranding data instead of reaching the real, current master.
+            # Resolve every member through its merge chain to the live end.
+            resolved = self.env['crm.lead']
+            for lead in leads:
+                seen = set()
+                current = lead
+                while current.x_dedup_merged_into_id and current.id not in seen:
+                    seen.add(current.id)
+                    current = current.x_dedup_merged_into_id
+                resolved |= current
+            if resolved != leads:
+                lines.append(f"cluster {cluster.id} [{cluster.strategy}]: resolved stale member(s) {leads.ids} -> {resolved.ids}")
+            leads = resolved
+
             if len(leads) < 2:
-                lines.append(f"cluster {cluster.id}: SKIPPED, fewer than 2 live members")
+                lines.append(f"cluster {cluster.id}: SKIPPED, fewer than 2 live members after resolving already-merged members")
                 continue
 
             non_entry = leads.filtered(lambda l: l.stage_id.id != 1)
