@@ -23,7 +23,7 @@ class CesKpiCase(TransactionCase):
         # Ensure the test runner is in the administrator group so admin-only
         # assertions do not require an extra sudo() dance.
         cls.env.user.write({
-            "groups_id": [
+            "group_ids": [
                 (4, cls.env.ref("base.group_user").id),
                 (4, cls.env.ref("sgc_ces_kpi_banner.group_ces_kpi_admin").id),
             ],

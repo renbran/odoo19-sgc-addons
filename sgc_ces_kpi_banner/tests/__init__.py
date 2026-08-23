@@ -11,3 +11,4 @@ from . import test_h_reviews
 from . import test_i_considerations
 from . import test_j_security
 from . import test_k_frontend
+from . import test_l_team_targets
