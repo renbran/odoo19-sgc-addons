@@ -33,6 +33,7 @@ is permanent infrastructure, not scaffolding:
         "data/ir_cron.xml",
         "views/crm_lead_dedup_blocklist_views.xml",
         "views/crm_lead_dedup_cluster_views.xml",
+        "wizard/crm_lead_dedup_merge_views.xml",
         "views/crm_lead_dedup_menus.xml",
     ],
     "license": "AGPL-3",

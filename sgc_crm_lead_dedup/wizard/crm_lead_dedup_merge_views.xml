@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crm_lead_dedup_merge_wizard_form" model="ir.ui.view">
+        <field name="name">crm.lead.dedup.merge.wizard.form</field>
+        <field name="model">crm.lead.dedup.merge.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <p>
+                    Merges every cluster currently in state <b>Approved for Merge</b> (any tier,
+                    excluding quarantined clusters). Master = highest pipeline stage, tie-broken
+                    by oldest record. Absorbed leads are archived, never deleted.
+                </p>
+                <group>
+                    <field name="dry_run"/>
+                    <field name="batch_size"/>
+                </group>
+                <field name="log" readonly="1" invisible="not log"/>
+                <footer>
+                    <button name="action_run_tier1_merge" type="object" string="Run" class="btn-primary"/>
+                    <button special="cancel" string="Close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_lead_dedup_merge_wizard" model="ir.actions.act_window">
+        <field name="name">Run Merge (Approved Clusters)</field>
+        <field name="res_model">crm.lead.dedup.merge.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

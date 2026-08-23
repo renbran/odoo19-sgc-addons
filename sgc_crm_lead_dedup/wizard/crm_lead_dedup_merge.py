@@ -9,16 +9,29 @@ _logger = logging.getLogger(__name__)
 
 class CrmLeadDedupMergeWizard(models.TransientModel):
     _name = 'crm.lead.dedup.merge.wizard'
-    _description = 'CRM Lead Dedup - Tier 1 Merge Runner'
+    _description = 'CRM Lead Dedup - Approved Cluster Merge Runner'
 
     batch_size = fields.Integer(default=200, help="Clusters processed before an explicit commit.")
     dry_run = fields.Boolean(default=True, help="If set, only validates and reports; does not call _merge_opportunity.")
     log = fields.Text(readonly=True)
 
     def action_run_tier1_merge(self):
-        """Merge every approved Tier 1 cluster.
+        """Merge every approved cluster, any tier.
 
-        - Only clusters with tier='1', state='approved', quarantined=False.
+        Originally Tier 1 (email/phone exact match) only; widened so any
+        cluster a human has moved to state='approved' — including Tier 2/3
+        company-identity/name-similarity clusters — is mergeable too. The
+        SCOPE safety net below is what makes that safe to widen: it applies
+        regardless of which strategy or tier flagged the cluster.
+
+        - state='approved', quarantined=False.
+        - SCOPE check per cluster (not just Tier 1's original detection-time
+          check): at most one member may be past entry stage (stage_id=1),
+          and no entry-stage member being absorbed may be won or linked to a
+          sale.order. A cluster violating this is a human approving something
+          this automation should not blindly consume — it is reverted to
+          'pending_review' with a note instead of merged, and the batch
+          continues.
         - Calls _merge_opportunity(auto_unlink=False, max_length=0) per
           cluster, so absorbed records are archived (active=False), never
           deleted, and cluster size never triggers the batch-size UserError
@@ -32,12 +45,13 @@ class CrmLeadDedupMergeWizard(models.TransientModel):
         self.ensure_one()
         Cluster = self.env['crm.lead.dedup.cluster']
         clusters = Cluster.search([
-            ('tier', '=', '1'),
             ('state', '=', 'approved'),
             ('quarantined', '=', False),
         ], order='id')
         if not clusters:
-            raise UserError("No Tier 1 clusters are in state 'approved'. Nothing to merge.")
+            raise UserError("No clusters are in state 'approved'. Nothing to merge.")
+
+        sale_linked_ids = set(self.env['sale.order'].search([('opportunity_id', '!=', False)]).mapped('opportunity_id.id'))
 
         lines = []
         processed_since_commit = 0
@@ -46,6 +60,19 @@ class CrmLeadDedupMergeWizard(models.TransientModel):
             if len(leads) < 2:
                 lines.append(f"cluster {cluster.id}: SKIPPED, fewer than 2 live members")
                 continue
+
+            non_entry = leads.filtered(lambda l: l.stage_id.id != 1)
+            entry_leads = leads - non_entry
+            entry_blocked = entry_leads.filtered(lambda l: l.won_status == 'won' or l.id in sale_linked_ids)
+            if len(non_entry) > 1 or entry_blocked:
+                reason = (
+                    f"{len(non_entry)} members past entry stage" if len(non_entry) > 1
+                    else f"entry-stage member(s) {entry_blocked.ids} are won/sale-linked"
+                )
+                cluster.write({'state': 'pending_review', 'notes': f"SCOPE check failed at merge time: {reason}. Reverted to pending review."})
+                lines.append(f"cluster {cluster.id} [{cluster.strategy}]: REVERTED to pending_review, {reason}")
+                continue
+
             pre_stage_ids = leads.mapped('stage_id.id')
             expected_max_sequence = max(leads.mapped('stage_id.sequence'))
 
@@ -107,7 +134,7 @@ class CrmLeadDedupMergeWizard(models.TransientModel):
             processed_since_commit += 1
             if processed_since_commit >= self.batch_size:
                 self.env.cr.commit()
-                _logger.info("dedup tier1 merge: committed batch, %s clusters so far", processed_since_commit)
+                _logger.info("dedup merge: committed batch, %s clusters so far", processed_since_commit)
                 processed_since_commit = 0
 
         if not self.dry_run and processed_since_commit:

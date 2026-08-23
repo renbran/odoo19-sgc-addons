@@ -11,4 +11,6 @@
               parent="menu_crm_lead_dedup_root" action="action_crm_lead_dedup_cluster_quarantine" sequence="40"/>
     <menuitem id="menu_crm_lead_dedup_blocklist" name="Intermediary Blocklist"
               parent="menu_crm_lead_dedup_root" action="action_crm_lead_dedup_blocklist" sequence="50"/>
+    <menuitem id="menu_crm_lead_dedup_run_merge" name="Run Merge (Approved Clusters)"
+              parent="menu_crm_lead_dedup_root" action="action_crm_lead_dedup_merge_wizard" sequence="60"/>
 </odoo>

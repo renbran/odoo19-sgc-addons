@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields, api
-from odoo.addons.crm.models.crm_lead import CRM_LEAD_FIELDS_TO_MERGE
 
 
 class CrmLead(models.Model):
@@ -17,33 +16,22 @@ class CrmLead(models.Model):
     x_dedup_merged_on = fields.Datetime(string='Merged On (Dedup)', readonly=True, copy=False)
 
     def _sort_by_confidence_level(self, reverse=False):
-        """SGC master-selection rule for merges.
-
-        Odoo's stock key ranks (not lost, is_opportunity, stage.sequence,
-        probability, id) — meaning an inactive-but-'won' lead can outrank an
-        active opportunity sitting deep in the pipeline. For this dataset the
-        record sales is actually working must survive, so stage progression
-        is promoted above the type/active check, raw probability is replaced
-        by "was it set by a human" (automated scoring is noise, not a basis
-        for picking the surviving customer record), and ties are broken by
-        oldest create_date, then most complete record, then lowest id.
+        """SGC master-selection rule for merges: highest pipeline stage wins;
+        if tied on stage, the oldest record (create_date) wins. Nothing else
+        — no type/active check, no probability comparison, no completeness
+        scoring. `-id` is kept only as a final tiebreak for determinism when
+        two leads share both stage and create_date exactly; it carries no
+        business meaning.
 
         NOTE: this method is also used by website_crm (visitor lead merge)
         and website_crm_sms (phone-match lead pick), not only by
         crm.lead._merge_opportunity — the same ranking now applies there too.
         """
         def opps_key(lead):
-            # Some SGC customizations remove/replace stock crm.lead fields
-            # (e.g. 'title' does not exist in this install), so guard against
-            # KeyError rather than assuming CRM_LEAD_FIELDS_TO_MERGE is intact.
-            completeness = sum(1 for fname in CRM_LEAD_FIELDS_TO_MERGE if fname in lead._fields and lead[fname])
             create_ts = lead.create_date.timestamp() if lead.create_date else 0
             return (
                 lead.stage_id.sequence,
-                lead.type == 'opportunity',
-                not lead.is_automated_probability,
                 -create_ts,
-                completeness,
                 -lead._origin.id,
             )
         return self.sorted(key=opps_key, reverse=reverse)
