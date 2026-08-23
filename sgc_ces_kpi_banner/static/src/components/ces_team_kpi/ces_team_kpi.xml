@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sgc_ces_kpi_banner.TeamDashboard">
+        <div class="o_sgc_ces_team_kpi">
+            <header class="o_sgc_ces_team_kpi_header">
+                <h1>Team Daily Performance</h1>
+            </header>
+
+            <p t-if="state.error" class="o_sgc_ces_kpi_error" role="alert">
+                Team KPI data is unavailable right now.
+            </p>
+
+            <p t-if="state.loaded and !state.error and !state.teams.length"
+               class="o_sgc_ces_kpi_empty">
+                You are not the Team Leader of any sales team yet.
+            </p>
+
+            <t t-foreach="state.teams" t-as="team" t-key="team.team_id">
+                <section class="o_sgc_ces_team_kpi_team">
+                    <h2 class="o_sgc_ces_team_kpi_team_name" t-esc="team.team_name"/>
+
+                    <p t-if="!team.members.length" class="o_sgc_ces_kpi_empty">
+                        No salesperson on this team yet.
+                    </p>
+
+                    <div class="o_sgc_ces_team_kpi_grid">
+                        <t t-foreach="team.members" t-as="member" t-key="member.user_id">
+                            <div class="o_sgc_ces_team_kpi_card">
+                                <div class="o_sgc_ces_team_kpi_card_head">
+                                    <span t-esc="member.user_name"/>
+                                </div>
+                                <t t-if="member.kpis.length">
+                                    <t t-foreach="member.kpis" t-as="kpi" t-key="kpi.target_id">
+                                        <div class="o_sgc_ces_kpi_req">
+                                            <span class="o_sgc_ces_kpi_req_label" t-esc="kpi.name"/>
+                                            <div class="o_sgc_ces_kpi_bar"
+                                                 role="progressbar"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100"
+                                                 t-att-aria-valuenow="kpi.progress"
+                                                 t-att-aria-label="kpi.name">
+                                                <span class="o_sgc_ces_kpi_bar_fill"
+                                                      t-att-class="barClass(kpi)"
+                                                      t-attf-style="width: {{ kpi.progress }}%"/>
+                                            </div>
+                                            <span class="o_sgc_ces_kpi_req_value">
+                                                <t t-esc="kpi.value"/> / <t t-esc="kpi.target"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </t>
+                                <p t-else="" class="o_sgc_ces_kpi_empty">No target for today.</p>
+                            </div>
+                        </t>
+                    </div>
+                </section>
+            </t>
+        </div>
+    </t>
+
+</templates>

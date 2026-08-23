@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Daily / monthly KPI target framework.
 
-No target *values* ship with this module. An administrator creates target
-records; until they do, the banner's KPI strip simply shows the measured
-values with no target and no colour judgement.
+Target *values* are configuration, not code: an administrator or a Team
+Leader (for their own team) creates target records here; until one applies
+to a user, the banner's KPI strip simply shows the measured value with no
+target and no colour judgement. See ``data/kpi_target_data.xml`` for the one
+target this module ships out of the box (the daily New-stage-exit quota).
 """
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
@@ -29,10 +31,22 @@ class SgcCesKpiTarget(models.Model):
     period = fields.Selection(
         [("daily", "Daily"), ("monthly", "Monthly")], default="daily", required=True
     )
+    weekdays_only = fields.Boolean(
+        string="Weekdays only",
+        help="Only evaluated Monday-Friday. On Saturday and Sunday this target "
+        "is left out of the banner entirely instead of showing a false shortfall.",
+    )
 
     # Applicability, resolved in the same "most specific wins" order as plans.
     job_id = fields.Many2one("hr.job")
     department_id = fields.Many2one("hr.department")
+    team_id = fields.Many2one(
+        "crm.team",
+        string="Sales Team",
+        help="Restrict this target to one sales team's members. A CES KPI "
+        "Manager who leads a team may only create/edit targets that carry "
+        "their own team here.",
+    )
     user_id = fields.Many2one("res.users", string="Specific user")
 
     # Typed metric parameters reused from the requirement model's vocabulary.
@@ -67,6 +81,18 @@ class SgcCesKpiTarget(models.Model):
             if target.target_value < 0:
                 raise ValidationError(_("A KPI target cannot be negative."))
 
+    @api.constrains("team_id", "user_id")
+    def _check_team_scope(self):
+        for target in self:
+            if not (target.team_id and target.user_id):
+                continue
+            members = target.team_id.member_ids
+            if target.user_id != target.team_id.user_id and target.user_id not in members:
+                raise ValidationError(
+                    _("%(user)s is not a member (or the leader) of the %(team)s sales team.")
+                    % {"user": target.user_id.name, "team": target.team_id.name}
+                )
+
     def metric_params(self):
         self.ensure_one()
         return {
@@ -81,8 +107,15 @@ class SgcCesKpiTarget(models.Model):
         }
 
     @api.model
-    def targets_for_user(self, user, period):
-        """Most specific applicable target per metric code."""
+    def targets_for_user(self, user, period, reference=None):
+        """Most specific applicable target per metric code.
+
+        Specificity order (highest wins): specific user > sales team >
+        department > job > everyone. A ``weekdays_only`` target is dropped
+        entirely on Saturday/Sunday so the banner never shows a false
+        shortfall on a day the target does not apply. ``reference`` overrides
+        "today" for deterministic tests; production callers leave it unset.
+        """
         user = user.sudo()
         identity = self.env["sgc.ces.identity"]
         employee = identity._employee_for_user(user)
@@ -95,10 +128,15 @@ class SgcCesKpiTarget(models.Model):
                 ("company_id", "in", user.company_ids.ids or [user.company_id.id]),
             ]
         )
+        today = fields.Date.to_date(reference) if reference else fields.Date.context_today(self)
+        if today.weekday() >= 5:
+            pool = pool.filtered(lambda t: not t.weekdays_only)
 
         def applies(target):
             if target.user_id:
                 return target.user_id.id == user.id
+            if target.team_id:
+                return user.id in target.team_id.member_ids.ids or user.id == target.team_id.user_id.id
             if target.department_id:
                 return bool(department) and target.department_id.id == department.id
             if target.job_id:
@@ -109,6 +147,8 @@ class SgcCesKpiTarget(models.Model):
 
         def specificity(target):
             if target.user_id:
+                return 4
+            if target.team_id:
                 return 3
             if target.department_id:
                 return 2

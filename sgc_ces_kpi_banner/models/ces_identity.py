@@ -19,6 +19,7 @@ _logger = logging.getLogger(__name__)
 PARAM_CES_JOB_ID = "sgc_ces_kpi_banner.ces_job_id"
 PARAM_CES_JOB_NAME = "sgc_ces_kpi_banner.ces_job_name"
 PARAM_PROPOSAL_STAGE_ID = "sgc_ces_kpi_banner.proposal_stage_id"
+PARAM_NEW_STAGE_ID = "sgc_ces_kpi_banner.new_stage_id"
 PARAM_WON_STAGE_ID = "sgc_ces_kpi_banner.won_stage_id"
 PARAM_EXCLUDED_STAGE_IDS = "sgc_ces_kpi_banner.excluded_stage_ids"
 PARAM_BANNER_ENABLED = "sgc_ces_kpi_banner.banner_enabled"
@@ -234,16 +235,36 @@ class SgcCesIdentity(models.AbstractModel):
 
     @api.model
     def managed_user_ids(self, manager_user=None):
-        """User ids of every CES employee whose resolved manager is ``manager_user``."""
+        """User ids readable by ``manager_user``: CES employees whose resolved
+        HR manager they are, plus every member of a CRM sales team they lead."""
         manager_user = (manager_user or self.env.user).sudo()
-        result = []
+        result = set()
         for employee in self.ces_employees():
             if not employee.user_id:
                 continue
             manager = self.resolve_manager(employee)
             if manager and manager.id == manager_user.id:
-                result.append(employee.user_id.id)
-        return result
+                result.add(employee.user_id.id)
+        result.update(self.led_team_member_ids(manager_user))
+        return list(result)
+
+    # -- CRM sales team leadership --------------------------------------------
+    @api.model
+    def led_team_ids(self, user=None):
+        """Sales teams (``crm.team``) whose Team Leader is ``user``."""
+        user = (user or self.env.user).sudo()
+        if not user:
+            return self.env["crm.team"].sudo().browse()
+        return self.env["crm.team"].sudo().search([("user_id", "=", user.id)])
+
+    @api.model
+    def led_team_member_ids(self, user=None):
+        """Salesperson user ids across every team ``user`` leads."""
+        return self.led_team_ids(user).mapped("member_ids").ids
+
+    @api.model
+    def is_team_leader(self, user=None):
+        return bool(self.led_team_ids(user))
 
     # -- CRM stage resolution ------------------------------------------------
     @api.model
@@ -267,6 +288,15 @@ class SgcCesIdentity(models.AbstractModel):
     @api.model
     def proposal_stage(self):
         return self._resolve_stage(PARAM_PROPOSAL_STAGE_ID, None, ["Proposal", "Proposition"])
+
+    @api.model
+    def new_stage(self):
+        """The CRM stage a lead starts in. Falls back to the lowest-sequence
+        stage so a customer who renamed "New" still gets a sensible default."""
+        stage = self._resolve_stage(PARAM_NEW_STAGE_ID, None, ["New"])
+        if stage:
+            return stage
+        return self.env["crm.stage"].sudo().search([], order="sequence asc, id asc", limit=1)
 
     @api.model
     def won_stage(self):

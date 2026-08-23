@@ -3,7 +3,9 @@
 Odoo 19 addon. Gives Customer Engagement Specialists (CES) a floating,
 collapsible KPI banner showing gate progress, daily/monthly KPI targets and a
 deterministic "next recommended action", plus a fully configurable, versioned
-gate framework and a manager review workflow.
+gate framework and a manager review workflow. KPI targets (the banner's
+daily/monthly strip) are not restricted to the CES job: any salesperson or
+Team Leader gets one once a target applies to them - see section 9b.
 
 ---
 
@@ -77,6 +79,7 @@ the next or previous weekday; public holidays are not modelled.
 |---|---|
 | `pipeline_qualified_value` | `SUM(expected_revenue)` of the user's open opportunities excluding configured dead-end and Won stages |
 | `pipeline_qualified_count` | Same population, counted |
+| `pipeline_new_stage_exit_count` | Opportunities currently outside the "New" stage whose last stage change (`date_last_stage_update`) falls in the window - i.e. leads the user moved out of New |
 | `staleness_stale_count` | Opportunities whose source date is strictly older than `stale_days` |
 | `staleness_stale_ratio` | `stale / (total - unknown) * 100` |
 | `signed_proposal_count` | `sale.order` owned by the user with `signed_on` set |
@@ -136,6 +139,28 @@ global multi-company rule on every model that carries `company_id`.
 `get_ces_kpi_summary(user_id)` re-checks manager scope server side, so the RPC
 cannot be used to read another rep's numbers.
 
+### 9b. Team Leaders and KPI targets
+
+`managed_user_ids()` - and therefore which users a Manager/Team Leader can
+read via `get_ces_kpi_summary()` and the "Team Daily Performance" dashboard -
+now also includes every member of a `crm.team` the caller is the **Team
+Leader** (`crm.team.user_id`) of, on top of the existing HR-manager
+resolution. This is independent of the CES job: a Team Leader sees every
+salesperson on their team, CES or not.
+
+A Team Leader can also **define** KPI targets (create/write/unlink on
+`sgc.ces.kpi.target`), but only for records that carry their own team in
+`team_id` (`ir.rule rule_kpi_target_manager_own_team`); a target left
+company-wide (no `job_id`/`department_id`/`team_id`/`user_id`) can only be
+created by an Administrator. `sgc.ces.kpi.target._check_team_scope()` also
+guards that a target combining `team_id` and `user_id` only ever names a
+member (or the leader) of that team.
+
+Applicability specificity order (highest wins): specific user > sales team >
+department > job > everyone. A target with `weekdays_only` set is left out of
+`targets_for_user()` entirely on Saturday/Sunday, so the banner never shows a
+false shortfall on a day the target does not apply.
+
 ## 10. Install / upgrade / test
 
 ```bash
@@ -181,5 +206,6 @@ data, because the module only ever reads them.
    `x_last_activity_date` (only written by enrichment crons, so it means
    "last enrichment run"). `x_days_since_activity` is excluded entirely - it
    is declared but never written by any code path.
-3. **No production deployment.** This module has been installed and tested on
-   staging (`odoo19-sgc-staging` / `sgc_staging`) only.
+3. **Installed on production** (`odoo-prod` / `odoo19-sgc`), not just staging;
+   treat every change here as a live change and upgrade with the same care
+   documented in `docs/STAGING_RESTORE_CHECKLIST.md` at the repo root.

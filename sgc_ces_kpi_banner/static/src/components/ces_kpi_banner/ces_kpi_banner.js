@@ -11,8 +11,12 @@ const REFRESH_MS = 120000;
  * Floating CES KPI banner.
  *
  * - Registered in `main_components` so it persists across actions.
- * - Renders nothing at all unless the server says the current user is a CES
- *   and the banner is enabled, so it can never disturb other users.
+ * - Renders nothing at all unless the banner is enabled and the server found
+ *   something to show the current user: either they are a CES specialist
+ *   with active gates, or at least one KPI target (job/department/team/user
+ *   scoped, or company-wide) applies to them. This lets any salesperson or
+ *   team leader see the banner once targets are defined for them, without
+ *   disturbing users nobody has configured targets for.
  * - Collapsed/expanded state lives in localStorage only; no server round trip
  *   and no user preference record.
  */
@@ -62,7 +66,16 @@ export class SgcCesKpiBanner extends Component {
         try {
             const summary = await this.kpi.fetchMySummary();
             this.state.summary = summary;
-            this.state.visible = Boolean(summary && summary.enabled && summary.is_ces);
+            // Visible for a CES specialist (gates) OR anyone with at least
+            // one applicable KPI target (e.g. every salesperson/team leader
+            // once an admin or team leader has defined targets for them).
+            const hasKpis = Boolean(
+                summary &&
+                    summary.kpis &&
+                    ((summary.kpis.daily && summary.kpis.daily.length) ||
+                        (summary.kpis.monthly && summary.kpis.monthly.length))
+            );
+            this.state.visible = Boolean(summary && summary.enabled && (summary.is_ces || hasKpis));
             this.state.error = "";
         } catch (error) {
             this.state.error = (error && error.message) || "unavailable";

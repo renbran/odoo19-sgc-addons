@@ -79,3 +79,33 @@ class SgcCesMetricPipeline(models.AbstractModel):
         params["proposal_only"] = True
         ctx["params"] = params
         return self._metric_pipeline_qualified_value(ctx)
+
+    @api.model
+    def _metric_pipeline_new_stage_exit_count(self, ctx):
+        """Opportunities the user moved out of the "New" stage inside the window.
+
+        "Moved out of New" = currently in a different stage AND the last
+        stage change (``date_last_stage_update``) falls inside the window.
+        An opportunity that later moves back into New is not counted again
+        unless it exits a second time.
+        """
+        identity = self.env["sgc.ces.identity"]
+        new_stage = identity.new_stage()
+        domain = [
+            ("type", "=", "opportunity"),
+            ("active", "=", True),
+            ("user_id", "=", ctx["user_id"]),
+        ]
+        if new_stage:
+            domain.append(("stage_id", "!=", new_stage.id))
+        date_from = ctx.get("date_from")
+        date_to = ctx.get("date_to")
+        if date_from:
+            domain.append(("date_last_stage_update", ">=", "%s 00:00:00" % date_from))
+        if date_to:
+            domain.append(("date_last_stage_update", "<=", "%s 23:59:59" % date_to))
+        company_ids = ctx.get("company_ids")
+        if company_ids:
+            domain.append(("company_id", "in", list(company_ids) + [False]))
+        count = self.env["crm.lead"].sudo().search_count(domain)
+        return {"value": float(count), "domain": domain, "res_model": "crm.lead"}

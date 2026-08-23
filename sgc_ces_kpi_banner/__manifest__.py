@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC - CES KPI & Gate Banner",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "CRM",
     "summary": "Floating CES KPI banner, configurable gate plans, manager review workflow",
     "description": """
@@ -49,6 +49,7 @@ assignment on install.
         "data/default_config.xml",
         "data/mail_activity_data.xml",
         "data/gate_plan_data.xml",
+        "data/kpi_target_data.xml",
         "data/ir_cron.xml",
         "views/wizard_views.xml",
         "views/gate_plan_views.xml",
@@ -69,6 +70,9 @@ assignment on install.
             "sgc_ces_kpi_banner/static/src/components/ces_kpi_banner/ces_kpi_banner.scss",
             "sgc_ces_kpi_banner/static/src/components/ces_kpi_banner/ces_kpi_banner.js",
             "sgc_ces_kpi_banner/static/src/components/ces_kpi_banner/ces_kpi_banner.xml",
+            "sgc_ces_kpi_banner/static/src/components/ces_team_kpi/ces_team_kpi.scss",
+            "sgc_ces_kpi_banner/static/src/components/ces_team_kpi/ces_team_kpi.js",
+            "sgc_ces_kpi_banner/static/src/components/ces_team_kpi/ces_team_kpi.xml",
         ],
     },
     "installable": True,

@@ -27,6 +27,10 @@ METRIC_DISPATCH = {
     "pipeline_qualified_value": ("sgc.ces.metric.pipeline", "_metric_pipeline_qualified_value"),
     "pipeline_qualified_count": ("sgc.ces.metric.pipeline", "_metric_pipeline_qualified_count"),
     "pipeline_proposal_value": ("sgc.ces.metric.pipeline", "_metric_pipeline_proposal_value"),
+    "pipeline_new_stage_exit_count": (
+        "sgc.ces.metric.pipeline",
+        "_metric_pipeline_new_stage_exit_count",
+    ),
     "staleness_stale_count": ("sgc.ces.metric.staleness", "_metric_staleness_stale_count"),
     "staleness_stale_ratio": ("sgc.ces.metric.staleness", "_metric_staleness_stale_ratio"),
     "staleness_healthy_ratio": ("sgc.ces.metric.staleness", "_metric_staleness_healthy_ratio"),
@@ -43,6 +47,7 @@ METRIC_SELECTION = [
     ("pipeline_qualified_value", "Pipeline - qualified value"),
     ("pipeline_qualified_count", "Pipeline - qualified opportunity count"),
     ("pipeline_proposal_value", "Pipeline - value in Proposal stage"),
+    ("pipeline_new_stage_exit_count", "Pipeline - leads moved out of New stage"),
     ("staleness_stale_count", "Staleness - stale opportunity count"),
     ("staleness_stale_ratio", "Staleness - stale ratio (%)"),
     ("staleness_healthy_ratio", "Staleness - healthy ratio (%)"),

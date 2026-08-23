@@ -31,6 +31,13 @@ export const cesKpiService = {
                 return orm.call("sgc.ces.kpi.service", "get_ces_kpi_summary", [userId]);
             },
 
+            /** Today's KPI performance for every member of a team the caller
+             * leads (all teams for an administrator). Manager/admin only,
+             * enforced server side. */
+            async fetchTeamOverview() {
+                return orm.call("sgc.ces.kpi.service", "get_team_kpi_overview", []);
+            },
+
             /** Reviewer detail for one gate instance. */
             async fetchGateReviewSummary(gateInstanceId) {
                 return orm.call("sgc.ces.kpi.service", "get_gate_review_summary", [

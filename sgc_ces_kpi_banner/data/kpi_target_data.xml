@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Concrete daily quota: every salesperson (and the Team Leader, who is
+         also matched by team_id) must move at least 60 leads out of the
+         "New" stage each weekday. noupdate="1" so an administrator or the
+         Team Leader can freely retune target_value/team_id afterwards
+         without a module upgrade reverting their change. -->
+    <data noupdate="1">
+
+        <record id="kpi_target_new_stage_exit_daily" model="sgc.ces.kpi.target">
+            <field name="name">Leads moved out of New (daily)</field>
+            <field name="period">daily</field>
+            <field name="metric_code">pipeline_new_stage_exit_count</field>
+            <field name="comparator">&gt;=</field>
+            <field name="target_value">60</field>
+            <field name="weekdays_only" eval="True"/>
+            <field name="team_id" ref="sales_team.team_sales_department"/>
+            <field name="help_text">Move at least 60 leads out of the New stage today
+                (Monday-Friday). Not enforced on Saturday/Sunday.</field>
+        </record>
+
+    </data>
+</odoo>

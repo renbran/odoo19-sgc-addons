@@ -11,8 +11,10 @@
                 <field name="metric_code"/>
                 <field name="comparator"/>
                 <field name="target_value"/>
+                <field name="weekdays_only"/>
                 <field name="job_id"/>
                 <field name="department_id"/>
+                <field name="team_id"/>
                 <field name="user_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
             </list>
@@ -34,9 +36,11 @@
                             <field name="metric_code"/>
                             <field name="comparator"/>
                             <field name="target_value"/>
+                            <field name="weekdays_only"/>
                             <field name="active" widget="boolean_toggle"/>
                         </group>
                         <group string="Applies to">
+                            <field name="team_id"/>
                             <field name="job_id"/>
                             <field name="department_id"/>
                             <field name="user_id"/>
@@ -65,8 +69,10 @@
         <field name="view_mode">list,form</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Define a daily or monthly KPI target</p>
-            <p>No target values ship with this module. Until you create targets here, the
-               banner shows measured values without any target judgement.</p>
+            <p>Until a target applies to a user, the banner shows their measured values
+               without any target judgement. A CES KPI Manager (Team Leader) may define
+               targets for their own sales team; only an Administrator can define a
+               company-wide target.</p>
         </field>
     </record>
 </odoo>

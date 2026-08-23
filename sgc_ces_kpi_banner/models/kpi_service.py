@@ -101,6 +101,38 @@ class SgcCesKpiService(models.AbstractModel):
             return self._empty_summary()
         return self._summary_for_user(user)
 
+    # -------------------------------------------------------- RPC method 2b
+    @api.model
+    def get_team_kpi_overview(self):
+        """Today's KPI performance of every salesperson on a sales team the
+        calling user leads (all teams for an administrator). Each entry is a
+        plain snapshot built from the same ``_summary_for_user`` used by the
+        personal banner, so a team leader sees exactly what each salesperson
+        sees on their own screen."""
+        is_admin = self.env.user.has_group("sgc_ces_kpi_banner.group_ces_kpi_admin")
+        is_manager = is_admin or self.env.user.has_group(
+            "sgc_ces_kpi_banner.group_ces_kpi_manager"
+        )
+        if not is_manager:
+            raise AccessError(_("You are not allowed to view team KPI performance."))
+        identity = self.env["sgc.ces.identity"]
+        Team = self.env["crm.team"].sudo()
+        teams = Team.search([]) if is_admin else identity.led_team_ids(self.env.user)
+        result = []
+        for team in teams:
+            members = []
+            for member in team.member_ids:
+                summary = self._summary_for_user(member)
+                members.append(
+                    {
+                        "user_id": member.id,
+                        "user_name": member.name,
+                        "kpis": summary.get("kpis", {}).get("daily", []),
+                    }
+                )
+            result.append({"team_id": team.id, "team_name": team.name, "members": members})
+        return result
+
     # -------------------------------------------------------- RPC method 3
     @api.model
     def get_gate_review_summary(self, gate_instance_id):
