@@ -3,7 +3,10 @@ import base64
 import csv
 import io
 import logging
+import random
 from datetime import timedelta
+
+from markupsafe import escape
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -41,6 +44,27 @@ PROVENANCE_SELECTION = [
     ("ai_confirmed", "AI (Rep-Confirmed)"),
 ]
 GATE_PROVENANCE_FIELDS = [f"{field_name}_provenance" for field_name, _label in GATE_FIELDS]
+
+# Daily lead distribution: same live-verified ids as the rest of this file
+# (see SALES_PLAYBOOK_BUILD_DOCUMENTATION.md §2) — 1="New" stage, team id 1
+# is the "Sales" crm.team.
+DEFAULT_LEAD_DISTRIBUTION_TEAM_ID = "1"
+DEFAULT_LEAD_DISTRIBUTION_STAGE_ID = "1"
+DEFAULT_LEAD_DISTRIBUTION_TARGET_PER_SDR = "60"
+
+# Follow Up stage escalation: 6="Follow Up" (same live-verified id table).
+DEFAULT_FOLLOW_UP_STAGE_ID = "6"
+DEFAULT_FOLLOW_UP_DAY2_THRESHOLD = "2"
+DEFAULT_FOLLOW_UP_DAY4_THRESHOLD = "4"
+DEFAULT_FOLLOW_UP_DAY5_THRESHOLD = "5"
+DEFAULT_FOLLOW_UP_ESCALATION_BATCH_LIMIT = "200"
+
+# Idempotency markers, same shape as DEAD_LEAD_GRACE_ACTIVITY_SUMMARY — a
+# lead's escalation level is keyed off "does this exact activity already
+# exist", not off dwell-time arithmetic alone, so a lead already notified
+# at day 2 never gets re-notified every day until it crosses day 4.
+FOLLOW_UP_DAY2_ESCALATION_SUMMARY = "Follow Up Stalled: Day 2 Notification"
+FOLLOW_UP_DAY4_ESCALATION_SUMMARY = "Follow Up Stalled: Day 4 Final Warning"
 
 
 class CrmLead(models.Model):
@@ -763,4 +787,605 @@ class CrmLead(models.Model):
             len(to_grace_prompt),
             archived_count,
             run_marker,
+        )
+
+    # ── Daily lead distribution to SDRs ─────────────────────────────────────
+
+    @api.model
+    def _get_lead_distribution_mode(self):
+        """dry_run (default): compute the plan and write a reviewable CSV,
+        no writes. live: actually reassigns leads. Mirrors
+        _cron_dead_lead_cleanup's safety default — a bulk reassignment
+        across every SDR is easy to get wrong on a first run (wrong team,
+        wrong stage id), so it ships defaulting to dry-run same as that
+        cron."""
+        mode = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.lead_distribution_mode", "dry_run")
+        )
+        return mode if mode in ("dry_run", "live") else "dry_run"
+
+    @api.model
+    def _get_lead_distribution_target_per_sdr(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param(
+                "sgc_sales_playbook.lead_distribution_target_per_sdr",
+                DEFAULT_LEAD_DISTRIBUTION_TARGET_PER_SDR,
+            )
+        )
+        try:
+            return max(int(param), 0)
+        except (TypeError, ValueError):
+            return int(DEFAULT_LEAD_DISTRIBUTION_TARGET_PER_SDR)
+
+    @api.model
+    def _get_lead_distribution_stage(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param(
+                "sgc_sales_playbook.lead_distribution_stage_id",
+                DEFAULT_LEAD_DISTRIBUTION_STAGE_ID,
+            )
+        )
+        try:
+            stage_id = int(param)
+        except (TypeError, ValueError):
+            stage_id = int(DEFAULT_LEAD_DISTRIBUTION_STAGE_ID)
+        return self.env["crm.stage"].browse(stage_id).exists()
+
+    @api.model
+    def _get_lead_distribution_source_user(self):
+        """Whose New-stage lead pool gets drained to fill the SDRs. Config
+        param first (an explicit user id), falling back to the standard
+        Administrator account (base.user_admin, ships with every Odoo db)
+        rather than a hardcoded id — res.users ids are not guaranteed
+        stable across environments."""
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.lead_distribution_source_user_id")
+        )
+        if param:
+            try:
+                user = self.env["res.users"].browse(int(param)).exists()
+                if user:
+                    return user
+            except (TypeError, ValueError):
+                pass
+        return self.env.ref("base.user_admin", raise_if_not_found=False) or self.env["res.users"]
+
+    @api.model
+    def _get_lead_distribution_team(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param(
+                "sgc_sales_playbook.lead_distribution_team_id",
+                DEFAULT_LEAD_DISTRIBUTION_TEAM_ID,
+            )
+        )
+        try:
+            team_id = int(param)
+        except (TypeError, ValueError):
+            team_id = int(DEFAULT_LEAD_DISTRIBUTION_TEAM_ID)
+        return self.env["crm.team"].browse(team_id).exists()
+
+    @api.model
+    def _get_lead_distribution_sdr_users(self):
+        """The distribution pool: active members of the configured
+        crm.team, MINUS that team's own leader (crm.team.user_id) MINUS
+        the Administrator account — confirmed against a live snapshot
+        (2026-08-21) that the "Sales" team's leader IS Bran Madelo, so
+        excluding the team lead structurally also excludes him without a
+        hardcoded user id that would silently stop applying the moment
+        the team lead changes. An optional extra exclusion list
+        (lead_distribution_excluded_user_ids, empty by default) covers
+        any other one-off exclusion without a code change."""
+        team = self._get_lead_distribution_team()
+        if not team:
+            return self.env["res.users"]
+
+        excluded_ids = set()
+        if team.user_id:
+            excluded_ids.add(team.user_id.id)
+        admin = self.env.ref("base.user_admin", raise_if_not_found=False)
+        if admin:
+            excluded_ids.add(admin.id)
+        extra_param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.lead_distribution_excluded_user_ids", "")
+        )
+        for token in extra_param.split(","):
+            token = token.strip()
+            if token.isdigit():
+                excluded_ids.add(int(token))
+
+        members = team.crm_team_member_ids.filtered(
+            lambda m: m.active and m.user_id.active and m.user_id.id not in excluded_ids
+        )
+        return members.mapped("user_id")
+
+    @api.model
+    def _get_lead_distribution_report_user(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.lead_distribution_report_user_id")
+        )
+        if param:
+            try:
+                user = self.env["res.users"].browse(int(param)).exists()
+                if user:
+                    return user
+            except (TypeError, ValueError):
+                pass
+        manager_group = self.env.ref("sales_team.group_sale_manager", raise_if_not_found=False)
+        manager = manager_group.user_ids[:1] if manager_group else self.env["res.users"]
+        return manager or self.env.user
+
+    def _lead_distribution_write_report_csv(self, assignments, mode):
+        """Reviewable CSV of exactly which leads move to which SDR this
+        run — same 'attachment, not just a log line' approach as the
+        dead-lead cleanup dry-run (see _dead_lead_cleanup_write_dry_run_csv).
+        Written in both dry_run and live mode, so a live run leaves the
+        same audit trail behind it."""
+        if not assignments:
+            return None
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["id", "name", "partner", "from_user", "to_sdr", "mode"])
+        for sdr, leads in assignments.items():
+            for lead in leads:
+                writer.writerow([
+                    lead.id,
+                    lead.name,
+                    lead.partner_id.display_name or "",
+                    lead.user_id.display_name or "",
+                    sdr.display_name,
+                    mode,
+                ])
+
+        report_user = self._get_lead_distribution_report_user()
+        filename = "sgc_lead_distribution_%s_%s.csv" % (mode, fields.Date.today().isoformat())
+        attachment = self.env["ir.attachment"].sudo().create({
+            "name": filename,
+            "type": "binary",
+            "datas": base64.b64encode(buf.getvalue().encode("utf-8")),
+            "res_model": "res.users",
+            "res_id": report_user.id,
+            "mimetype": "text/csv",
+        })
+        _logger.info(
+            "SGC lead distribution CSV written: ir.attachment id=%d, name=%s, "
+            "attached to res.users id=%d (%s).",
+            attachment.id, filename, report_user.id, report_user.display_name,
+        )
+        return attachment
+
+    @api.model
+    def _cron_daily_lead_distribution(self):
+        """Tops up each SDR's "New"-stage queue to a fixed daily target
+        (default 60) by reassigning leads from the Administrator's
+        New-stage pool — SGC's top-of-funnel dump (~5,500 New leads live,
+        see SALES_PLAYBOOK_BUILD_DOCUMENTATION.md §1) sits under
+        Administrator until an SDR is assigned. Runs daily via ir.cron but
+        no-ops on Saturday/Sunday — ir.cron has no native weekday
+        scheduling, so the skip is done here in Python rather than via two
+        extra pause/resume crons.
+
+        "Fill", not "add N flat": an SDR already at/above the target
+        (e.g. worked through fewer leads yesterday) gets 0 new leads this
+        run; only the shortfall is pulled from the source pool. Confirmed
+        against a live snapshot (2026-08-21) this produces a real per-SDR
+        spread (39-124 already in New) rather than a uniform +60 for
+        everyone regardless of backlog.
+
+        The SDR pool is the configured crm.team's active members minus
+        that team's own leader minus Administrator (see
+        _get_lead_distribution_sdr_users) — not a hardcoded user list, so
+        team roster changes don't require a code change.
+
+        Defaults to DRY RUN (CSV attachment + log only) via
+        'sgc_sales_playbook.lead_distribution_mode' — flip to 'live' only
+        after reviewing the dry-run CSV attached to the report user.
+        """
+        today = fields.Date.today()
+        if today.weekday() >= 5:  # 5=Saturday, 6=Sunday
+            _logger.info(
+                "SGC lead distribution: skipped, %s is a weekend.", today.isoformat()
+            )
+            return
+
+        stage = self._get_lead_distribution_stage()
+        if not stage:
+            _logger.warning(
+                "SGC lead distribution: configured lead_distribution_stage_id "
+                "does not resolve to a crm.stage record. Skipping this run."
+            )
+            return
+
+        source_user = self._get_lead_distribution_source_user()
+        if not source_user:
+            _logger.warning(
+                "SGC lead distribution: no source user resolved "
+                "(lead_distribution_source_user_id unset and base.user_admin "
+                "missing). Skipping this run."
+            )
+            return
+
+        sdrs = self._get_lead_distribution_sdr_users()
+        if not sdrs:
+            _logger.warning(
+                "SGC lead distribution: no active SDR users resolved for "
+                "the configured team (excluding the team leader and "
+                "Administrator). Skipping this run."
+            )
+            return
+
+        target = self._get_lead_distribution_target_per_sdr()
+        mode = self._get_lead_distribution_mode()
+
+        needed = {}
+        for sdr in sdrs:
+            current = self.search_count([
+                ("user_id", "=", sdr.id),
+                ("stage_id", "=", stage.id),
+                ("active", "=", True),
+            ])
+            needed[sdr.id] = max(target - current, 0)
+
+        total_needed = sum(needed.values())
+        if total_needed == 0:
+            _logger.info(
+                "SGC lead distribution: every SDR already at/above target "
+                "(%d). Nothing to do.", target,
+            )
+            return
+
+        candidates = self.search(
+            [
+                ("user_id", "=", source_user.id),
+                ("stage_id", "=", stage.id),
+                ("active", "=", True),
+            ],
+            order="create_date asc",
+            limit=total_needed,
+        )
+
+        # Deterministic allocation order (by login) so a partially-starved
+        # source pool always shorts the same SDRs last, not whichever
+        # order sdrs happens to iterate in this run.
+        assignments = {}
+        cursor = 0
+        for sdr in sdrs.sorted("login"):
+            take = min(needed[sdr.id], len(candidates) - cursor)
+            if take <= 0:
+                continue
+            assignments[sdr] = candidates[cursor:cursor + take]
+            cursor += take
+
+        self._lead_distribution_write_report_csv(assignments, mode)
+
+        assigned_total = sum(len(leads) for leads in assignments.values())
+        if mode == "dry_run":
+            _logger.info(
+                "SGC lead distribution DRY RUN: would reassign %d of %d "
+                "needed lead(s) from %s across %d SDR(s) (source pool had "
+                "%d New-stage lead(s) available). Set "
+                "sgc_sales_playbook.lead_distribution_mode='live' to enable "
+                "after reviewing the CSV.",
+                assigned_total, total_needed, source_user.display_name,
+                len(assignments), len(candidates),
+            )
+            return
+
+        for sdr, leads in assignments.items():
+            for offset in range(0, len(leads), 200):
+                leads[offset:offset + 200].write({"user_id": sdr.id})
+
+        _logger.info(
+            "SGC lead distribution: reassigned %d lead(s) from %s across "
+            "%d SDR(s) (target %d each; source pool had %d New-stage "
+            "lead(s) available).",
+            assigned_total, source_user.display_name, len(assignments),
+            target, len(candidates),
+        )
+
+    # ── Follow Up stage escalation (day 2 / day 4 / day 5) ──────────────────
+
+    @api.model
+    def _get_follow_up_escalation_mode(self):
+        """dry_run (default): compute the plan and write a reviewable CSV —
+        no email, no activity, no reassignment. Same safety convention as
+        every other bulk cron in this file."""
+        mode = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.follow_up_escalation_mode", "dry_run")
+        )
+        return mode if mode in ("dry_run", "live") else "dry_run"
+
+    @api.model
+    def _get_follow_up_stage(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.follow_up_stage_id", DEFAULT_FOLLOW_UP_STAGE_ID)
+        )
+        try:
+            stage_id = int(param)
+        except (TypeError, ValueError):
+            stage_id = int(DEFAULT_FOLLOW_UP_STAGE_ID)
+        return self.env["crm.stage"].browse(stage_id).exists()
+
+    @api.model
+    def _get_follow_up_threshold(self, key, default):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param("sgc_sales_playbook.follow_up_%s_threshold" % key, str(default))
+        )
+        try:
+            return max(int(param), 1)
+        except (TypeError, ValueError):
+            return default
+
+    @api.model
+    def _get_follow_up_escalation_batch_limit(self):
+        param = (
+            self.env["ir.config_parameter"]
+            .sudo()
+            .get_param(
+                "sgc_sales_playbook.follow_up_escalation_batch_limit",
+                DEFAULT_FOLLOW_UP_ESCALATION_BATCH_LIMIT,
+            )
+        )
+        try:
+            return max(int(param), 0)
+        except (TypeError, ValueError):
+            return int(DEFAULT_FOLLOW_UP_ESCALATION_BATCH_LIMIT)
+
+    @api.model
+    def _business_days_elapsed(self, start_dt, end_date):
+        """Business days (Mon-Fri) elapsed from `start_dt` (a datetime) up
+        to `end_date` (a date), not counting the start day itself. A lead
+        that entered Follow Up Friday afternoon is 0 elapsed through
+        Friday, 1 through Monday, 2 through Tuesday — weekends don't
+        advance the count, matching the user's explicit choice that this
+        timer runs on business days only."""
+        if not start_dt:
+            return 0
+        start_date = start_dt.date() if hasattr(start_dt, "date") else start_dt
+        if end_date <= start_date:
+            return 0
+        elapsed = 0
+        cursor_date = start_date
+        while cursor_date < end_date:
+            cursor_date += timedelta(days=1)
+            if cursor_date.weekday() < 5:
+                elapsed += 1
+        return elapsed
+
+    def _send_follow_up_email(self, lead, subject, body):
+        salesperson = lead.user_id
+        email_to = salesperson.email or (salesperson.partner_id.email or False)
+        if not email_to:
+            _logger.warning(
+                "SGC follow-up escalation: salesperson %s (id %d) has no "
+                "email set — cannot send '%s' for lead %d.",
+                salesperson.display_name, salesperson.id, subject, lead.id,
+            )
+            return
+        mail = self.env["mail.mail"].sudo().create({
+            "subject": subject,
+            "body_html": "<p>%s</p>" % escape(body),
+            "email_to": email_to,
+            "auto_delete": True,
+        })
+        try:
+            mail.send()
+        except Exception:
+            _logger.exception(
+                "SGC follow-up escalation: failed to send email for lead "
+                "%d to %s", lead.id, email_to,
+            )
+
+    def _send_follow_up_escalation(self, lead, activity_type, summary, subject, body):
+        """Both channels the task asked for: an Odoo activity (idempotent
+        via `summary` — see _ensure_activity) for the in-app/bell
+        notification, an actual outbound email, and a chatter note so the
+        trail survives even if the activity is later marked done."""
+        lead._ensure_activity(activity_type, summary, body)
+        lead.message_post(body=body, subject=subject)
+        self._send_follow_up_email(lead, subject, body)
+
+    def _follow_up_escalation_write_report_csv(self, day2_notified, day4_warned, day5_redistributed, mode):
+        if not day2_notified and not day4_warned and not day5_redistributed:
+            return None
+        buf = io.StringIO()
+        writer = csv.writer(buf)
+        writer.writerow(["id", "name", "salesperson", "action", "new_sdr", "mode"])
+        for lead in day2_notified:
+            writer.writerow([lead.id, lead.name, lead.user_id.display_name, "day2_notify", "", mode])
+        for lead in day4_warned:
+            writer.writerow([lead.id, lead.name, lead.user_id.display_name, "day4_final_warning", "", mode])
+        for lead, new_sdr in day5_redistributed:
+            writer.writerow([lead.id, lead.name, lead.user_id.display_name, "day5_redistribute", new_sdr.display_name, mode])
+
+        report_user = self._get_lead_distribution_report_user()
+        filename = "sgc_follow_up_escalation_%s_%s.csv" % (mode, fields.Date.today().isoformat())
+        attachment = self.env["ir.attachment"].sudo().create({
+            "name": filename,
+            "type": "binary",
+            "datas": base64.b64encode(buf.getvalue().encode("utf-8")),
+            "res_model": "res.users",
+            "res_id": report_user.id,
+            "mimetype": "text/csv",
+        })
+        _logger.info(
+            "SGC follow-up escalation CSV written: ir.attachment id=%d, "
+            "name=%s, attached to res.users id=%d (%s).",
+            attachment.id, filename, report_user.id, report_user.display_name,
+        )
+        return attachment
+
+    @api.model
+    def _cron_follow_up_stage_escalation(self):
+        """3-step Follow Up stage discipline, thresholds counted in
+        BUSINESS days (Mon-Fri) of pure stage dwell (date_last_stage_update)
+        — the same dwell measure already used by every other timer in this
+        file (_cron_weekly_gate_review, _cron_dead_lead_cleanup):
+
+        - Business day 2+: notification (email + Odoo activity) to the
+          assigned salesperson. Idempotent per lead via
+          FOLLOW_UP_DAY2_ESCALATION_SUMMARY.
+        - Business day 4+: final warning (email + Odoo activity).
+          Idempotent via FOLLOW_UP_DAY4_ESCALATION_SUMMARY.
+        - Business day 5+: redistributed to a RANDOM different SDR — the
+          same pool as the daily lead-distribution cron (see
+          _get_lead_distribution_sdr_users: Sales team minus team leader
+          minus Administrator), explicitly excluding the lead's own
+          current owner so it always actually changes hands — and moved
+          back to the "New" stage (reusing the same stage config as the
+          distribution cron). This exits the Follow Up search domain, so
+          it can never re-trigger.
+
+        Highest threshold wins per lead per run (day5 check first, then
+        day4, then day2): if the cron was disabled for a stretch and a
+        lead jumps straight past an earlier threshold, it's redistributed
+        rather than sent a now-pointless day-2 notification.
+
+        Runs daily via ir.cron but no-ops on Saturday/Sunday — thresholds
+        are business-day counted, so nothing changes over the weekend to
+        check.
+
+        Defaults to DRY RUN via
+        'sgc_sales_playbook.follow_up_escalation_mode' — writes a
+        reviewable CSV, sends no email, creates no activity, reassigns
+        nothing. Flip to 'live' only after reviewing the CSV.
+        """
+        today = fields.Date.today()
+        if today.weekday() >= 5:  # 5=Saturday, 6=Sunday
+            _logger.info(
+                "SGC follow-up escalation: skipped, %s is a weekend.", today.isoformat()
+            )
+            return
+
+        stage = self._get_follow_up_stage()
+        if not stage:
+            _logger.warning(
+                "SGC follow-up escalation: configured follow_up_stage_id "
+                "does not resolve to a crm.stage record. Skipping this run."
+            )
+            return
+
+        mode = self._get_follow_up_escalation_mode()
+        day2 = self._get_follow_up_threshold("day2", int(DEFAULT_FOLLOW_UP_DAY2_THRESHOLD))
+        day4 = self._get_follow_up_threshold("day4", int(DEFAULT_FOLLOW_UP_DAY4_THRESHOLD))
+        day5 = self._get_follow_up_threshold("day5", int(DEFAULT_FOLLOW_UP_DAY5_THRESHOLD))
+        batch_limit = self._get_follow_up_escalation_batch_limit()
+
+        leads = self.search(
+            [
+                ("type", "=", "opportunity"),
+                ("active", "=", True),
+                ("stage_id", "=", stage.id),
+                ("date_last_stage_update", "!=", False),
+            ],
+            limit=batch_limit,
+            order="date_last_stage_update asc",
+        )
+
+        new_stage = self._get_lead_distribution_stage()
+
+        day2_notified = self.env["crm.lead"]
+        day4_warned = self.env["crm.lead"]
+        day5_redistributed = []  # [(lead, new_sdr), ...]
+
+        for lead in leads:
+            elapsed = self._business_days_elapsed(lead.date_last_stage_update, today)
+            if elapsed >= day5:
+                if not new_stage:
+                    continue
+                pool = self._get_lead_distribution_sdr_users() - lead.user_id
+                if not pool:
+                    continue
+                new_sdr = pool[random.randrange(len(pool))]
+                day5_redistributed.append((lead, new_sdr))
+            elif elapsed >= day4:
+                already_warned = self.env["mail.activity"].search_count([
+                    ("res_model", "=", "crm.lead"),
+                    ("res_id", "=", lead.id),
+                    ("summary", "=", FOLLOW_UP_DAY4_ESCALATION_SUMMARY),
+                ])
+                if not already_warned:
+                    day4_warned |= lead
+            elif elapsed >= day2:
+                already_notified = self.env["mail.activity"].search_count([
+                    ("res_model", "=", "crm.lead"),
+                    ("res_id", "=", lead.id),
+                    ("summary", "=", FOLLOW_UP_DAY2_ESCALATION_SUMMARY),
+                ])
+                if not already_notified:
+                    day2_notified |= lead
+
+        self._follow_up_escalation_write_report_csv(day2_notified, day4_warned, day5_redistributed, mode)
+
+        if mode == "dry_run":
+            _logger.info(
+                "SGC follow-up escalation DRY RUN: would notify %d (day "
+                "%d+), warn %d (day %d+), redistribute %d (day %d+). Set "
+                "sgc_sales_playbook.follow_up_escalation_mode='live' to "
+                "enable after reviewing the CSV.",
+                len(day2_notified), day2, len(day4_warned), day4,
+                len(day5_redistributed), day5,
+            )
+            return
+
+        todo = self.env.ref("mail.mail_activity_data_todo")
+        for lead in day2_notified:
+            self._send_follow_up_escalation(
+                lead, todo, FOLLOW_UP_DAY2_ESCALATION_SUMMARY,
+                _("Follow Up Stalled (Day %d+): please action") % day2,
+                _(
+                    "'%(name)s' has been in Follow Up for %(days)d+ "
+                    "business days without moving. Please action it today."
+                ) % {"name": lead.name, "days": day2},
+            )
+        for lead in day4_warned:
+            self._send_follow_up_escalation(
+                lead, todo, FOLLOW_UP_DAY4_ESCALATION_SUMMARY,
+                _("FINAL WARNING: Follow Up Stalled (Day %d+)") % day4,
+                _(
+                    "'%(name)s' has been in Follow Up for %(days)d+ "
+                    "business days without moving. It will be "
+                    "redistributed to another SDR on day %(day5)d if not "
+                    "actioned."
+                ) % {"name": lead.name, "days": day4, "day5": day5},
+            )
+
+        for lead, new_sdr in day5_redistributed:
+            old_owner = lead.user_id
+            lead.message_post(body=_(
+                "Auto-redistributed by SGC follow-up escalation: stalled "
+                "%(days)d+ business days in Follow Up with no action. "
+                "Reassigned from %(old)s to %(new)s and moved back to "
+                "%(stage)s."
+            ) % {
+                "days": day5,
+                "old": old_owner.display_name,
+                "new": new_sdr.display_name,
+                "stage": new_stage.display_name,
+            })
+            lead.write({"user_id": new_sdr.id, "stage_id": new_stage.id})
+
+        _logger.info(
+            "SGC follow-up escalation: notified %d, warned %d, "
+            "redistributed %d.",
+            len(day2_notified), len(day4_warned), len(day5_redistributed),
         )

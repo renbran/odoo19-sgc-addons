@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC - Sales Playbook (Lead Gating & Qualification)",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.2.0",
     "category": "CRM",
     "summary": "Gates the Proposal stage behind Verifiable Buyer Exit Criteria and tracks SDR discovery/objection handling",
     "description": """
@@ -21,6 +21,16 @@ directly in the CRM pipeline:
   cleanup pass for leads stalled in "No Answer"/"Not Interested" without
   a lost reason (dry-run/log-only by default — see README before enabling
   auto-archive on a live database).
+* Daily lead distribution — tops up each SDR's "New"-stage queue to a
+  configurable target (default 60) from the Administrator's New-stage
+  pool, Monday-Friday only. SDR pool = the configured team's members
+  minus the team leader minus Administrator. Dry-run/CSV-only by default
+  — see README before enabling live reassignment.
+* Follow Up stage escalation — business-day timer on every Follow Up
+  lead: day 2+ notification (email + Odoo activity), day 4+ final
+  warning, day 5+ random redistribution to a different SDR (never back
+  to the same owner) with the stage reset to New. Dry-run/CSV-only by
+  default — see README before enabling live notifications/reassignment.
 * A static playbook cheat-sheet reference reachable from the CRM menu.
 
 Builds on top of sgc_lead_scoring's existing BANT fields and the

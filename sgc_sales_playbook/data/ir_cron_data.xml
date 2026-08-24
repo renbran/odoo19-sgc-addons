@@ -25,5 +25,40 @@
             <field name="active" eval="True"/>
         </record>
 
+        <!-- Fills each SDR's "New"-stage queue to a daily target (default
+             60) from the Administrator's New-stage pool. Skips
+             Saturday/Sunday internally (see
+             crm_lead.py::_cron_daily_lead_distribution) — ir.cron has no
+             native weekday scheduling, so it still fires daily and no-ops
+             on the weekend rather than being paused/resumed by extra
+             crons. Defaults to dry-run via
+             sgc_sales_playbook.lead_distribution_mode. -->
+        <record id="ir_cron_daily_lead_distribution" model="ir.cron">
+            <field name="name">SGC Sales Playbook: Daily Lead Distribution to SDRs (dry-run by default)</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_daily_lead_distribution()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- 3-step Follow Up stage discipline (business-day dwell): day 2+
+             notification, day 4+ final warning, day 5+ random
+             redistribution to a different SDR + reset to New. Skips
+             Saturday/Sunday internally (see
+             crm_lead.py::_cron_follow_up_stage_escalation) since
+             thresholds are business-day counted. Defaults to dry-run via
+             sgc_sales_playbook.follow_up_escalation_mode. -->
+        <record id="ir_cron_follow_up_stage_escalation" model="ir.cron">
+            <field name="name">SGC Sales Playbook: Follow Up Stage Escalation (dry-run by default)</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_follow_up_stage_escalation()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+
     </data>
 </odoo>
