@@ -48,7 +48,7 @@ export class DfrFilterWidget extends Component {
         const domain = filterDef.domain ? JSON.parse(filterDef.domain.replace(/'/g, '"')) : [];
         const results = await this.orm.call(filterDef.model, "name_search", [], {
             name: term,
-            args: domain,
+            domain: domain,
             operator: "ilike",
             limit: 20,
         });
