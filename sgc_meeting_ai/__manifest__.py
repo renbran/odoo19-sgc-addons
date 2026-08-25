@@ -20,6 +20,9 @@
         # dependency when sgc.meeting.notes.opportunity_id (a related field
         # through that path) was added for the sgc_sales_playbook gate hook.
         "crm",
+        # Provides the 'whatsapp' calendar.alarm type used by the default
+        # meeting reminders (data/sgc_meeting_reminder_alarms.xml).
+        "calendar_whatsapp",
     ],
     "external_dependencies": {
         "python": ["requests", "markupsafe"],
@@ -28,6 +31,7 @@
         "security/sgc_meeting_ai_security.xml",
         "security/ir.model.access.csv",
         "data/sgc_meeting_data.xml",
+        "data/sgc_meeting_reminder_alarms.xml",
         "data/mail_templates.xml",
         "data/sgc_meeting_invitation_template.xml",
         "views/actions.xml",

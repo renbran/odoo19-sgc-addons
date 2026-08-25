@@ -32,8 +32,22 @@ class ResourceBooking(models.Model):
                     booking.type_id.sgc_meeting_provider_id
                 )
 
+    def _sgc_default_reminder_alarm_ids(self):
+        """The email + WhatsApp 30-minute reminder alarms shipped as data."""
+        alarms = self.env["calendar.alarm"]
+        for xmlid in (
+            "sgc_meeting_ai.sgc_meeting_reminder_email",
+            "sgc_meeting_ai.sgc_meeting_reminder_whatsapp",
+        ):
+            alarm = self.env.ref(xmlid, raise_if_not_found=False)
+            if alarm:
+                alarms |= alarm
+        return alarms
+
     def _prepare_meeting_vals(self):
         vals = super()._prepare_meeting_vals()
+        if "alarm_ids" not in vals:
+            vals["alarm_ids"] = [(6, 0, self._sgc_default_reminder_alarm_ids().ids)]
         provider = self.sgc_meeting_provider_id or self.type_id.sgc_meeting_provider_id
         # google_meet is left untouched here: videocall_location must stay
         # empty so google_calendar's own sync generates a *real* Meet room
