@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 /**
- * SGC AI Powerbox — registers the /sgcai Powerbox command on Odoo 19.
+ * SGC AI Powerbox — registers the /sgctechai Powerbox command on Odoo 19.
  *
  * Strategy:
  *   1. Define a Plugin class (SgcAIPowerboxPlugin) with `resources =
@@ -11,7 +11,7 @@
  *      the existing `Plugins` array (which already contains MAIN_PLUGINS, etc.).
  *
  * Runtime behavior:
- *   - Type `/sgcai` in any html_field to open the Powerbox.
+ *   - Type `/sgctechai` in any html_field to open the Powerbox.
  *   - The item appears under a new category "SGC AI".
  *   - When selected, the plugin opens a dialog with a textarea so the user
  *     can type a prompt (or, if text was pre-selected, edit / extend it).
@@ -130,17 +130,17 @@ export class SgcAIPowerboxPlugin extends Plugin {
         ],
         user_commands: [
             {
-                id: "sgcai",
-                title: _t("Ask SGC AI"),
+                id: "sgctechai",
+                title: _t("Ask SGC TECH AI"),
                 description: _t("Open a chat prompt. The response is inserted at the cursor."),
                 icon: "fa-magic",
-                run: () => this.executeSgcai(),
+                run: () => this.executeSgctechai(),
             },
         ],
         powerbox_items: [
             {
                 categoryId: "sgc_ai",
-                commandId: "sgcai",
+                commandId: "sgctechai",
             },
         ],
     };
@@ -172,7 +172,7 @@ export class SgcAIPowerboxPlugin extends Plugin {
         }
     }
 
-    async executeSgcai() {
+    async executeSgctechai() {
         const selection = this.dependencies.selection.getEditableSelection();
         const selectedText = (selection?.textContent?.() || "").trim();
 
