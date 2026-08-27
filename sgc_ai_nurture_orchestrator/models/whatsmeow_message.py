@@ -66,7 +66,7 @@ class WhatsmeowMessage(models.Model):
         for lead in candidates:
             lead_suffixes = (
                 _digits(lead.phone)[-_PHONE_SUFFIX_LEN:],
-                _digits(lead.mobile)[-_PHONE_SUFFIX_LEN:],
+                _digits(getattr(lead, "mobile", False))[-_PHONE_SUFFIX_LEN:],
             )
             if suffix in lead_suffixes:
                 return lead
