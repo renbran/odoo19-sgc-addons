@@ -117,7 +117,7 @@ class HrEmployee(models.Model):
         ('final_written', 'Final Written Warning'),
         ('dismissal', 'Notice of Dismissal'),
     ], string="Warning Type", default='first_written')
-    warning_letter_reason = fields.Text("Warning Letter Reason", required=True)
+    warning_letter_reason = fields.Text("Warning Letter Reason")
     warning_letter_supervisor = fields.Many2one('hr.employee', string="Supervisor")
     warning_letter_improvement_period = fields.Integer("Improvement Period (Days)", default=30)
     warning_letter_acknowledged = fields.Boolean("Acknowledged by Employee")
