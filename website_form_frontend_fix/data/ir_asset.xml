@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="asset_frontend_website_form" model="ir.asset">
+            <field name="name">website_form.xml in frontend</field>
+            <field name="bundle">web.assets_frontend</field>
+            <field name="directive">prepend</field>
+            <field name="path">website/static/src/xml/website_form.xml</field>
+        </record>
+    </data>
+</odoo>
