@@ -53,7 +53,15 @@ branded transactional emails; a consuming template sets
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
-    "depends": ["web", "mail"],
+    # 2026-09-19: social_media added explicitly. views/report_layout_sgc.xml's
+    # external_layout_sgc template reads company.social_facebook/_twitter/
+    # _linkedin, which only exist because social_media happens to be
+    # installed for unrelated reasons on this database today - this module
+    # never declared that dependency itself, so real report rendering would
+    # have broken the day social_media was ever uninstalled. Declaring it
+    # here makes the existing runtime requirement explicit rather than
+    # accidental; it does not change any currently-installed module set.
+    "depends": ["web", "mail", "social_media"],
     "data": [
         "data/paperformat_data.xml",
         "data/document_layout_data.xml",
