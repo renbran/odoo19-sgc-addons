@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Dedicated integration group. Deliberately NOT implied by any other group: a user
+         gets access to the KartaTap checkout method only by being added to it explicitly. -->
+    <!-- Odoo 19 removed res.groups.category_id in favour of privilege_id. This group is
+         deliberately left WITHOUT a privilege (and therefore without a category): it is an
+         integration-only right that must not show up as an obvious toggle in the ordinary
+         user form. Membership is granted explicitly to the machine-to-machine user. -->
+    <record id="group_kartatap_integration" model="res.groups">
+        <field name="name">KartaTap Integration</field>
+        <field name="comment">Allows calling the KartaTap hosted-checkout business method. Grant only to the machine-to-machine integration user.</field>
+    </record>
+
+</odoo>

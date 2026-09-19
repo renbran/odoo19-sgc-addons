@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- KartaTap company. Leave empty to resolve the company named exactly "KartaTap". -->
+        <record id="param_company_id" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.company_id</field>
+            <field name="value"></field>
+        </record>
+
+        <!-- Kill switch. False makes the hosted-checkout method refuse every request. -->
+        <record id="param_checkout_enabled" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.checkout_enabled</field>
+            <field name="value">True</field>
+        </record>
+
+        <!-- Plan -> product internal reference (default_code). -->
+        <record id="param_product_code_solo" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.product_code_solo</field>
+            <field name="value">KT-SOLO</field>
+        </record>
+        <record id="param_product_code_team" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.product_code_team</field>
+            <field name="value">KT-TEAM</field>
+        </record>
+        <record id="param_product_code_business" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.product_code_business</field>
+            <field name="value">KT-BUSINESS</field>
+        </record>
+
+        <!-- Hosts allowed for return_url / cancel_url. When empty, only *.kartatap.com is
+             accepted, so a compromised caller cannot turn the integration into an open
+             redirect. -->
+        <record id="param_allowed_return_hosts" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.allowed_return_hosts</field>
+            <field name="value">card.kartatap.com,kartatap.com</field>
+        </record>
+
+        <!-- Public Odoo base URL the hosted payment link must start with. PRODUCTION MUST
+             SET THIS (e.g. https://app.sgctech.ai): the generated link is then rejected
+             unless it starts with this base, so a wrong `web.base.url` can never send a
+             customer to the wrong host. Left empty, only an absolute http(s) link is
+             required, which keeps local and staging runs usable. -->
+        <record id="param_public_base_url" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.public_base_url</field>
+            <field name="value"></field>
+        </record>
+
+        <!-- Reserved for version 19.0.1.1.0: the Odoo -> KartaTap entitlement push. It is
+             deliberately inert in this version; the checkout flow never calls out. -->
+        <record id="param_entitlement_push_enabled" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.entitlement_push_enabled</field>
+            <field name="value">False</field>
+        </record>
+
+    </data>
+</odoo>
