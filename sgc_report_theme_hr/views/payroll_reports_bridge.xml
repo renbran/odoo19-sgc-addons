@@ -14,7 +14,21 @@
 
     <template id="report_payslipdetails_uae_wps_sgc"
               inherit_id="eh_uae_payroll_wps.report_payslipdetails_uae_wps">
-        <xpath expr="//t[@t-call='web.basic_layout']" position="attributes">
+        <!-- 2026-09-19 fix: the parent template (eh_uae_payroll_wps/report/
+             uae_payslip_report.xml, template id report_payslipdetails_uae_wps,
+             the one action_report_uae_payslip actually binds and prints)
+             t-calls web.internal_layout, never web.basic_layout - confirmed by
+             reading that file directly, not assumed. web.basic_layout appears
+             nowhere in that module. The original xpath here never matched
+             anything, so -u/-i on this database could never complete a full
+             registry reload for ANY module (Odoo revalidates every view during
+             that pass), which is what actually blocked deploying an unrelated
+             fix (sgc_report_theme_core's social_linkedin bug) and is presumably
+             also why this bridge template itself never actually took effect -
+             the UAE WPS payslip has likely been printing on its stock layout
+             this whole time, not the SGC theme, despite this module being
+             installed. -->
+        <xpath expr="//t[@t-call='web.internal_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
         </xpath>
     </template>

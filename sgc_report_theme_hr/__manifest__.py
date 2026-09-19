@@ -11,8 +11,16 @@ Bridge module for the two payslip documents:
 - hr_payroll_community.report_payslipdetails (t-calls web.external_layout
   directly - same pattern as the other bridges)
 - eh_uae_payroll_wps.report_payslipdetails_uae_wps (t-calls
-  web.basic_layout, not web.external_layout - re-pointed the same way,
+  web.internal_layout, not web.external_layout - re-pointed the same way,
   swapping only the t-call attribute)
+
+2026-09-19: corrected the second bullet above from "web.basic_layout" to
+"web.internal_layout" - that was always wrong (confirmed by reading
+eh_uae_payroll_wps/report/uae_payslip_report.xml directly: it never calls
+web.basic_layout at all), and the matching bug in
+views/payroll_reports_bridge.xml's xpath meant this module's second
+template never actually took effect, and blocked any -u/-i registry
+reload on this database for any module while it was installed.
 
 Uninstalling this module reverts both to their stock layout.
 """,
