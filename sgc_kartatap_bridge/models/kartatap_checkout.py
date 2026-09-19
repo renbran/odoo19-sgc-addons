@@ -103,23 +103,23 @@ class KartatapCheckout(models.AbstractModel):
         return self._checkout_response(order, plan_code, quantity, deduplicated=False)
 
     def _checkout_response(self, order, plan_code, quantity, deduplicated):
-        link = (
-            self.env["payment.link.wizard"]
-            .sudo()
-            .create(
-                {
-                    "res_model": "sale.order",
-                    "res_id": order.id,
-                    "amount": order.amount_total,
-                    "currency_id": order.currency_id.id,
-                    "partner_id": order.partner_id.id,
-                }
-            )
-        )
+        # payment.link.wizard._compute_link() calls order.get_base_url(), which
+        # (odoo/addons/website/models/ir_model.py) prefers company_id.website_id
+        # .domain over web.base.url when it's set. KartaTap company (id 10) has
+        # a Website record whose domain is https://app.kartatap.com -- an
+        # unrelated marketing domain, not this Odoo instance's approved host.
+        # KartaTap's own client (assertSafeCheckoutUrl) only accepts
+        # ODOO_ALLOWED_HOSTS (default app.sgctech.ai), so a link on that other
+        # domain would be rejected as odoo_invalid_response. Build the URL
+        # directly against the frozen web.base.url instead of going through
+        # the wizard's host resolution.
+        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+        portal_path = order.get_portal_url(query_string=f"&payment_amount={order.amount_total}")
+        checkout_url = f"{base_url}{portal_path}"
         return {
             "ok": True,
             "deduplicated": deduplicated,
-            "checkout_url": link.link,
+            "checkout_url": checkout_url,
             "amount": order.amount_total,
             "currency": order.currency_id.name,
             "plan_code": plan_code,
