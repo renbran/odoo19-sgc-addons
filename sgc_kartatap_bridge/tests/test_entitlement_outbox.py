@@ -53,6 +53,11 @@ class TestEntitlementOutbox(TransactionCase):
                 "company_id": cls.company.id,
             }
         )
+        (cls.env.ref("base.USD") | cls.env.ref("base.AED")).sudo().write({"active": True})
+        # The add-on's own currency-less monthly price: KartaTap orders must ignore it.
+        cls.env["product.subscription.pricing"].sudo().create(
+            {"name": "TEAM", "product_id": cls.team.id, "period_id": cls.monthly.id, "price": 22.0}
+        )
         cls.Checkout = cls.env["kartatap.checkout"].sudo()
         cls.Event = cls.env["kartatap.entitlement.event"].sudo()
 
@@ -84,10 +89,55 @@ class TestEntitlementOutbox(TransactionCase):
 
     # --------------------------------------------------------------- checkout
 
-    def test_checkout_accepts_billing_interval_and_display_currency(self):
-        order = self._order(request_id="req-interval-01", billing_interval="month", currency="USD")
-        self.assertEqual(order.recurrance_id, self.monthly)
-        self.assertEqual(order.currency_id, self.company.currency_id)
+    def test_checkout_bills_in_the_requested_currency(self):
+        usd = self._order(request_id="req-currency-usd", billing_interval="month", currency="USD")
+        self.assertEqual(usd.recurrance_id, self.monthly)
+        self.assertEqual(usd.currency_id, self.env.ref("base.USD"))
+        self.assertEqual(usd.order_line.price_unit, 6.0)
+        self.assertEqual(usd.amount_untaxed, 18.0)  # 3 seats x USD 6
+        result = self.Checkout.create_or_get_kartatap_checkout(
+            {"kartatap_company_id": "tenant-alpha-01", "kartatap_request_id": "req-currency-usd",
+             "plan_code": "TEAM", "quantity": 3, "currency": "USD", "company_name": "Tenant"}
+        )
+        self.assertEqual((result["currency"], result["amount_untaxed"]), ("USD", 18.0))
+        aed = self._order(tenant="tenant-beta-01", request_id="req-currency-aed", currency="AED")
+        self.assertEqual(aed.currency_id, self.env.ref("base.AED"))
+        self.assertEqual(aed.order_line.price_unit, 22.0)
+        yearly = self._order(tenant="tenant-gamma-01", request_id="req-currency-year", currency="USD", billing_interval="year")
+        self.assertEqual(yearly.recurrance_id, self.yearly)
+        self.assertEqual(yearly.order_line.price_unit, 66.0)
+
+    def test_renewal_recompute_keeps_the_currency_price(self):
+        # sttl resets price_unit to its currency-less 22 on recompute (e.g. the quantity
+        # bump of each recurring invoice); a USD order must stay at USD 6.
+        order = self._confirmed(request_id="req-currency-renew", currency="USD")
+        line = order.order_line
+        line.product_uom_qty = line.product_uom_qty + 3
+        line.with_context(force_price_recomputation=True)._compute_price_unit()
+        self.assertEqual(line.price_unit, 6.0)
+        self.assertEqual(order.currency_id, self.env.ref("base.USD"))
+
+    def test_currency_without_prices_or_inactive_is_refused(self):
+        eur = self.env.ref("base.EUR").sudo()
+        eur.active = False
+        with self.assertRaisesRegex(UserError, "kartatap_currency_not_billable:EUR"):
+            self._order(request_id="req-currency-eur-1", currency="EUR")
+        eur.active = True  # active but no KartaTap prices yet
+        with self.assertRaisesRegex(UserError, "kartatap_currency_not_billable:EUR"):
+            self._order(request_id="req-currency-eur-2", currency="EUR")
+        self.assertFalse(self.env["sale.order"].search([("kartatap_request_id", "like", "req-currency-eur")]))
+
+    def test_opening_a_market_is_configuration_only(self):
+        eur = self.env.ref("base.EUR").sudo()
+        eur.active = True
+        Price = self.env["kartatap.price"].sudo()
+        for plan, month, year in (("SOLO", 7.5, 82.5), ("TEAM", 5.5, 60.5), ("BUSINESS", 11.0, 121.0)):
+            Price.create({"plan_code": plan, "interval": "month", "currency_id": eur.id, "amount": month})
+            Price.create({"plan_code": plan, "interval": "year", "currency_id": eur.id, "amount": year})
+        order = self._order(request_id="req-currency-eur-3", currency="EUR")
+        self.assertEqual(order.currency_id, eur)
+        self.assertEqual(order.order_line.price_unit, 5.5)
+        self.assertEqual(order.pricelist_id.name, "KartaTap EUR")
 
     def test_checkout_rejects_unknown_interval_and_malformed_currency(self):
         with self.assertRaises(ValidationError):
@@ -95,8 +145,20 @@ class TestEntitlementOutbox(TransactionCase):
         with self.assertRaises(ValidationError):
             self._order(request_id="req-interval-03", currency="usd1")
 
-    def test_yearly_checkout_requires_an_explicit_yearly_price(self):
-        with self.assertRaises(UserError):
+    def test_payment_link_is_served_from_the_public_base(self):
+        rebase = type(self.Checkout)._rebase_link
+        base = "https://app.sgctech.ai"
+        self.assertEqual(
+            rebase("https://app.kartatap.com/my/orders/7?access_token=abc&payment_amount=29.0", base),
+            "https://app.sgctech.ai/my/orders/7?access_token=abc&payment_amount=29.0",
+        )
+        self.assertEqual(rebase("https://app.sgctech.ai/my/orders/7?x=1", base), "https://app.sgctech.ai/my/orders/7?x=1")
+        self.assertEqual(rebase("javascript:alert(1)", base), "javascript:alert(1)")
+        self.assertEqual(rebase("/relative/path", base), "/relative/path")
+
+    def test_missing_interval_price_is_refused_not_guessed(self):
+        self.env.ref("sgc_kartatap_bridge.price_aed_team_year").sudo().unlink()
+        with self.assertRaisesRegex(UserError, "kartatap_price_missing:TEAM/year/AED"):
             self._order(request_id="req-yearly-01", billing_interval="year")
 
     # -------------------------------------------------------------- reconcile

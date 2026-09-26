@@ -35,3 +35,29 @@ class SaleOrder(models.Model):
         "unique(kartatap_request_id)",
         "An order already exists for this KartaTap request ID.",
     )
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    def _compute_price_unit(self):
+        """KartaTap orders are priced from kartatap.price in the order's own currency.
+
+        `sttl_sale_subscription` resets price_unit on every recompute (including the
+        quantity bump of each recurring invoice) to its single currency-less number,
+        which would charge a USD subscription the AED figure at renewal. This runs after
+        it (this module depends on it) and restores the correct price for KartaTap
+        orders only; every other order keeps the add-on's behaviour.
+        """
+        super()._compute_price_unit()
+        Price = self.env["kartatap.price"].sudo()
+        for line in self:
+            order = line.order_id
+            if not order.kartatap_request_id or not order.recurrance_id or not line.product_id:
+                continue
+            plan = Price._plan_for_product(line.product_id)
+            if not plan:
+                continue
+            price = Price._find(plan, order.recurrance_id.unit, order.currency_id)
+            if price:
+                line.price_unit = price.amount

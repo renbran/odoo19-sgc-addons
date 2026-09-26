@@ -1,5 +1,6 @@
 import logging
 import re
+from urllib.parse import urlsplit, urlunsplit
 
 from odoo import api, models, _
 from odoo.exceptions import UserError, ValidationError
@@ -169,10 +170,9 @@ class KartatapCheckout(models.TransientModel):
             raise ValidationError(_("quantity may not exceed %s.") % MAX_QUANTITY)
         data["quantity"] = quantity
 
-        # Odoo is the pricing authority and bills in the KartaTap company's currency.
-        # The requested currency is KartaTap's display selection: it is validated and
-        # recorded on the order, and the response reports the currency actually billed,
-        # so the customer always sees the real amount on the hosted payment page.
+        # The order is billed in the requested currency, at the kartatap.price amount for
+        # that currency. A currency Odoo cannot bill (inactive, or without prices) is
+        # refused in _create_order rather than silently charged in another currency.
         currency = str(payload["currency"]).strip().upper()
         if not _CURRENCY.match(currency):
             raise ValidationError(_("currency must be a 3-letter ISO code."))
@@ -289,23 +289,23 @@ class KartatapCheckout(models.TransientModel):
     def _create_order(self, data, partner, company):
         product = self._product_for_plan(data["plan_code"], company)
         period = self._period_for(data["billing_interval"])
-        variant = product.product_variant_id
-
-        pricing = variant.subscription_price_ids.filtered(lambda r: r.period_id == period)
-        if not pricing and data["billing_interval"] != "month":
-            # list_price is the monthly price; falling back to it would bill a whole
-            # year at one month's price.
+        Price = self.env["kartatap.price"]
+        currency = Price._billable_currency(data["currency"])
+        price = Price._find(data["plan_code"], data["billing_interval"], currency)
+        if not price:
+            # Never fall back to another interval or currency: that would bill a year at
+            # one month's price, or charge a figure in the wrong currency.
             raise UserError(
-                _("Product %(code)s has no %(unit)s subscription price configured.")
-                % {"code": product.default_code, "unit": data["billing_interval"]}
+                _("kartatap_price_missing:%(plan)s/%(unit)s/%(cur)s")
+                % {"plan": data["plan_code"], "unit": data["billing_interval"], "cur": currency.name}
             )
-        price_unit = pricing[:1].price if pricing else product.list_price
 
         order = self.env["sale.order"].sudo().create(
             {
                 "partner_id": partner.id,
                 "company_id": company.id,
-                "currency_id": company.currency_id.id,
+                # Odoo 19 derives the order currency from its pricelist.
+                "pricelist_id": self._pricelist_for(currency, company).id,
                 # This checkout is API-driven: the customer never visits a portal
                 # quotation page to click Accept & Sign, so Odoo's own
                 # _check_amount_and_confirm_order() (sale/models/payment_transaction.py)
@@ -326,7 +326,7 @@ class KartatapCheckout(models.TransientModel):
                         {
                             "product_id": product.id,
                             "product_uom_qty": data["quantity"],
-                            "price_unit": price_unit,
+                            "price_unit": price.amount,
                         },
                     )
                 ],
@@ -337,7 +337,7 @@ class KartatapCheckout(models.TransientModel):
             "KartaTap tenant: %s" % data["kartatap_company_id"],
             "KartaTap request: %s" % data["kartatap_request_id"],
             "Billing interval: %s" % data["billing_interval"],
-            "Requested currency: %s (billed in %s)" % (data["currency"], company.currency_id.name),
+            "Billed in: %s" % currency.name,
         ]
         if data["return_url"]:
             note_lines.append("Return URL: %s" % data["return_url"])
@@ -348,6 +348,36 @@ class KartatapCheckout(models.TransientModel):
         if order.state in ("draft", "sent"):
             order.action_quotation_sent()
         return order
+
+    @api.model
+    def _pricelist_for(self, currency, company):
+        """The KartaTap pricelist in `currency` (created on first use). Prices come from
+        kartatap.price, so the pricelist only carries the currency."""
+        Pricelist = self.env["product.pricelist"].sudo()
+        name = "KartaTap %s" % currency.name
+        pricelist = Pricelist.search(
+            [("name", "=", name), ("currency_id", "=", currency.id), ("company_id", "=", company.id)],
+            limit=1,
+        )
+        return pricelist or Pricelist.create(
+            {"name": name, "currency_id": currency.id, "company_id": company.id}
+        )
+
+    @staticmethod
+    def _rebase_link(link, base):
+        """Serve the portal path from the configured public base.
+
+        The wizard resolves its host through `get_base_url()`, which prefers the
+        company's website domain over `web.base.url`. The KartaTap company's website
+        domain is an unrelated marketing host, so the link it yields would point
+        customers away from this Odoo. The path and query (`/my/orders/<id>?
+        access_token=...`) are valid on this instance's public host, so only the
+        origin is replaced. Anything that is not an absolute http(s) URL is left
+        unchanged and then refused by the caller's check."""
+        parts = urlsplit(link)
+        if parts.scheme not in ("http", "https") or not parts.netloc or not parts.path.startswith("/"):
+            return link
+        return base + urlunsplit(("", "", parts.path, parts.query, parts.fragment))
 
     @api.model
     def _payment_link(self, order):
@@ -385,6 +415,7 @@ class KartatapCheckout(models.TransientModel):
 
         expected_base = (self._param("public_base_url") or "").strip().rstrip("/")
         if expected_base:
+            link = self._rebase_link(link, expected_base)
             if not link.startswith(expected_base + "/"):
                 raise UserError(
                     _(
@@ -405,6 +436,8 @@ class KartatapCheckout(models.TransientModel):
             "partner_reused": bool(partner_reused),
             "checkout_url": self._payment_link(order),
             "amount": order.amount_total,
+            # Untaxed, so KartaTap can check it against its published price book.
+            "amount_untaxed": order.amount_untaxed,
             "currency": order.currency_id.name,
             "plan_code": line.product_id.default_code or "",
             "quantity": int(sum(order.order_line.mapped("product_uom_qty"))),

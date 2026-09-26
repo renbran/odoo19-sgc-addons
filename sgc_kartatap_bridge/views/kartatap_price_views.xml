@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_kartatap_price_list" model="ir.ui.view">
+        <field name="name">kartatap.price.list</field>
+        <field name="model">kartatap.price</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="currency_id"/>
+                <field name="plan_code"/>
+                <field name="interval"/>
+                <field name="amount"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_kartatap_price" model="ir.actions.act_window">
+        <field name="name">KartaTap prices</field>
+        <field name="res_model">kartatap.price</field>
+        <field name="view_mode">list</field>
+        <field name="context">{'active_test': False}</field>
+    </record>
+
+    <menuitem id="menu_kartatap_price"
+              name="KartaTap Prices"
+              parent="base.menu_custom"
+              action="action_kartatap_price"
+              groups="base.group_system"
+              sequence="91"/>
+
+</odoo>

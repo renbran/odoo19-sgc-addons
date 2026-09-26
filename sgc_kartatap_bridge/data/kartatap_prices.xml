@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- KartaTap price book per currency (mirrors src/lib/pricing.ts, per seat).
+         noupdate: prices are business data owned by Odoo administrators after install;
+         a module upgrade never overwrites an edited price. To open a market, activate
+         the currency and add its six rows (Settings > Technical > KartaTap Prices). -->
+    <data noupdate="1">
+        <record id="price_usd_solo_month" model="kartatap.price">
+            <field name="plan_code">SOLO</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">8</field>
+        </record>
+        <record id="price_usd_solo_year" model="kartatap.price">
+            <field name="plan_code">SOLO</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">88</field>
+        </record>
+        <record id="price_usd_team_month" model="kartatap.price">
+            <field name="plan_code">TEAM</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">6</field>
+        </record>
+        <record id="price_usd_team_year" model="kartatap.price">
+            <field name="plan_code">TEAM</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">66</field>
+        </record>
+        <record id="price_usd_business_month" model="kartatap.price">
+            <field name="plan_code">BUSINESS</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">12</field>
+        </record>
+        <record id="price_usd_business_year" model="kartatap.price">
+            <field name="plan_code">BUSINESS</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="amount">132</field>
+        </record>
+        <record id="price_aed_solo_month" model="kartatap.price">
+            <field name="plan_code">SOLO</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">29</field>
+        </record>
+        <record id="price_aed_solo_year" model="kartatap.price">
+            <field name="plan_code">SOLO</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">319</field>
+        </record>
+        <record id="price_aed_team_month" model="kartatap.price">
+            <field name="plan_code">TEAM</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">22</field>
+        </record>
+        <record id="price_aed_team_year" model="kartatap.price">
+            <field name="plan_code">TEAM</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">242</field>
+        </record>
+        <record id="price_aed_business_month" model="kartatap.price">
+            <field name="plan_code">BUSINESS</field>
+            <field name="interval">month</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">45</field>
+        </record>
+        <record id="price_aed_business_year" model="kartatap.price">
+            <field name="plan_code">BUSINESS</field>
+            <field name="interval">year</field>
+            <field name="currency_id" ref="base.AED"/>
+            <field name="amount">495</field>
+        </record>
+    </data>
+</odoo>
