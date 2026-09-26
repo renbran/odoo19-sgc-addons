@@ -1,25 +1,32 @@
+import logging
+
 from odoo import fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class ResPartner(models.Model):
-    """Tags the partner record representing a KartaTap tenant company so
-    kartatap.checkout can find (or create) exactly one partner per tenant
-    instead of creating a duplicate on every checkout call.
+    """Adds the immutable KartaTap tenant identifier to the partner.
+
+    Business partners are matched ONLY on this identifier. Company names and email
+    addresses change; the KartaTap tenant id does not. The column is nullable so that
+    every pre-existing partner stays valid, and PostgreSQL treats multiple NULLs as
+    distinct, so the unique constraint does not collide on unmapped partners.
     """
 
     _inherit = "res.partner"
 
     kartatap_company_id = fields.Char(
-        string="KartaTap Company Id",
+        string="KartaTap Company ID",
         index=True,
-        help="KartaTap's own Company.id (Prisma cuid) for the tenant this "
-        "partner represents. Set only by sgc_kartatap_bridge.",
+        copy=False,
+        help="Immutable KartaTap tenant identifier. Never reuse or repurpose it.",
     )
 
-    _sql_constraints = [
-        (
-            "kartatap_company_id_unique",
-            "unique(kartatap_company_id)",
-            "A KartaTap company can only be linked to one partner.",
-        ),
-    ]
+    # Odoo 19: table constraints are declared with models.Constraint (the attribute name
+    # becomes the PostgreSQL constraint name); the legacy `_sql_constraints` list is
+    # silently ignored, so a unique guard written that way would not exist in the database.
+    _kartatap_company_id_uniq = models.Constraint(
+        "unique(kartatap_company_id)",
+        "A partner is already linked to this KartaTap company ID.",
+    )

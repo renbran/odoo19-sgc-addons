@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_kartatap_checkout_user,kartatap.checkout.user,model_kartatap_checkout,base.group_user,1,0,0,0
+access_kartatap_checkout_integration,kartatap.checkout integration,model_kartatap_checkout,group_kartatap_integration,1,1,1,0
+access_kartatap_entitlement_event_system,kartatap.entitlement.event system,model_kartatap_entitlement_event,base.group_system,1,1,0,0

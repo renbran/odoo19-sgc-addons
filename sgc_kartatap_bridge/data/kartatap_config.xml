@@ -46,11 +46,20 @@
             <field name="value"></field>
         </record>
 
-        <!-- Reserved for version 19.0.1.1.0: the Odoo -> KartaTap entitlement push. It is
-             deliberately inert in this version; the checkout flow never calls out. -->
+        <!-- Odoo -> KartaTap entitlement push (19.0.1.1.0). Off until an administrator
+             sets it to True AND sets sgc_kartatap_bridge.entitlement_signing_secret (the
+             same value as KartaTap's ODOO_ENTITLEMENT_SIGNING_SECRET, >= 32 characters).
+             The secret is deliberately NOT created here: it must never be shipped in
+             module data. -->
         <record id="param_entitlement_push_enabled" model="ir.config_parameter">
             <field name="key">sgc_kartatap_bridge.entitlement_push_enabled</field>
             <field name="value">False</field>
+        </record>
+
+        <!-- Receiver URL. Must be https without credentials. -->
+        <record id="param_entitlement_endpoint" model="ir.config_parameter">
+            <field name="key">sgc_kartatap_bridge.entitlement_endpoint</field>
+            <field name="value">https://card.kartatap.com/api/integrations/odoo/entitlements</field>
         </record>
 
     </data>
