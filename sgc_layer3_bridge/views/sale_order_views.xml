@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_layer3" model="ir.ui.view">
+        <field name="name">sale.order.form.layer3</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Layer 3" name="layer3" invisible="not l3_tenant_slug">
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge text-bg-success" invisible="l3_docs_status != 'approved'">Trade licence approved</span>
+                        <span class="badge text-bg-warning" invisible="l3_docs_status not in ('pending', 'submitted', 'expiring')">Documents pending</span>
+                        <span class="badge text-bg-danger" invisible="l3_docs_status != 'rejected'">Documents rejected</span>
+                        <span class="badge text-bg-danger" invisible="l3_state not in ('grace', 'read_only', 'archive')">Payment / account attention</span>
+                    </div>
+                    <group>
+                        <group string="Workspace">
+                            <field name="l3_tenant_slug" readonly="1"/>
+                            <field name="l3_tenant_url" widget="url"/>
+                            <field name="l3_state"/>
+                            <field name="l3_state_reason"/>
+                            <field name="l3_state_since"/>
+                            <field name="l3_activated_on"/>
+                            <field name="l3_cycle" readonly="1"/>
+                            <field name="l3_users" readonly="1"/>
+                            <field name="l3_founding" readonly="1"/>
+                        </group>
+                        <group string="Trade licence (never blocks onboarding)">
+                            <field name="l3_docs_status"/>
+                            <field name="l3_trade_licence_no"/>
+                            <field name="l3_licence_expiry"/>
+                            <field name="l3_licence_attachment_id"/>
+                            <field name="l3_docs_reason" placeholder="Shown to the customer when rejecting"/>
+                            <div colspan="2" class="d-flex gap-2">
+                                <button name="action_l3_docs_approve" type="object" string="Approve licence" class="btn-success"
+                                        invisible="l3_docs_status == 'approved'"/>
+                                <button name="action_l3_docs_reject" type="object" string="Reject licence" class="btn-secondary"
+                                        invisible="l3_docs_status == 'rejected'"/>
+                            </div>
+                        </group>
+                        <group string="Admin contact">
+                            <field name="l3_admin_name"/>
+                            <field name="l3_admin_email"/>
+                            <field name="l3_mobile"/>
+                        </group>
+                        <group string="Cancellation">
+                            <field name="l3_notice_date"/>
+                            <field name="l3_end_date"/>
+                            <field name="l3_state_version"/>
+                            <field name="l3_request_id" readonly="1"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_list_layer3" model="ir.ui.view">
+        <field name="name">sale.order.list.layer3</field>
+        <field name="model">sale.order</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list decoration-success="l3_docs_status == 'approved' and l3_state == 'active'"
+                  decoration-warning="l3_docs_status in ('pending', 'submitted', 'expiring')"
+                  decoration-danger="l3_docs_status == 'rejected' or l3_state in ('grace', 'read_only', 'archive')">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="l3_tenant_slug"/>
+                <field name="l3_state"/>
+                <field name="l3_docs_status"/>
+                <field name="l3_cycle"/>
+                <field name="l3_users"/>
+                <field name="next_invoice_date"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_layer3_tenants" model="ir.actions.act_window">
+        <field name="name">Layer 3 tenants</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[("l3_tenant_slug", "!=", False)]</field>
+        <field name="context">{"create": False}</field>
+        <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_order_list_layer3')})]"/>
+    </record>
+
+    <menuitem id="menu_layer3_tenants" name="Layer 3 tenants" parent="sale.sale_order_menu"
+              action="action_layer3_tenants" sequence="60"/>
+</odoo>

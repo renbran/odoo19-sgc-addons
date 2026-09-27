@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_layer3_checkout_integration,layer3.checkout integration,model_layer3_checkout,group_layer3_integration,1,1,1,0
+access_layer3_checkout_system,layer3.checkout system,model_layer3_checkout,base.group_system,1,1,1,0
+access_layer3_event_system,layer3.event system,model_layer3_event,base.group_system,1,1,0,0
+access_layer3_event_salesman,layer3.event salesman,model_layer3_event,sales_team.group_sale_salesman,1,0,0,0

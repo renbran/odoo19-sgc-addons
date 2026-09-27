@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Integration-only right for the machine user that the sgctech.ai signup pages use.
+         Deliberately not implied by any other group and without a privilege, so it never
+         shows up as an ordinary toggle on user forms. -->
+    <record id="group_layer3_integration" model="res.groups">
+        <field name="name">Layer 3 Signup Integration</field>
+        <field name="comment">Allows calling the Layer 3 checkout methods. Grant only to the machine-to-machine user of the sgctech.ai website.</field>
+    </record>
+</odoo>

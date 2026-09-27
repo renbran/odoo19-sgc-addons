@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_layer3_account" name="Layer 3: billing and documents">
+        <t t-call="portal.portal_layout">
+            <t t-set="no_breadcrumbs" t-value="True"/>
+            <div class="container py-4" style="max-width: 760px;">
+                <h2 class="h4 mb-1">Billing &amp; documents</h2>
+                <p class="text-muted mb-4"><t t-out="order.partner_id.commercial_partner_id.name"/> &#183; <t t-out="order.l3_tenant_slug"/>.sgctech.ai</p>
+
+                <div t-if="message" class="alert alert-info" role="status"><t t-out="message"/></div>
+
+                <div class="card mb-3"><div class="card-body">
+                    <h3 class="h6">Subscription</h3>
+                    <p class="mb-1">Account: <strong t-field="order.l3_state"/></p>
+                    <p class="mb-1" t-if="order.next_invoice_date and not order.l3_end_date">Next billing date: <span t-field="order.next_invoice_date"/></p>
+                    <p class="mb-1" t-if="order.l3_end_date">Cancellation takes effect on <span t-field="order.l3_end_date"/>; the workspace then stays read-only for 30 days for data export.</p>
+                    <a t-att-href="order_url" class="btn btn-primary btn-sm mt-2">Order Form, invoices and payment</a>
+                </div></div>
+
+                <div class="card mb-3"><div class="card-body">
+                    <h3 class="h6">Trade licence</h3>
+                    <p t-if="order.l3_docs_status == 'approved'" class="text-success mb-2">Approved. Thank you.</p>
+                    <p t-elif="order.l3_docs_status == 'submitted'" class="text-warning mb-2">Received. SGC is reviewing it; your workspace stays fully available.</p>
+                    <p t-elif="order.l3_docs_status == 'rejected'" class="text-danger mb-2">Not accepted: <t t-out="order.l3_docs_reason"/>. Please upload a new copy.</p>
+                    <p t-elif="order.l3_docs_status == 'expiring'" class="text-warning mb-2">Your licence expires on <span t-field="order.l3_licence_expiry"/>. Please upload the renewed licence.</p>
+                    <p t-else="" class="text-warning mb-2">Please upload a copy of your trade licence. Your workspace is fully available while this is pending.</p>
+                    <form t-if="order.l3_docs_status != 'approved'" method="post" enctype="multipart/form-data"
+                          t-attf-action="/my/layer3/#{order.id}/documents?access_token=#{access_token}">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="row g-2">
+                            <div class="col-sm-6"><label class="form-label small" for="licence_number">Licence number</label>
+                                <input class="form-control form-control-sm" id="licence_number" name="licence_number" t-att-value="order.l3_trade_licence_no or ''"/></div>
+                            <div class="col-sm-6"><label class="form-label small" for="licence_expiry">Expiry date</label>
+                                <input class="form-control form-control-sm" type="date" id="licence_expiry" name="licence_expiry" required="required"/></div>
+                            <div class="col-12"><label class="form-label small" for="licence_file">Licence copy (PDF, JPG or PNG, max 10 MB)</label>
+                                <input class="form-control form-control-sm" type="file" id="licence_file" name="licence_file" accept=".pdf,.jpg,.jpeg,.png" required="required"/></div>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm mt-2">Upload</button>
+                    </form>
+                </div></div>
+
+                <div class="card mb-3" t-if="order.l3_state in ('active', 'grace') and not order.l3_notice_date"><div class="card-body">
+                    <h3 class="h6">Cancel the subscription</h3>
+                    <p class="small text-muted">Notice takes effect at the end of a billing cycle at least 60 days away (MSA 13.3). Fees already paid are not refunded. After that date the workspace is read-only for 30 days so you can export your data.</p>
+                    <form method="post" t-attf-action="/my/layer3/#{order.id}/notice?access_token=#{access_token}">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="confirm" name="confirm" value="yes" required="required"/>
+                            <label class="form-check-label small" for="confirm">I want to give notice of cancellation.</label>
+                        </div>
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Give notice</button>
+                    </form>
+                </div></div>
+            </div>
+        </t>
+    </template>
+</odoo>
