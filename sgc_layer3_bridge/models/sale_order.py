@@ -30,6 +30,7 @@ CYCLES = [("quarterly", "Quarterly"), ("half_yearly", "Half-yearly"), ("annual",
 CYCLE_MONTHS = {"quarterly": 3, "half_yearly": 6, "annual": 12}
 INCLUDED_USERS = 5
 LICENCE_WARNING_DAYS = 30
+MAX_CATCH_UP_PERIODS = 12  # at most a year of missed monthly renewals per run
 QUOTATION_VALID_DAYS = 7
 
 
@@ -193,6 +194,60 @@ class SaleOrder(models.Model):
                 order._l3_set_state(state, reason, today)
 
     @api.model
+    def _l3_catch_up_renewals(self, today=None):
+        """Issue renewals that sttl_sale_subscription missed.
+
+        sttl's daily job only renews orders whose next_invoice_date is exactly today, so a day
+        on which it did not run (outage, restart) would silently end a subscription's billing.
+        This repeats sttl's own steps for any running Layer 3 subscription whose date has
+        passed: bump the recurring service lines, invoice, post (sttl's action_post moves
+        next_invoice_date on by one period). It never touches today's renewals.
+        """
+        today = today or fields.Date.context_today(self)
+        orders = self.sudo().search(
+            [
+                ("l3_tenant_slug", "!=", False),
+                ("state", "=", "sale"),
+                ("subscription_status", "=", "b"),
+                ("next_invoice_date", "<", today),
+                ("l3_state", "!=", "deleted"),
+            ],
+            order="id",
+        )
+        for order in orders:
+            try:
+                with self.env.cr.savepoint():
+                    for _i in range(MAX_CATCH_UP_PERIODS):
+                        due = order.next_invoice_date
+                        if not due or due >= today or order.subscription_status != "b":
+                            break
+                        for line in order.order_line:
+                            product = line.product_id
+                            if (
+                                product.is_recurring
+                                and product.type == "service"
+                                and product.invoice_policy == "order"
+                                and line.invoice_status != "to invoice"
+                            ):
+                                if not line.prev_added_qty:
+                                    line.prev_added_qty = line.product_uom_qty
+                                line.product_uom_qty += line.prev_added_qty
+                        if order.invoice_status != "to invoice":
+                            break
+                        invoice = order._create_invoices()
+                        invoice.action_post()
+                        if order.recurr_until and order.next_invoice_date and order.recurr_until <= order.next_invoice_date:
+                            order.subscription_status = "c"
+                        if order.next_invoice_date == due:
+                            break  # sttl did not move the date on; never loop on the same period
+                        order.message_post(
+                            body=_("Layer 3: issued the renewal due on %(due)s that the subscription job missed (%(inv)s).")
+                            % {"due": due, "inv": invoice.name}
+                        )
+            except Exception:  # noqa: BLE001 - one order must not stop the others
+                _logger.exception("Layer 3: catching up the renewal of %s failed", order.name)
+
+    @api.model
     def _l3_expire_quotations(self, today=None):
         """Cancel unpaid Layer 3 quotations past their validity so the subdomain is freed."""
         today = today or fields.Date.context_today(self)
@@ -249,6 +304,7 @@ class SaleOrder(models.Model):
     @api.model
     def _l3_cron(self):
         self._l3_expire_quotations()
+        self._l3_catch_up_renewals()
         self._l3_update_states()
         self._l3_licence_expiry()
         self._l3_mail_new_invoices()

@@ -127,6 +127,41 @@ class TestCheckout(TransactionCase):
             order._l3_update_states(today + timedelta(days=days))
             self.assertEqual(order.l3_state, want, days)
 
+    def test_pricing_matches_order_lines(self):
+        prices = {c["cycle"]: c for c in self.Checkout.pricing()["cycles"]}
+        self.assertAlmostEqual(prices["quarterly"]["base_price"], 2625.0)
+        self.assertAlmostEqual(prices["annual"]["base_price"], 9975.0)
+        self.assertAlmostEqual(prices["annual"]["extra_user_price"], 570.0)
+        self.Checkout.create_or_get_checkout(self._payload())
+        order = self.env["sale.order"].search([("l3_request_id", "=", "req-0001-marinacrest")])
+        base = order.order_line.filtered(lambda l: l.product_id.default_code == "L3-BASE")
+        self.assertAlmostEqual(base.price_unit, prices["annual"]["base_price"])
+
+    def test_uae_customer_gets_an_emirate(self):
+        """The UAE VAT fiscal positions are per emirate; without one a UAE client is billed 0%."""
+        self.Checkout.create_or_get_checkout(self._payload())
+        order = self.env["sale.order"].search([("l3_request_id", "=", "req-0001-marinacrest")])
+        dubai = self.env["res.country.state"].search([("country_id.code", "=", "AE"), ("code", "=", "DU")], limit=1)
+        if dubai:
+            self.assertEqual(order.partner_id.state_id, dubai)
+        with self.assertRaises(ValidationError):
+            self.Checkout.create_or_get_checkout(
+                self._payload(request_id="req-0009-otherco", slug="otherco", email="a@otherco.ae", emirate="XX")
+            )
+
+    def test_missed_renewal_is_caught_up_once(self):
+        order = self._activate()
+        today = fields.Date.context_today(order)
+        before = order.invoice_ids
+        order.write({"next_invoice_date": today - timedelta(days=3), "subscription_status": "b"})
+        self.env["sale.order"]._l3_catch_up_renewals(today)
+        new = order.invoice_ids - before
+        self.assertEqual(len(new), 1)
+        self.assertEqual(new.state, "posted")
+        self.assertGreater(order.next_invoice_date, today)
+        self.env["sale.order"]._l3_catch_up_renewals(today)
+        self.assertEqual(len(order.invoice_ids - before), 1, "a second run must not invoice again")
+
     def _payload(self, **kw):
         values = {
             "request_id": "req-0001-marinacrest",

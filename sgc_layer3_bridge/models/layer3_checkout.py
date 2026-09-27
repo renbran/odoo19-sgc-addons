@@ -15,7 +15,11 @@ _PHONE = re.compile(r"^[0-9 +()-]{6,24}$")
 _COUNTRY = re.compile(r"^[A-Za-z]{2}$")
 
 REQUIRED_KEYS = {"request_id", "slug", "company_name", "contact_name", "email", "cycle", "users"}
-OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "return_url"}
+OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url"}
+# UAE emirate codes (res.country.state). The UAE VAT fiscal positions are keyed by emirate, so a
+# UAE customer without one falls through to the export (0%) position. SGC is in Dubai.
+EMIRATES = ("DU", "AZ", "SH", "AJ", "UQ", "RK", "FU")
+DEFAULT_EMIRATE = "DU"
 ALLOWED_KEYS = REQUIRED_KEYS | OPTIONAL_KEYS
 MAX_USERS = 100
 DEFAULT_RESERVED = (
@@ -143,6 +147,11 @@ class Layer3Checkout(models.TransientModel):
         data["country_code"] = str(payload.get("country_code") or "AE").strip().upper()
         if not _COUNTRY.match(data["country_code"]):
             raise ValidationError(_("country_code must be a 2-letter ISO code."))
+        data["emirate"] = False
+        if data["country_code"] == "AE":
+            data["emirate"] = str(payload.get("emirate") or DEFAULT_EMIRATE).strip().upper()
+            if data["emirate"] not in EMIRATES:
+                raise ValidationError(_("emirate must be one of %s.") % ", ".join(EMIRATES))
         return data
 
     # ------------------------------------------------------------------ public
@@ -192,6 +201,42 @@ class Layer3Checkout(models.TransientModel):
         return self._result(order, deduplicated=False)
 
     @api.model
+    def pricing(self):
+        """Prices for the public pricing page, computed exactly as the order lines are, so the
+        page and the invoice can never disagree. Amounts exclude VAT."""
+        company = self._company()
+        SO = self.env["sale.order"].sudo()
+        capacity = self._capacity()
+        base_monthly = SO._l3_float("base_monthly", 875)
+        user_key = "user_monthly_founding" if capacity["founding"] else "user_monthly_standard"
+        user_monthly = SO._l3_float(user_key, 50 if capacity["founding"] else 75)
+        base_product = SO._l3_products()["base"]
+        tax = base_product.sudo().taxes_id.filtered(lambda t: t.company_id == company)[:1]
+        cycles = []
+        for cycle, months in CYCLE_MONTHS.items():
+            cycles.append(
+                {
+                    "cycle": cycle,
+                    "months": months,
+                    "rebate_percent": SO._l3_float("rebate_%s" % cycle, 0),
+                    "base_price": SO._l3_cycle_price(cycle, base_monthly),
+                    "extra_user_price": SO._l3_cycle_price(cycle, user_monthly),
+                }
+            )
+        return {
+            "currency": company.currency_id.name,
+            "vat_percent": tax.amount if tax else 5.0,
+            "base_monthly": base_monthly,
+            "user_monthly": user_monthly,
+            "included_users": INCLUDED_USERS,
+            "max_users": MAX_USERS,
+            "founding": capacity["founding"],
+            "open": capacity["open"],
+            "checkout_enabled": self._flag("checkout_enabled"),
+            "cycles": cycles,
+        }
+
+    @api.model
     def order_status(self, request_id=None):
         """For the thank-you page: where is this signup now?"""
         order = self.env["sale.order"].sudo().search([("l3_request_id", "=", request_id or "")], limit=1)
@@ -211,10 +256,15 @@ class Layer3Checkout(models.TransientModel):
     @api.model
     def _find_or_create_partner(self, data, company):
         Partner = self.env["res.partner"].sudo()
+        country = self.env["res.country"].sudo().search([("code", "=", data["country_code"])], limit=1)
+        state = self.env["res.country.state"]
+        if data.get("emirate") and country:
+            state = state.sudo().search([("country_id", "=", country.id), ("code", "=", data["emirate"])], limit=1)
         partner = Partner.search([("l3_tenant_slug", "=", data["slug"])], limit=1)
         if partner:
+            if state and not partner.state_id and partner.country_id == country:
+                partner.state_id = state
             return partner
-        country = self.env["res.country"].sudo().search([("code", "=", data["country_code"])], limit=1)
         partner = Partner.create(
             {
                 "name": data["company_name"],
@@ -223,6 +273,7 @@ class Layer3Checkout(models.TransientModel):
                 "email": data["email"],
                 "phone": data["mobile"] or False,
                 "country_id": country.id or False,
+                "state_id": state.id or False,
                 "l3_tenant_slug": data["slug"],
             }
         )
