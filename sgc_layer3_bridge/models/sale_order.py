@@ -96,6 +96,7 @@ class SaleOrder(models.Model):
             "base": self.env.ref("sgc_layer3_bridge.product_l3_base"),
             "user_founding": self.env.ref("sgc_layer3_bridge.product_l3_user_founding"),
             "user_standard": self.env.ref("sgc_layer3_bridge.product_l3_user_standard"),
+            "setup": self.env.ref("sgc_layer3_bridge.product_l3_setup"),
         }
 
     @api.model
@@ -167,7 +168,7 @@ class SaleOrder(models.Model):
     @api.model
     def _l3_update_states(self, today=None):
         today = today or fields.Date.context_today(self)
-        archive_days = int(self._l3_float("archive_days", 90))
+        archive_days = int(self._l3_float("archive_days", 60))  # MSA Rev3 s.6: deletion 60 days after Archive
         orders = self.sudo().search(
             [
                 ("l3_tenant_slug", "!=", False),

@@ -25,6 +25,10 @@
             <field name="key">sgc_layer3_bridge.base_monthly</field>
             <field name="value">875</field>
         </record>
+        <record id="param_setup_unit_price" model="ir.config_parameter">
+            <field name="key">sgc_layer3_bridge.setup_unit_price</field>
+            <field name="value">1500</field>
+        </record>
         <record id="param_user_monthly_founding" model="ir.config_parameter">
             <field name="key">sgc_layer3_bridge.user_monthly_founding</field>
             <field name="value">50</field>
@@ -57,7 +61,7 @@
         <!-- Days in Archive before deletion (plan decision 6, proposed). -->
         <record id="param_archive_days" model="ir.config_parameter">
             <field name="key">sgc_layer3_bridge.archive_days</field>
-            <field name="value">90</field>
+            <field name="value">60</field>
         </record>
         <!-- Push to the tenant receiver. Off until the receiver is live and
              sgc_layer3_bridge.signing_secret (>= 32 characters) is set by hand; the secret is

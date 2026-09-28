@@ -100,7 +100,7 @@ class Layer3Checkout(models.TransientModel):
             [("l3_activated_on", "!=", False), ("l3_state", "not in", ("archive", "deleted"))]
         )
         ever = self.env["sale.order"].sudo().search_count([("l3_activated_on", "!=", False)])
-        return {"open": activated < cap, "founding": ever < cohort}
+        return {"open": activated < cap, "founding": ever < cohort, "ever_activated": ever}
 
     # -------------------------------------------------------------- validation
 
@@ -223,6 +223,7 @@ class Layer3Checkout(models.TransientModel):
                     "extra_user_price": SO._l3_cycle_price(cycle, user_monthly),
                 }
             )
+        setup_unit = SO._l3_float("setup_unit_price", 1500)
         return {
             "currency": company.currency_id.name,
             "vat_percent": tax.amount if tax else 5.0,
@@ -234,6 +235,17 @@ class Layer3Checkout(models.TransientModel):
             "open": capacity["open"],
             "checkout_enabled": self._flag("checkout_enabled"),
             "cycles": cycles,
+            "setup": {
+                "name": _("Implementation, migration and go-live support"),
+                "unit_price": setup_unit,
+                # Waived automatically while we're still inside the founding cohort
+                # (capacity["founding"] is True only before the first cap of orders).
+                "waived": capacity["founding"],
+                # Cap matches the onboarding-fee waiver (OIC item 3).
+                "waiver_remaining": max(0, int(SO._l3_float("founding_cohort_size", 10))
+                                          - capacity["ever_activated"]),
+                "currency": company.currency_id.name,
+            },
         }
 
     @api.model
@@ -310,6 +322,10 @@ class Layer3Checkout(models.TransientModel):
                 "product_uom_qty": extra,
                 "name": _("Additional user above %(n)s (%(c)s billing)") % {"n": INCLUDED_USERS, "c": cycle_label},
             }))
+        # No one-time implementation-fee line: sttl_sale_subscription rejects orders that mix
+        # one-time and recurring products, and a zero-priced line would trip the price check
+        # below. Self-serve orders are founding-only (see create_or_get_checkout), so the fee
+        # is waived and the waiver is recorded in the Order Form terms (_order_form_terms).
         today = fields.Date.context_today(self)
         order = Order.sudo().create(
             {

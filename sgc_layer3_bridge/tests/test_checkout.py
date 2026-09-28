@@ -137,6 +137,27 @@ class TestCheckout(TransactionCase):
         base = order.order_line.filtered(lambda l: l.product_id.default_code == "L3-BASE")
         self.assertAlmostEqual(base.price_unit, prices["annual"]["base_price"])
 
+    def test_pricing_exposes_setup_fee(self):
+        prices = self.Checkout.pricing()
+        self.assertEqual(prices["setup"]["currency"], prices["currency"])
+        self.assertEqual(prices["setup"]["unit_price"], 1500.0)
+        self.assertTrue(prices["setup"]["waived"])  # founding cohort is the default in tests
+
+    def test_setup_fee_waived_for_founding_and_sales_assisted_otherwise(self):
+        order = self._activate()  # founding = True by default (no previous order)
+        # sttl_sale_subscription cannot mix one-time and recurring lines, so the waived fee
+        # lives in the Order Form terms, not as an order line.
+        setup = order.order_line.filtered(lambda l: l.product_id.default_code == "L3-SETUP")
+        self.assertFalse(setup)
+        self.assertIn("waived", str(order.note).lower())
+        # Past the founding cohort the fee is billable, so signup becomes sales-assisted.
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.set_param("sgc_layer3_bridge.founding_cohort_size", "0")
+        with self.assertRaisesRegex(UserError, "layer3_sales_assisted"):
+            self.Checkout.create_or_get_checkout(
+                self._payload(slug="harbourview", request_id="req-0009-harbourview", email="ops@harbourview.ae")
+            )
+
     def test_uae_customer_gets_an_emirate(self):
         """The UAE VAT fiscal positions are per emirate; without one a UAE client is billed 0%."""
         self.Checkout.create_or_get_checkout(self._payload())

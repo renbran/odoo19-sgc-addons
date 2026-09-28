@@ -18,6 +18,17 @@
         </record>
 
         <!-- Prices come from the sgc_layer3_bridge.* parameters, not these list prices. -->
+        <!-- One-time setup fee. Free for the founding cohort (see ir_config_parameter).
+             invoice_policy=order so the line is invoiced up-front once, not recurring. -->
+        <record id="product_l3_setup" model="product.product">
+            <field name="name">Layer 3 - one-time implementation fee</field>
+            <field name="default_code">L3-SETUP</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="is_recurring" eval="False"/>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">1500</field>
+        </record>
         <record id="product_l3_base" model="product.product">
             <field name="name">SGC Real Estate OS - Layer 3 subscription (5 users)</field>
             <field name="default_code">L3-BASE</field>
