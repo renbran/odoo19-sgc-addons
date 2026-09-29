@@ -13,6 +13,10 @@ class TestCheckout(TransactionCase):
         ICP = cls.env["ir.config_parameter"].sudo()
         ICP.set_param("sgc_layer3_bridge.checkout_enabled", "True")
         ICP.set_param("sgc_layer3_bridge.public_base_url", "https://app.example.test")
+        # The trial runs these tests on a copy of production: its real tenants must not use up
+        # the cohort or the tenant cap. Tests that need a full cohort set it themselves.
+        ICP.set_param("sgc_layer3_bridge.founding_cohort_size", "100000")
+        ICP.set_param("sgc_layer3_bridge.max_active_tenants", "100000")
         cls.Checkout = cls.env["layer3.checkout"]
 
     def test_annual_order_prices_and_terms(self):
@@ -157,6 +161,42 @@ class TestCheckout(TransactionCase):
             self.Checkout.create_or_get_checkout(
                 self._payload(slug="harbourview", request_id="req-0009-harbourview", email="ops@harbourview.ae")
             )
+
+    def test_returning_subdomain_continues_the_event_version(self):
+        """The receiver drops versions it has seen for a subdomain: a second order for the
+        same subdomain must not restart at 1."""
+        first = self._activate()
+        first.l3_state_version = 7
+        second = first.copy()
+        second.write({"l3_tenant_slug": first.l3_tenant_slug, "l3_state_version": 0, "l3_state": "active"})
+        second._l3_sync()
+        self.assertEqual(second.l3_state_version, 8)
+        second._l3_sync()
+        self.assertEqual(second.l3_state_version, 9)
+
+    def test_open_quotation_holds_a_founding_seat(self):
+        """Unpaid quotations count against the cohort: otherwise any number of signups made
+        before the tenth payment would all keep the founding terms."""
+        ICP = self.env["ir.config_parameter"].sudo()
+        # Seats already used in this database (the trial is a production copy): paid tenants
+        # plus open signup quotations, as _capacity counts them.
+        today = fields.Date.context_today(self.env["sale.order"])
+        taken = self.env["sale.order"].search_count(
+            ["|", ("l3_activated_on", "!=", False),
+             "&", "&", ("l3_request_id", "!=", False), ("state", "in", ("draft", "sent")),
+             "|", ("validity_date", "=", False), ("validity_date", ">=", today)]
+        )
+        ICP.set_param("sgc_layer3_bridge.founding_cohort_size", str(taken + 1))
+        self.assertTrue(self.Checkout.pricing()["self_serve"])
+        self.Checkout.create_or_get_checkout(self._payload())  # quotation only, not paid
+        self.assertFalse(self.Checkout.pricing()["self_serve"])
+        with self.assertRaisesRegex(UserError, "layer3_sales_assisted"):
+            self.Checkout.create_or_get_checkout(
+                self._payload(slug="harbourview", request_id="req-0009-harbourview", email="ops@harbourview.ae")
+            )
+        # The first client retrying still resumes their own quotation.
+        again = self.Checkout.create_or_get_checkout(self._payload(request_id="req-0002-marinacrest"))
+        self.assertTrue(again["deduplicated"])
 
     def test_uae_customer_gets_an_emirate(self):
         """The UAE VAT fiscal positions are per emirate; without one a UAE client is billed 0%."""

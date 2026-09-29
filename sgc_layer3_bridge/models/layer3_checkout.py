@@ -94,13 +94,27 @@ class Layer3Checkout(models.TransientModel):
 
     @api.model
     def _capacity(self):
+        """Seats count paid tenants plus open, unexpired signup quotations: a quotation carries
+        the founding terms it was issued with, so each one holds a seat until it expires."""
+        SO = self.env["sale.order"].sudo()
         cap = int(self._param("max_active_tenants", 10) or 10)
         cohort = int(self._param("founding_cohort_size", 10) or 10)
-        activated = self.env["sale.order"].sudo().search_count(
+        activated = SO.search_count(
             [("l3_activated_on", "!=", False), ("l3_state", "not in", ("archive", "deleted"))]
         )
-        ever = self.env["sale.order"].sudo().search_count([("l3_activated_on", "!=", False)])
-        return {"open": activated < cap, "founding": ever < cohort, "ever_activated": ever}
+        ever = SO.search_count([("l3_activated_on", "!=", False)])
+        pending = SO.search_count(
+            [
+                ("l3_request_id", "!=", False),
+                ("l3_activated_on", "=", False),
+                ("state", "in", ("draft", "sent")),
+                "|", ("validity_date", "=", False),
+                ("validity_date", ">=", fields.Date.context_today(self)),
+            ]
+        )
+        is_open = activated + pending < cap
+        founding = ever + pending < cohort
+        return {"open": is_open, "founding": founding, "self_serve": is_open and founding}
 
     # -------------------------------------------------------------- validation
 
@@ -233,17 +247,17 @@ class Layer3Checkout(models.TransientModel):
             "max_users": MAX_USERS,
             "founding": capacity["founding"],
             "open": capacity["open"],
+            # False once the founding cohort or the tenant cap is used up: signup is then
+            # sales-assisted and the site should offer contact instead of the checkout.
+            "self_serve": capacity["self_serve"],
             "checkout_enabled": self._flag("checkout_enabled"),
             "cycles": cycles,
             "setup": {
                 "name": _("Implementation, migration and go-live support"),
                 "unit_price": setup_unit,
-                # Waived automatically while we're still inside the founding cohort
-                # (capacity["founding"] is True only before the first cap of orders).
+                # Waived for the founding cohort (OIC item 3). The number of seats left is not
+                # published: it would reveal how many clients have signed up.
                 "waived": capacity["founding"],
-                # Cap matches the onboarding-fee waiver (OIC item 3).
-                "waiver_remaining": max(0, int(SO._l3_float("founding_cohort_size", 10))
-                                          - capacity["ever_activated"]),
                 "currency": company.currency_id.name,
             },
         }
@@ -361,12 +375,21 @@ class Layer3Checkout(models.TransientModel):
     def _order_form_terms(self, founding):
         """Order Form SGC-OF-2026-01 section B defaults (SGC-MEMO-2026-OIC-01)."""
         terms_url = (self._param("terms_url") or "https://sgctech.ai/legal/subscription").strip()
+        SO = self.env["sale.order"].sudo()
+
+        def aed(key, default):  # same parameters as pricing() and the order lines
+            value = SO._l3_float(key, default)
+            return "{:,.0f}".format(value) if value == int(value) else "{:,.2f}".format(value)
+
+        setup = aed("setup_unit_price", 1500)
         rows = [
             _("Order Form SGC-OF-2026-01, issued under SGC-MEMO-2026-PR-03 (Rent - Subscription Layer)."),
             _("This order incorporates the Master Services Agreement SGC-MSA-2026-02, the Service Level Agreement SGC-SLA-2026-02 and the Data Processing Agreement SGC-DPA-2026-01, available at %s.") % terms_url,
             _("Subscription: no fixed end date; continues until cancelled with 60 days' notice, effective at the end of a billing cycle."),
-            _("Additional users: AED 50 per user per month (founding rate), AED 75 (standard rate)."),
-            _("One-time onboarding fee: AED 1,500 - waived (founding cohort).") if founding else _("One-time onboarding fee: AED 1,500."),
+            _("Additional users: AED %(f)s per user per month (founding rate), AED %(s)s (standard rate).")
+            % {"f": aed("user_monthly_founding", 50), "s": aed("user_monthly_standard", 75)},
+            (_("One-time onboarding fee: AED %s - waived (founding cohort).") if founding
+             else _("One-time onboarding fee: AED %s.")) % setup,
             _("Data migration: up to 1,000 records included."),
             _("Included usage: 500 AML screening queries per month, 5 GB document storage, 10,000 API calls per month; overage is agreed with the client, never billed silently."),
             _("Service levels: Standard tier (99.5% monthly uptime, support Sunday to Thursday 09:00-18:00 GST)."),

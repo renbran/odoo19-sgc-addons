@@ -96,7 +96,6 @@ class SaleOrder(models.Model):
             "base": self.env.ref("sgc_layer3_bridge.product_l3_base"),
             "user_founding": self.env.ref("sgc_layer3_bridge.product_l3_user_founding"),
             "user_standard": self.env.ref("sgc_layer3_bridge.product_l3_user_standard"),
-            "setup": self.env.ref("sgc_layer3_bridge.product_l3_setup"),
         }
 
     @api.model
@@ -162,6 +161,15 @@ class SaleOrder(models.Model):
         for order in self:
             if order.l3_state in (False, "awaiting_payment"):
                 continue
+            if not order.l3_state_version:
+                # The receiver ignores any version it has already seen for a subdomain, so a
+                # new order for a subdomain used before (a client coming back after deletion)
+                # continues from the earlier order's last version instead of restarting at 1.
+                earlier = self.sudo().search(
+                    [("l3_tenant_slug", "=", order.l3_tenant_slug), ("id", "!=", order.id)],
+                    order="l3_state_version desc", limit=1,
+                )
+                order.l3_state_version = earlier.l3_state_version
             order.l3_state_version += 1
             self.env["layer3.event"]._enqueue(order, provision=provision)
 
