@@ -35,6 +35,16 @@ class TestCheckout(TransactionCase):
         self.assertIn("waived", str(order.note))
         self.assertNotIn("hosting", str(order.note).lower())
 
+    def test_monthly_at_list_price(self):
+        self.Checkout.create_or_get_checkout(self._payload(cycle="monthly", users=6))
+        order = self.env["sale.order"].search([("l3_request_id", "=", "req-0001-marinacrest")])
+        base = order.order_line.filtered(lambda l: l.product_id.default_code == "L3-BASE")
+        users = order.order_line.filtered(lambda l: l.product_id.default_code == "L3-USER-F")
+        self.assertAlmostEqual(base.price_unit, 875.0)  # no discount on monthly
+        self.assertAlmostEqual(users.price_unit, 50.0)
+        self.assertEqual(order.recurrance_id, self.env.ref("sgc_layer3_bridge.period_l3_monthly"))
+        self.assertIn("half-yearly 2.5% off, annual 5% off", str(order.note))
+
     def test_half_yearly_rebate(self):
         self.Checkout.create_or_get_checkout(self._payload(cycle="half_yearly", users=5))
         order = self.env["sale.order"].search([("l3_request_id", "=", "req-0001-marinacrest")])
@@ -61,7 +71,7 @@ class TestCheckout(TransactionCase):
         with self.assertRaises(ValidationError):
             self.Checkout.create_or_get_checkout(self._payload(users=3))
         with self.assertRaises(ValidationError):
-            self.Checkout.create_or_get_checkout(self._payload(cycle="monthly"))
+            self.Checkout.create_or_get_checkout(self._payload(cycle="weekly"))
         with self.assertRaises(ValidationError):
             self.Checkout.create_or_get_checkout(self._payload(hosting="uae"))
         self.env["ir.config_parameter"].sudo().set_param("sgc_layer3_bridge.checkout_enabled", "False")
@@ -133,6 +143,8 @@ class TestCheckout(TransactionCase):
 
     def test_pricing_matches_order_lines(self):
         prices = {c["cycle"]: c for c in self.Checkout.pricing()["cycles"]}
+        self.assertAlmostEqual(prices["monthly"]["base_price"], 875.0)
+        self.assertEqual(prices["monthly"]["rebate_percent"], 0)
         self.assertAlmostEqual(prices["quarterly"]["base_price"], 2625.0)
         self.assertAlmostEqual(prices["annual"]["base_price"], 9975.0)
         self.assertAlmostEqual(prices["annual"]["extra_user_price"], 570.0)

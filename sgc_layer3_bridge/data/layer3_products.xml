@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <record id="period_l3_monthly" model="product.subscription.period">
+            <field name="name">Layer 3 - Monthly</field>
+            <field name="unit">month</field>
+            <field name="duration">1</field>
+        </record>
         <record id="period_l3_quarterly" model="product.subscription.period">
             <field name="name">Layer 3 - Quarterly</field>
             <field name="unit">month</field>

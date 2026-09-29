@@ -26,8 +26,8 @@ DOCS_STATUSES = [
     ("approved", "Approved"),
     ("expiring", "Licence expiring"),
 ]
-CYCLES = [("quarterly", "Quarterly"), ("half_yearly", "Half-yearly"), ("annual", "Annual")]
-CYCLE_MONTHS = {"quarterly": 3, "half_yearly": 6, "annual": 12}
+CYCLES = [("monthly", "Monthly"), ("quarterly", "Quarterly"), ("half_yearly", "Half-yearly"), ("annual", "Annual")]
+CYCLE_MONTHS = {"monthly": 1, "quarterly": 3, "half_yearly": 6, "annual": 12}
 INCLUDED_USERS = 5
 LICENCE_WARNING_DAYS = 30
 MAX_CATCH_UP_PERIODS = 12  # at most a year of missed monthly renewals per run
@@ -87,7 +87,7 @@ class SaleOrder(models.Model):
     @api.model
     def _l3_cycle_price(self, cycle, monthly):
         """Price for one billing cycle: monthly x months, less the cycle rebate (OIC item 2)."""
-        rebate = self._l3_float("rebate_%s" % cycle, {"quarterly": 0, "half_yearly": 2.5, "annual": 5}[cycle])
+        rebate = self._l3_float("rebate_%s" % cycle, {"monthly": 0, "quarterly": 0, "half_yearly": 2.5, "annual": 5}[cycle])
         return round(monthly * CYCLE_MONTHS[cycle] * (1 - rebate / 100.0), 2)
 
     @api.model

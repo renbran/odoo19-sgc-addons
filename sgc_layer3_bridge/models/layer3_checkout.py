@@ -147,7 +147,7 @@ class Layer3Checkout(models.TransientModel):
             raise ValidationError(_("email has an invalid format."))
         data["cycle"] = str(payload["cycle"]).strip().lower()
         if data["cycle"] not in CYCLE_MONTHS:
-            raise ValidationError(_("cycle must be one of quarterly, half_yearly, annual."))
+            raise ValidationError(_("cycle must be one of monthly, quarterly, half_yearly, annual."))
         try:
             data["users"] = int(str(payload["users"]).strip())
         except (TypeError, ValueError):
@@ -386,13 +386,15 @@ class Layer3Checkout(models.TransientModel):
             _("Order Form SGC-OF-2026-01, issued under SGC-MEMO-2026-PR-03 (Rent - Subscription Layer)."),
             _("This order incorporates the Master Services Agreement SGC-MSA-2026-02, the Service Level Agreement SGC-SLA-2026-02 and the Data Processing Agreement SGC-DPA-2026-01, available at %s.") % terms_url,
             _("Subscription: no fixed end date; continues until cancelled with 60 days' notice, effective at the end of a billing cycle."),
+            _("Billing cycle discount: monthly and quarterly at the list price, half-yearly %(h)s%% off, annual %(a)s%% off.")
+            % {"h": "{:g}".format(SO._l3_float("rebate_half_yearly", 2.5)), "a": "{:g}".format(SO._l3_float("rebate_annual", 5))},
             _("Additional users: AED %(f)s per user per month (founding rate), AED %(s)s (standard rate).")
             % {"f": aed("user_monthly_founding", 50), "s": aed("user_monthly_standard", 75)},
             (_("One-time onboarding fee: AED %s - waived (founding cohort).") if founding
              else _("One-time onboarding fee: AED %s.")) % setup,
             _("Data migration: up to 1,000 records included."),
             _("Included usage: 500 AML screening queries per month, 5 GB document storage, 10,000 API calls per month; overage is agreed with the client, never billed silently."),
-            _("Service levels: Standard tier (99.5% monthly uptime, support Sunday to Thursday 09:00-18:00 GST)."),
+            _("Service levels: Standard tier (99.5% monthly uptime, support Monday to Friday 09:00-18:00 GST, excluding weekends and UAE public holidays)."),
             _("Account states: Active; Grace (days 1-7 after an unpaid due date); Read-only (days 8-29); Archive (day 30 onwards)."),
             _("E-invoicing activation: not included."),
             _("All amounts are in AED and exclusive of 5% VAT."),

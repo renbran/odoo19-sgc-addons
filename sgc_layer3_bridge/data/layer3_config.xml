@@ -37,6 +37,10 @@
             <field name="key">sgc_layer3_bridge.user_monthly_standard</field>
             <field name="value">75</field>
         </record>
+        <record id="param_rebate_monthly" model="ir.config_parameter">
+            <field name="key">sgc_layer3_bridge.rebate_monthly</field>
+            <field name="value">0</field>
+        </record>
         <record id="param_rebate_quarterly" model="ir.config_parameter">
             <field name="key">sgc_layer3_bridge.rebate_quarterly</field>
             <field name="value">0</field>
