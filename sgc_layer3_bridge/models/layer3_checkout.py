@@ -1,5 +1,6 @@
+import logging
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 
 from markupsafe import Markup
 
@@ -8,6 +9,8 @@ from odoo.exceptions import UserError, ValidationError
 
 from ..lib.contract import SLUG_RE
 from .sale_order import CYCLE_MONTHS, INCLUDED_USERS, PARAM_PREFIX, QUOTATION_VALID_DAYS
+
+_logger = logging.getLogger(__name__)
 
 _REQUEST_ID = re.compile(r"^[A-Za-z0-9_\-:.]{8,128}$")
 _EMAIL = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,190}\.[A-Za-z]{2,}$")
@@ -342,11 +345,12 @@ class Layer3Checkout(models.TransientModel):
         # below. Self-serve orders are founding-only (see create_or_get_checkout), so the fee
         # is waived and the waiver is recorded in the Order Form terms (_order_form_terms).
         today = fields.Date.context_today(self)
-        # Trial signups skip the immediate-charge path: the card is captured via Stripe on
-        # the frontend (no payment_intent at signup) and Stripe handles day-14 auto-charge
-        # via trial_period_days on the subscription. require_payment=False so Odoo does not
-        # demand a paid invoice before activation; require_signature=False because the MSA
-        # agreement is captured by Stripe Checkout, not the Odoo portal.
+        # Trial signups never pass through Odoo's payment step: the card is collected by
+        # Stripe Elements on our own /subscribe page (create_trial_setup_intent and
+        # complete_trial), and Stripe holds it for the day-14 auto-charge
+        # (trial_period_days). require_payment=False therefore keeps the portal from
+        # asking for money Odoo cannot charge, and require_signature=False because the
+        # MSA agreement is accepted on our own form, not the Odoo portal.
         order_vals = {
             "partner_id": partner.id,
             "company_id": company.id,
@@ -374,11 +378,10 @@ class Layer3Checkout(models.TransientModel):
         order = Order.sudo().create(order_vals)
         if any(line.price_unit <= 0 for line in order.order_line):
             raise UserError(_("layer3_price_missing"))
-        # Both paid and trial orders need state='sent' for the customer's portal page
-        # to expose Odoo's Sign & Pay / payment_stripe card-capture form. Trial orders
-        # still go through the portal — the difference is require_payment=False and a
-        # 14-day trial_period_days on the resulting Stripe subscription, not a
-        # different state-machine entry point.
+        # Paid orders need state='sent' for the customer's portal page to expose Odoo's
+        # Sign & Pay / payment_stripe card-capture form. Trial orders are sent too (the
+        # Order Form link is the same), but their card never passes through Odoo: it is
+        # collected by Stripe Elements on our own page while the order sits in 'trial'.
         order.action_quotation_sent()
         return order
 
@@ -435,4 +438,167 @@ class Layer3Checkout(models.TransientModel):
             "tenant_slug": order.l3_tenant_slug,
             "sale_order_name": order.name,
             "sale_order_state": order.state,
+        }
+
+    # --------------------------------------------------------- trial card (Stripe)
+
+    @api.model
+    def _stripe_provider(self):
+        return self.env["payment.provider"].sudo().search(
+            [("code", "=", "stripe"), ("state", "!=", "disabled")], order="id", limit=1
+        )
+
+    @api.model
+    def _stripe_secret(self):
+        """API key for the direct Stripe calls: the bridge param wins, otherwise the
+        enabled payment provider's key (the same account Odoo's Sign & Pay charges on)."""
+        key = (self._param("stripe_secret_key") or "").strip()
+        if key:
+            return key
+        provider = self._stripe_provider()
+        if provider and provider.stripe_secret_key:
+            return provider.stripe_secret_key
+        raise UserError(_("layer3_stripe_not_configured"))
+
+    @api.model
+    def _stripe_publishable(self):
+        key = (self._param("stripe_publishable_key") or "").strip()
+        if key:
+            return key
+        provider = self._stripe_provider()
+        return (provider and provider.stripe_publishable_key) or ""
+
+    @api.model
+    def _trial_order(self, request_id):
+        """The trial order this request is about, or a refusal the page can show."""
+        rid = str(request_id or "").strip()
+        if not _REQUEST_ID.match(rid):
+            raise UserError(_("layer3_trial_not_found"))
+        order = self.env["sale.order"].sudo().search([("l3_request_id", "=", rid)], limit=1)
+        if not order or order.l3_state != "trial" or not order.l3_trial_ends_at:
+            raise UserError(_("layer3_trial_not_found"))
+        return order
+
+    @api.model
+    def create_trial_setup_intent(self, request_id=None, **kwargs):
+        """Card step of the trial: a SetupIntent for the trial order's Stripe customer.
+
+        The customer is created once and reused; a fresh SetupIntent is issued per call
+        so a declined card can be retried without a dead client_secret.
+        """
+        order = self._trial_order(request_id)
+        if order.l3_stripe_subscription_id:
+            raise UserError(_("layer3_trial_already_active"))
+        from ..lib import stripe_client
+        api_key = self._stripe_secret()
+        try:
+            customer_id = order.l3_stripe_customer_id
+            if not customer_id:
+                customer_id = stripe_client.create_customer(
+                    api_key,
+                    order.l3_admin_email or order.partner_id.email or "",
+                    order.l3_admin_name or order.partner_id.name or "",
+                    metadata={
+                        "l3_request_id": order.l3_request_id,
+                        "l3_tenant_slug": order.l3_tenant_slug,
+                    },
+                )
+                order.l3_stripe_customer_id = customer_id
+            setup = stripe_client.create_setup_intent(api_key, customer_id)
+        except Exception:
+            _logger.exception("Layer 3: SetupIntent creation failed for %s", order.name)
+            raise UserError(_("layer3_stripe_error"))
+        return {
+            "ok": True,
+            "request_id": order.l3_request_id,
+            "client_secret": setup["client_secret"],
+            "publishable_key": self._stripe_publishable(),
+            "amount_total": order.amount_total,
+            "currency": order.currency_id.name,
+        }
+
+    @api.model
+    def _trial_price_id(self, order, api_key):
+        """Recurring Stripe Price for this order's total, cached once it exists."""
+        amount_minor = int(round(order.amount_total * (10 ** order.currency_id.decimal_places)))
+        currency = order.currency_id.name.lower()
+        cache_key = "stripe_price_%s_%s" % (amount_minor, currency)
+        cached = self._param(cache_key)
+        if cached:
+            return cached
+        from ..lib import stripe_client
+        price_id = stripe_client.ensure_trial_price(
+            api_key,
+            amount_minor,
+            currency,
+            interval="month",
+            lookup_key="l3_%s_%s" % (amount_minor, currency),
+        )
+        self.env["ir.config_parameter"].sudo().set_param(PARAM_PREFIX + cache_key, price_id)
+        return price_id
+
+    @api.model
+    def complete_trial(self, request_id=None, setup_intent_id=None, **kwargs):
+        """Attach the collected card, start the 14-day subscription, hand over the tenant.
+
+        The SetupIntent is re-read from Stripe before anything is trusted, so the client
+        can only report an intent this account already collected. Idempotent: a second
+        call for a subscription that exists returns the existing result.
+        """
+        order = self._trial_order(request_id)
+        if order.l3_stripe_subscription_id:
+            return self._trial_result(order, deduplicated=True)
+        intent_id = str(setup_intent_id or "").strip()
+        if not intent_id:
+            raise UserError(_("layer3_card_incomplete"))
+        from ..lib import stripe_client
+        api_key = self._stripe_secret()
+        try:
+            intent = stripe_client.retrieve_setup_intent(api_key, intent_id)
+            if intent.get("status") != "succeeded" or not intent.get("payment_method"):
+                raise UserError(_("layer3_card_incomplete"))
+            customer_id = intent.get("customer") or order.l3_stripe_customer_id
+            if not customer_id:
+                raise UserError(_("layer3_card_incomplete"))
+            price_id = self._trial_price_id(order, api_key)
+            subscription = stripe_client.create_trial_subscription(
+                api_key,
+                customer_id,
+                price_id,
+                intent["payment_method"],
+                metadata={
+                    "l3_request_id": order.l3_request_id,
+                    "l3_tenant_slug": order.l3_tenant_slug,
+                },
+            )
+        except UserError:
+            raise
+        except Exception:
+            _logger.exception("Layer 3: trial subscription failed for %s", order.name)
+            raise UserError(_("layer3_stripe_error"))
+        vals = {
+            "l3_stripe_customer_id": customer_id,
+            "l3_stripe_subscription_id": subscription["id"],
+            # Stripe is this order's billing engine from here on: the quotation no longer
+            # needs a validity window (the expiry cron would otherwise free the subdomain
+            # on day 44 while the customer is still paying Stripe every month).
+            "validity_date": False,
+        }
+        if subscription.get("trial_end"):
+            vals["l3_trial_ends_at"] = datetime.fromtimestamp(
+                subscription["trial_end"], tz=timezone.utc
+            ).date()
+        order.write(vals)
+        order._l3_sync(provision=True)
+        return self._trial_result(order, deduplicated=False)
+
+    def _trial_result(self, order, deduplicated):
+        return {
+            "ok": True,
+            "deduplicated": bool(deduplicated),
+            "request_id": order.l3_request_id,
+            "sale_order_name": order.name,
+            "tenant_slug": order.l3_tenant_slug,
+            "trial_ends_at": order.l3_trial_ends_at.isoformat() if order.l3_trial_ends_at else "",
+            "checkout_url": self._base_url() + order.get_portal_url(),
         }

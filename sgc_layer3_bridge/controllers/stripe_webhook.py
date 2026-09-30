@@ -4,9 +4,10 @@ Stripe sends ``invoice.payment_succeeded`` / ``invoice.payment_failed`` events w
 day-14 auto-charge fires (or fails). Each event is verified against the signing secret
 and processed idempotently via ``sgc.stripe.event``.
 
-The endpoint is registered at ``/stripe/webhook``. Required config parameters
-(``sgc_layer3_bridge.stripe_api_key``, ``sgc_layer3_bridge.stripe_webhook_secret``)
-are set by hand on production.
+The endpoint is registered at ``/stripe/webhook``. The signing secret it verifies
+against (``sgc_layer3_bridge.stripe_webhook_secret``) is set by hand on production.
+The API key is not used here: the trial's customer, SetupIntent and subscription are
+created by ``layer3.checkout`` at signup, before any event arrives.
 """
 
 import logging
@@ -124,29 +125,25 @@ class StripeWebhook(http.Controller):
         return None
 
     def _handle_subscription_created(self, event, env):
-        """Card linked to the trial subscription: trial -> active.
+        """Card on file: link the Stripe ids to the order. The state stays ``trial``.
 
-        Fires when Odoo's payment_stripe creates the Stripe subscription with the
-        customer's saved card. We transition trial -> active so the workspace
-        reflects the customer's paid state (card on file, awaiting day-14 auto-
-        charge). The day-14 invoice.payment_succeeded is a no-op for state
-        (already active), and invoice.payment_failed still flips active -> locked
-        per the no-grace-trial policy.
+        The workspace is live for the 14 free days; only the day-14 invoice moves the
+        order (``invoice.payment_succeeded`` -> active, ``invoice.payment_failed`` ->
+        locked, per the no-grace trial policy). ``layer3.checkout.complete_trial`` has
+        normally written both ids already, so this handler is the cross-check for a
+        webhook that lands before the HTTP response does.
         """
         order = self._find_trial_order(event, env)
         if not order:
             return
-        # Store the Stripe IDs on the order so future webhook events match.
         obj = event.get("data", {}).get("object", {}) or {}
-        subscription_id = obj.get("id", "")
-        customer_id = obj.get("customer", "")
-        vals = {"l3_state": "active", "l3_state_reason": "card_linked"}
-        if subscription_id:
-            vals["l3_stripe_subscription_id"] = subscription_id
-        if customer_id:
-            vals["l3_stripe_customer_id"] = customer_id
-        order.write(vals)
-        order._l3_sync(provision=False)
+        vals = {}
+        if obj.get("id"):
+            vals["l3_stripe_subscription_id"] = obj["id"]
+        if obj.get("customer"):
+            vals["l3_stripe_customer_id"] = obj["customer"]
+        if vals:
+            order.write(vals)
 
     def _handle_payment_succeeded(self, event, env):
         """Day-14 charge succeeded: trial -> active, activate tenant."""
@@ -165,7 +162,12 @@ class StripeWebhook(http.Controller):
             raise_if_not_found=False,
         )
         if template:
-            template.send_mail(order.id)
+            try:
+                template.send_mail(order.id)
+            except Exception:
+                # The charge is recorded either way; an undeliverable email must not make
+                # Stripe retry the whole event (the controller answers 500).
+                _logger.exception("Layer 3: could not email the trial-charged note for %s", order.name)
 
     def _handle_payment_failed(self, event, env):
         """Day-14 charge failed: IMMEDIATE lockout (no grace period for trials)."""
@@ -182,7 +184,10 @@ class StripeWebhook(http.Controller):
             raise_if_not_found=False,
         )
         if template:
-            template.send_mail(order.id)
+            try:
+                template.send_mail(order.id)
+            except Exception:
+                _logger.exception("Layer 3: could not email the trial lockout for %s", order.name)
 
     def _handle_subscription_deleted(self, event, env):
         """Subscription cancelled during trial: immediate lockout."""

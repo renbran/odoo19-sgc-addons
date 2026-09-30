@@ -8,11 +8,18 @@ Covers:
 - _l3_process_trial_ends sends T-3 reminder (idempotent via l3_trial_reminder_sent)
 - _l3_process_trial_ends skips non-trial orders and orders with the wrong
   trial_ends_at offset (T-1, T-7 etc.)
+- the card step: SetupIntent -> complete_trial -> subscription with trial_period_days=14,
+  tenant provisioned, and the webhook's own transitions
 """
 from datetime import timedelta
+from unittest import mock
 
 from odoo import fields
+from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
+
+from ..controllers.stripe_webhook import StripeWebhook
+from ..lib import stripe_client
 
 
 @tagged("post_install", "-at_install", "layer3")
@@ -64,10 +71,10 @@ class TestTrialCheckout(TransactionCase):
         self.assertFalse(order.require_payment)
 
     def test_trial_checkout_reaches_sent_state_for_payment_portal(self):
-        # Trial orders go through action_quotation_sent() too, so the customer's
-        # portal page exposes Odoo's Sign & Pay / payment_stripe card-capture form.
-        # The trial-specific difference is require_payment=False + a 14-day
-        # trial_period_days on the Stripe subscription, not a different state.
+        # Trial orders go through action_quotation_sent() like every other order, but
+        # require_payment=False means Odoo's portal shows the quote read-only: the card
+        # is collected on our own page by Stripe Elements (create_trial_setup_intent),
+        # never by Odoo. This test guards that state, not a portal payment form.
         self.Checkout.create_or_get_checkout(self._payload())
         order = self._find("trial-req-001")
         self.assertEqual(order.state, "sent")
@@ -152,3 +159,180 @@ class TestTrialReminderCron(TransactionCase):
         order.write({"l3_trial_ends_at": today + timedelta(days=3)})
         order._l3_process_trial_ends(today)
         self.assertFalse(order.l3_trial_reminder_sent)
+
+
+@tagged("post_install", "-at_install", "layer3")
+class TestTrialCardFlow(TransactionCase):
+    """The card step: SetupIntent -> subscription with trial_period_days=14 -> tenant.
+
+    Stripe itself is stubbed at the stripe_client boundary (the module the controller
+    calls), so these tests assert the Odoo side: what is stored, what is refused, and
+    what the tenant receiver is told.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        ICP = cls.env["ir.config_parameter"].sudo()
+        ICP.set_param("sgc_layer3_bridge.checkout_enabled", "True")
+        ICP.set_param("sgc_layer3_bridge.public_base_url", "https://app.example.test")
+        ICP.set_param("sgc_layer3_bridge.founding_cohort_size", "100000")
+        ICP.set_param("sgc_layer3_bridge.max_active_tenants", "100000")
+        ICP.set_param("sgc_layer3_bridge.stripe_secret_key", "sk_test_dummy")
+        ICP.set_param("sgc_layer3_bridge.stripe_publishable_key", "pk_test_dummy")
+        cls.Checkout = cls.env["layer3.checkout"]
+
+    def _trial_order(self, request_id="trial-card-req"):
+        self.Checkout.create_or_get_checkout({
+            "request_id": request_id,
+            "slug": "trialcard",
+            "company_name": "Card Trial Holdings",
+            "contact_name": "T. Ryder",
+            "email": "admin@cardtrial.ae",
+            "cycle": "monthly",
+            "users": 5,
+            "trial": True,
+        })
+        return self.env["sale.order"].search([("l3_request_id", "=", request_id)])
+
+    def test_setup_intent_returns_client_secret_and_creates_customer(self):
+        order = self._trial_order()
+        with (
+            mock.patch.object(stripe_client, "create_customer", return_value="cus_123") as cust,
+            mock.patch.object(
+                stripe_client,
+                "create_setup_intent",
+                return_value={"id": "seti_1", "client_secret": "seti_1_secret_abc"},
+            ) as si,
+        ):
+            result = self.Checkout.create_trial_setup_intent(request_id=order.l3_request_id)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["client_secret"], "seti_1_secret_abc")
+        self.assertEqual(result["publishable_key"], "pk_test_dummy")
+        cust.assert_called_once()
+        si.assert_called_once()
+        self.assertEqual(order.l3_stripe_customer_id, "cus_123")
+        self.assertFalse(order.l3_stripe_subscription_id)
+        self.assertEqual(order.l3_state, "trial")
+
+    def test_setup_intent_reuses_the_customer_on_retry(self):
+        order = self._trial_order()
+        with (
+            mock.patch.object(stripe_client, "create_customer", return_value="cus_123") as cust,
+            mock.patch.object(
+                stripe_client,
+                "create_setup_intent",
+                return_value={"id": "seti_1", "client_secret": "s1"},
+            ),
+        ):
+            self.Checkout.create_trial_setup_intent(request_id=order.l3_request_id)
+            self.Checkout.create_trial_setup_intent(request_id=order.l3_request_id)
+        cust.assert_called_once()
+
+    def test_setup_intent_refused_once_the_subscription_exists(self):
+        order = self._trial_order()
+        order.l3_stripe_subscription_id = "sub_done"
+        with self.assertRaisesRegex(UserError, "layer3_trial_already_active"):
+            self.Checkout.create_trial_setup_intent(request_id=order.l3_request_id)
+
+    def test_setup_intent_refuses_a_foreign_request_id(self):
+        with self.assertRaisesRegex(UserError, "layer3_trial_not_found"):
+            self.Checkout.create_trial_setup_intent(request_id="trial-no-such-req")
+
+    def test_complete_trial_starts_subscription_and_provisions(self):
+        order = self._trial_order()
+        order.l3_stripe_customer_id = "cus_123"
+        trial_end = int(fields.Datetime.to_datetime("2026-10-14 10:00:00").timestamp())
+        with (
+            mock.patch.object(
+                stripe_client,
+                "retrieve_setup_intent",
+                return_value={
+                    "id": "seti_1",
+                    "status": "succeeded",
+                    "payment_method": "pm_1",
+                    "customer": "cus_123",
+                },
+            ),
+            mock.patch.object(stripe_client, "ensure_trial_price", return_value="price_1"),
+            mock.patch.object(
+                stripe_client,
+                "create_trial_subscription",
+                return_value={"id": "sub_1", "customer": "cus_123", "trial_end": trial_end},
+            ) as subscribe,
+        ):
+            result = self.Checkout.complete_trial(
+                request_id=order.l3_request_id, setup_intent_id="seti_1"
+            )
+        self.assertTrue(result["ok"])
+        self.assertFalse(result["deduplicated"])
+        subscribe.assert_called_once()
+        self.assertEqual(subscribe.call_args[0][3], "pm_1")
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_stripe_subscription_id, "sub_1")
+        self.assertEqual(order.l3_stripe_customer_id, "cus_123")
+        self.assertEqual(order.l3_state, "trial")
+        self.assertEqual(
+            order.l3_trial_ends_at,
+            fields.Date.to_date("2026-10-14"),
+        )
+        events = self.env["layer3.event"].search([("order_id", "=", order.id)])
+        self.assertEqual(len(events), 1)
+        self.assertTrue(events.provision)
+        self.assertEqual(events.payload()["state"], "trial")
+
+    def test_complete_trial_is_idempotent(self):
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        result = self.Checkout.complete_trial(
+            request_id=order.l3_request_id, setup_intent_id="seti_1"
+        )
+        self.assertTrue(result["deduplicated"])
+        self.assertEqual(result["tenant_slug"], order.l3_tenant_slug)
+
+    def test_complete_trial_refuses_an_unconfirmed_card(self):
+        order = self._trial_order()
+        order.l3_stripe_customer_id = "cus_123"
+        with (
+            mock.patch.object(
+                stripe_client,
+                "retrieve_setup_intent",
+                return_value={
+                    "id": "seti_1",
+                    "status": "requires_payment_method",
+                    "payment_method": "",
+                    "customer": "cus_123",
+                },
+            ),
+            self.assertRaisesRegex(UserError, "layer3_card_incomplete"),
+        ):
+            self.Checkout.complete_trial(
+                request_id=order.l3_request_id, setup_intent_id="seti_1"
+            )
+        self.assertFalse(order.l3_stripe_subscription_id)
+        self.assertFalse(self.env["layer3.event"].search([("order_id", "=", order.id)]))
+
+    def test_subscription_created_webhook_links_ids_and_keeps_trial(self):
+        order = self._trial_order()
+        order.l3_stripe_customer_id = "cus_123"
+        event = {
+            "data": {
+                "object": {
+                    "id": "sub_1",
+                    "customer": "cus_123",
+                    "status": "trialing",
+                }
+            }
+        }
+        StripeWebhook()._handle_subscription_created(event, self.env)
+        self.assertEqual(order.l3_stripe_subscription_id, "sub_1")
+        self.assertEqual(order.l3_state, "trial")
+
+    def test_webhook_payment_failed_locks_without_grace(self):
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        event = {"data": {"object": {"subscription": "sub_1", "customer": "cus_123"}}}
+        StripeWebhook()._handle_payment_failed(event, self.env)
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "locked")
+        self.assertEqual(order.l3_state_reason, "trial_locked")

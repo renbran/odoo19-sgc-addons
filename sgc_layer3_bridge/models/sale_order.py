@@ -270,6 +270,7 @@ class SaleOrder(models.Model):
         stale = self.sudo().search(
             [
                 ("l3_tenant_slug", "!=", False),
+                ("l3_stripe_subscription_id", "=", False),
                 ("state", "in", ("draft", "sent")),
                 ("validity_date", "<", today),
             ]
