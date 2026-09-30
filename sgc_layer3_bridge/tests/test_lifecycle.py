@@ -39,3 +39,51 @@ class TestLifecycle(TransactionCase):
         step = lambda d: d + timedelta(days=91)  # noqa: E731 - quarterly-ish cycles
         self.assertEqual(lifecycle.notice_end_date(T, T + timedelta(days=60), step), T + timedelta(days=60))
         self.assertEqual(lifecycle.notice_end_date(T, T + timedelta(days=59), step), T + timedelta(days=150))
+
+
+@tagged("post_install", "-at_install", "layer3")
+class TestTrialTargetState(TransactionCase):
+    """Pure-function tests for the 14-day trial state rules (no Odoo ORM)."""
+
+    def test_no_trial_returns_none(self):
+        self.assertEqual(
+            lifecycle.trial_target_state(today=T, trial_ends_at=None, charged=False),
+            (None, None),
+        )
+
+    def test_before_trial_end_stays_trial(self):
+        self.assertEqual(
+            lifecycle.trial_target_state(
+                today=T, trial_ends_at=T + timedelta(days=10), charged=False
+            ),
+            ("trial", "trial_started"),
+        )
+
+    def test_on_trial_end_charged_becomes_active(self):
+        self.assertEqual(
+            lifecycle.trial_target_state(today=T, trial_ends_at=T, charged=True),
+            ("active", "trial_charged"),
+        )
+
+    def test_on_trial_end_not_charged_locks_immediately(self):
+        # Founder decision 2026-09-30: trial decline -> immediate lockout, no grace.
+        self.assertEqual(
+            lifecycle.trial_target_state(today=T, trial_ends_at=T, charged=False),
+            ("locked", "trial_locked"),
+        )
+
+    def test_after_trial_end_charged_stays_active(self):
+        self.assertEqual(
+            lifecycle.trial_target_state(
+                today=T, trial_ends_at=T - timedelta(days=1), charged=True
+            ),
+            ("active", "trial_charged"),
+        )
+
+    def test_after_trial_end_not_charged_stays_locked(self):
+        self.assertEqual(
+            lifecycle.trial_target_state(
+                today=T, trial_ends_at=T - timedelta(days=1), charged=False
+            ),
+            ("locked", "trial_locked"),
+        )

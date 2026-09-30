@@ -12,5 +12,17 @@
             <field name="interval_type">minutes</field>
             <field name="active" eval="True"/>
         </record>
+        <!-- Trial T-3 day reminder (idempotent via l3_trial_reminder_sent). The day-14
+             charge itself is Stripe's job; the webhook handles success/lockout transitions
+             and the T-0 emails. -->
+        <record id="cron_layer3_trial_ends" model="ir.cron">
+            <field name="name">Layer 3: trial T-3 reminder</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="state">code</field>
+            <field name="code">model._l3_process_trial_ends()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

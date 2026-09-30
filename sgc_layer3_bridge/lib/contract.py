@@ -22,8 +22,8 @@ SCHEMA_VERSION = 1
 SOURCE = "odoo"
 EVENT_TYPE = "tenant.sync"
 
-STATES = ("active", "grace", "read_only", "archive", "deleted")
-REASONS = ("paid", "overdue", "cancelled", "retention_expired")
+STATES = ("active", "grace", "read_only", "archive", "deleted", "trial", "locked")
+REASONS = ("paid", "overdue", "cancelled", "retention_expired", "trial_started", "trial_charged", "trial_locked")
 DOCS_STATUSES = ("pending", "submitted", "rejected", "approved", "expiring")
 
 SLUG_RE = re.compile(r"^[a-z][a-z0-9-]{1,28}[a-z0-9]$")

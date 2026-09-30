@@ -78,5 +78,15 @@
             <field name="key">sgc_layer3_bridge.receiver_endpoint</field>
             <field name="value"></field>
         </record>
+        <!-- Stripe webhook signing secret for /stripe/webhook. Set by hand after the Stripe
+             dashboard generates it (Developers -> Webhooks -> Endpoint signing secret). The
+             secret is never shipped in module data. The bridge only needs this (it does NOT
+             call Stripe directly: Odoo's payment_stripe module handles subscription creation
+             and the day-14 charge via trial_period_days; the bridge only verifies inbound
+             webhooks and updates the order's l3_state). -->
+        <record id="param_stripe_webhook_secret" model="ir.config_parameter">
+            <field name="key">sgc_layer3_bridge.stripe_webhook_secret</field>
+            <field name="value"></field>
+        </record>
     </data>
 </odoo>

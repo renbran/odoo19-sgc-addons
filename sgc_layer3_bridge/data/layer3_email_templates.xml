@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- T-3 reminder: trial ends in 3 days, card will be charged automatically. -->
+        <record id="mail_template_l3_trial_reminder_t3" model="mail.template">
+            <field name="name">Layer 3: trial reminder (T-3 days)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Your SGC trial ends in 3 days</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html"><![CDATA[
+<div>
+    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Your 14-day trial of SGC Real Estate Operating System ends on
+       <strong>{{ object.l3_trial_ends_at }}</strong>. On that day, your saved card will be
+       charged the next billing period according to your Order Form.</p>
+    <p>If your card fails on the renewal day, your workspace will be
+       <strong>immediately locked</strong> (no grace period, per your Order Form). To avoid
+       this, please ensure your card details are up to date before the renewal date.</p>
+    <p>If you have questions, reply to this email.</p>
+    <p>— SGC TECH AI</p>
+</div>
+            ]]></field>
+        </record>
+        <!-- T-0 charge success: trial converted to active paid subscription. Sent by the
+             Stripe webhook handler when invoice.payment_succeeded arrives. -->
+        <record id="mail_template_l3_trial_charged" model="mail.template">
+            <field name="name">Layer 3: trial charged (welcome)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Welcome to SGC Real Estate OS</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html"><![CDATA[
+<div>
+    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Your 14-day trial has converted to a paid subscription. Your workspace is fully
+       active.</p>
+    <p>Tenant URL: <a href="{{ object.l3_tenant_url }}">{{ object.l3_tenant_url }}</a></p>
+    <p>Manage billing: <a href="/my/layer3/{{ object.id }}">/my/layer3/{{ object.id }}</a></p>
+    <p>— SGC TECH AI</p>
+</div>
+            ]]></field>
+        </record>
+        <!-- T-0 lockout: trial card declined on day-14. Sent by the Stripe webhook handler
+             when invoice.payment_failed arrives. Per the founder decision 2026-09-30, the
+             workspace is immediately locked with no grace period. -->
+        <record id="mail_template_l3_trial_locked" model="mail.template">
+            <field name="name">Layer 3: trial locked (card declined)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Your SGC trial has ended and your card was declined</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html"><![CDATA[
+<div>
+    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Your 14-day trial ended today and the renewal charge to your saved card failed.
+       Your workspace has been <strong>immediately locked</strong> (no grace period for
+       trial renewals, per your Order Form).</p>
+    <p>To restore your workspace, please reply to this email. We will help you update
+       your payment method and reactivate your tenant.</p>
+    <p>— SGC TECH AI</p>
+</div>
+            ]]></field>
+        </record>
+    </data>
+</odoo>

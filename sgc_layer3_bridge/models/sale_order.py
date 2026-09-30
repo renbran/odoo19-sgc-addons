@@ -18,6 +18,8 @@ L3_STATES = [
     ("read_only", "Read-only"),
     ("archive", "Archive"),
     ("deleted", "Deleted"),
+    ("trial", "Trial"),
+    ("locked", "Locked"),
 ]
 DOCS_STATUSES = [
     ("pending", "Pending upload"),
@@ -51,6 +53,11 @@ class SaleOrder(models.Model):
     l3_state_since = fields.Date("In this state since", copy=False, readonly=True)
     l3_state_version = fields.Integer("Sync version", copy=False, readonly=True)
     l3_activated_on = fields.Date("Activated on", copy=False, readonly=True)
+    l3_trial_ends_at = fields.Date("Trial ends on", copy=False, readonly=True)
+    l3_trial_charge_attempted_at = fields.Date("Trial charge attempted on", copy=False, readonly=True)
+    l3_trial_reminder_sent = fields.Boolean("Trial T-3 reminder sent", copy=False, readonly=True)
+    l3_stripe_customer_id = fields.Char("Stripe customer id", copy=False, readonly=True)
+    l3_stripe_subscription_id = fields.Char("Stripe subscription id", copy=False, readonly=True)
     l3_docs_status = fields.Selection(DOCS_STATUSES, string="Documents", copy=False, tracking=True)
     l3_docs_reason = fields.Char("Rejection reason", copy=False)
     l3_licence_expiry = fields.Date("Licence expiry", copy=False)
@@ -317,6 +324,40 @@ class SaleOrder(models.Model):
         self._l3_update_states()
         self._l3_licence_expiry()
         self._l3_mail_new_invoices()
+
+    # ----------------------------------------------------------- trial ends
+
+    @api.model
+    def _l3_process_trial_ends(self, today=None):
+        """Trial notifications that the Stripe webhook does not handle.
+
+        * T-3 day reminder: idempotent via ``l3_trial_reminder_sent``. Finds trial orders
+          whose trial ends in exactly 3 days and have not been reminded yet, sends the
+          T-3 email, flips the flag.
+        * The day-14 charge itself is handled by Stripe (auto-renew via
+          ``trial_period_days``). On success/failure, the webhook at ``/stripe/webhook``
+          (controllers/stripe_webhook.py) transitions the order and is responsible for
+          sending the T-0 success / T-0 lockout emails.
+        """
+        today = today or fields.Date.context_today(self)
+        trial_template = self.env.ref(
+            "sgc_layer3_bridge.mail_template_l3_trial_reminder_t3",
+            raise_if_not_found=False,
+        )
+        if not trial_template:
+            return
+        remind_date = today + timedelta(days=3)
+        orders = self.sudo().search([
+            ("l3_state", "=", "trial"),
+            ("l3_trial_ends_at", "=", remind_date),
+            ("l3_trial_reminder_sent", "=", False),
+        ])
+        for order in orders:
+            try:
+                trial_template.send_mail(order.id)
+                order.l3_trial_reminder_sent = True
+            except Exception:
+                _logger.exception("Layer 3: could not email trial T-3 reminder for %s", order.name)
 
     # --------------------------------------------------------------- documents
 

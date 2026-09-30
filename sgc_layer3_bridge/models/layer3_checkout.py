@@ -15,7 +15,7 @@ _PHONE = re.compile(r"^[0-9 +()-]{6,24}$")
 _COUNTRY = re.compile(r"^[A-Za-z]{2}$")
 
 REQUIRED_KEYS = {"request_id", "slug", "company_name", "contact_name", "email", "cycle", "users"}
-OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url"}
+OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url", "trial"}
 # UAE emirate codes (res.country.state). The UAE VAT fiscal positions are keyed by emirate, so a
 # UAE customer without one falls through to the export (0%) position. SGC is in Dubai.
 EMIRATES = ("DU", "AZ", "SH", "AJ", "UQ", "RK", "FU")
@@ -166,6 +166,7 @@ class Layer3Checkout(models.TransientModel):
             data["emirate"] = str(payload.get("emirate") or DEFAULT_EMIRATE).strip().upper()
             if data["emirate"] not in EMIRATES:
                 raise ValidationError(_("emirate must be one of %s.") % ", ".join(EMIRATES))
+        data["trial"] = str(payload.get("trial") or "").strip().lower() in ("true", "1", "yes")
         return data
 
     # ------------------------------------------------------------------ public
@@ -211,7 +212,7 @@ class Layer3Checkout(models.TransientModel):
             raise UserError(_("layer3_sales_assisted"))
 
         partner = self._find_or_create_partner(data, company)
-        order = self._create_order(data, partner, company, founding=True)
+        order = self._create_order(data, partner, company, founding=True, trial=data["trial"])
         return self._result(order, deduplicated=False)
 
     @api.model
@@ -315,7 +316,7 @@ class Layer3Checkout(models.TransientModel):
         return partner
 
     @api.model
-    def _create_order(self, data, partner, company, founding):
+    def _create_order(self, data, partner, company, founding, trial=False):
         Order = self.env["sale.order"]
         products = Order._l3_products()
         period = Order._l3_period(data["cycle"])
@@ -341,38 +342,48 @@ class Layer3Checkout(models.TransientModel):
         # below. Self-serve orders are founding-only (see create_or_get_checkout), so the fee
         # is waived and the waiver is recorded in the Order Form terms (_order_form_terms).
         today = fields.Date.context_today(self)
-        order = Order.sudo().create(
-            {
-                "partner_id": partner.id,
-                "company_id": company.id,
-                "recurrance_id": period.id,
-                "require_signature": True,
-                "require_payment": True,
-                "prepayment_percent": 1.0,
-                "validity_date": today + timedelta(days=QUOTATION_VALID_DAYS),
-                "client_order_ref": "Layer 3 %s" % data["slug"],
-                "l3_request_id": data["request_id"],
-                "l3_tenant_slug": data["slug"],
-                "l3_cycle": data["cycle"],
-                "l3_users": data["users"],
-                "l3_founding": founding,
-                "l3_admin_name": data["contact_name"],
-                "l3_admin_email": data["email"],
-                "l3_mobile": data["mobile"] or False,
-                "l3_trade_licence_no": data["trade_licence_no"] or False,
-                "l3_state": "awaiting_payment",
-                "l3_docs_status": "pending",
-                "note": self._order_form_terms(founding),
-                "order_line": lines,
-            }
-        )
+        # Trial signups skip the immediate-charge path: the card is captured via Stripe on
+        # the frontend (no payment_intent at signup) and Stripe handles day-14 auto-charge
+        # via trial_period_days on the subscription. require_payment=False so Odoo does not
+        # demand a paid invoice before activation; require_signature=False because the MSA
+        # agreement is captured by Stripe Checkout, not the Odoo portal.
+        order_vals = {
+            "partner_id": partner.id,
+            "company_id": company.id,
+            "recurrance_id": period.id,
+            "require_signature": not trial,
+            "require_payment": not trial,
+            "prepayment_percent": 0.0 if trial else 1.0,
+            "validity_date": today + timedelta(days=(14 + 30) if trial else QUOTATION_VALID_DAYS),
+            "client_order_ref": "Layer 3 %s" % data["slug"],
+            "l3_request_id": data["request_id"],
+            "l3_tenant_slug": data["slug"],
+            "l3_cycle": data["cycle"],
+            "l3_users": data["users"],
+            "l3_founding": founding,
+            "l3_admin_name": data["contact_name"],
+            "l3_admin_email": data["email"],
+            "l3_mobile": data["mobile"] or False,
+            "l3_trade_licence_no": data["trade_licence_no"] or False,
+            "l3_state": "trial" if trial else "awaiting_payment",
+            "l3_trial_ends_at": today + timedelta(days=14) if trial else False,
+            "l3_docs_status": "pending",
+            "note": self._order_form_terms(founding, trial=trial),
+            "order_line": lines,
+        }
+        order = Order.sudo().create(order_vals)
         if any(line.price_unit <= 0 for line in order.order_line):
             raise UserError(_("layer3_price_missing"))
+        # Both paid and trial orders need state='sent' for the customer's portal page
+        # to expose Odoo's Sign & Pay / payment_stripe card-capture form. Trial orders
+        # still go through the portal — the difference is require_payment=False and a
+        # 14-day trial_period_days on the resulting Stripe subscription, not a
+        # different state-machine entry point.
         order.action_quotation_sent()
         return order
 
     @api.model
-    def _order_form_terms(self, founding):
+    def _order_form_terms(self, founding, trial=False):
         """Order Form SGC-OF-2026-01 section B defaults (SGC-MEMO-2026-OIC-01)."""
         terms_url = (self._param("terms_url") or "https://sgctech.ai/legal/subscription").strip()
         SO = self.env["sale.order"].sudo()
@@ -382,7 +393,10 @@ class Layer3Checkout(models.TransientModel):
             return "{:,.0f}".format(value) if value == int(value) else "{:,.2f}".format(value)
 
         setup = aed("setup_unit_price", 1500)
-        rows = [
+        rows = []
+        if trial:
+            rows.append(_("Trial: 14 days free with card-required auto-renew. If the day-14 charge fails the workspace is immediately locked (no grace period)."))
+        rows += [
             _("Order Form SGC-OF-2026-01, issued under SGC-MEMO-2026-PR-03 (Rent - Subscription Layer)."),
             _("This order incorporates the Master Services Agreement SGC-MSA-2026-02, the Service Level Agreement SGC-SLA-2026-02 and the Data Processing Agreement SGC-DPA-2026-01, available at %s.") % terms_url,
             _("Subscription: no fixed end date; continues until cancelled with 60 days' notice, effective at the end of a billing cycle."),

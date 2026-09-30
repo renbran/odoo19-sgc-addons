@@ -64,3 +64,19 @@ def notice_end_date(notice_date, cycle_end, next_cycle_end):
     while (end - notice_date).days < NOTICE_DAYS:
         end = next_cycle_end(end)
     return end
+
+
+def trial_target_state(today, trial_ends_at, charged):
+    """Return (state, reason) for a trial tenant, or (None, None) when not yet on trial.
+
+    today         -- date of evaluation
+    trial_ends_at -- date the trial should auto-charge (None before trial signup)
+    charged       -- True once the day-14 charge has succeeded
+    """
+    if trial_ends_at is None:
+        return None, None
+    if today < trial_ends_at:
+        return "trial", "trial_started"
+    if charged:
+        return "active", "trial_charged"
+    return "locked", "trial_locked"
