@@ -11,7 +11,7 @@ Covers:
 - the card step: SetupIntent -> complete_trial -> subscription with trial_period_days=14,
   tenant provisioned, and the webhook's own transitions
 - verify_webhook really parses a signed Stripe payload into a plain nested dict
-  (regression: stripe-python 15 returns a non-dict StripeObject, which 500ed every
+  (regression: stripe-python 15 returns a non-dict StripeObject, which 500'd every
   delivery at event.get("id") in the controller)
 """
 import hashlib
@@ -415,7 +415,7 @@ class TestTrialCardFlow(TransactionCase):
         """Regression: stripe-python 15 hands back a non-dict ``stripe.Event``.
 
         ``event.get(...)`` then raises AttributeError in the controller *before* its
-        handler try/except, so every verified delivery500'd on production (verified by a
+        handler try/except, so every verified delivery 500'd on production (verified by a
         live signed POST on 2026-09-30, stripe 15.6.1).
         """
         secret = "whsec_" + "0" * 32
