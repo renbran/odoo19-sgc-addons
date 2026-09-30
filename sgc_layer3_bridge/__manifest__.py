@@ -17,7 +17,7 @@ Odoo side of the SGC Layer 3 (Rent - Subscription Layer) signup and billing flow
 * A durable, HMAC-signed outbox that tells the tenant receiver on vps-root what each
   tenant should look like (``tenant.sync`` snapshots).
 """,
-    "version": "19.0.1.3.0",
+    "version": "19.0.1.4.0",
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",

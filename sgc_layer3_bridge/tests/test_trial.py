@@ -344,6 +344,67 @@ class TestTrialCardFlow(TransactionCase):
         self.assertEqual(order.l3_state, "locked")
         self.assertEqual(order.l3_state_reason, "trial_locked")
 
+    def _invoice_event(self, **invoice):
+        """An ``invoice.payment_succeeded`` event shaped like Stripe's own payload."""
+        obj = {
+            "id": "in_1",
+            "subscription": "sub_1",
+            "customer": "cus_123",
+            "amount_paid": 91875,
+            "total": 91875,
+            "billing_reason": "subscription_cycle",
+        }
+        obj.update(invoice)
+        return {"data": {"object": obj}}
+
+    def test_webhook_zero_amount_trial_invoice_does_not_activate(self):
+        """Regression: the $0 invoice Stripe creates with the trial itself.
+
+        With ``trial_period_days`` Stripe issues ``billing_reason=subscription_create``,
+        ``total=0`` ("Free trial for 1 x ...") and marks it paid immediately, so
+        ``invoice.payment_succeeded`` lands seconds after signup (observed on production
+        2026-09-30: evt_1ULUPW... two seconds after sub_1ULUPV... was created). Treating
+        it as the day-14 charge activated S00312 on day 0.
+        """
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        reason_before = order.l3_state_reason
+        StripeWebhook()._handle_payment_succeeded(
+            self._invoice_event(
+                amount_paid=0, total=0, billing_reason="subscription_create"
+            ),
+            self.env,
+        )
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "trial")
+        self.assertEqual(order.l3_state_reason, reason_before)
+        self.assertFalse(order.l3_activated_on)
+
+    def test_webhook_paid_invoice_activates_the_trial(self):
+        """The real day-14 invoice (amount_paid > 0) still activates."""
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        StripeWebhook()._handle_payment_succeeded(self._invoice_event(), self.env)
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "active")
+        self.assertEqual(order.l3_state_reason, "trial_charged")
+        self.assertTrue(order.l3_activated_on)
+
+    def test_webhook_trial_emails_send_under_the_public_user(self):
+        """Regression: the webhook runs as the public user, which cannot read
+        ``mail.template``. Without ``sudo()`` ``send_mail`` raised AccessError, which
+        our try/except swallowed, so every day-14 email was silently dropped (observed
+        on production 2026-09-30 for the trial-charged note on S00312)."""
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        public_env = self.env(user=self.env.ref("base.public_user").id)
+        before = self.env["mail.mail"].sudo().search_count([])
+        StripeWebhook()._handle_payment_succeeded(self._invoice_event(), public_env)
+        order.invalidate_recordset()
+        after = self.env["mail.mail"].sudo().search_count([])
+        self.assertEqual(order.l3_state, "active")
+        self.assertGreater(after, before, "the trial-charged email was never queued")
+
     def _signed_payload(self, event, secret):
         payload = json.dumps(event, separators=(",", ":")).encode()
         ts = str(int(time.time()))

@@ -146,9 +146,28 @@ class StripeWebhook(http.Controller):
             order.write(vals)
 
     def _handle_payment_succeeded(self, event, env):
-        """Day-14 charge succeeded: trial -> active, activate tenant."""
+        """Day-14 charge succeeded: trial -> active, activate tenant.
+
+        Stripe also emits this event for the invoice it creates when the subscription
+        is created: with ``trial_period_days`` that invoice is **0 AED** (its line reads
+        "Free trial for 1 x ...", ``billing_reason=subscription_create``) and it is paid
+        the moment the subscription starts, so it arrives seconds after signup. Acting on
+        it would flip the order to ``active`` on day 0 and skip the 14-day trial, so
+        zero-amount invoices are logged and ignored (verified against a real test-mode
+        delivery on 2026-09-30: evt invoice.payment_succeeded with amount_paid=0 two
+        seconds after ``sub_...`` was created).
+        """
         order = self._find_trial_order(event, env)
         if not order:
+            return
+        obj = event.get("data", {}).get("object", {}) or {}
+        amount_paid = obj.get("amount_paid") or 0
+        if amount_paid <= 0:
+            _logger.info(
+                "Stripe webhook: ignoring zero-amount invoice %s (billing_reason=%s)",
+                obj.get("id") or "?",
+                obj.get("billing_reason") or "?",
+            )
             return
         today = fields.Date.context_today(env["sale.order"])
         order.write({
@@ -163,7 +182,10 @@ class StripeWebhook(http.Controller):
         )
         if template:
             try:
-                template.send_mail(order.id)
+                # sudo: the webhook runs as the public user, which cannot read
+                # mail.template records (AccessError caught below would then silently
+                # drop every day-14 email).
+                template.sudo().send_mail(order.id)
             except Exception:
                 # The charge is recorded either way; an undeliverable email must not make
                 # Stripe retry the whole event (the controller answers 500).
@@ -185,7 +207,8 @@ class StripeWebhook(http.Controller):
         )
         if template:
             try:
-                template.send_mail(order.id)
+                # sudo: public-user webhook env cannot read mail.template (see above).
+                template.sudo().send_mail(order.id)
             except Exception:
                 _logger.exception("Layer 3: could not email the trial lockout for %s", order.name)
 
