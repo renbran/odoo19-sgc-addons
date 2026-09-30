@@ -148,7 +148,21 @@ def verify_webhook(payload, signature_header, webhook_secret):
     ``Stripe-Signature`` request header. ``webhook_secret`` is the endpoint signing secret
     from the Stripe dashboard. Raises ``stripe.error.SignatureVerificationError`` on a bad
     signature; the caller returns HTTP 400.
+
+    stripe-python >= 11 returns a ``stripe.Event`` (a ``StripeObject``), which is *not* a
+    dict and has no ``.get()``: calling it raises ``AttributeError: 'get' is a dict
+    method, but a Event is not a dict``. The controller reads ``event.get("id")`` before
+    any try/except, so an unconverted object 500s every single delivery. The event is
+    therefore normalised to a plain nested dict here.
     """
     import stripe
     event = stripe.Webhook.construct_event(payload, signature_header, webhook_secret)
-    return event
+    if isinstance(event, dict):
+        return event
+    to_dict = getattr(event, "to_dict", None)
+    if not callable(to_dict):
+        raise TypeError(
+            "stripe.Webhook.construct_event returned %s, which cannot be read as a dict"
+            % type(event).__name__
+        )
+    return to_dict()

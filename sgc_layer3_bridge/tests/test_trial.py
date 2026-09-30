@@ -10,7 +10,14 @@ Covers:
   trial_ends_at offset (T-1, T-7 etc.)
 - the card step: SetupIntent -> complete_trial -> subscription with trial_period_days=14,
   tenant provisioned, and the webhook's own transitions
+- verify_webhook really parses a signed Stripe payload into a plain nested dict
+  (regression: stripe-python 15 returns a non-dict StripeObject, which 500ed every
+  delivery at event.get("id") in the controller)
 """
+import hashlib
+import hmac
+import json
+import time
 from datetime import timedelta
 from unittest import mock
 
@@ -336,3 +343,57 @@ class TestTrialCardFlow(TransactionCase):
         order.invalidate_recordset()
         self.assertEqual(order.l3_state, "locked")
         self.assertEqual(order.l3_state_reason, "trial_locked")
+
+    def _signed_payload(self, event, secret):
+        payload = json.dumps(event, separators=(",", ":")).encode()
+        ts = str(int(time.time()))
+        sig = hmac.new(secret.encode(), (ts + "." + payload.decode()).encode(), hashlib.sha256).hexdigest()
+        return payload, "t=%s,v1=%s" % (ts, sig)
+
+    def test_verify_webhook_returns_a_plain_nested_dict(self):
+        """Regression: stripe-python 15 hands back a non-dict ``stripe.Event``.
+
+        ``event.get(...)`` then raises AttributeError in the controller *before* its
+        handler try/except, so every verified delivery500'd on production (verified by a
+        live signed POST on 2026-09-30, stripe 15.6.1).
+        """
+        secret = "whsec_" + "0" * 32
+        payload, header = self._signed_payload({
+            "id": "evt_webhook_1",
+            "type": "customer.subscription.created",
+            "data": {"object": {
+                "id": "sub_1",
+                "customer": "cus_1",
+                "status": "trialing",
+                "metadata": {"l3_request_id": "trial-card-req"},
+            }},
+        }, secret)
+        event = stripe_client.verify_webhook(payload, header, secret)
+
+        self.assertIsInstance(event, dict)
+        self.assertEqual(event.get("id"), "evt_webhook_1")
+        self.assertEqual(event.get("type"), "customer.subscription.created")
+        self.assertIsInstance(event.get("data"), dict)
+        obj = event.get("data", {}).get("object", {})
+        self.assertIsInstance(obj, dict)
+        self.assertEqual(obj.get("id"), "sub_1")
+        self.assertIsInstance(obj.get("metadata"), dict)
+
+        # the controller's own read of the event must not raise
+        self.assertEqual(event.get("id", ""), "evt_webhook_1")
+        self.assertEqual(event.get("type", ""), "customer.subscription.created")
+
+        # and a handler must be able to walk it
+        order = self._trial_order(request_id="trial-card-req")
+        order.l3_stripe_customer_id = "cus_1"
+        StripeWebhook()._handle_subscription_created(event, self.env)
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_stripe_subscription_id, "sub_1")
+        self.assertEqual(order.l3_state, "trial")
+
+        # a tampered signature is still refused
+        bad_payload, bad_header = self._signed_payload(
+            {"id": "evt_webhook_2", "type": "ping"}, secret)
+        tampered = bad_payload.replace(b"evt_webhook_2", b"evt_webhook_3")
+        with self.assertRaises(Exception):
+            stripe_client.verify_webhook(tampered, bad_header, secret)
