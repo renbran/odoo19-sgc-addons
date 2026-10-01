@@ -4,3 +4,5 @@ access_layer3_checkout_system,layer3.checkout system,model_layer3_checkout,base.
 access_layer3_event_system,layer3.event system,model_layer3_event,base.group_system,1,1,0,0
 access_layer3_event_salesman,layer3.event salesman,model_layer3_event,sales_team.group_sale_salesman,1,0,0,0
 access_stripe_event_system,sgc.stripe.event system,model_sgc_stripe_event,base.group_system,1,1,1,1
+access_stripe_invoice_system,sgc.stripe.invoice system,model_sgc_stripe_invoice,base.group_system,1,1,1,1
+access_stripe_invoice_accountant,sgc.stripe.invoice accountant,model_sgc_stripe_invoice,account.group_account_user,1,0,0,0

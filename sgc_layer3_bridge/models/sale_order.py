@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.fields import Command
 
 from ..lib import lifecycle
 
@@ -438,6 +439,120 @@ class SaleOrder(models.Model):
         self.sudo().write(vals)
         self.message_post(body=_("Customer gave notice on %(n)s. Cancellation takes effect on %(e)s.") % {"n": notice_date, "e": end})
         return end
+
+    # ------------------------------------------------------------ revenue mirror
+
+    def _l3_mirror_stripe_invoice(self, stripe_invoice_id, paid_at, amount_paid, billing_reason, event_id):
+        """Mirror a paid Stripe invoice as a posted, paid customer invoice.
+
+        Trial signups never pass through Odoo's payment step, so
+        sttl_sale_subscription never invoices them and the recurring revenue Stripe
+        collects would never reach the books. Each ``invoice.payment_succeeded``
+        therefore creates one ``account.move`` (``out_invoice``) from the order's own
+        lines, links it to the order, posts it and settles the receivable with an
+        inbound payment, so the P&L and the customer statement match what Stripe
+        actually charged.
+
+        Idempotent on the Stripe invoice id (``sgc.stripe.invoice``): a redelivered
+        webhook books the charge exactly once. ``invoice_origin`` is deliberately left
+        empty - the source document is a Stripe invoice, not an Odoo sale document.
+        Returns ``(move, deduplicated)``; the move is empty when nothing was mirrored.
+        """
+        self.ensure_one()
+        Mapped = self.env["sgc.stripe.invoice"].sudo()
+        existing = Mapped.search([("stripe_invoice_id", "=", stripe_invoice_id)], limit=1)
+        if existing:
+            _logger.info("Layer 3: Stripe invoice %s already mirrored (move %s)", stripe_invoice_id, existing.move_id.display_name)
+            return existing.move_id, True
+        # Safety net: if this order is somehow also invoiced outside the mirror (e.g. a
+        # manually confirmed order that sttl started to bill), do not book twice.
+        mirrored_moves = Mapped.search([("order_id", "=", self.id)]).mapped("move_id")
+        posted = self.invoice_ids.filtered(lambda m: m.move_type == "out_invoice" and m.state == "posted")
+        if posted - mirrored_moves:
+            _logger.warning(
+                "Layer 3: %s has posted invoices outside the Stripe mirror (%s); skipping %s",
+                self.name, posted.mapped("name"), stripe_invoice_id,
+            )
+            return self.env["account.move"], False
+        lines = []
+        for line in self.order_line:
+            if line.display_type or not line.product_id:
+                continue
+            lines.append((0, 0, {
+                "product_id": line.product_id.id,
+                "name": line.name,
+                "quantity": line.product_uom_qty,
+                "price_unit": line.price_unit,
+                "tax_ids": line.tax_ids.ids,
+                "sale_line_ids": [Command.link(line.id)],
+            }))
+        if not lines:
+            _logger.warning("Layer 3: cannot mirror Stripe invoice %s for %s: no billable lines", stripe_invoice_id, self.name)
+            return self.env["account.move"], False
+        paid_date = paid_at.date() if paid_at else fields.Date.context_today(self)
+        move = self.env["account.move"].sudo().create({
+            "move_type": "out_invoice",
+            "partner_id": self.partner_id.id,
+            "company_id": self.company_id.id,
+            "currency_id": self.currency_id.id,
+            "invoice_date": paid_date,
+            "invoice_date_due": paid_date,
+            "narration": _("Mirrored from Stripe invoice %(inv)s (%(reason)s); the charge was processed by Stripe.")
+            % {"inv": stripe_invoice_id, "reason": billing_reason or "?"},
+            "invoice_line_ids": lines,
+        })
+        move.action_post()
+        if amount_paid:
+            expected = amount_paid / (10 ** self.currency_id.decimal_places)
+            if abs(expected - move.amount_total) > 0.01:
+                _logger.warning("Layer 3: Stripe charged %.2f but mirror invoice %s totals %.2f", expected, move.name, move.amount_total)
+        # The money moved in Stripe, not in an Odoo bank account: settle the receivable
+        # against an inbound payment so the invoice is settled, not left open. Use the
+        # journal's Stripe method line when it has one - that is where the charge
+        # actually landed; the payment then sits "in process" (like every real Stripe
+        # capture in this company, which has no bank/cash method on its Bank journal)
+        # until the Stripe payout is processed, with the receivable fully reconciled.
+        journal = self.env["account.journal"].sudo().search(
+            [("type", "in", ("bank", "cash")), ("company_id", "=", self.company_id.id)],
+            order="sequence, id", limit=1,
+        )
+        if journal:
+            inbound = journal.inbound_payment_method_line_ids
+            pml = inbound.filtered(lambda l: l.code == "stripe")                 or inbound.filtered(lambda l: l.code in ("bank", "cash"))                 or inbound[:1]
+            payment_vals = {
+                "partner_type": "customer",
+                "partner_id": self.partner_id.id,
+                "payment_type": "inbound",
+                "journal_id": journal.id,
+                "company_id": self.company_id.id,
+                "currency_id": self.currency_id.id,
+                "amount": move.amount_total,
+                "date": paid_date,
+                "payment_reference": "Stripe invoice %s" % stripe_invoice_id,
+            }
+            if pml:
+                payment_vals["payment_method_line_id"] = pml.id
+            payment = self.env["account.payment"].sudo().create(payment_vals)
+            payment.action_post()
+            if payment.move_id:
+                (payment.move_id + move).line_ids.filtered(
+                    lambda l: l.account_id.account_type in ("asset_receivable", "liability_receivable")
+                    and not l.reconciled,
+                ).reconcile()
+        else:
+            _logger.warning("Layer 3: no bank/cash journal for %s; mirror invoice %s stays open", self.name, move.name)
+        Mapped.create({
+            "stripe_invoice_id": stripe_invoice_id,
+            "order_id": self.id,
+            "move_id": move.id,
+            "amount_paid": (amount_paid or 0) / (10 ** self.currency_id.decimal_places),
+            "currency_id": self.currency_id.id,
+            "paid_at": paid_at or fields.Datetime.now(),
+            "billing_reason": billing_reason or "",
+            "event_id": event_id or "",
+        })
+        self.message_post(body=_("Mirrored the Stripe invoice %s as customer invoice %s.") % (stripe_invoice_id, move.name))
+        return move, False
 
 
 class SaleOrderLine(models.Model):

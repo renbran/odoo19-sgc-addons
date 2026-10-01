@@ -16,8 +16,11 @@ Odoo side of the SGC Layer 3 (Rent - Subscription Layer) signup and billing flow
   approved / expiring, visible to SGC on the order and to the client in its tenant.
 * A durable, HMAC-signed outbox that tells the tenant receiver on vps-root what each
   tenant should look like (``tenant.sync`` snapshots).
+* Revenue reconciliation: every paid Stripe invoice of a trial subscription is mirrored
+  as one posted, paid Odoo customer invoice (``sgc.stripe.invoice`` is the idempotency
+  key on the Stripe invoice id).
 """,
-    "version": "19.0.1.4.0",
+    "version": "19.0.1.5.0",
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
@@ -38,6 +41,7 @@ Odoo side of the SGC Layer 3 (Rent - Subscription Layer) signup and billing flow
         "data/layer3_email_templates.xml",
         "views/sale_order_views.xml",
         "views/layer3_event_views.xml",
+        "views/stripe_invoice_views.xml",
         "views/portal_templates.xml",
     ],
     "external_dependencies": {"python": ["requests", "stripe"]},

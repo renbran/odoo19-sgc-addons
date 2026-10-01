@@ -13,6 +13,8 @@ Covers:
 - verify_webhook really parses a signed Stripe payload into a plain nested dict
   (regression: stripe-python 15 returns a non-dict StripeObject, which 500'd every
   delivery at event.get("id") in the controller)
+- revenue reconciliation: each paid Stripe invoice (day 14 and recurring) is mirrored as
+  one posted, paid customer invoice, idempotent on the Stripe invoice id
 """
 import hashlib
 import hmac
@@ -379,6 +381,9 @@ class TestTrialCardFlow(TransactionCase):
         self.assertEqual(order.l3_state, "trial")
         self.assertEqual(order.l3_state_reason, reason_before)
         self.assertFalse(order.l3_activated_on)
+        self.assertFalse(
+            self.env["sgc.stripe.invoice"].sudo().search([("order_id", "=", order.id)])
+        )
 
     def test_webhook_paid_invoice_activates_the_trial(self):
         """The real day-14 invoice (amount_paid > 0) still activates."""
@@ -389,6 +394,68 @@ class TestTrialCardFlow(TransactionCase):
         self.assertEqual(order.l3_state, "active")
         self.assertEqual(order.l3_state_reason, "trial_charged")
         self.assertTrue(order.l3_activated_on)
+
+    def test_webhook_paid_invoice_mirrors_a_posted_paid_invoice(self):
+        """Revenue reconciliation: the day-14 charge becomes one posted, paid, Odoo
+        customer invoice linked to the order - with an empty invoice_origin."""
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        StripeWebhook()._handle_payment_succeeded(
+            self._invoice_event(id="in_day14", paid_at=1761000000), self.env,
+        )
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "active")
+        mapped = self.env["sgc.stripe.invoice"].sudo().search([("stripe_invoice_id", "=", "in_day14")])
+        self.assertEqual(len(mapped), 1)
+        self.assertEqual(mapped.order_id, order)
+        move = mapped.move_id
+        self.assertEqual(move.move_type, "out_invoice")
+        self.assertEqual(move.state, "posted")
+        self.assertEqual(move.partner_id, order.partner_id)
+        self.assertAlmostEqual(move.amount_total, order.amount_total, places=2)
+        # The charge was captured by Stripe, so the receivable is fully settled
+        # (residual 0). The invoice itself reads "paid" or, when the company settles
+        # Stripe captures through a gateway method, "in_payment" until the Stripe
+        # payout is processed - both mean the revenue is booked and the customer
+        # no longer owes.
+        self.assertIn(move.payment_state, ("paid", "in_payment"))
+        self.assertAlmostEqual(move.amount_residual, 0.0, places=2)
+        self.assertEqual(move.invoice_origin or "", "")
+        self.assertIn(move, order.invoice_ids)
+
+    def test_webhook_paid_invoice_mirror_is_idempotent(self):
+        """A redelivered event books the same Stripe invoice exactly once."""
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        for _i in range(3):
+            StripeWebhook()._handle_payment_succeeded(
+                self._invoice_event(id="in_once"), self.env,
+            )
+        order.invalidate_recordset()
+        self.assertEqual(
+            self.env["sgc.stripe.invoice"].sudo().search_count([("order_id", "=", order.id)]),
+            1,
+        )
+        self.assertEqual(len(order.invoice_ids), 1)
+
+    def test_recurring_invoice_mirrors_for_an_active_order(self):
+        """The day-28+ cycles of a live subscription also mirror, without touching the
+        already-active state."""
+        order = self._trial_order()
+        order.write({"l3_stripe_customer_id": "cus_123", "l3_stripe_subscription_id": "sub_1"})
+        StripeWebhook()._handle_payment_succeeded(self._invoice_event(id="in_first"), self.env)
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "active")
+        StripeWebhook()._handle_payment_succeeded(
+            self._invoice_event(id="in_second", billing_reason="subscription_cycle"), self.env,
+        )
+        order.invalidate_recordset()
+        self.assertEqual(order.l3_state, "active")
+        self.assertEqual(
+            self.env["sgc.stripe.invoice"].sudo().search_count([("order_id", "=", order.id)]),
+            2,
+        )
+        self.assertEqual(len(order.invoice_ids), 2)
 
     def test_webhook_trial_emails_send_under_the_public_user(self):
         """Regression: the webhook runs as the public user, which cannot read
