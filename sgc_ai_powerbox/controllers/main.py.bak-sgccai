@@ -101,16 +101,8 @@ class SgcAIController(http.Controller):
             _logger.error('SGC AI request timed out after 60s')
             return {'error': 'AI service timed out. Try again later.'}
         except requests.exceptions.HTTPError as e:
-            detail_body = ''
-            try:
-                detail_body = (e.response.text or '').strip()[:500]
-            except Exception:
-                pass
-            _logger.error('SGC AI HTTP error: %s (body: %s)', str(e), detail_body)
-            err = f'AI service returned HTTP {e.response.status_code}.'
-            if detail_body:
-                err += f' Detail: {detail_body}'
-            return {'error': err}
+            _logger.error('SGC AI HTTP error: %s', str(e))
+            return {'error': f'AI service returned HTTP {e.response.status_code}.'}
         except requests.exceptions.ConnectionError:
             _logger.error('SGC AI connection failed to %s', api_endpoint)
             return {'error': 'Cannot reach AI service. Check sgc_ai.api_endpoint.'}
