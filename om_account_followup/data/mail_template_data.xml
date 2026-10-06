@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+
+        <record id="email_template_om_account_followup_level0" model="mail.template">
+            <field name="name">First polite payment follow-up reminder email</field>
+            <field name="email_from">{{ (user.email or '') }}</field>
+            <field name="subject">{{ user.company_id.name }} Payment Reminder</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="margin:0; padding:24px; background:#f5f7fa;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e6ebf1; border-radius:14px; overflow:hidden; font-family:Segoe UI, Tahoma, Arial, sans-serif; color:#1f2933;">
+        <tr>
+            <td style="padding:22px 28px; background:#0b3d62; color:#ffffff;">
+                <div style="font-size:20px; font-weight:700; letter-spacing:0.2px;"><t t-out="user.company_id.name"/></div>
+                <div style="margin-top:6px; font-size:13px; opacity:0.92;">SGC Accounts Receivable - Courtesy Reminder</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:26px 28px 8px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 14px 0;">Dear <strong><t t-out="object.name"/></strong>,</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 1 - Outstanding Amount Notice:</strong> Our records indicate that one or more invoices under your account remain unpaid as of the date of this communication.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 2 - Requested Action:</strong> Kindly arrange settlement within 8 calendar days from receipt of this reminder.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 3 - Prior Settlement:</strong> If payment has already been completed, please disregard this notice and accept our thanks.</p>
+                <p style="margin:0;"><strong>Clause 4 - Clarification:</strong> For reconciliation support or account clarification, please contact the SGC accounting team.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:6px 28px 8px 28px;">
+                <div style="padding:14px 16px; background:#f8fafc; border:1px solid #e6ebf1; border-radius:10px;">
+                    <t t-out="object.get_followup_table_html()"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:18px 28px 26px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 6px 0;">Best regards,</p>
+                <p style="margin:0;"><strong><t t-out="user.name"/></strong></p>
+            </td>
+        </tr>
+    </table>
+</div>
+            ]]></field>
+        </record>
+
+        <!--Mail template level 1 -->
+        <record id="email_template_om_account_followup_level1" model="mail.template">
+            <field name="name">A bit urging second payment follow-up reminder email</field>
+            <field name="email_from">{{ (user.email or '') }}</field>
+            <field name="subject">{{ user.company_id.name }} Payment Reminder</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="margin:0; padding:24px; background:#f5f7fa;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e6ebf1; border-radius:14px; overflow:hidden; font-family:Segoe UI, Tahoma, Arial, sans-serif; color:#1f2933;">
+        <tr>
+            <td style="padding:22px 28px; background:#7a3413; color:#ffffff;">
+                <div style="font-size:20px; font-weight:700; letter-spacing:0.2px;"><t t-out="user.company_id.name"/></div>
+                <div style="margin-top:6px; font-size:13px; opacity:0.92;">SGC Accounts Receivable - Formal Reminder</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:26px 28px 8px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 14px 0;">Dear <strong><t t-out="object.name"/></strong>,</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 1 - Delinquency Status:</strong> This notice confirms that the outstanding balance remains overdue despite prior communication.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 2 - Payment Deadline:</strong> Full settlement is required within 8 calendar days from this notice date.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 3 - Contractual Measures:</strong> In absence of settlement, SGC may apply account controls permitted under applicable agreements, including service restriction where contractually allowed.</p>
+                <p style="margin:0;"><strong>Clause 4 - Resolution Channel:</strong> If a dispute or processing issue exists, notify our accounting team immediately to avoid escalation.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:6px 28px 8px 28px;">
+                <div style="padding:14px 16px; background:#fff8f3; border:1px solid #ffd9c2; border-radius:10px;">
+                    <t t-out="object.get_followup_table_html()"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:18px 28px 26px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 6px 0;">Best regards,</p>
+                <p style="margin:0;"><strong><t t-out="user.name"/></strong></p>
+            </td>
+        </tr>
+    </table>
+</div>
+            ]]></field>
+        </record>
+
+        <!--Mail template level 2 -->
+        <record id="email_template_om_account_followup_level2" model="mail.template">
+            <field name="name">Urging payment follow-up reminder email</field>
+            <field name="email_from">{{ (user.email or '') }}</field>
+            <field name="subject">{{ user.company_id.name }} Payment Reminder</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="margin:0; padding:24px; background:#f5f7fa;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e6ebf1; border-radius:14px; overflow:hidden; font-family:Segoe UI, Tahoma, Arial, sans-serif; color:#1f2933;">
+        <tr>
+            <td style="padding:22px 28px; background:#7f1d1d; color:#ffffff;">
+                <div style="font-size:20px; font-weight:700; letter-spacing:0.2px;"><t t-out="user.company_id.name"/></div>
+                <div style="margin-top:6px; font-size:13px; opacity:0.92;">SGC Accounts Receivable - Final Demand Notice</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:26px 28px 8px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 14px 0;">Dear <strong><t t-out="object.name"/></strong>,</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 1 - Final Notice:</strong> The account remains unpaid after previous reminders and is now under final escalation review.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 2 - Mandatory Settlement:</strong> Full payment must be received within 8 calendar days from receipt of this final notice.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 3 - Recovery Action:</strong> Failing settlement, SGC reserves the right to initiate debt recovery and legal proceedings in accordance with governing law and contract terms, without additional routine reminders.</p>
+                <p style="margin:0;"><strong>Clause 4 - Dispute and Evidence:</strong> If you contest this balance, provide supporting documentation to our accounting team immediately for formal review.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:6px 28px 8px 28px;">
+                <div style="padding:14px 16px; background:#fff5f5; border:1px solid #fecaca; border-radius:10px;">
+                    <t t-out="object.get_followup_table_html()"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:18px 28px 26px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 6px 0;">Best regards,</p>
+                <p style="margin:0;"><strong><t t-out="user.name"/></strong></p>
+            </td>
+        </tr>
+    </table>
+</div>
+            ]]></field>
+        </record>
+
+        <!-- Default follow up message -->
+        <record id="email_template_om_account_followup_default" model="mail.template">
+            <field name="name">Default payment follow-up reminder e-mail</field>
+            <field name="email_from">{{ (user.email or '') }}</field>
+            <field name="subject">{{ user.company_id.name }} Payment Reminder</field>
+            <field name="email_to">{{ object.email }}</field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html"><![CDATA[
+<div style="margin:0; padding:24px; background:#f5f7fa;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:680px; margin:0 auto; background:#ffffff; border:1px solid #e6ebf1; border-radius:14px; overflow:hidden; font-family:Segoe UI, Tahoma, Arial, sans-serif; color:#1f2933;">
+        <tr>
+            <td style="padding:22px 28px; background:#1f4b7a; color:#ffffff;">
+                <div style="font-size:20px; font-weight:700; letter-spacing:0.2px;"><t t-out="user.company_id.name"/></div>
+                <div style="margin-top:6px; font-size:13px; opacity:0.92;">SGC Accounts Receivable Notice</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:26px 28px 8px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 14px 0;">Dear <strong><t t-out="object.name"/></strong>,</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 1 - Outstanding Balance:</strong> Our records show unpaid amounts on your account requiring attention.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 2 - Settlement Requirement:</strong> Please settle the balance within 8 calendar days from this notice.</p>
+                <p style="margin:0 0 14px 0;"><strong>Clause 3 - Already Paid:</strong> If settlement has already been processed, please disregard this communication.</p>
+                <p style="margin:0;"><strong>Clause 4 - Contact:</strong> For assistance, contact the SGC accounting department.</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:6px 28px 8px 28px;">
+                <div style="padding:14px 16px; background:#f8fafc; border:1px solid #e6ebf1; border-radius:10px;">
+                    <t t-out="object.get_followup_table_html()"/>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding:18px 28px 26px 28px; font-size:14px; line-height:1.65;">
+                <p style="margin:0 0 6px 0;">Best regards,</p>
+                <p style="margin:0;"><strong><t t-out="user.name"/></strong></p>
+            </td>
+        </tr>
+    </table>
+</div>
+            ]]></field>
+        </record>
+
+        <record id="demo_followup1" model="followup.followup" forcecreate="False">
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <record id="demo_followup_line1" model="followup.line" forcecreate="False">
+            <field name="name">Send first reminder email</field>
+            <field name="sequence">0</field>
+            <field name="delay">15</field>
+            <field name="followup_id" ref="demo_followup1"/>
+            <field name="send_email">True</field>
+            <field name="description">
+                Dear %(partner_name)s,
+
+                Clause 1 - Outstanding Amount Notice:
+                Our records indicate that one or more invoices remain unpaid.
+
+                Clause 2 - Requested Action:
+                Please arrange payment within 8 calendar days.
+
+                Clause 3 - Prior Settlement:
+                If payment has already been made, kindly disregard this notice.
+
+                Clause 4 - Clarification:
+                For reconciliation support, contact our accounting department.
+
+                Best Regards,
+            </field>
+            <field name="email_template_id" ref="email_template_om_account_followup_level0"/>
+        </record>
+
+        <record id="demo_followup_line2" model="followup.line" forcecreate="False">
+            <field name="name">Send reminder letter and email</field>
+            <field name="sequence">1</field>
+            <field name="delay">30</field>
+            <field name="followup_id" ref="demo_followup1"/>
+            <field name="email_template_id"
+                   ref="email_template_om_account_followup_level1"/>
+            <field name="send_email">True</field>
+            <field name="send_letter">True</field>
+            <field name="description">
+                Dear %(partner_name)s,
+
+                Clause 1 - Delinquency Status:
+                The outstanding balance remains overdue despite prior reminder.
+
+                Clause 2 - Payment Deadline:
+                Immediate settlement is required within 8 calendar days.
+
+                Clause 3 - Contractual Measures:
+                In the absence of payment, account restrictions may be applied
+                as permitted by contractual terms.
+
+                Clause 4 - Resolution Channel:
+                If a billing issue exists, contact our accounting department
+                promptly for review and resolution.
+
+                Best Regards,
+            </field>
+        </record>
+
+        <record id="demo_followup_line3" model="followup.line" forcecreate="False">
+            <field name="name">Call the customer on the phone</field>
+            <field name="sequence">3</field>
+            <field name="delay">40</field>
+            <field name="followup_id" ref="demo_followup1"/>
+            <field name="email_template_id"
+                   ref="email_template_om_account_followup_level2"/>
+            <field eval="False" name="send_email"/>
+            <field name="manual_action">True</field>
+            <field name="manual_action_note">Call the customer on the phone!</field>
+            <field name="description">
+                Dear %(partner_name)s,
+
+                Clause 1 - Final Escalation:
+                Your account remains unpaid after previous follow-up notices.
+
+                Clause 2 - Mandatory Settlement:
+                Full payment is required within 8 calendar days.
+
+                Clause 3 - Recovery Rights:
+                Failing settlement, debt recovery and legal proceedings may be
+                initiated in accordance with applicable law and contract terms.
+
+                Clause 4 - Dispute Submission:
+                Any dispute must be supported with documentation and submitted
+                immediately to our accounting department.
+
+                Best Regards,
+            </field>
+        </record>
+
+    </data>
+</odoo>

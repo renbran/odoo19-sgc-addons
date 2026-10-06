@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================
+         REPORT 1: Individual UAE WPS Payslip (PDF)
+         ============================================================ -->
+    <template id="report_payslipdetails_uae_wps">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.internal_layout">
+                    <t t-set="uaedata" t-value="uae_data[o.id]"/>
+                    <t t-set="company" t-value="o.company_id"/>
+                    <t t-set="currency" t-value="company.currency_id"/>
+                    <!-- Format helpers -->
+                    <t t-set="fmt_amt" t-value="lambda v: '{:,.2f}'.format(v)"/>
+                    <t t-set="fmt_qty" t-value="lambda v: '{:.1f}'.format(v)"/>
+                    <t t-set="fmt_cur" t-value="lambda v: '{:,.2f} {}'.format(v, currency.symbol or currency.name or 'AED')"/>
+                    <style>
+                        .section-title { background-color: #1B2748; color: #FFFDF5; padding: 6px 14px; margin-top: 16px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+                        .netpay-box { margin: 14px 0; border: 2px solid #1B2748; }
+                        .total-row { border-top: 1.5px solid #C9A96E; font-weight: bold; color: #1B2748; background-color: #f7f7f7; }
+                        .data-table { width: 100%; border: 0.5px solid #C9A96E; border-top: none; }
+                        .data-table thead th { padding: 5px 10px; font-size: 9.5px; font-weight: bold; text-transform: uppercase; color: #1B2748; border-bottom: 0.5px solid #C9A96E; }
+                        .data-table tbody td { padding: 4px 10px; font-size: 10.5px; }
+                    </style>
+
+                    <div class="page payslip-page"
+                         style="font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; background-color: #FFFDF5; line-height: 1.5; font-size: 11px; color: #222;">
+
+                        <!-- ============================================================
+                             HEADER: Logo left, PAYSLIP right, gold bottom divider
+                             ============================================================ -->
+                        <table width="100%" cellpadding="0" cellspacing="0" style="border-bottom: 2px solid #C9A96E; padding-bottom: 8px; margin-bottom: 10px;">
+                            <tr>
+                                <td width="45%" valign="middle">
+                                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                         style="max-height: 60px; max-width: 200px;"/>
+                                </td>
+                                <td width="55%" align="right" valign="middle">
+                                    <div style="font-size: 24px; font-weight: bold; letter-spacing: 1.5px; color: #1B2748;">PAYSLIP</div>
+                                    <div style="font-size: 10px; color: #555; line-height: 1.4; margin-top: 2px;">
+                                        <span style="font-weight: bold; font-size: 13px; color: #1B2748;"><t t-esc="company.name"/></span><br/>
+                                        <t t-esc="company.street or ''"/><t t-if="company.street2">, <t t-esc="company.street2"/></t>
+                                        <t t-if="company.city or company.state_id or company.zip">
+                                            &#160;|&#160;<t t-esc="company.city or ''"/>
+                                            <t t-if="company.state_id">, <t t-esc="company.state_id.name"/></t>
+                                            <t t-if="company.zip"> <t t-esc="company.zip"/></t></t>
+                                        <t t-if="company.country_id">, <t t-esc="company.country_id.name"/></t>
+                                        <t t-if="company.vat"><br/>TRN: <t t-esc="company.vat"/></t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 10px;">
+                            <tr>
+                                <td width="55%" style="font-size: 11px; color: #1B2748;">
+                                    <strong>Pay Period:</strong>
+                                    <t t-esc="o.date_from" t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}"/>
+                                    &#160;to&#160;
+                                    <t t-esc="o.date_to" t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}"/>
+                                </td>
+                                <td width="45%" align="right" style="font-size: 11px; color: #1B2748;">
+                                    <strong>Ref:</strong> <t t-esc="o.number or o.name"/>
+                                    <t t-if="o.payslip_run_id">
+                                        &#160;|&#160;<strong>Batch:</strong> <t t-esc="o.payslip_run_id.name"/>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ============================================================
+                             EMPLOYEE INFORMATION — 2-column key/value grid
+                             ============================================================ -->
+                        <table width="100%" cellpadding="0" cellspacing="0"
+                               style="border: 0.5px solid #C9A96E; margin-bottom: 0;">
+                            <tr>
+                                <td width="15%" style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Employee</td>
+                                <td width="35%" style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.name or ''"/></td>
+                                <td width="15%" style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Job Title</td>
+                                <td width="35%" style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.job_title or o.employee_id.job_id.name or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Department</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.department_id.name or ''"/></td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Emp. ID</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.identification_id or o.employee_id.barcode or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Nationality</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.wps_nationality_id.name or o.employee_id.country_id.name or ''"/></td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">IBAN</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.wps_iban or ''"/></td>
+                            </tr>
+                            <tr>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">Bank</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.wps_bank_id.name or ''"/></td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-weight: bold; color: #1B2748; background-color: #FFFDF5; font-size: 10.5px;">WPS ID</td>
+                                <td style="border: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 10.5px;"><t t-esc="o.employee_id.wps_employee_id or ''"/></td>
+                            </tr>
+                        </table>
+
+                        <!-- ============================================================
+                             EARNINGS TABLE
+                             ============================================================ -->
+                        <div class="section-title">EARNINGS</div>
+                        <table class="data-table" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 12%; text-align: left;">Code</th>
+                                    <th style="width: 40%; text-align: left;">Description</th>
+                                    <th style="width: 10%; text-align: right;">Qty</th>
+                                    <th style="width: 18%; text-align: right;">Rate (AED)</th>
+                                    <th style="width: 20%; text-align: right;">Amount (AED)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="uaedata['earnings']" t-as="group">
+                                    <!-- Category subtotal row -->
+                                    <tr style="font-weight: bold; color: #1B2748; background-color: #FFFDF5;">
+                                        <td colspan="4" style="border-top: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 11px;">
+                                            <t t-esc="group['category_name']"/>
+                                            <t t-if="group['sub_category_name']"> — <t t-esc="group['sub_category_name']"/></t>
+                                        </td>
+                                        <td style="border-top: 0.5px solid #C9A96E; padding: 5px 10px; text-align: right; font-size: 11px;">
+                                            <t t-esc="fmt_amt(group['total'])"/>
+                                        </td>
+                                    </tr>
+                                    <!-- Individual line items -->
+                                    <t t-foreach="group['lines']" t-as="line">
+                                        <tr>
+                                            <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="line['code']"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="line['name']"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_qty(line['quantity'])"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_amt(line['amount'])"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_amt(line['total'])"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-if="not uaedata['earnings']">
+                                    <tr><td colspan="5" style="padding: 14px; text-align: center; color: #888; font-size: 10.5px;">No earnings for this pay period</td></tr>
+                                </t>
+                                <!-- TOTAL EARNINGS (inside tbody to avoid wkhtmltopdf tfoot issues) -->
+                                <tr class="total-row">
+                                    <td colspan="4" style="padding: 6px 10px; text-align: right; font-size: 11px;">TOTAL EARNINGS</td>
+                                    <td style="padding: 6px 10px; text-align: right; font-size: 11px;"><t t-esc="fmt_amt(uaedata['total_earnings'])"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- ============================================================
+                             DEDUCTIONS TABLE
+                             ============================================================ -->
+                        <div class="section-title">DEDUCTIONS</div>
+                        <table class="data-table" cellpadding="0" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 12%; text-align: left;">Code</th>
+                                    <th style="width: 40%; text-align: left;">Description</th>
+                                    <th style="width: 10%; text-align: right;">Qty</th>
+                                    <th style="width: 18%; text-align: right;">Rate (AED)</th>
+                                    <th style="width: 20%; text-align: right;">Amount (AED)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="uaedata['deductions']" t-as="group">
+                                    <tr style="font-weight: bold; color: #1B2748; background-color: #FFFDF5;">
+                                        <td colspan="4" style="border-top: 0.5px solid #C9A96E; padding: 5px 10px; font-size: 11px;">
+                                            <t t-esc="group['category_name']"/>
+                                            <t t-if="group['sub_category_name']"> — <t t-esc="group['sub_category_name']"/></t>
+                                        </td>
+                                        <td style="border-top: 0.5px solid #C9A96E; padding: 5px 10px; text-align: right; font-size: 11px;">
+                                            <t t-esc="fmt_amt(group['total'])"/>
+                                        </td>
+                                    </tr>
+                                    <t t-foreach="group['lines']" t-as="line">
+                                        <tr>
+                                            <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="line['code']"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="line['name']"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_qty(line['quantity'])"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_amt(line['amount'])"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_amt(line['total'])"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-if="not uaedata['deductions']">
+                                    <tr><td colspan="5" style="padding: 14px; text-align: center; color: #888; font-size: 10.5px;">No deductions for this pay period</td></tr>
+                                </t>
+                                <tr class="total-row">
+                                    <td colspan="4" style="padding: 6px 10px; text-align: right; font-size: 11px;">TOTAL DEDUCTIONS</td>
+                                    <td style="padding: 6px 10px; text-align: right; font-size: 11px;"><t t-esc="fmt_amt(uaedata['total_deductions'])"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- ============================================================
+                             NET PAY — prominent branded box, amount shown ONCE
+                             ============================================================ -->
+                        <table width="100%" cellpadding="0" cellspacing="0" class="netpay-box">
+                            <tr>
+                                <td style="background-color: #1B2748; padding: 8px 16px;">
+                                    <table width="100%" cellpadding="0" cellspacing="0">
+                                        <tr>
+                                            <td style="font-size: 17px; font-weight: bold; letter-spacing: 1px; color: #FFFDF5;">NET PAY</td>
+                                            <td align="right" style="font-size: 20px; font-weight: bold; color: #C9A96E;">
+                                                <t t-esc="fmt_cur(uaedata['net_total'])"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 6px 16px; color: #1B2748; font-size: 10.5px; border-top: 0.5px solid #C9A96E;">
+                                    <strong>Transfer to IBAN:</strong>
+                                    <t t-esc="o.employee_id.wps_iban or ''"/>
+                                    <t t-if="o.employee_id.wps_bank_id"> (<t t-esc="o.employee_id.wps_bank_id.name"/>)</t>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ============================================================
+                             EMPLOYER CONTRIBUTIONS
+                             ============================================================ -->
+                        <t t-if="uaedata['employer_contributions']">
+                            <div class="section-title">EMPLOYER CONTRIBUTIONS</div>
+                            <table class="data-table" cellpadding="0" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 60%; text-align: left;">Description</th>
+                                        <th style="width: 40%; text-align: right;">Amount (AED)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="uaedata['employer_contributions']" t-as="group">
+                                        <t t-foreach="group['lines']" t-as="line">
+                                            <tr>
+                                                <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="line['name']"/></td>
+                                                <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_amt(line['total'])"/></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="border-top: 1.5px solid #C9A96E; font-weight: bold; color: #1B2748; background-color: #f7f7f7;">
+                                        <td style="padding: 6px 10px; text-align: left; font-size: 11px;">TOTAL EMPLOYER CONTRIBUTIONS</td>
+                                        <td style="padding: 6px 10px; text-align: right; font-size: 11px;">
+                                            <t t-esc="fmt_amt(uaedata['total_employer_contributions'])"/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- ============================================================
+                             WORKING DAYS SUMMARY
+                             ============================================================ -->
+                        <t t-if="o.worked_days_line_ids">
+                            <div class="section-title">WORKING DAYS</div>
+                            <table class="data-table" cellpadding="0" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 68%; text-align: left;">Description</th>
+                                        <th style="width: 16%; text-align: right;">Days</th>
+                                        <th style="width: 16%; text-align: right;">Hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.worked_days_line_ids" t-as="wd">
+                                        <tr>
+                                            <td style="padding: 4px 10px; font-size: 10.5px;"><t t-esc="wd.name or ''"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_qty(wd.number_of_days)"/></td>
+                                            <td style="padding: 4px 10px; font-size: 10.5px; text-align: right;"><t t-esc="fmt_qty(wd.number_of_hours)"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="border-top: 1.5px solid #C9A96E; font-weight: bold; color: #1B2748; background-color: #f7f7f7;">
+                                        <td style="padding: 6px 10px; text-align: left; font-size: 11px;">TOTAL</td>
+                                        <td style="padding: 6px 10px; text-align: right; font-size: 11px;">
+                                            <t t-esc="fmt_qty(sum(wd.number_of_days for wd in o.worked_days_line_ids))"/>
+                                        </td>
+                                        <td style="padding: 6px 10px; text-align: right; font-size: 11px;">
+                                            <t t-esc="fmt_qty(sum(wd.number_of_hours for wd in o.worked_days_line_ids))"/>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- ============================================================
+                             FOOTER: Signature area + Confidential notice
+                             ============================================================ -->
+                        <table width="100%" cellpadding="0" cellspacing="0" style="margin-top: 32px;">
+                            <tr><td colspan="2" style="border-top: 2px solid #1B2748; padding: 0;"></td></tr>
+                            <tr>
+                                <td width="50%" align="center" style="padding-top: 35px;">
+                                    <div style="border-top: 0.5px solid #C9A96E; width: 60%; margin: 0 auto;"></div>
+                                    <div style="font-size: 10px; color: #1B2748; margin-top: 5px;">Employee Signature</div>
+                                </td>
+                                <td width="50%" align="center" style="padding-top: 35px;">
+                                    <div style="border-top: 0.5px solid #C9A96E; width: 60%; margin: 0 auto;"></div>
+                                    <div style="font-size: 10px; color: #1B2748; margin-top: 5px;">Authorized Signatory</div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <div style="margin-top: 10px; padding: 7px 12px; border-left: 3px solid #C9A96E; font-size: 9px; color: #555; line-height: 1.4;">
+                            <strong style="color: #1B2748;">CONFIDENTIAL</strong> — Generated electronically.
+                            For discrepancies contact HR within 7 days.
+                            Complies with UAE Federal Decree-Law No. 33 of 2021 and WPS requirements.
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Paper Format -->
+    <record id="paperformat_uae_payslip" model="report.paperformat">
+        <field name="name">UAE Payslip Format</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">12</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="dpi">120</field>
+    </record>
+
+    <!-- Report Action: Individual UAE Payslip (PDF) -->
+    <record id="action_report_uae_payslip" model="ir.actions.report">
+        <field name="name">UAE WPS Payslip</field>
+        <field name="model">hr.payslip</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">eh_uae_payroll_wps.report_payslipdetails_uae_wps</field>
+        <field name="report_file">eh_uae_payroll_wps.report_payslipdetails_uae_wps</field>
+        <field name="paperformat_id" ref="paperformat_uae_payslip"/>
+        <field name="binding_model_id" ref="hr_payroll_community.model_hr_payslip"/>
+        <field name="binding_type">report</field>
+    </record>
+
+
+    <!-- ============================================================
+         REPORT 2: WPS Batch Summary (PDF) - For SIF generation summary
+         ============================================================ -->
+    <template id="report_wps_batch_summary">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <!-- Header -->
+                        <div class="row mb-3" style="background-color: #1a5490; color: white; padding: 15px; border-radius: 4px;">
+                            <div class="col-8">
+                                <h2 style="color: white; margin: 0;"><i class="fa fa-shield"/> UAE WPS Batch Summary</h2>
+                                <p style="margin: 4px 0 0 0; font-size: 11px;">
+                                    <t t-esc="o.company_id.name"/> | MOHRE ID: <t t-esc="o.employer_mohre_id or 'N/A'"/>
+                                </p>
+                            </div>
+                            <div class="col-4 text-right">
+                                <h4 style="color: white; margin: 0;">Salary Date</h4>
+                                <p style="margin: 0; font-size: 12px;">
+                                    <t t-esc="o.date" t-options='{"format": "dd MMM yyyy"}'/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Batch Info -->
+                        <div class="row mb-3" style="border: 1px solid #ccc; padding: 10px; background-color: #f9f9f9;">
+                            <div class="col-6">
+                                <strong>Payslip Batch:</strong> <t t-esc="o.payslip_run_id.name or 'N/A'"/><br/>
+                                <strong>Company IBAN:</strong> <t t-esc="o.company_bank_account or 'N/A'"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Total Employees:</strong> <t t-esc="o.employee_count"/><br/>
+                                <strong>Total Amount (AED):</strong>
+                                <span t-esc="o.total_amount" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                            </div>
+                        </div>
+
+                        <!-- SIF File Info -->
+                        <div class="alert alert-info" style="background-color: #e8f0fe; border: 1px solid #1a5490; padding: 8px 12px; border-radius: 4px; font-size: 11px;">
+                            <strong>SIF File:</strong> <t t-esc="o.sif_filename or 'N/A'"/>
+                            | Generated: <t t-esc="fields.Datetime.now()" t-options='{"format": "dd MMM yyyy HH:mm"}'/>
+                        </div>
+
+                        <!-- Employee List Table -->
+                        <table class="table table-sm table-bordered">
+                            <thead style="background-color: #1a5490; color: white;">
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 20%;">Employee Name</th>
+                                    <th style="width: 15%;">WPS ID</th>
+                                    <th style="width: 15%;">IBAN</th>
+                                    <th style="width: 10%;">Bank</th>
+                                    <th style="width: 15%;">Agent ID</th>
+                                    <th style="width: 10%;" class="text-right">Net Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="slips" t-value="o.payslip_run_id.slip_ids.filtered(lambda s: s.state != 'cancel')"/>
+                                <t t-foreach="slips" t-as="slip">
+                                    <t t-set="net_line" t-value="slip.line_ids.filtered(lambda l: l.code == 'NET')"/>
+                                    <t t-set="net_amt" t-value="net_line[0].total if net_line else (slip.contract_id.wage or 0.0)"/>
+                                    <tr>
+                                        <td style="text-align:center;"><t t-esc="slip_index + 1"/></td>
+                                        <td><strong><t t-esc="slip.employee_id.name"/></strong></td>
+                                        <td><t t-esc="slip.employee_id.wps_employee_id or '—'"/></td>
+                                        <td style="font-size:9px;"><t t-esc="slip.employee_id.wps_iban or '—'"/></td>
+                                        <td><t t-esc="slip.employee_id.wps_bank_id.name or '—'"/></td>
+                                        <td><t t-esc="slip.contract_id.wps_agent_id or '—'"/></td>
+                                        <td style="text-align:right;">
+                                            <t t-if="net_amt > 0">
+                                                <span t-esc="net_amt" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                            </t>
+                                            <t t-else=""><span style="color:#c0392b;">0.00</span></t>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <t t-if="not slips">
+                                    <tr>
+                                        <td colspan="7" style="text-align:center; color:#888; padding:10px;">
+                                            No payslips found — generate the SIF first.
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color:#e8f0fe; font-weight:bold;">
+                                    <td colspan="6" style="text-align:right;">TOTAL NET PAY</td>
+                                    <td style="text-align:right;">
+                                        <span t-esc="o.total_amount" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- Compliance Notice -->
+                        <div style="margin-top: 20px; padding: 10px; background-color: #f0f8f0; border-left: 3px solid #2d7d2d; font-size: 10px; color: #333;">
+                            <strong>WPS Compliance:</strong> This report accompanies the SIF file generated for submission
+                            to the UAE Wages Protection System. The SIF file is formatted per MOHRE specification v3.2
+                            and is ready for upload to the WPS portal or your company's banking portal.
+                        </div>
+
+                        <!-- Signature -->
+                        <div class="row mt-5">
+                            <div class="col-6 text-center">
+                                <div style="border-top: 2px solid #333; padding-top: 5px; margin-top: 40px;">
+                                    <strong>Authorized Signatory</strong>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top: 2px solid #333; padding-top: 5px; margin-top: 40px;">
+                                    <strong>HR / Finance Manager</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- Paper Format for WPS Batch -->
+    <record id="paperformat_wps_batch" model="report.paperformat">
+        <field name="name">UAE WPS Batch Format</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">35</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">5</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action: WPS Batch Summary (PDF) -->
+    <record id="action_report_wps_batch" model="ir.actions.report">
+        <field name="name">WPS Batch Summary</field>
+        <field name="model">eh.uae.wps.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">eh_uae_payroll_wps.report_wps_batch_summary</field>
+        <field name="report_file">eh_uae_payroll_wps.report_wps_batch_summary</field>
+        <field name="paperformat_id" ref="paperformat_wps_batch"/>
+        <field name="binding_model_id" ref="model_eh_uae_wps_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_eh_uae_wps_wizard_form" model="ir.ui.view">
+        <field name="name">eh.uae.wps.wizard.form</field>
+        <field name="model">eh.uae.wps.wizard</field>
+        <field name="arch" type="xml">
+            <form string="UAE WPS SIF File Generator">
+                <sheet>
+                    <group>
+                        <group string="Payroll Batch">
+                            <field name="payslip_run_id"/>
+                            <field name="date"/>
+                        </group>
+                        <group string="Employer Details">
+                            <field name="employer_mohre_id" placeholder="e.g. 0123456789012"/>
+                            <field name="company_bank_account" placeholder="AE + 21 digits"/>
+                        </group>
+                    </group>
+                    <group invisible="employee_count == 0">
+                        <field name="employee_count"/>
+                        <field name="total_amount" widget="monetary"/>
+                        <field name="sif_filename"/>
+                    </group>
+                    <field name="sif_content" widget="ace" options="{'mode': 'xml'}"
+                        invisible="not sif_content"
+                        style="font-family: monospace; font-size: 10px;"/>
+                    <footer>
+                        <button name="action_generate" type="object"
+                                string="Generate SIF" class="btn-primary"
+                                icon="fa-cog"/>
+                        <button name="action_download" type="object"
+                                string="Download SIF File" class="btn-success"
+                                icon="fa-download"
+                                invisible="not sif_content"/>
+                        <button name="action_print_pdf" type="object"
+                                string="Print PDF Summary" class="btn-info"
+                                icon="fa-file-pdf-o"
+                                invisible="not sif_content"/>
+                        <button name="action_export_xlsx" type="object"
+                                string="Export Excel" class="btn-success"
+                                icon="fa-file-excel-o"
+                                invisible="not sif_content"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_eh_uae_wps_wizard" model="ir.actions.act_window">
+        <field name="name">Generate WPS SIF File</field>
+        <field name="res_model">eh.uae.wps.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
