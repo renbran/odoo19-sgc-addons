@@ -1,0 +1,48 @@
+{
+    'name': 'SGC Multi-Persona Chatbot Assistant',
+    'version': '19.0.1.0.2',
+    'category': 'Productivity',
+    'summary': '14 SGC domain-specific AI personas in a unified chat panel',
+    'description': """
+SGC Multi-Persona Chatbot Assistant
+=====================================
+Adds 14 SGC persona assistants (Finance, AML, HR, Sales, Operations, etc.)
+to a unified Owl chat panel. Uses FreeLLM API for direct LLM streaming
+with persona-specific model routing.
+
+This module is ADDITIVE — it does NOT modify ai_brain, odoo-llm, or the
+orchestrator service. Coexists with the existing AiBrainPanel.
+
+Personas and their data tools are DB records + decorated methods, so
+future personas need no code changes.
+    """,
+    'author': 'SGC TECH AI',
+    'website': 'https://www.sgctech.ai',
+    'license': 'LGPL-3',
+    'depends': [
+        'base',
+        'mail',
+        'web',
+        'llm_assistant',
+        'llm_thread',
+        'llm_tool',
+    ],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/prompt_data.xml',
+        'data/tool_data.xml',
+        'data/persona_data.xml',
+        'views/menus.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'sgc_persona/static/src/scss/chat_panel.scss',
+            'sgc_persona/static/src/js/chat_panel.js',
+            'sgc_persona/static/src/xml/chat_panel.xml',
+        ],
+    },
+    'application': False,
+    'installable': True,
+    'auto_install': False,
+}

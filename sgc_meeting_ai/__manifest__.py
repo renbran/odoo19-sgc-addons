@@ -1,0 +1,36 @@
+# Copyright 2025 SGC Tech AI
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+{
+    "name": "SGC Meeting AI",
+    "summary": "AI meeting notes pipeline: transcription (Whisper) + LLM summarization, posted to chatter",
+    "version": "19.0.1.0.0",
+    "development_status": "Beta",
+    "category": "Productivity",
+    "website": "https://sgctech.ai",
+    "author": "SGC Tech",
+    "license": "AGPL-3",
+    "application": False,
+    "installable": True,
+    "depends": [
+        "calendar",
+        "mail",
+        "resource_booking",
+    ],
+    "external_dependencies": {
+        "python": ["requests"],
+    },
+    "data": [
+        "security/sgc_meeting_ai_security.xml",
+        "security/ir.model.access.csv",
+        "data/sgc_meeting_data.xml",
+        "data/mail_templates.xml",
+        "views/actions.xml",
+        "views/meeting_provider_views.xml",
+        "views/meeting_recording_views.xml",
+        "views/meeting_notes_views.xml",
+        "views/calendar_event_views.xml",
+        "views/resource_booking_views.xml",
+        "views/portal_templates.xml",
+        "views/menus.xml",
+    ],
+}

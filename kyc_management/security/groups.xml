@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- === Application Category === -->
+    <record id="module_category_kyc" model="ir.module.category">
+        <field name="name">Compliance</field>
+        <field name="sequence">100</field>
+    </record>
+
+    <!-- ── Low-privilege roles ─────────────────────────────────────── -->
+    <record id="group_kyc_user" model="res.groups">
+        <field name="name">KYC Applicant</field>
+        <field name="comment">Can create and view own KYC applications.</field>
+    </record>
+
+    <record id="group_kyc_approver" model="res.groups">
+        <!-- Legacy XML ID: was previously mapped to 'KYC Approver';
+             now tracks to 'KYC Compliance Officer' per live data. -->
+        <field name="name">KYC Compliance Officer</field>
+        <field name="implied_ids" eval="[(4, ref('group_kyc_user'))]"/>
+        <field name="comment">Can review, approve and reject KYC applications.</field>
+    </record>
+
+    <record id="group_kyc_senior_officer" model="res.groups">
+        <field name="name">KYC Senior Officer</field>
+        <field name="implied_ids" eval="[(4, ref('group_kyc_approver'))]"/>
+        <field name="comment">Senior compliance officer; can handle escalations.</field>
+    </record>
+
+    <!-- ── Administrative roles ────────────────────────────────────── -->
+    <record id="group_kyc_admin" model="res.groups">
+        <field name="name">KYC Administrator</field>
+        <field name="implied_ids" eval="[(4, ref('group_kyc_senior_officer'))]"/>
+        <field name="comment">Full access; manages KYC configuration and users.</field>
+    </record>
+
+    <!-- ── Legacy groups originally from contact_kyc module ────────── -->
+    <!-- These groups are preserved in the database. No action needed.  -->
+</odoo>

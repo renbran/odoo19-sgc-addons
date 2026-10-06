@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_layer_pyramid" name="SGC Layer Pyramid">
+        <section class="s_sgc_layer_pyramid sgc-watermark--skyline sgc-geo--hairline sgc-palette--navy-cream"
+                 data-name="SGC Layer Pyramid" data-snippet="s_sgc_layer_pyramid">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <h2 class="text-center s_sgc_layer_pyramid_title">The SGC <span class="sgc-accent-word">Transformation Framework</span></h2>
+                <div class="s_sgc_layer_pyramid_stack">
+                    <div class="s_sgc_pyramid_layer s_sgc_pyramid_layer--3">
+                        <div class="row align-items-center">
+                            <div class="col-lg-9">
+                                <span class="s_sgc_pyramid_layer_label">Layer 3 (Top) — Technology Enablement</span>
+                                <div class="row text-center g-2 s_sgc_pyramid_items">
+                                    <div class="col-4"><i class="fa fa-cloud"/><span>Cloud &amp; Integration</span></div>
+                                    <div class="col-4"><i class="fa fa-lightbulb-o"/><span>Data &amp; AI Intelligence</span></div>
+                                    <div class="col-4"><i class="fa fa-shield"/><span>Security &amp; Governance</span></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 s_sgc_pyramid_annotation">
+                                <strong>Strategic Impact</strong>
+                                <p>Enable innovation, predictive insights, and sustainable growth.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="s_sgc_pyramid_layer s_sgc_pyramid_layer--2">
+                        <div class="row align-items-center">
+                            <div class="col-lg-9">
+                                <span class="s_sgc_pyramid_layer_label">Layer 2 (Middle) — Operational Control</span>
+                                <div class="row text-center g-2 s_sgc_pyramid_items">
+                                    <div class="col-3"><i class="fa fa-cogs"/><span>Process Excellence</span></div>
+                                    <div class="col-3"><i class="fa fa-tachometer"/><span>Performance Management</span></div>
+                                    <div class="col-3"><i class="fa fa-balance-scale"/><span>Risk &amp; Compliance</span></div>
+                                    <div class="col-3"><i class="fa fa-sitemap"/><span>Organization Alignment</span></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 s_sgc_pyramid_annotation">
+                                <strong>Operational Excellence</strong>
+                                <p>Drive consistency, manage risk, and optimize operational performance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="s_sgc_pyramid_layer s_sgc_pyramid_layer--1">
+                        <div class="row align-items-center">
+                            <div class="col-lg-9">
+                                <span class="s_sgc_pyramid_layer_label">Layer 1 (Bottom) — Financial Visibility</span>
+                                <div class="row text-center g-2 s_sgc_pyramid_items">
+                                    <div class="col-4 col-lg"><i class="fa fa-book"/><span>General Ledger</span></div>
+                                    <div class="col-4 col-lg"><i class="fa fa-file-text-o"/><span>Financial Reporting</span></div>
+                                    <div class="col-4 col-lg"><i class="fa fa-calculator"/><span>Management Accounting</span></div>
+                                    <div class="col-4 col-lg"><i class="fa fa-line-chart"/><span>Budgeting &amp; Forecasting</span></div>
+                                    <div class="col-4 col-lg"><i class="fa fa-database"/><span>Data Quality</span></div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 s_sgc_pyramid_annotation">
+                                <strong>Financial Clarity</strong>
+                                <p>Deliver accuracy, transparency, and forward-looking insights.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center s_sgc_layer_pyramid_badges">
+                    <div class="col-6 col-lg-2"><span class="s_sgc_pyramid_badge"><i class="fa fa-university"/></span><p>Governance First</p></div>
+                    <div class="col-6 col-lg-2"><span class="s_sgc_pyramid_badge"><i class="fa fa-clone"/></span><p>Integrated Approach</p></div>
+                    <div class="col-6 col-lg-2"><span class="s_sgc_pyramid_badge"><i class="fa fa-star"/></span><p>Change Leadership</p></div>
+                    <div class="col-6 col-lg-2"><span class="s_sgc_pyramid_badge"><i class="fa fa-diamond"/></span><p>Value Driven</p></div>
+                    <div class="col-6 col-lg-2 offset-lg-1"><span class="s_sgc_pyramid_badge"><i class="fa fa-refresh"/></span><p>Continuous Evolution</p></div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

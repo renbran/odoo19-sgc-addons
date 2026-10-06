@@ -1,0 +1,78 @@
+.sgc-roi-hero {
+    padding: 84px 0 28px;
+    background: radial-gradient(1400px 450px at 20% -20%, rgba(0, 212, 255, 0.2), transparent 60%),
+                radial-gradient(1200px 400px at 100% 0%, rgba(126, 87, 194, 0.18), transparent 58%);
+}
+
+.sgc-roi-hero-inner h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 0.5rem;
+}
+
+.sgc-roi-kicker {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--sgc-cyan);
+    font-size: 0.75rem;
+    margin-bottom: 0.6rem;
+}
+
+.sgc-roi-section {
+    padding: 1rem 0 4rem;
+}
+
+.sgc-roi-card {
+    background: rgba(8, 18, 33, 0.72);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--glass-shadow);
+}
+
+.sgc-roi-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.sgc-roi-checks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.sgc-roi-checks label {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.92rem;
+}
+
+.sgc-roi-metrics {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.sgc-roi-metrics li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    padding: 0.6rem 0;
+}
+
+.sgc-roi-metrics li:last-child {
+    border-bottom: 0;
+}
+
+.sgc-roi-metrics strong {
+    color: var(--sgc-cyan);
+    font-family: var(--font-mono);
+}
+
+@media (max-width: 768px) {
+    .sgc-roi-checks {
+        grid-template-columns: 1fr;
+    }
+}

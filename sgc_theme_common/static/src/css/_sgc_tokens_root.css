@@ -1,0 +1,107 @@
+/* (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai */
+/* ===========================================================================
+   SGC "Aurum" design tokens — runtime CSS custom-properties MIRROR.
+   Identical values to _sgc_tokens.scss, exposed on :root for JS / OWL
+   components / snippet animations. Loaded in BOTH web.assets_backend AND
+   web.assets_frontend (one file, one set of values).
+   Authoritative brand hex per branding/SGC-BRAND.md (spec §11).
+   =========================================================================== */
+:root {
+  /* --- core palette --- */
+  --sgc-navy: #0F2C4C;
+  --sgc-gold: #C9A227;
+  --sgc-cream: #F5EFE0;
+
+  --sgc-navy-900: #081A30;
+  --sgc-navy-800: #0B2340;
+  --sgc-navy-700: #0F2C4C;
+  --sgc-navy-600: #163A5E;
+  --sgc-navy-500: #1F4A73;
+  --sgc-navy-400: #3D6690;
+
+  --sgc-gold-700: #A8871E;
+  --sgc-gold-600: #B9971F;
+  --sgc-gold-500: #C9A227;
+  --sgc-gold-400: #D8B84E;
+  --sgc-gold-300: #E6CE7E;
+
+  --sgc-cream-100: #FBF8F1;
+  --sgc-cream-200: #F5EFE0;
+  --sgc-cream-300: #ECE3CE;
+  --sgc-cream-400: #E0D4B8;
+
+  --sgc-ink: #14232F;
+  --sgc-ink-soft: #43535F;
+  --sgc-white: #FFFFFF;
+  --sgc-border: #D8CDB4;
+
+  /* --- semantic (WCAG-AA text) --- */
+  --sgc-success: #1E7E45;
+  --sgc-warning: #8A5A00;
+  --sgc-danger: #A32C2C;
+  --sgc-info: #1F5C8B;
+
+  /* --- typography --- */
+  --sgc-font-heading: 'Playfair Display', 'Crimson Text', Georgia, 'Times New Roman', serif;
+  --sgc-font-body: 'Open Sans', 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+
+  --sgc-fs-xs: 0.75rem;
+  --sgc-fs-sm: 0.875rem;
+  --sgc-fs-base: 1rem;
+  --sgc-fs-md: 1.125rem;
+  --sgc-fs-lg: 1.375rem;
+  --sgc-fs-xl: 1.75rem;
+  --sgc-fs-2xl: 2.25rem;
+  --sgc-fs-3xl: 3rem;
+  --sgc-fs-4xl: 3.75rem;
+
+  --sgc-lh-tight: 1.15;
+  --sgc-lh-base: 1.55;
+
+  /* --- spacing --- */
+  --sgc-space-1: 0.25rem;
+  --sgc-space-2: 0.5rem;
+  --sgc-space-3: 0.75rem;
+  --sgc-space-4: 1rem;
+  --sgc-space-5: 1.5rem;
+  --sgc-space-6: 2rem;
+  --sgc-space-7: 3rem;
+  --sgc-space-8: 4rem;
+
+  /* --- radius --- */
+  --sgc-radius-xs: 2px;
+  --sgc-radius-sm: 4px;
+  --sgc-radius-md: 8px;
+  --sgc-radius-lg: 14px;
+  --sgc-radius-xl: 24px;
+  --sgc-radius-pill: 999px;
+
+  /* --- shadows --- */
+  --sgc-shadow-xs: 0 1px 2px rgba(15, 44, 76, 0.08);
+  --sgc-shadow-sm: 0 2px 6px rgba(15, 44, 76, 0.10);
+  --sgc-shadow-md: 0 6px 18px rgba(15, 44, 76, 0.12);
+  --sgc-shadow-lg: 0 14px 40px rgba(15, 44, 76, 0.16);
+  --sgc-shadow-gold: 0 6px 20px rgba(201, 162, 39, 0.28);
+
+  /* --- motion (gate consumers on prefers-reduced-motion) --- */
+  --sgc-dur-fast: 120ms;
+  --sgc-dur-base: 240ms;
+  --sgc-dur-slow: 420ms;
+  --sgc-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --sgc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --sgc-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- layout --- */
+  --sgc-container-max: 1200px;
+}
+
+/* Honour reduced-motion globally: neutralise token durations so any consumer
+   reading these vars gets an instant state. Individual components should also
+   guard their own transitions. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sgc-dur-fast: 0ms;
+    --sgc-dur-base: 0ms;
+    --sgc-dur-slow: 0ms;
+  }
+}

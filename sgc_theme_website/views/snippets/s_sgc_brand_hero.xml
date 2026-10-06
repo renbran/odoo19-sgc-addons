@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_brand_hero" name="SGC Brand Hero">
+        <section class="s_sgc_brand_hero sgc-watermark--none sgc-geo--hexagon sgc-palette--navy-cream"
+                 data-name="SGC Brand Hero" data-snippet="s_sgc_brand_hero">
+            <div class="s_sgc_brand_hero_corridor" aria-hidden="true"/>
+            <div class="container text-center s_sgc_brand_hero_inner sgc-reveal">
+                <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+                <h1 class="s_sgc_brand_hero_title">SGC <span class="sgc-accent-word">TECH</span></h1>
+                <div class="s_sgc_brand_hero_ring" aria-hidden="true"/>
+                <p class="s_sgc_brand_hero_tagline">Finance. Systems. Technology.</p>
+                <div class="s_sgc_brand_hero_actions">
+                    <a href="#" class="btn btn-primary btn-lg me-2">Get started</a>
+                    <a href="#" class="btn btn-gold btn-lg">Talk to us</a>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

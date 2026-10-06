@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_resource_booking_type_form_inherit_sgc" model="ir.ui.view">
+        <field name="name">resource.booking.type.form.inherit.sgc.meeting.ai</field>
+        <field name="model">resource.booking.type</field>
+        <field name="inherit_id" ref="resource_booking.resource_booking_type_view_form" />
+        <field name="arch" type="xml">
+            <field name="videocall_location" position="after">
+                <field
+                    name="sgc_meeting_provider_id"
+                    placeholder="Auto-generate meeting link from this provider"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_resource_booking_form_inherit_sgc" model="ir.ui.view">
+        <field name="name">resource.booking.form.inherit.sgc.meeting.ai</field>
+        <field name="model">resource.booking</field>
+        <field name="inherit_id" ref="resource_booking.resource_booking_view_form" />
+        <field name="arch" type="xml">
+            <field name="type_id" position="after">
+                <field
+                    name="sgc_meeting_provider_id"
+                    placeholder="Override type's default provider"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

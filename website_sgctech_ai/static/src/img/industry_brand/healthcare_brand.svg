@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
+  <title id="title">SGC Healthcare Brand Visual</title>
+  <desc id="desc">Branded healthcare technology illustration with medical cross, patient analytics panels, and cyan violet glow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07111f"/>
+      <stop offset="55%" stop-color="#0a1930"/>
+      <stop offset="100%" stop-color="#140b25"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.14)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4ff"/>
+      <stop offset="100%" stop-color="#7b2fbe"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1600" height="1200" fill="url(#bg)"/>
+  <rect width="1600" height="1200" fill="url(#grid)"/>
+  <circle cx="1310" cy="230" r="220" fill="rgba(0,212,255,0.16)" filter="url(#glow)"/>
+  <circle cx="260" cy="1030" r="240" fill="rgba(123,47,190,0.18)" filter="url(#glow)"/>
+  <g opacity="0.9">
+    <rect x="160" y="170" rx="34" ry="34" width="900" height="760" fill="rgba(10,18,32,0.72)" stroke="rgba(255,255,255,0.1)"/>
+    <rect x="210" y="230" rx="22" ry="22" width="320" height="230" fill="rgba(255,255,255,0.05)" stroke="rgba(0,212,255,0.35)"/>
+    <rect x="570" y="230" rx="22" ry="22" width="430" height="230" fill="rgba(255,255,255,0.05)" stroke="rgba(123,47,190,0.35)"/>
+    <rect x="210" y="500" rx="22" ry="22" width="790" height="150" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+    <rect x="210" y="690" rx="22" ry="22" width="790" height="180" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)"/>
+  </g>
+  <g transform="translate(1160 230)">
+    <circle cx="170" cy="170" r="170" fill="rgba(6,12,24,0.72)" stroke="rgba(255,255,255,0.12)"/>
+    <path d="M170 82v176M82 170h176" stroke="url(#accent)" stroke-width="34" stroke-linecap="round" filter="url(#glow)"/>
+    <circle cx="170" cy="170" r="118" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2" stroke-dasharray="10 14"/>
+  </g>
+  <g>
+    <path d="M260 598 C360 520, 470 530, 560 575 S760 640, 870 580" fill="none" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="260" cy="598" r="10" fill="#00d4ff"/>
+    <circle cx="560" cy="575" r="10" fill="#7b2fbe"/>
+    <circle cx="870" cy="580" r="10" fill="#00e5a0"/>
+    <rect x="285" y="744" rx="14" ry="14" width="130" height="80" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.45)"/>
+    <rect x="450" y="724" rx="14" ry="14" width="130" height="100" fill="rgba(123,47,190,0.14)" stroke="rgba(123,47,190,0.45)"/>
+    <rect x="615" y="698" rx="14" ry="14" width="130" height="126" fill="rgba(0,229,160,0.12)" stroke="rgba(0,229,160,0.4)"/>
+    <rect x="780" y="760" rx="14" ry="14" width="130" height="64" fill="rgba(255,107,53,0.12)" stroke="rgba(255,107,53,0.45)"/>
+  </g>
+</svg>

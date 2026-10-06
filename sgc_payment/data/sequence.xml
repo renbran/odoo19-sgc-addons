@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sequence for Payment Voucher Numbers -->
+    <record id="seq_payment_voucher" model="ir.sequence">
+        <field name="name">Payment Voucher</field>
+        <field name="code">payment.voucher</field>
+        <field name="prefix">PV</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range">False</field>
+    </record>
+
+    <!-- Sequence for Receipt Voucher Numbers -->
+    <record id="seq_receipt_voucher" model="ir.sequence">
+        <field name="name">Receipt Voucher</field>
+        <field name="code">receipt.voucher</field>
+        <field name="prefix">RV</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range">False</field>
+    </record>
+
+    <!-- Sequence for QR Verification Codes -->
+    <record id="seq_qr_verification" model="ir.sequence">
+        <field name="name">QR Verification Code</field>
+        <field name="code">payment.qr.verification</field>
+        <field name="prefix">VER</field>
+        <field name="padding">6</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range">False</field>
+    </record>
+</odoo>

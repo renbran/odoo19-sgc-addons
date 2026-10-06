@@ -1,0 +1,71 @@
+// SGC Aurum Theme — Backend (navbar + login screen recolor)
+// Navy + gold palette matching SGC Tech brand deck.
+
+:root {
+    --aurum-navy: #0b1f3f;
+    --aurum-navy-2: #142b52;
+    --aurum-gold: #c9a227;
+    --aurum-gold-light: #e8c766;
+    --aurum-cream: #f7f0df;
+}
+
+// ---- Top navbar --------------------------------------------------------
+.o_main_navbar {
+    background: linear-gradient(90deg, var(--aurum-navy) 0%, var(--aurum-navy-2) 100%) !important;
+    border-bottom: 2px solid var(--aurum-gold) !important;
+
+    .o_menu_brand {
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+
+    a, .dropdown-toggle, .o_menu_toggle {
+        color: rgba(255, 255, 255, .85) !important;
+    }
+
+    a:hover, .dropdown-toggle:hover {
+        color: var(--aurum-gold-light) !important;
+    }
+
+    .o_menu_sections > .dropdown.show > a,
+    .o_menu_sections > .active > a {
+        color: var(--aurum-gold-light) !important;
+        border-bottom: 2px solid var(--aurum-gold);
+    }
+
+    .badge {
+        background-color: var(--aurum-gold) !important;
+        color: var(--aurum-navy) !important;
+    }
+}
+
+// ---- Login / signup screen ---------------------------------------------
+body.o_web_login_screen,
+.oe_website_login_container,
+.login {
+    background: radial-gradient(circle at 20% 20%, var(--aurum-navy-2) 0%, var(--aurum-navy) 65%) !important;
+
+    .oe_login_form,
+    .card {
+        border: 1px solid var(--aurum-gold);
+        border-radius: 10px;
+        box-shadow: 0 0 40px rgba(201, 162, 39, .18);
+    }
+
+    .oe_login_form .btn-primary,
+    .card .btn-primary {
+        background: linear-gradient(90deg, var(--aurum-gold) 0%, var(--aurum-gold-light) 100%) !important;
+        border: none !important;
+        color: var(--aurum-navy) !important;
+        font-weight: 600;
+    }
+
+    .oe_login_form .btn-primary:hover,
+    .card .btn-primary:hover {
+        filter: brightness(1.08);
+    }
+
+    a {
+        color: var(--aurum-gold);
+    }
+}

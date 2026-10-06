@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+    <!-- SGC shared geometry overlay: single corner arabesque ornament (place top-left, mirror via CSS transform for other corners) -->
+    <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M4 4 H60 M4 4 V60" stroke-width="2.5" />
+        <path d="M4 30 C 30 30, 30 4, 56 4" />
+        <path d="M4 46 C 46 46, 46 4, 88 4" />
+        <circle cx="4" cy="4" r="6" />
+        <path d="M20 20 Q 30 10 40 20 Q 30 30 20 20 Z" />
+        <path d="M4 76 Q 20 76 20 92" />
+        <path d="M76 4 Q 76 20 92 20" />
+    </g>
+</svg>

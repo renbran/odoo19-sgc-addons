@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="sgc_pricing" name="SGC Pricing Page">
+    <t t-call="website.layout">
+      <t t-set="additional_title">Pricing — SGC TECH AI Odoo ERP Packages | UAE</t>
+      <t t-set="meta_description">Transparent pricing for 14-day Odoo ERP deployment. Starter AED 25K, Growth AED 45K, Enterprise AED 85K. Guaranteed 150% ROI. No hidden fees.</t>
+
+      <div id="wrap">
+
+        <!-- HERO -->
+        <section class="sgc-section sgc-bg-hero sgc-bg-grid" style="padding-top:140px;padding-bottom:80px;">
+          <div class="sgc-container" style="text-align:center;">
+            <span class="sgc-label">Transparent Pricing</span>
+            <h1 style="font-size:clamp(2.2rem,5vw,4rem);margin-bottom:1rem;">
+              Simple, Honest <span class="sgc-highlight">Pricing</span>
+            </h1>
+            <p style="font-size:1.15rem;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto 2rem;">
+              One-time implementation fee. No monthly surprises. All packages include our 150% ROI guarantee.
+            </p>
+            <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:999px;padding:8px 20px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-neon-green)" stroke-width="2.5" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+              <span style="color:var(--sgc-neon-green);font-size:0.875rem;font-weight:700;">150% ROI Guarantee — or full refund</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pricing visual strip -->
+        <div style="background:var(--sgc-carbon-black);padding:24px 0 0;">
+          <div class="sgc-container">
+            <div style="border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.15);box-shadow:0 16px 48px rgba(0,0,0,0.5);position:relative;" class="sgc-reveal">
+              <img src="/sgc_theme_ai/static/src/img/hero_bg.png"
+                   alt="ERP package tiers — holographic value comparison visualization" loading="lazy"
+                   style="width:100%;height:auto;max-height:300px;object-fit:cover;display:block;"/>
+              <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,15,28,0.65) 0%,transparent 30%,transparent 70%,rgba(3,15,28,0.65) 100%);pointer-events:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PRICING CARDS -->
+        <section class="sgc-section sgc-bg-dark" style="padding-top:60px;">
+          <div class="sgc-container">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;align-items:start;max-width:1100px;margin:0 auto;">
+
+              <!-- STARTER -->
+              <div class="sgc-card-pricing">
+                <div style="margin-bottom:1.5rem;">
+                  <p style="color:var(--sgc-electric-cyan);font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem;">Starter</p>
+                  <div style="display:flex;align-items:baseline;gap:0.5rem;">
+                    <span style="font-family:var(--sgc-font-display);font-size:3rem;font-weight:800;color:white;line-height:1;">AED 25,000</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;margin-top:0.25rem;">One-time implementation</p>
+                </div>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.1);">
+                  Perfect for small UAE businesses ready to replace spreadsheets and manual processes.
+                </p>
+                <ul style="list-style:none;padding:0;margin:0 0 2rem;display:flex;flex-direction:column;gap:0.875rem;">
+                  <t t-foreach="['1-15 employees','14-day deployment','Core ERP modules','UAE payroll (WPS)','Email support (6 months)','Data migration','Basic training (4 hours)','1 custom report']" t-as="feat">
+                    <li style="display:flex;align-items:center;gap:0.75rem;font-size:0.875rem;color:rgba(255,255,255,0.8);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-neon-green)" stroke-width="2.5" aria-hidden="true" style="flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>
+                      <t t-esc="feat"/>
+                    </li>
+                  </t>
+                </ul>
+                <a href="/appointment?package=starter" class="sgc-btn sgc-btn-secondary" style="width:100%;justify-content:center;">Get Started</a>
+              </div>
+
+              <!-- GROWTH (Featured) -->
+              <div class="sgc-card-pricing featured" style="position:relative;">
+                <div style="margin-bottom:1.5rem;">
+                  <p style="color:var(--sgc-electric-cyan);font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem;">Growth</p>
+                  <div style="display:flex;align-items:baseline;gap:0.5rem;">
+                    <span style="font-family:var(--sgc-font-display);font-size:3rem;font-weight:800;color:white;line-height:1;">AED 45,000</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;margin-top:0.25rem;">One-time implementation</p>
+                </div>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(0,255,240,0.2);">
+                  Ideal for growing companies needing full ERP with AI analytics and multi-department automation.
+                </p>
+                <ul style="list-style:none;padding:0;margin:0 0 2rem;display:flex;flex-direction:column;gap:0.875rem;">
+                  <t t-foreach="['16-50 employees','14-day deployment','All Starter features','CRM + Sales pipeline','AI CEO dashboard','Advanced analytics','WhatsApp integration','WPS payroll + commissions','Priority support (6 months)','Full team training (8 hours)','5 custom reports','1 custom module']" t-as="feat">
+                    <li style="display:flex;align-items:center;gap:0.75rem;font-size:0.875rem;color:rgba(255,255,255,0.8);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-electric-cyan)" stroke-width="2.5" aria-hidden="true" style="flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>
+                      <t t-esc="feat"/>
+                    </li>
+                  </t>
+                </ul>
+                <a href="/appointment?package=growth" class="sgc-btn sgc-btn-primary" style="width:100%;justify-content:center;">Get Started</a>
+              </div>
+
+              <!-- ENTERPRISE -->
+              <div class="sgc-card-pricing">
+                <div style="margin-bottom:1.5rem;">
+                  <p style="color:var(--sgc-electric-cyan);font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.5rem;">Enterprise</p>
+                  <div style="display:flex;align-items:baseline;gap:0.5rem;">
+                    <span style="font-family:var(--sgc-font-display);font-size:3rem;font-weight:800;color:white;line-height:1;">AED 85,000</span>
+                  </div>
+                  <p style="color:rgba(255,255,255,0.5);font-size:0.875rem;margin-top:0.25rem;">One-time implementation</p>
+                </div>
+                <p style="color:rgba(255,255,255,0.6);font-size:0.875rem;line-height:1.6;margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.1);">
+                  Full enterprise transformation with custom integrations, multi-entity support and dedicated success manager.
+                </p>
+                <ul style="list-style:none;padding:0;margin:0 0 2rem;display:flex;flex-direction:column;gap:0.875rem;">
+                  <t t-foreach="['51-200 employees','14-day deployment','All Growth features','Multi-company / multi-branch','Custom integrations (API)','Dedicated success manager','12 months premium support','Unlimited custom reports','Advanced role-based security','Real Estate or Manufacturing module','On-site training','SLA guarantee']" t-as="feat">
+                    <li style="display:flex;align-items:center;gap:0.75rem;font-size:0.875rem;color:rgba(255,255,255,0.8);">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-neon-green)" stroke-width="2.5" aria-hidden="true" style="flex-shrink:0;"><path d="M20 6L9 17l-5-5"/></svg>
+                      <t t-esc="feat"/>
+                    </li>
+                  </t>
+                </ul>
+                <a href="/appointment?package=enterprise" class="sgc-btn sgc-btn-secondary" style="width:100%;justify-content:center;">Get Started</a>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- COMPARE TABLE -->
+        <section class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">Full Comparison</span>
+              <h2>Everything that's <span class="sgc-highlight">Included</span></h2>
+            </div>
+
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+                <thead>
+                  <tr style="border-bottom:1px solid rgba(0,255,240,0.2);">
+                    <th style="text-align:left;padding:1rem;color:rgba(255,255,255,0.5);font-weight:600;width:40%;">Feature</th>
+                    <th style="text-align:center;padding:1rem;color:white;font-weight:700;">Starter</th>
+                    <th style="text-align:center;padding:1rem;color:var(--sgc-electric-cyan);font-weight:700;">Growth</th>
+                    <th style="text-align:center;padding:1rem;color:white;font-weight:700;">Enterprise</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <t t-foreach="[
+                    ('14-Day Deployment', '1', '1', '1'),
+                    ('150% ROI Guarantee', '1', '1', '1'),
+                    ('UAE WPS Payroll', '1', '1', '1'),
+                    ('Core ERP Modules', '1', '1', '1'),
+                    ('CRM + Sales', '0', '1', '1'),
+                    ('AI CEO Dashboard', '0', '1', '1'),
+                    ('WhatsApp Integration', '0', '1', '1'),
+                    ('Commission Tracking', '0', '1', '1'),
+                    ('Multi-Company', '0', '0', '1'),
+                    ('Custom API Integration', '0', '0', '1'),
+                    ('Dedicated Success Manager', '0', '0', '1'),
+                    ('Real Estate / MFG Module', '0', '0', '1'),
+                    ('Support Duration', '6 months', '6 months', '12 months'),
+                    ('Custom Reports', '1', '5', 'Unlimited'),
+                    ('Training', '4 hrs', '8 hrs', 'On-site'),
+                    ('Employees', '1-15', '16-50', '51-200'),
+                  ]" t-as="row">
+                    <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                      <td style="padding:0.875rem 1rem;color:rgba(255,255,255,0.7);"><t t-esc="row[0]"/></td>
+                      <td style="text-align:center;padding:0.875rem 1rem;">
+                        <t t-if="row[1] == '1'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-neon-green)" stroke-width="2.5" aria-label="Included"><path d="M20 6L9 17l-5-5"/></svg>
+                        </t>
+                        <t t-elif="row[1] == '0'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" aria-label="Not included"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </t>
+                        <t t-else="">
+                          <span style="color:rgba(255,255,255,0.8);font-size:0.8rem;"><t t-esc="row[1]"/></span>
+                        </t>
+                      </td>
+                      <td style="text-align:center;padding:0.875rem 1rem;background:rgba(0,255,240,0.03);">
+                        <t t-if="row[2] == '1'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-electric-cyan)" stroke-width="2.5" aria-label="Included"><path d="M20 6L9 17l-5-5"/></svg>
+                        </t>
+                        <t t-elif="row[2] == '0'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" aria-label="Not included"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </t>
+                        <t t-else="">
+                          <span style="color:var(--sgc-electric-cyan);font-size:0.8rem;font-weight:600;"><t t-esc="row[2]"/></span>
+                        </t>
+                      </td>
+                      <td style="text-align:center;padding:0.875rem 1rem;">
+                        <t t-if="row[3] == '1'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sgc-neon-green)" stroke-width="2.5" aria-label="Included"><path d="M20 6L9 17l-5-5"/></svg>
+                        </t>
+                        <t t-elif="row[3] == '0'">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" aria-label="Not included"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                        </t>
+                        <t t-else="">
+                          <span style="color:rgba(255,255,255,0.8);font-size:0.8rem;"><t t-esc="row[3]"/></span>
+                        </t>
+                      </td>
+                    </tr>
+                  </t>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container-sm">
+            <div class="sgc-section-head">
+              <span class="sgc-label">FAQ</span>
+              <h2>Pricing <span class="sgc-highlight">Questions</span></h2>
+            </div>
+
+            <div class="sgc-accordion">
+              <t t-foreach="[
+                ('Are there any monthly fees after implementation?', 'No. SGC TECH AI charges a one-time implementation fee. Odoo Community Edition is open-source with no license fees. Optional: Odoo Enterprise Edition licensing at ~AED 500-800/user/year if required. All support packages are included in your implementation price.'),
+                ('What is covered in the 150% ROI guarantee?', 'If your verifiable operational savings in the 12 months post-go-live do not reach at least 150% of your implementation investment, we refund the difference. We measure this together using the KPIs established at project kickoff.'),
+                ('How does the 14-day deployment actually work?', 'Days 1-3: Discovery and data mapping. Days 4-7: Configuration and customisation. Days 8-10: Integration, testing, and data import. Days 11-13: Team training and user acceptance testing. Day 14: Go-live. Your team gets a production system, not a demo.'),
+                ('Can I upgrade from Starter to Growth later?', 'Yes. Upgrades are priced at the difference between packages plus a 15% migration fee. All your data, customisations, and history are preserved.'),
+                ('Do you cover data migration from our existing systems?', 'Yes. All packages include data migration from Excel, legacy ERPs, accounting software, or manual records. We handle cleaning, mapping, and validation as part of the implementation.'),
+                ('What if we need features not in our package?', 'Additional modules (e.g. eCommerce, Project Management, Fleet) can be added as bolt-ons starting at AED 5,000 per module. Custom development is quoted separately.'),
+              ]" t-as="faq">
+                <div class="sgc-accordion-item">
+                  <button class="sgc-accordion-trigger" type="button" aria-expanded="false">
+                    <span><t t-esc="faq[0]"/></span>
+                    <span class="icon" aria-hidden="true">+</span>
+                  </button>
+                  <div class="sgc-accordion-content">
+                    <t t-esc="faq[1]"/>
+                  </div>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-cta-section">
+              <span class="sgc-label" style="display:inline-flex;margin:0 auto 1.5rem;">Start Your 14-Day Transformation</span>
+              <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin-bottom:1rem;">
+                Not sure which package? <span class="sgc-highlight">Let's calculate your ROI first.</span>
+              </h2>
+              <p style="color:rgba(255,255,255,0.6);max-width:500px;margin:0 auto 2.5rem;">
+                Book a free 30-minute consultation. We will assess your business, recommend the right package, and show you the projected ROI before you commit to anything.
+              </p>
+              <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;">
+                <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">Book Free Consultation</a>
+                <a href="/#roi-calculator" class="sgc-btn sgc-btn-secondary sgc-btn-lg">Calculate My ROI</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </t>
+  </template>
+
+</odoo>

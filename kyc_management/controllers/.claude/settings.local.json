@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh-keygen -t ed25519 -C \"claude-code@osus17\" -f /root/.ssh/osus_server_key -N \"\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"psql -U odoo -l 2>/dev/null || psql -U postgres -l 2>/dev/null || sudo -u postgres psql -l 2>&1\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"systemctl list-units --type=service | grep -i odoo && ls /etc/odoo* 2>/dev/null && ls /opt/odoo* 2>/dev/null | head -20\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"systemctl status odona-osusproperties.service --no-pager && cat /etc/odoo/osusproperties.conf 2>/dev/null || find /etc -name ''*osusproperties*'' 2>/dev/null\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"cat /etc/traefik/odoo_osusproperties.yml && cat /etc/odona/osusproperties/odoo.conf 2>/dev/null || cat /var/odoo/osusproperties/odoo.conf 2>/dev/null\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"tail -30 /var/odoo/osusproperties/logs/odoo-server.log 2>/dev/null\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"ls /var/odoo/osusproperties/ && find /var/odoo/osusproperties -name ''muk_web_colors'' -type d 2>/dev/null\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"ls /var/odoo/osusproperties/extra-addons/ | head -50 && cat /var/odoo/osusproperties/odoo.conf\")",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"ls /var/odoo/osusproperties/extra-addons/\")",
+      "Read(//var/odoo/osusproperty/extra-addons/**)",
+      "Read(//var/odoo/**)",
+      "Bash(ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no root@65.20.68.193 \"ls /var/odoo/osusproperties/extra-addons/osus17.git-699de38c9e98b/ | grep muk\")",
+      "Bash(rsync -az --exclude='.git' --exclude='*.pyc' --exclude='__pycache__' -e \"ssh -i /root/.ssh/osus_server_key -o StrictHostKeyChecking=no\" /var/odoo/osusproperty/extra-addons/osus17.git-699de38c9e98b/ root@65.20.68.193:/var/odoo/osusproperties/extra-addons/ --progress)"
+    ]
+  }
+}

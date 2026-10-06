@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- - SGC HOMEPAGE - -->
+  <template id="sgc_homepage" name="SGC TECH AI Homepage">
+    <t t-call="website.layout">
+      <t t-set="pageName" t-value="'homepage'"/>
+      <t t-set="additional_title">SGC TECH AI | Deploy Odoo ERP in 14 Days | UAE</t>
+      <t t-set="meta_description">SGC TECH AI delivers production-ready Odoo ERP deployments for UAE businesses in 14 days with AI automation, structured implementation, and measurable ROI.</t>
+
+      <div id="wrap" class="sgc-homepage">
+
+        <!-- - HERO SECTION - -->
+        <section class="sgc-hero sgc-bg-hero sgc-noise sgc-bg-grid" data-sgc-particles='{"count":50,"speed":0.25}'>
+          <div class="sgc-container">
+            <div class="sgc-hero-content">
+
+              <!-- Eyebrow -->
+              <div class="sgc-hero-eyebrow sgc-anim-fade-down">
+                <span class="sgc-label">Dubai, UAE &#183; AI-Powered ERP</span>
+                <span class="sgc-badge sgc-badge-green">&#10024; New: Real Estate Module</span>
+              </div>
+
+              <!-- Headline -->
+              <h1 class="sgc-hero-h1 sgc-anim-fade-up sgc-delay-100">
+                Deploy Enterprise ERP<br/>
+                <span class="sgc-highlight">in 14 Days.</span><br/>
+                <span style="font-size:0.65em;font-weight:400;color:rgba(255,255,255,0.5);">Guaranteed.</span>
+              </h1>
+
+              <!-- Sub -->
+              <p class="sgc-hero-sub sgc-anim-fade-up sgc-delay-200">
+                While competitors take 3-6 months, SGC TECH AI deploys production-ready Odoo ERP
+                in 14 days with a <strong>minimum 150% ROI guarantee</strong> -- or we refund you.
+              </p>
+
+              <!-- Actions -->
+              <div class="sgc-hero-actions sgc-anim-fade-up sgc-delay-300">
+                <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  Book Free Consultation
+                </a>
+                <a href="#roi-calculator" class="sgc-btn sgc-btn-secondary sgc-btn-xl">
+                  <span>Calculate Your ROI -></span>
+                </a>
+              </div>
+
+              <!-- Trust signals -->
+              <div class="sgc-hero-trust sgc-anim-fade-up sgc-delay-400">
+                <div class="sgc-trust-item">
+                  <div class="check" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <span>No setup fees</span>
+                </div>
+                <div class="sgc-trust-item">
+                  <div class="check" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <span>150% ROI or refund</span>
+                </div>
+                <div class="sgc-trust-item">
+                  <div class="check" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <span>14-day go-live</span>
+                </div>
+                <div class="sgc-trust-item">
+                  <div class="check" aria-hidden="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <span>UAE compliance included</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Hero visual (AI-generated command center image) -->
+          <div class="sgc-hero-visual" aria-hidden="false">
+            <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+              <div style="position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(0,255,240,0.22);box-shadow:0 24px 64px rgba(0,0,0,0.6),0 0 60px rgba(0,255,240,0.09);animation:sgc-float 6s ease-in-out infinite;">
+                <img
+                  src="/sgc_theme_ai/static/src/img/hero_dashboard.png"
+                  alt="Enterprise ERP command center — Dubai skyline with holographic dashboards"
+                  width="520"
+                  loading="eager"
+                  fetchpriority="high"
+                  style="display:block;width:100%;max-width:520px;height:auto;border-radius:20px;"
+                />
+                <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(3,15,28,0.18) 0%,transparent 60%,rgba(0,255,240,0.06) 100%);pointer-events:none;"></div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- - STATS STRIP - -->
+        <div class="sgc-stats-strip">
+          <div class="sgc-container">
+            <div class="sgc-stats-row sgc-stagger">
+              <div class="sgc-stat-item">
+                <span class="num" data-sgc-counter="150" data-suffix="%" data-duration="2000">0%</span>
+                <span class="lbl">Minimum ROI Guarantee</span>
+              </div>
+              <div class="sgc-stat-item">
+                <span class="num" data-sgc-counter="14" data-suffix=" Days" data-duration="1500">0</span>
+                <span class="lbl">To Full Deployment</span>
+              </div>
+              <div class="sgc-stat-item">
+                <span class="num" data-sgc-counter="98" data-suffix="%" data-duration="2000">0%</span>
+                <span class="lbl">Client Retention Rate</span>
+              </div>
+              <div class="sgc-stat-item">
+                <span class="num" data-sgc-counter="80" data-suffix="hrs" data-duration="1800">0</span>
+                <span class="lbl">Saved Monthly Per Business</span>
+              </div>
+              <div class="sgc-stat-item">
+                <span class="num" data-sgc-counter="90" data-suffix="%" data-duration="2000">0%</span>
+                <span class="lbl">Error Reduction in 30 Days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- - CLIENT LOGOS - -->
+        <section class="sgc-section-sm sgc-bg-dark">
+          <div class="sgc-container sgc-text-center" style="margin-bottom:1.5rem;">
+            <p style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);font-weight:600;">
+              Trusted by UAE Enterprises
+            </p>
+          </div>
+          <div class="sgc-logo-ticker">
+            <div class="sgc-ticker-track">
+              <div class="sgc-logo-item">OSUS Group</div>
+              <div class="sgc-logo-item">AX Capital</div>
+              <div class="sgc-logo-item">Fresh Market</div>
+              <div class="sgc-logo-item">Eiger Marvel</div>
+              <div class="sgc-logo-item">AHS</div>
+              <div class="sgc-logo-item">LMD</div>
+              <div class="sgc-logo-item">Urban Properties</div>
+              <div class="sgc-logo-item">OSUS Group</div>
+              <div class="sgc-logo-item">AX Capital</div>
+              <div class="sgc-logo-item">Fresh Market</div>
+              <div class="sgc-logo-item">Eiger Marvel</div>
+              <div class="sgc-logo-item">AHS</div>
+              <div class="sgc-logo-item">LMD</div>
+              <div class="sgc-logo-item">Urban Properties</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- - COMPARISON: WHY SGC - -->
+        <section class="sgc-section sgc-bg-navy sgc-bg-dots sgc-reveal">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">The SGC Difference</span>
+              <h2>Why 98% of Clients <span class="sgc-highlight">Stay With Us</span></h2>
+              <p>Traditional ERP projects drag on for months and drain resources. We engineered a faster, smarter way.</p>
+            </div>
+
+            <div class="sgc-comparison">
+              <!-- Traditional -->
+              <div class="sgc-comp-card sgc-comp-old sgc-reveal-left">
+                <div class="sgc-comp-head" style="color:rgba(255,77,79,0.9);">X Traditional ERP Vendors</div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>
+                    <strong>3-6 months</strong> implementation timeline
+                  </div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>No ROI guarantee -- you carry all the risk</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>Generic consultants without UAE market knowledge</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>Hidden costs, change orders, delays</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>Limited post-go-live support</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <div>No AI or automation built-in</div>
+                </div>
+              </div>
+
+              <!-- VS -->
+              <div class="sgc-comparison-vs">
+                <span>VS</span>
+              </div>
+
+              <!-- SGC -->
+              <div class="sgc-comp-card sgc-comp-ours sgc-reveal-right">
+                <div class="sgc-comp-head" style="color:var(--sgc-neon-green);">? SGC TECH AI</div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div>
+                    <strong>14 days</strong> to production -- guaranteed
+                  </div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div><strong>150% minimum ROI</strong> guarantee or refund</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div>UAE-native team with deep GCC market expertise</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div>Fixed price, zero hidden costs, no change orders</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div>6-month dedicated support + 98% retention</div>
+                </div>
+                <div class="sgc-comp-item">
+                  <div class="ci-icon" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <div>AI Copilot, ML automation &amp; BI dashboards standard</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- - ROI CALCULATOR - -->
+        <section id="roi-calculator" class="sgc-section sgc-bg-hero sgc-bg-grid">
+          <div class="sgc-container">
+            <!-- ROI Visual accent -->
+            <div style="margin-bottom:3rem;border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.15);box-shadow:0 16px 48px rgba(0,0,0,0.5);position:relative;" class="sgc-reveal">
+              <img
+                src="/sgc_theme_ai/static/src/img/ai_brain.png"
+                alt="Business growth powered by ERP — data streams into financial results"
+                loading="lazy"
+                style="width:100%;max-height:240px;object-fit:cover;display:block;"
+              />
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,24,38,0.35) 0%,transparent 35%,transparent 65%,rgba(7,24,38,0.55) 100%);"></div>
+            </div>
+            <div class="sgc-section-head sgc-reveal">
+              <span class="sgc-label">ROI Calculator</span>
+              <h2>See Your <span class="sgc-highlight">Exact Returns</span></h2>
+              <p>Adjust the inputs to calculate your personalized ROI projection. Our guarantee: minimum 150%.</p>
+            </div>
+
+            <div class="sgc-roi-calc sgc-reveal">
+              <div class="sgc-roi-grid">
+
+                <!-- Inputs -->
+                <div>
+                  <div style="margin-bottom:1.5rem;">
+                    <label class="sgc-label-text" for="roi-employees">Team Size</label>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
+                      <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">1</span>
+                      <span style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:var(--sgc-electric-cyan);" id="employees-display">25</span>
+                      <span style="font-size:0.8rem;color:rgba(255,255,255,0.4);">200</span>
+                    </div>
+                    <input type="range" class="sgc-range" id="roi-employees" data-roi-input="" min="1" max="200" value="25"/>
+                  </div>
+
+                  <div style="margin-bottom:1.5rem;">
+                    <label class="sgc-label-text" for="roi-industry">Industry</label>
+                    <select class="sgc-input sgc-select" id="roi-industry" data-roi-input="">
+                      <option value="real_estate">Real Estate</option>
+                      <option value="trading">Trading &amp; Distribution</option>
+                      <option value="manufacturing">Manufacturing</option>
+                      <option value="professional_services" selected="">Professional Services</option>
+                      <option value="hospitality">Hospitality</option>
+                    </select>
+                  </div>
+
+                  <div style="margin-bottom:1.5rem;">
+                    <label class="sgc-label-text" for="roi-monthly-cost">Monthly Operational Cost (AED)</label>
+                    <input type="number" class="sgc-input" id="roi-monthly-cost" data-roi-input=""
+                           value="150000" min="10000" max="5000000" step="10000"
+                           placeholder="e.g. 150,000"/>
+                  </div>
+
+                  <div>
+                    <label class="sgc-label-text" for="roi-hours">Weekly Hours Per Employee</label>
+                    <input type="number" class="sgc-input" id="roi-hours" data-roi-input=""
+                           value="40" min="20" max="60"/>
+                  </div>
+                </div>
+
+                <!-- Results -->
+                <div id="sgc-roi-calculator">
+                  <div class="sgc-roi-result">
+                    <div style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);font-weight:600;">
+                      Your Projected ROI
+                    </div>
+                    <span class="sgc-roi-big" id="roi-animated-number">187%</span>
+                    <p style="font-size:0.8rem;color:rgba(255,255,255,0.5);margin:0;">
+                      Minimum guaranteed: 150% or full refund
+                    </p>
+
+                    <div class="sgc-roi-breakdown">
+                      <div class="sgc-roi-row">
+                        <span class="rr-label">Labor savings</span>
+                        <span class="rr-value" id="roi-labor-savings">AED 180K</span>
+                      </div>
+                      <div class="sgc-roi-row">
+                        <span class="rr-label">Error reduction</span>
+                        <span class="rr-value" id="roi-error-savings">AED 96K</span>
+                      </div>
+                      <div class="sgc-roi-row">
+                        <span class="rr-label">Efficiency gains</span>
+                        <span class="rr-value" id="roi-efficiency">AED 120K</span>
+                      </div>
+                      <div class="sgc-roi-row" style="background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);">
+                        <span class="rr-label" style="color:var(--sgc-neon-green);font-weight:700;">Annual net benefit</span>
+                        <span class="rr-value" id="roi-net-benefit" style="color:var(--sgc-neon-green);">AED 351K</span>
+                      </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+                      <div style="text-align:center;background:rgba(0,255,240,0.06);border-radius:10px;padding:12px;">
+                        <div style="font-size:1.2rem;font-weight:800;color:var(--sgc-electric-cyan);" id="roi-payback">4 months</div>
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Payback Period</div>
+                      </div>
+                      <div style="text-align:center;background:rgba(0,255,136,0.06);border-radius:10px;padding:12px;">
+                        <div style="font-size:1.2rem;font-weight:800;color:var(--sgc-neon-green);" id="roi-hours">60 hrs/mo</div>
+                        <div style="font-size:0.7rem;color:rgba(255,255,255,0.5);">Time Saved Monthly</div>
+                      </div>
+                    </div>
+
+                    <a href="/appointment" id="roi-cta" class="sgc-btn sgc-btn-primary" style="width:100%;justify-content:center;opacity:0;transform:translateY(8px);transition:all 0.4s 0.5s;">
+                      Get My Free ROI Report ->
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- - SUCCESS STORIES PREVIEW - -->
+        <section class="sgc-section sgc-bg-dark sgc-reveal">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">Proven Results</span>
+              <h2>Real Businesses. <span class="sgc-highlight">Real Numbers.</span></h2>
+              <p>Every claim is backed by actual client data. No vague "improved efficiency" -- just hard ROI figures.</p>
+            </div>
+
+            <div class="sgc-grid sgc-grid-3 sgc-stagger" style="margin-bottom:3rem;">
+
+              <!-- Case 1 -->
+              <div class="sgc-case-card">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-cyan">Real Estate</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Dubai</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h4 style="font-size:1.1rem;margin-bottom:0.5rem;">AX Capital</h4>
+                  <p style="font-size:0.875rem;margin:0;">Automated rental renewals, commission tracking and RERA compliance for a 45-agent agency.</p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">210%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">68hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">12 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Case 2 -->
+              <div class="sgc-case-card">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-green">Trading</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Abu Dhabi</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h4 style="font-size:1.1rem;margin-bottom:0.5rem;">Fresh Market</h4>
+                  <p style="font-size:0.875rem;margin:0;">Multi-branch inventory, automated PO generation and real-time P&amp;L for a trading operation.</p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">185%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">52hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Case 3 -->
+              <div class="sgc-case-card">
+                <div class="sgc-case-header">
+                  <span class="sgc-badge sgc-badge-white">Manufacturing</span>
+                  <span style="font-size:0.75rem;color:rgba(255,255,255,0.4);">Sharjah</span>
+                </div>
+                <div class="sgc-case-body">
+                  <h4 style="font-size:1.1rem;margin-bottom:0.5rem;">Eiger Marvel</h4>
+                  <p style="font-size:0.875rem;margin:0;">MRP, quality control and production scheduling fully integrated in 2 weeks flat.</p>
+                </div>
+                <div class="sgc-case-metrics">
+                  <div class="sgc-metric-item">
+                    <span class="m-val">165%</span>
+                    <span class="m-key">ROI</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">45hrs</span>
+                    <span class="m-key">Saved/mo</span>
+                  </div>
+                  <div class="sgc-metric-item">
+                    <span class="m-val">14 days</span>
+                    <span class="m-key">Go-live</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div style="text-align:center;">
+              <a href="/success-stories" class="sgc-btn sgc-btn-secondary">View All Case Studies -></a>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- - INSIGHTS TEASER - -->
+        <section class="sgc-section-sm sgc-bg-dark">
+          <div class="sgc-container">
+            <div style="border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.15);box-shadow:0 16px 48px rgba(0,0,0,0.5);position:relative;min-height:220px;" class="sgc-reveal">
+              <img src="/sgc_theme_ai/static/src/img/dubai_skyline.png"
+                   alt="Global ERP insights — UAE business intelligence and analytics trends 2025" loading="lazy"
+                   style="width:100%;height:auto;max-height:280px;object-fit:cover;display:block;"/>
+              <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,15,28,0.88) 0%,rgba(3,15,28,0.4) 50%,rgba(3,15,28,0.6) 100%);pointer-events:none;"></div>
+              <div style="position:absolute;top:50%;left:5%;transform:translateY(-50%);max-width:480px;">
+                <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--sgc-electric-cyan);margin-bottom:0.5rem;">Industry Insights</p>
+                <h3 style="font-size:clamp(1.1rem,2.5vw,1.6rem);color:white;margin-bottom:1rem;line-height:1.3;">ERP Trends Reshaping UAE Business in 2025</h3>
+                <a href="/blog" class="sgc-btn sgc-btn-secondary" style="padding:0.5rem 1.25rem;font-size:0.875rem;">Read Our Insights &#8594;</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- - FINAL CTA - -->
+        <section class="sgc-section sgc-bg-navy sgc-reveal">
+          <div class="sgc-container">
+            <div class="sgc-cta-section">
+              <span class="sgc-label" style="display:inline-flex;margin:0 auto 1.5rem;">Ready to Transform Your Business?</span>
+              <h2 style="font-size:clamp(2rem,4vw,3rem);margin-bottom:1rem;">
+                Go live in <span class="sgc-highlight">14 days</span> or we refund you.
+              </h2>
+              <p style="font-size:1.1rem;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto 2.5rem;">
+                Book a free 30-minute strategy consultation. We'll assess your business, calculate your ROI, and show you exactly how we deliver results in 14 days.
+              </p>
+              <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;">
+                <a href="/appointment" class="sgc-btn sgc-btn-primary sgc-btn-xl">
+                  Book Free Consultation
+                </a>
+                <a href="https://wa.me/971521985231" target="_blank" class="sgc-btn sgc-btn-whatsapp sgc-btn-lg">
+                  WhatsApp Us Now
+                </a>
+              </div>
+              <p style="font-size:0.8rem;color:rgba(255,255,255,0.3);margin-top:1.5rem;">
+                No commitment required * Responds within 2 hours * Sat-Thu 9AM-6PM GST
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /wrap -->
+    </t>
+  </template>
+
+</odoo>

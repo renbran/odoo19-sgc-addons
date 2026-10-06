@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <menuitem
+        id="sgc_meeting_ai_main_menu"
+        name="SGC Meeting AI"
+        web_icon="sgc_meeting_ai,static/description/icon.png"
+        groups="base.group_user"
+        sequence="55"
+    />
+    <menuitem
+        id="sgc_meeting_ai_sessions_menu"
+        name="Sessions"
+        action="sgc_meeting_session_action"
+        parent="sgc_meeting_ai_main_menu"
+        sequence="10"
+    />
+    <menuitem
+        id="sgc_meeting_ai_recordings_menu"
+        name="Recordings"
+        action="sgc_meeting_recording_action"
+        parent="sgc_meeting_ai_main_menu"
+        sequence="20"
+    />
+    <menuitem
+        id="sgc_meeting_ai_transcripts_menu"
+        name="Transcripts"
+        action="sgc_meeting_transcript_action"
+        parent="sgc_meeting_ai_main_menu"
+        sequence="30"
+    />
+    <menuitem
+        id="sgc_meeting_ai_notes_menu"
+        name="AI Notes"
+        action="sgc_meeting_notes_action"
+        parent="sgc_meeting_ai_main_menu"
+        sequence="40"
+    />
+    <menuitem
+        id="sgc_meeting_ai_config_menu"
+        name="Configuration"
+        parent="sgc_meeting_ai_main_menu"
+        sequence="100"
+        groups="base.group_system"
+    />
+    <menuitem
+        id="sgc_meeting_ai_providers_menu"
+        name="Providers"
+        action="sgc_meeting_provider_action"
+        parent="sgc_meeting_ai_config_menu"
+        sequence="10"
+    />
+</odoo>

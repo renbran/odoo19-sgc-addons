@@ -1,0 +1,1431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate=1: demo records must survive `-u` module upgrades, not just fresh `-i` installs -->
+    <data noupdate="1">
+
+    <!-- Demo Partners (Clients & Subcontractors) -->
+    <record id="demo_client_alnoor" model="res.partner">
+        <field name="name">Al Noor Properties LLC</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">contact@alnoorproperties.ae</field>
+        <field name="phone">+971 4 123 4567</field>
+    </record>
+
+    <record id="demo_client_highway" model="res.partner">
+        <field name="name">National Roads Authority</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">projects@nra.gov</field>
+        <field name="phone">+971 2 456 7890</field>
+    </record>
+
+    <record id="demo_subcontractor_steel" model="res.partner">
+        <field name="name">Gulf Steel Fabricators</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">info@gulfsteel.ae</field>
+    </record>
+
+    <record id="demo_subcontractor_mep" model="res.partner">
+        <field name="name">Emirates MEP Services</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">info@emiratesmep.ae</field>
+    </record>
+
+    <record id="demo_vendor_equipment" model="res.partner">
+        <field name="name">Al Futtaim Heavy Equipment Rental</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">rentals@aff-equipment.ae</field>
+    </record>
+
+    <record id="demo_vendor_supplies" model="res.partner">
+        <field name="name">Gulf Building Materials Trading LLC</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">sales@gulfbmt.ae</field>
+    </record>
+
+    <record id="demo_vendor_legal" model="res.partner">
+        <field name="name">Al Tamimi &amp; Associates</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">construction.disputes@altamimi.ae</field>
+    </record>
+
+    <!-- PROJECT 1: Al Noor Tower -->
+    <record id="demo_project_alnoor" model="construction.project">
+        <field name="name">Al Noor Tower - Residential Complex</field>
+        <field name="client_id" ref="demo_client_alnoor"/>
+        <field name="location">Downtown Dubai, UAE</field>
+        <field name="latitude">25.1972</field>
+        <field name="longitude">55.2744</field>
+        <field name="emirate">dubai</field>
+        <field name="start_date">2025-01-15</field>
+        <field name="end_date">2026-12-31</field>
+        <field name="contract_value">85000000</field>
+        <field name="state">active</field>
+        <field name="description">A 45-storey luxury residential tower with 350 units, retail podium, and world-class amenities including infinity pool, gym, and concierge services.</field>
+    </record>
+
+    <!-- PROJECT 2: Highway Bridge -->
+    <record id="demo_project_bridge" model="construction.project">
+        <field name="name">Highway Bridge Expansion - Sector 7</field>
+        <field name="client_id" ref="demo_client_highway"/>
+        <field name="location">Abu Dhabi-Dubai Highway, KM 45</field>
+        <field name="latitude">24.4539</field>
+        <field name="longitude">54.3773</field>
+        <field name="emirate">abu_dhabi</field>
+        <field name="start_date">2025-03-01</field>
+        <field name="end_date">2026-06-30</field>
+        <field name="contract_value">42000000</field>
+        <field name="state">on_hold</field>
+        <field name="description">Expansion and widening of existing highway bridge to accommodate increased traffic volume. Works paused pending right-of-way land acquisition approval from the roads authority; structural reinforcement and new road alignment scope to resume once cleared.</field>
+    </record>
+
+    <!-- BOQ for Project 1 -->
+    <record id="demo_boq_alnoor" model="construction.boq">
+        <field name="name">Main BOQ - Al Noor Tower</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="date">2025-01-20</field>
+        <field name="state">approved</field>
+    </record>
+
+    <record id="demo_boq_line_1" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">10</field>
+        <field name="item_no">A.1</field>
+        <field name="description">Site Clearance and Preparation</field>
+        <field name="work_type">civil</field>
+        <field name="qty">5000</field>
+        <field name="unit_rate">15</field>
+    </record>
+
+    <record id="demo_boq_line_2" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">20</field>
+        <field name="item_no">A.2</field>
+        <field name="description">Excavation for Foundation (Pile Caps)</field>
+        <field name="work_type">civil</field>
+        <field name="qty">12000</field>
+        <field name="unit_rate">85</field>
+    </record>
+
+    <record id="demo_boq_line_3" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">30</field>
+        <field name="item_no">B.1</field>
+        <field name="description">Reinforced Concrete Piles 600mm dia</field>
+        <field name="work_type">structural</field>
+        <field name="qty">250</field>
+        <field name="unit_rate">12500</field>
+    </record>
+
+    <record id="demo_boq_line_4" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">40</field>
+        <field name="item_no">B.2</field>
+        <field name="description">RC Raft Foundation 1200mm thick</field>
+        <field name="work_type">structural</field>
+        <field name="qty">3500</field>
+        <field name="unit_rate">650</field>
+    </record>
+
+    <record id="demo_boq_line_5" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">50</field>
+        <field name="item_no">B.3</field>
+        <field name="description">Structural Steel Works - Main Frame</field>
+        <field name="work_type">structural</field>
+        <field name="qty">1800</field>
+        <field name="unit_rate">4200</field>
+    </record>
+
+    <record id="demo_boq_line_6" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">60</field>
+        <field name="item_no">C.1</field>
+        <field name="description">HV Electrical Distribution System</field>
+        <field name="work_type">electrical</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">3500000</field>
+    </record>
+
+    <record id="demo_boq_line_7" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">70</field>
+        <field name="item_no">C.2</field>
+        <field name="description">LV Electrical Wiring &amp; Conduits</field>
+        <field name="work_type">electrical</field>
+        <field name="qty">45000</field>
+        <field name="unit_rate">35</field>
+    </record>
+
+    <record id="demo_boq_line_8" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">80</field>
+        <field name="item_no">D.1</field>
+        <field name="description">Plumbing - Water Supply System</field>
+        <field name="work_type">plumbing</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">2800000</field>
+    </record>
+
+    <record id="demo_boq_line_9" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">90</field>
+        <field name="item_no">E.1</field>
+        <field name="description">Floor Tiling - Marble 600x600mm</field>
+        <field name="work_type">finishing</field>
+        <field name="qty">35000</field>
+        <field name="unit_rate">180</field>
+    </record>
+
+    <record id="demo_boq_line_10" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">100</field>
+        <field name="item_no">E.2</field>
+        <field name="description">Interior Painting - Premium Grade</field>
+        <field name="work_type">finishing</field>
+        <field name="qty">85000</field>
+        <field name="unit_rate">28</field>
+    </record>
+
+    <record id="demo_boq_line_11" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alnoor"/>
+        <field name="sequence">110</field>
+        <field name="item_no">F.1</field>
+        <field name="description">Landscaping &amp; External Hardscape</field>
+        <field name="work_type">external</field>
+        <field name="qty">8000</field>
+        <field name="unit_rate">350</field>
+    </record>
+
+    <!-- BOQ for Project 2 -->
+    <record id="demo_boq_bridge" model="construction.boq">
+        <field name="name">Main BOQ - Bridge Expansion</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="date">2025-03-05</field>
+        <field name="state">approved</field>
+    </record>
+
+    <record id="demo_boq_bridge_line_1" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_bridge"/>
+        <field name="sequence">10</field>
+        <field name="item_no">A.1</field>
+        <field name="description">Traffic Management &amp; Road Diversions</field>
+        <field name="work_type">civil</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">850000</field>
+    </record>
+
+    <record id="demo_boq_bridge_line_2" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_bridge"/>
+        <field name="sequence">20</field>
+        <field name="item_no">B.1</field>
+        <field name="description">Pre-stressed Concrete Bridge Girders</field>
+        <field name="work_type">structural</field>
+        <field name="qty">48</field>
+        <field name="unit_rate">125000</field>
+    </record>
+
+    <record id="demo_boq_bridge_line_3" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_bridge"/>
+        <field name="sequence">30</field>
+        <field name="item_no">B.2</field>
+        <field name="description">Bridge Deck Concrete Grade 50</field>
+        <field name="work_type">structural</field>
+        <field name="qty">4500</field>
+        <field name="unit_rate">750</field>
+    </record>
+
+    <record id="demo_boq_bridge_line_4" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_bridge"/>
+        <field name="sequence">40</field>
+        <field name="item_no">C.1</field>
+        <field name="description">Road Lighting System</field>
+        <field name="work_type">electrical</field>
+        <field name="qty">120</field>
+        <field name="unit_rate">8500</field>
+    </record>
+
+    <!-- WBS Phases - Al Noor Tower -->
+    <record id="demo_wbs_foundation" model="construction.wbs">
+        <field name="name">Foundation &amp; Substructure</field>
+        <field name="code">ANT-01</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="sequence">10</field>
+        <field name="planned_start">2025-01-15</field>
+        <field name="planned_end">2025-06-30</field>
+        <field name="actual_start">2025-01-20</field>
+        <field name="progress">85</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">15000000</field>
+    </record>
+
+    <record id="demo_wbs_structure" model="construction.wbs">
+        <field name="name">Structural Works</field>
+        <field name="code">ANT-02</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="sequence">20</field>
+        <field name="planned_start">2025-05-01</field>
+        <field name="planned_end">2026-02-28</field>
+        <field name="progress">25</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">28000000</field>
+    </record>
+
+    <record id="demo_wbs_mep" model="construction.wbs">
+        <field name="name">MEP Works</field>
+        <field name="code">ANT-03</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="sequence">30</field>
+        <field name="planned_start">2025-09-01</field>
+        <field name="planned_end">2026-09-30</field>
+        <field name="progress">0</field>
+        <field name="state">planned</field>
+        <field name="planned_cost">22000000</field>
+    </record>
+
+    <record id="demo_wbs_finishing" model="construction.wbs">
+        <field name="name">Finishing Works</field>
+        <field name="code">ANT-04</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="sequence">40</field>
+        <field name="planned_start">2026-01-01</field>
+        <field name="planned_end">2026-12-31</field>
+        <field name="progress">0</field>
+        <field name="state">planned</field>
+        <field name="planned_cost">18000000</field>
+    </record>
+
+    <!-- WBS Phases - Bridge -->
+    <record id="demo_wbs_bridge_mobilize" model="construction.wbs">
+        <field name="name">Mobilization &amp; Setup</field>
+        <field name="code">BRG-01</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="sequence">10</field>
+        <field name="planned_start">2025-03-01</field>
+        <field name="planned_end">2025-04-30</field>
+        <field name="actual_start">2025-03-01</field>
+        <field name="actual_end">2025-04-25</field>
+        <field name="progress">100</field>
+        <field name="state">completed</field>
+        <field name="planned_cost">2000000</field>
+    </record>
+
+    <record id="demo_wbs_bridge_structure" model="construction.wbs">
+        <field name="name">Bridge Structural Works</field>
+        <field name="code">BRG-02</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="sequence">20</field>
+        <field name="planned_start">2025-05-01</field>
+        <field name="planned_end">2026-01-31</field>
+        <field name="actual_start">2025-05-05</field>
+        <field name="progress">40</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">28000000</field>
+    </record>
+
+    <!-- Work Orders - Al Noor Tower -->
+    <record id="demo_wo_piling" model="construction.work.order">
+        <field name="name">Piling Works - Phase 1</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="planned_start">2025-01-20</field>
+        <field name="planned_end">2025-03-31</field>
+        <field name="actual_start">2025-01-22</field>
+        <field name="state">done</field>
+        <field name="planned_cost">3500000</field>
+        <field name="actual_cost">3620000</field>
+        <field name="priority">1</field>
+        <field name="description">Installation of 250 RC piles, 600mm diameter to design depth. Includes pile load testing.</field>
+    </record>
+
+    <record id="demo_wo_raft" model="construction.work.order">
+        <field name="name">Raft Foundation Construction</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="planned_start">2025-04-01</field>
+        <field name="planned_end">2025-06-30</field>
+        <field name="actual_start">2025-04-05</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">2800000</field>
+        <field name="actual_cost">1200000</field>
+        <field name="priority">1</field>
+        <field name="description">Construction of 1200mm thick raft foundation including formwork, rebar, and concrete pour.</field>
+    </record>
+
+    <record id="demo_wo_columns" model="construction.work.order">
+        <field name="name">Structural Columns - Floors B2 to G</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_structure"/>
+        <field name="planned_start">2025-05-15</field>
+        <field name="planned_end">2025-08-31</field>
+        <field name="state">confirmed</field>
+        <field name="planned_cost">4200000</field>
+        <field name="actual_cost">0</field>
+        <field name="priority">2</field>
+    </record>
+
+    <record id="demo_wo_shoring" model="construction.work.order">
+        <field name="name">Temporary Shoring &amp; Dewatering</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="planned_start">2025-01-15</field>
+        <field name="planned_end">2025-07-31</field>
+        <field name="actual_start">2025-01-16</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">1800000</field>
+        <field name="actual_cost">950000</field>
+        <field name="priority">2</field>
+    </record>
+
+    <!-- Work Orders - Bridge -->
+    <record id="demo_wo_bridge_traffic" model="construction.work.order">
+        <field name="name">Traffic Management Installation</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_mobilize"/>
+        <field name="planned_start">2025-03-01</field>
+        <field name="planned_end">2025-04-15</field>
+        <field name="actual_start">2025-03-01</field>
+        <field name="actual_end">2025-04-10</field>
+        <field name="state">done</field>
+        <field name="planned_cost">650000</field>
+        <field name="actual_cost">598000</field>
+        <field name="priority">2</field>
+    </record>
+
+    <record id="demo_wo_bridge_girders" model="construction.work.order">
+        <field name="name">Bridge Girder Installation</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="planned_start">2025-06-01</field>
+        <field name="planned_end">2025-10-31</field>
+        <field name="actual_start">2025-06-10</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">9000000</field>
+        <field name="actual_cost">3500000</field>
+        <field name="priority">2</field>
+    </record>
+
+    <record id="demo_wo_bridge_deck" model="construction.work.order">
+        <field name="name">Bridge Deck Concrete Works</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="planned_start">2025-09-01</field>
+        <field name="planned_end">2026-01-31</field>
+        <field name="state">draft</field>
+        <field name="planned_cost">5500000</field>
+        <field name="actual_cost">0</field>
+        <field name="priority">1</field>
+    </record>
+
+    <!-- Material Requisitions -->
+    <record id="demo_mr_rebar" model="construction.material.requisition">
+        <field name="name">Rebar for Raft Foundation</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="work_order_id" ref="demo_wo_raft"/>
+        <field name="date_requested">2025-03-15</field>
+        <field name="date_required">2025-04-01</field>
+        <field name="state">approved</field>
+        <field name="notes">High tensile steel rebar. Delivery to site in 3 batches.</field>
+    </record>
+
+    <record id="demo_mr_concrete" model="construction.material.requisition">
+        <field name="name">Ready Mix Concrete - Foundation Pour</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="work_order_id" ref="demo_wo_raft"/>
+        <field name="date_requested">2025-04-10</field>
+        <field name="date_required">2025-04-20</field>
+        <field name="state">submitted</field>
+    </record>
+
+    <record id="demo_mr_bridge_steel" model="construction.material.requisition">
+        <field name="name">Pre-stressed Concrete Girders</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="work_order_id" ref="demo_wo_bridge_girders"/>
+        <field name="date_requested">2025-05-01</field>
+        <field name="date_required">2025-05-25</field>
+        <field name="state">received</field>
+        <field name="notes">Pre-stressed girders to be delivered from factory with all certifications.</field>
+    </record>
+
+    <!-- Subcontracts -->
+    <record id="demo_sc_steel" model="construction.subcontract">
+        <field name="name">Structural Steel Fabrication &amp; Erection</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_structure"/>
+        <field name="subcontractor_id" ref="demo_subcontractor_steel"/>
+        <field name="start_date">2025-05-01</field>
+        <field name="end_date">2026-02-28</field>
+        <field name="contract_value">12500000</field>
+        <field name="amount_paid">2000000</field>
+        <field name="retention_percent">10</field>
+        <field name="state">active</field>
+        <field name="scope_of_work">Supply, fabricate, deliver and erect structural steel works including main frame, secondary steel, and connections as per approved drawings.</field>
+        <field name="payment_terms">Monthly progress claims against certified work. 10% retention released at practical completion.</field>
+    </record>
+
+    <record id="demo_sc_mep" model="construction.subcontract">
+        <field name="name">MEP Design and Installation</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_mep"/>
+        <field name="subcontractor_id" ref="demo_subcontractor_mep"/>
+        <field name="start_date">2025-09-01</field>
+        <field name="end_date">2026-09-30</field>
+        <field name="contract_value">18500000</field>
+        <field name="amount_paid">0</field>
+        <field name="retention_percent">10</field>
+        <field name="state">draft</field>
+        <field name="scope_of_work">Full MEP design and installation including HVAC, plumbing, firefighting, ELV, and BMS systems.</field>
+    </record>
+
+    <!-- RA Billing -->
+    <record id="demo_rab_1" model="construction.ra.billing">
+        <field name="name">RA Bill No. 1 - Foundation Works</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="billing_date">2025-03-31</field>
+        <field name="billing_period_start">2025-01-01</field>
+        <field name="billing_period_end">2025-03-31</field>
+        <field name="previous_billed">0</field>
+        <field name="retention_percent">5</field>
+        <field name="state">approved</field>
+        <field name="notes">First running account bill covering piling works and early foundation works.</field>
+    </record>
+
+    <record id="demo_rab_line_1" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_1"/>
+        <field name="boq_line_description">Piling Works - 250 nos RC Piles 600mm dia</field>
+        <field name="work_type">structural</field>
+        <field name="boq_qty">250</field>
+        <field name="qty_previous">0</field>
+        <field name="qty_current">250</field>
+        <field name="unit_rate">12500</field>
+    </record>
+
+    <record id="demo_rab_line_2" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_1"/>
+        <field name="boq_line_description">Site Clearance and Preparation</field>
+        <field name="work_type">civil</field>
+        <field name="boq_qty">5000</field>
+        <field name="qty_previous">0</field>
+        <field name="qty_current">5000</field>
+        <field name="unit_rate">15</field>
+    </record>
+
+    <record id="demo_rab_line_3" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_1"/>
+        <field name="boq_line_description">Excavation for Foundation</field>
+        <field name="work_type">civil</field>
+        <field name="boq_qty">12000</field>
+        <field name="qty_previous">0</field>
+        <field name="qty_current">8500</field>
+        <field name="unit_rate">85</field>
+    </record>
+
+    <!-- Quality Checks -->
+    <record id="demo_qc_piling" model="construction.quality.check">
+        <field name="name">Piling Works Quality Inspection</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="work_order_id" ref="demo_wo_piling"/>
+        <field name="check_date">2025-03-20</field>
+        <field name="check_type">structural</field>
+        <field name="result">pass</field>
+        <field name="state">completed</field>
+        <field name="remarks">All 250 piles completed to design depth. Load tests conducted and passed. All pile integrity tests satisfactory.</field>
+    </record>
+
+    <record id="demo_qc_rebar" model="construction.quality.check">
+        <field name="name">Rebar Inspection - Raft Foundation</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="work_order_id" ref="demo_wo_raft"/>
+        <field name="check_date">2025-04-18</field>
+        <field name="check_type">material</field>
+        <field name="result">conditional</field>
+        <field name="state">completed</field>
+        <field name="remarks">Rebar spacing requires adjustment at pile cap junctions. Minor corrective work required.</field>
+        <field name="corrective_action">Adjust rebar spacing at pile caps per structural engineer instructions. Re-inspect before concrete pour.</field>
+    </record>
+
+    <record id="demo_qc_bridge_girder" model="construction.quality.check">
+        <field name="name">Girder Pre-installation Inspection</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="work_order_id" ref="demo_wo_bridge_girders"/>
+        <field name="check_date">2025-06-08</field>
+        <field name="check_type">material</field>
+        <field name="state">in_progress</field>
+        <field name="remarks">Ongoing inspection of girder delivery and dimension verification.</field>
+    </record>
+
+    <record id="demo_qc_safety" model="construction.quality.check">
+        <field name="name">Site Safety Inspection - Q2 2025</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="check_date">2025-04-30</field>
+        <field name="check_type">safety</field>
+        <field name="result">pass</field>
+        <field name="state">completed</field>
+        <field name="remarks">Quarterly safety audit completed. All personal protective equipment in use. Fall protection systems in place.</field>
+    </record>
+
+    <!-- Expenses -->
+    <record id="demo_exp_equipment" model="construction.expense">
+        <field name="name">Tower Crane Rental - March 2025</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="date">2025-03-31</field>
+        <field name="category_id" ref="expense_category_equipment"/>
+        <field name="amount">285000</field>
+        <field name="partner_id" ref="demo_vendor_equipment"/>
+        <field name="state">approved</field>
+        <field name="description">Monthly rental for 2x tower cranes (Liebherr 280 EC-H). Includes operator and fuel.</field>
+    </record>
+
+    <record id="demo_exp_labour" model="construction.expense">
+        <field name="name">Labour Cost - Piling Gang Q1 2025</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="date">2025-03-31</field>
+        <field name="category_id" ref="expense_category_labour"/>
+        <field name="amount">420000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Labour costs for specialized piling crew for Q1 2025 including overtime.</field>
+    </record>
+
+    <record id="demo_exp_overhead" model="construction.expense">
+        <field name="name">Site Office Setup &amp; Utilities</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="date">2025-01-31</field>
+        <field name="category_id" ref="expense_category_overhead"/>
+        <field name="amount">95000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Site office establishment including containers, furniture, IT equipment, and utility connections.</field>
+    </record>
+
+    <record id="demo_exp_alnoor_steel_progress" model="construction.expense">
+        <field name="name">Structural Steel Subcontract - Progress Payment to Date</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_structure"/>
+        <field name="date">2025-06-15</field>
+        <field name="category_id" ref="expense_category_subcontract"/>
+        <field name="amount">2000000</field>
+        <field name="partner_id" ref="demo_subcontractor_steel"/>
+        <field name="state">approved</field>
+        <field name="description">First interim certificate paid against the structural steel subcontract, matching the contract's amount_paid to date. Billed progressively, not as a lump sum, since the steel works are still in early mobilization (see WBS Structural Works).</field>
+    </record>
+
+    <record id="demo_exp_bridge_equipment" model="construction.expense">
+        <field name="name">Crane Barge Rental - Bridge Works</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="date">2025-06-30</field>
+        <field name="category_id" ref="expense_category_equipment"/>
+        <field name="amount">380000</field>
+        <field name="partner_id" ref="demo_vendor_equipment"/>
+        <field name="state">approved</field>
+        <field name="description">Specialized crane barge for river bridge girder lifting operations.</field>
+    </record>
+
+    <record id="demo_exp_bridge_labour" model="construction.expense">
+        <field name="name">Bridge Crew Labour - Mobilization through Q2 2025</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="date">2025-06-30</field>
+        <field name="category_id" ref="expense_category_labour"/>
+        <field name="amount">4200000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative direct labour costs for the bridge crew from mobilization through Q2 2025.</field>
+    </record>
+
+    <record id="demo_exp_bridge_material" model="construction.expense">
+        <field name="name">Pre-stressed Girders &amp; Bridge Deck Concrete - Materials</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="wbs_id" ref="demo_wbs_bridge_structure"/>
+        <field name="date">2025-06-30</field>
+        <field name="category_id" ref="expense_category_material"/>
+        <field name="amount">6920000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative material costs for pre-stressed girders and bridge deck concrete through Q2 2025.</field>
+    </record>
+
+    <record id="demo_exp_material" model="construction.expense">
+        <field name="name">Concrete Admixtures &amp; Additives</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_foundation"/>
+        <field name="date">2025-04-15</field>
+        <field name="category_id" ref="expense_category_material"/>
+        <field name="amount">68000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Waterproofing admixtures and retarders for raft foundation concrete.</field>
+    </record>
+
+    <!-- Material Requisition Lines -->
+    <record id="demo_mr_rebar_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_rebar"/>
+        <field name="description">Rebar 16mm High Tensile Bars</field>
+        <field name="qty_requested">45000</field>
+        <field name="qty_approved">45000</field>
+        <field name="qty_received">20000</field>
+        <field name="unit_price">3.2</field>
+    </record>
+
+    <record id="demo_mr_rebar_line_2" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_rebar"/>
+        <field name="description">Rebar 12mm High Tensile Bars</field>
+        <field name="qty_requested">28000</field>
+        <field name="qty_approved">28000</field>
+        <field name="qty_received">12000</field>
+        <field name="unit_price">2.95</field>
+    </record>
+
+    <record id="demo_mr_concrete_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_concrete"/>
+        <field name="description">Ready Mix Concrete C40</field>
+        <field name="qty_requested">850</field>
+        <field name="unit_price">420</field>
+    </record>
+
+    <record id="demo_mr_bridge_steel_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_bridge_steel"/>
+        <field name="description">Pre-stressed Concrete Girders 25m Span</field>
+        <field name="qty_requested">48</field>
+        <field name="qty_approved">48</field>
+        <field name="qty_received">48</field>
+        <field name="unit_price">125000</field>
+    </record>
+
+    <!-- Additional Material Requisition - Finishing Stage (draft, no work order yet) -->
+    <record id="demo_mr_tiles" model="construction.material.requisition">
+        <field name="name">Marble Tiles - Lobby &amp; Common Areas</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="date_requested">2026-01-15</field>
+        <field name="date_required">2026-02-15</field>
+        <field name="state">draft</field>
+        <field name="notes">Advance requisition for finishing stage. Awaiting WBS finishing kickoff.</field>
+    </record>
+
+    <record id="demo_mr_tiles_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_tiles"/>
+        <field name="description">Marble Tiles 600x600mm Premium Grade</field>
+        <field name="qty_requested">35000</field>
+        <field name="unit_price">185</field>
+    </record>
+
+    <!-- Additional Work Order - MEP Rough-In (draft, precedes MEP subcontract mobilization) -->
+    <record id="demo_wo_mep_rough_in" model="construction.work.order">
+        <field name="name">MEP Rough-In Works - Levels B2 to L10</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="wbs_id" ref="demo_wbs_mep"/>
+        <field name="planned_start">2025-09-15</field>
+        <field name="planned_end">2026-03-31</field>
+        <field name="state">draft</field>
+        <field name="planned_cost">6500000</field>
+        <field name="actual_cost">0</field>
+        <field name="priority">1</field>
+        <field name="description">MEP containment, conduit and rough-in works ahead of fit-out, coordinated with the MEP subcontract.</field>
+    </record>
+
+    <!-- RA Bill No. 2 - demonstrates BOQ-linked cumulative quantity tracking against RA Bill No. 1 -->
+    <record id="demo_rab_2" model="construction.ra.billing">
+        <field name="name">RA Bill No. 2 - Raft Foundation Progress</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="billing_date">2025-06-30</field>
+        <field name="billing_period_start">2025-04-01</field>
+        <field name="billing_period_end">2025-06-30</field>
+        <field name="previous_billed">0</field>
+        <field name="retention_percent">5</field>
+        <field name="state">approved</field>
+        <field name="notes">Second running account bill covering completion of excavation and raft foundation progress. Lines are period-incremental (qty_current), so previous_billed stays 0 here, same as RA Bill No. 1.</field>
+    </record>
+
+    <record id="demo_rab_2_line_1" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_2"/>
+        <field name="boq_line_id" ref="demo_boq_line_2"/>
+        <field name="boq_line_description">Excavation for Foundation (Pile Caps)</field>
+        <field name="work_type">civil</field>
+        <field name="boq_qty">12000</field>
+        <field name="qty_previous">8500</field>
+        <field name="qty_current">3500</field>
+        <field name="unit_rate">85</field>
+    </record>
+
+    <record id="demo_rab_2_line_2" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_2"/>
+        <field name="boq_line_id" ref="demo_boq_line_4"/>
+        <field name="boq_line_description">RC Raft Foundation 1200mm thick</field>
+        <field name="work_type">structural</field>
+        <field name="boq_qty">3500</field>
+        <field name="qty_previous">0</field>
+        <field name="qty_current">1400</field>
+        <field name="unit_rate">650</field>
+    </record>
+
+    <!-- Progress Billing - Bridge project (alternate billing method vs RA Billing on Al Noor) -->
+    <record id="demo_progress_billing_bridge" model="construction.progress.billing">
+        <field name="name">Progress Billing - Q2 2025</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="billing_date">2025-06-30</field>
+        <field name="percent_complete">35</field>
+        <field name="amount_previously_billed">0</field>
+        <field name="state">draft</field>
+        <field name="notes">Earned-value progress claim for Q2 2025, covering mobilization completion and early bridge structural works.</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- PROJECT 3: Marina Heights Business Tower - CRITICAL SCENARIO -->
+    <!-- Overdue, over-exposed on subcontractor costs, and revenue    -->
+    <!-- billing actively BLOCKED by the system's quality gate after  -->
+    <!-- a failed structural inspection - exactly the kind of cross-  -->
+    <!-- functional hold a spreadsheet would never catch in time.     -->
+    <!-- ============================================================ -->
+
+    <record id="demo_client_marina" model="res.partner">
+        <field name="name">Marina Heights Holding LLC</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">developments@marinaheights.ae</field>
+        <field name="phone">+971 4 789 1122</field>
+    </record>
+
+    <record id="demo_subcontractor_civil" model="res.partner">
+        <field name="name">Desert Crane &amp; Civil Works LLC</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">contracts@desertcrane.ae</field>
+    </record>
+
+    <record id="demo_project_marina" model="construction.project">
+        <field name="name">Marina Heights Business Tower - Commercial Office Complex</field>
+        <field name="client_id" ref="demo_client_marina"/>
+        <field name="location">Business Bay, Dubai, UAE</field>
+        <field name="latitude">25.1850</field>
+        <field name="longitude">55.2630</field>
+        <field name="emirate">dubai</field>
+        <field name="start_date">2024-06-01</field>
+        <field name="end_date">2025-12-31</field>
+        <field name="contract_value">65000000</field>
+        <field name="state">active</field>
+        <field name="description">28-storey Grade-A commercial office tower. Now past its contractual completion date: the civil subcontractor was terminated mid-structure, a failed structural inspection has the system blocking all client billing until remediation is signed off, and remedial costs are accumulating with no matching revenue recognized - a live cash-flow risk a manual tracker would surface only after the damage is done.</field>
+    </record>
+
+    <record id="demo_wbs_marina_foundation" model="construction.wbs">
+        <field name="name">Foundation &amp; Substructure</field>
+        <field name="code">MHT-01</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="sequence">10</field>
+        <field name="planned_start">2024-06-01</field>
+        <field name="planned_end">2024-11-30</field>
+        <field name="actual_start">2024-06-05</field>
+        <field name="actual_end">2024-12-20</field>
+        <field name="progress">100</field>
+        <field name="state">completed</field>
+        <field name="planned_cost">12000000</field>
+    </record>
+
+    <record id="demo_wbs_marina_structure" model="construction.wbs">
+        <field name="name">Structural Frame</field>
+        <field name="code">MHT-02</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="sequence">20</field>
+        <field name="planned_start">2024-12-01</field>
+        <field name="planned_end">2025-08-31</field>
+        <field name="actual_start">2025-01-10</field>
+        <field name="progress">55</field>
+        <field name="state">delayed</field>
+        <field name="planned_cost">25000000</field>
+        <field name="notes">Stalled after subcontractor termination and a failed concrete inspection on columns L8-L12. Re-tender for remaining structural scope in progress.</field>
+    </record>
+
+    <record id="demo_wbs_marina_mep" model="construction.wbs">
+        <field name="name">MEP &amp; Facade</field>
+        <field name="code">MHT-03</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="sequence">30</field>
+        <field name="planned_start">2025-06-01</field>
+        <field name="planned_end">2026-03-31</field>
+        <field name="progress">0</field>
+        <field name="state">planned</field>
+        <field name="planned_cost">18000000</field>
+    </record>
+
+    <record id="demo_boq_marina" model="construction.boq">
+        <field name="name">Main BOQ - Marina Heights Tower</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="date">2024-06-10</field>
+        <field name="state">approved</field>
+    </record>
+
+    <record id="demo_boq_marina_line_1" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_marina"/>
+        <field name="sequence">10</field>
+        <field name="item_no">A.1</field>
+        <field name="description">Piling &amp; Foundation Works</field>
+        <field name="work_type">civil</field>
+        <field name="qty">180</field>
+        <field name="unit_rate">11000</field>
+    </record>
+
+    <record id="demo_boq_marina_line_2" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_marina"/>
+        <field name="sequence">20</field>
+        <field name="item_no">B.1</field>
+        <field name="description">RC Structural Frame - Levels B2 to L28</field>
+        <field name="work_type">structural</field>
+        <field name="qty">9500</field>
+        <field name="unit_rate">680</field>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+    </record>
+
+    <record id="demo_boq_marina_line_3" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_marina"/>
+        <field name="sequence">30</field>
+        <field name="item_no">C.1</field>
+        <field name="description">Curtain Wall Facade System</field>
+        <field name="work_type">finishing</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">9800000</field>
+    </record>
+
+    <record id="demo_boq_marina_line_4" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_marina"/>
+        <field name="sequence">40</field>
+        <field name="item_no">D.1</field>
+        <field name="description">MEP Core &amp; Riser Systems</field>
+        <field name="work_type">plumbing</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">5200000</field>
+    </record>
+
+    <record id="demo_wo_marina_piling" model="construction.work.order">
+        <field name="name">Piling &amp; Foundation Works</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_foundation"/>
+        <field name="planned_start">2024-06-01</field>
+        <field name="planned_end">2024-11-30</field>
+        <field name="actual_start">2024-06-05</field>
+        <field name="actual_end">2024-12-20</field>
+        <field name="state">done</field>
+        <field name="planned_cost">1980000</field>
+        <field name="actual_cost">2150000</field>
+        <field name="priority">1</field>
+    </record>
+
+    <record id="demo_wo_marina_columns" model="construction.work.order">
+        <field name="name">Structural Columns - Levels L8 to L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="planned_start">2025-02-01</field>
+        <field name="planned_end">2025-05-31</field>
+        <field name="actual_start">2025-02-05</field>
+        <field name="state">in_progress</field>
+        <field name="planned_cost">5000000</field>
+        <field name="actual_cost">6800000</field>
+        <field name="priority">2</field>
+        <field name="description">Cost overrun under active investigation: concrete cylinder tests failed on levels L8-L12, triggering remedial demolition and recast.</field>
+    </record>
+
+    <record id="demo_wo_marina_steel_erection" model="construction.work.order">
+        <field name="name">Structural Steel Erection - Upper Floors</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="planned_start">2025-06-01</field>
+        <field name="planned_end">2025-10-31</field>
+        <field name="state">cancelled</field>
+        <field name="planned_cost">8200000</field>
+        <field name="actual_cost">0</field>
+        <field name="priority">2</field>
+        <field name="description">Cancelled following civil subcontractor termination. Scope to be re-tendered once structural remediation is signed off.</field>
+    </record>
+
+    <record id="demo_wo_marina_rework" model="construction.work.order">
+        <field name="name">Remedial Demolition &amp; Recast - Columns L8-L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="planned_start">2026-05-01</field>
+        <field name="planned_end">2026-07-31</field>
+        <field name="state">confirmed</field>
+        <field name="planned_cost">540000</field>
+        <field name="actual_cost">0</field>
+        <field name="priority">2</field>
+        <field name="description">Corrective work order raised directly from the failed structural quality check. Quality clearance on this work order is the precondition for lifting the project-wide billing hold.</field>
+    </record>
+
+    <record id="demo_qc_marina_concrete_fail" model="construction.quality.check">
+        <field name="name">Concrete Cylinder Test - Columns L8-L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="work_order_id" ref="demo_wo_marina_columns"/>
+        <field name="check_date">2025-05-12</field>
+        <field name="check_type">structural</field>
+        <field name="result">fail</field>
+        <field name="state">failed</field>
+        <field name="remarks">28-day cylinder strength results below design grade C40 on 6 of 9 sample sets. Visible honeycombing observed on column faces at L9 and L11.</field>
+        <field name="corrective_action">Demolish and recast affected column sections per structural engineer's instruction. All client billing on this project is held until this check is re-inspected and passed.</field>
+    </record>
+
+    <record id="demo_qc_marina_reinspection" model="construction.quality.check">
+        <field name="name">Re-inspection - Columns L8-L12 Remedial Works</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="work_order_id" ref="demo_wo_marina_rework"/>
+        <field name="check_date">2026-06-15</field>
+        <field name="check_type">structural</field>
+        <field name="state">in_progress</field>
+        <field name="remarks">Re-inspection scheduled following remedial recast. The original failed check remains on record and continues to block invoicing until formally closed.</field>
+    </record>
+
+    <record id="demo_qc_marina_safety" model="construction.quality.check">
+        <field name="name">Site Safety Audit - Q2 2025</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="check_date">2025-05-15</field>
+        <field name="check_type">safety</field>
+        <field name="result">conditional</field>
+        <field name="state">completed</field>
+        <field name="remarks">Minor PPE non-compliance at the remedial works zone. Corrected on the same day.</field>
+        <field name="corrective_action">Toolbox talk delivered; PPE compliance re-checked and confirmed within 24 hours.</field>
+    </record>
+
+    <record id="demo_sc_marina_civil" model="construction.subcontract">
+        <field name="name">Civil &amp; Structural Subcontract (Terminated)</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="subcontractor_id" ref="demo_subcontractor_civil"/>
+        <field name="start_date">2024-06-01</field>
+        <field name="end_date">2025-04-30</field>
+        <field name="contract_value">22000000</field>
+        <field name="amount_paid">9500000</field>
+        <field name="retention_percent">10</field>
+        <field name="state">terminated</field>
+        <field name="scope_of_work">Civil and structural concrete works for the full tower frame.</field>
+        <field name="payment_terms">Terminated for performance default after the L8-L12 structural failure. Final account in dispute; no settlement invoice raised pending legal review.</field>
+    </record>
+
+    <record id="demo_mr_marina_rework" model="construction.material.requisition">
+        <field name="name">16mm Rebar Replacement - Columns L8-L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="work_order_id" ref="demo_wo_marina_rework"/>
+        <field name="date_requested">2026-04-20</field>
+        <field name="date_required">2026-05-05</field>
+        <field name="state">approved</field>
+        <field name="notes">Replacement reinforcement for the demolish-and-recast remedial scope.</field>
+    </record>
+
+    <record id="demo_mr_marina_rework_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_marina_rework"/>
+        <field name="description">Rebar 16mm High Tensile Bars - Remedial</field>
+        <field name="qty_requested">8000</field>
+        <field name="qty_approved">8000</field>
+        <field name="qty_received">8000</field>
+        <field name="unit_price">3.3</field>
+    </record>
+
+    <record id="demo_rab_marina_1" model="construction.ra.billing">
+        <field name="name">RA Bill No. 1 - Structural Works (Quality Hold)</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="billing_date">2025-05-31</field>
+        <field name="billing_period_start">2025-01-01</field>
+        <field name="billing_period_end">2025-05-31</field>
+        <field name="previous_billed">0</field>
+        <field name="retention_percent">5</field>
+        <field name="state">approved</field>
+        <field name="notes">Drafted and approved internally, but cannot be invoiced: the system blocks invoice creation while a failed quality check is open on this project. Left in this state intentionally to demonstrate the billing gate.</field>
+    </record>
+
+    <record id="demo_rab_marina_line_1" model="construction.ra.billing.line">
+        <field name="billing_id" ref="demo_rab_marina_1"/>
+        <field name="boq_line_id" ref="demo_boq_marina_line_2"/>
+        <field name="boq_line_description">RC Structural Frame - Levels B2 to L28</field>
+        <field name="work_type">structural</field>
+        <field name="boq_qty">9500</field>
+        <field name="qty_previous">0</field>
+        <field name="qty_current">5200</field>
+        <field name="unit_rate">680</field>
+    </record>
+
+    <record id="demo_exp_marina_subcontract_progress" model="construction.expense">
+        <field name="name">Civil Subcontract - Progress Payments to Date (Pre-Termination)</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="date">2025-04-30</field>
+        <field name="category_id" ref="expense_category_subcontract"/>
+        <field name="amount">9500000</field>
+        <field name="partner_id" ref="demo_subcontractor_civil"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative progress payments made to the civil subcontractor before termination. Booked as cost even though the corresponding client billing is on hold.</field>
+    </record>
+
+    <record id="demo_exp_marina_legal" model="construction.expense">
+        <field name="name">Legal &amp; Dispute Resolution Fees - Subcontractor Termination</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="date">2025-05-20</field>
+        <field name="category_id" ref="expense_category_other"/>
+        <field name="amount">320000</field>
+        <field name="partner_id" ref="demo_vendor_legal"/>
+        <field name="state">approved</field>
+        <field name="description">Legal fees for termination notice, final account dispute, and contract claim defense.</field>
+    </record>
+
+    <record id="demo_exp_marina_rework" model="construction.expense">
+        <field name="name">Remedial Concrete Rework - Columns L8-L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="wbs_id" ref="demo_wbs_marina_structure"/>
+        <field name="date">2026-05-25</field>
+        <field name="category_id" ref="expense_category_material"/>
+        <field name="amount">540000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Materials and direct labour for demolition and recast of the failed column sections.</field>
+    </record>
+
+    <record id="demo_exp_marina_equipment_rejected" model="construction.expense">
+        <field name="name">Standby Crane Rental Claim - April 2025</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="date">2025-04-28</field>
+        <field name="category_id" ref="expense_category_equipment"/>
+        <field name="amount">145000</field>
+        <field name="partner_id" ref="demo_vendor_equipment"/>
+        <field name="state">rejected</field>
+        <field name="description">Crane standby charges claimed during the work stoppage following termination.</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- PROJECT 4: Al Khail Logistics Warehouse - HEALTHY BENCHMARK  -->
+    <!-- Closed-out project: on time, on budget, zero open NCRs - the -->
+    <!-- "control" project the dashboard's RAG status can be measured -->
+    <!-- against next to the troubled Marina Heights scenario.        -->
+    <!-- ============================================================ -->
+
+    <record id="demo_client_alkhail" model="res.partner">
+        <field name="name">Al Khail Logistics Co. LLC</field>
+        <field name="is_company" eval="True"/>
+        <field name="email">projects@alkhaillogistics.ae</field>
+        <field name="phone">+971 4 334 5566</field>
+    </record>
+
+    <record id="demo_project_alkhail" model="construction.project">
+        <field name="name">Al Khail Logistics Warehouse Complex</field>
+        <field name="client_id" ref="demo_client_alkhail"/>
+        <field name="location">Al Khail Industrial Zone, Dubai, UAE</field>
+        <field name="latitude">25.0950</field>
+        <field name="longitude">55.1850</field>
+        <field name="emirate">dubai</field>
+        <field name="start_date">2024-02-01</field>
+        <field name="end_date">2025-05-31</field>
+        <field name="contract_value">28000000</field>
+        <field name="state">completed</field>
+        <field name="description">Design-build logistics and warehousing facility. Delivered on schedule, on budget, with zero open non-conformances at handover - the benchmark project against which the troubled portfolio entries are compared on the dashboard.</field>
+    </record>
+
+    <record id="demo_boq_alkhail" model="construction.boq">
+        <field name="name">Main BOQ - Al Khail Warehouse</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="date">2024-02-05</field>
+        <field name="state">approved</field>
+    </record>
+
+    <record id="demo_boq_alkhail_line_1" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alkhail"/>
+        <field name="sequence">10</field>
+        <field name="item_no">A.1</field>
+        <field name="description">Site Works &amp; Foundation Slab</field>
+        <field name="work_type">civil</field>
+        <field name="qty">42000</field>
+        <field name="unit_rate">95</field>
+    </record>
+
+    <record id="demo_boq_alkhail_line_2" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alkhail"/>
+        <field name="sequence">20</field>
+        <field name="item_no">B.1</field>
+        <field name="description">Structural Steel Frame &amp; Purlins</field>
+        <field name="work_type">structural</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">11000000</field>
+    </record>
+
+    <record id="demo_boq_alkhail_line_3" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alkhail"/>
+        <field name="sequence">30</field>
+        <field name="item_no">C.1</field>
+        <field name="description">Insulated Cladding &amp; Roofing</field>
+        <field name="work_type">finishing</field>
+        <field name="qty">38000</field>
+        <field name="unit_rate">120</field>
+    </record>
+
+    <record id="demo_boq_alkhail_line_4" model="construction.boq.line">
+        <field name="boq_id" ref="demo_boq_alkhail"/>
+        <field name="sequence">40</field>
+        <field name="item_no">D.1</field>
+        <field name="description">Dock Levellers, Racking Infrastructure &amp; Fit-Out</field>
+        <field name="work_type">other</field>
+        <field name="qty">1</field>
+        <field name="unit_rate">3500000</field>
+    </record>
+
+    <record id="demo_wbs_alkhail_civil" model="construction.wbs">
+        <field name="name">Site Works &amp; Foundation</field>
+        <field name="code">AKW-01</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="sequence">10</field>
+        <field name="planned_start">2024-02-01</field>
+        <field name="planned_end">2024-07-31</field>
+        <field name="actual_start">2024-02-03</field>
+        <field name="actual_end">2024-07-20</field>
+        <field name="progress">100</field>
+        <field name="state">completed</field>
+        <field name="planned_cost">9000000</field>
+    </record>
+
+    <record id="demo_wbs_alkhail_steel" model="construction.wbs">
+        <field name="name">Structural Steel &amp; Envelope</field>
+        <field name="code">AKW-02</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="sequence">20</field>
+        <field name="planned_start">2024-06-01</field>
+        <field name="planned_end">2024-11-30</field>
+        <field name="actual_start">2024-06-05</field>
+        <field name="actual_end">2024-11-15</field>
+        <field name="progress">100</field>
+        <field name="state">completed</field>
+        <field name="planned_cost">11000000</field>
+    </record>
+
+    <record id="demo_wbs_alkhail_fitout" model="construction.wbs">
+        <field name="name">Fit-Out &amp; Handover</field>
+        <field name="code">AKW-03</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="sequence">30</field>
+        <field name="planned_start">2024-11-01</field>
+        <field name="planned_end">2025-05-31</field>
+        <field name="actual_start">2024-11-05</field>
+        <field name="actual_end">2025-05-25</field>
+        <field name="progress">100</field>
+        <field name="state">completed</field>
+        <field name="planned_cost">6500000</field>
+    </record>
+
+    <record id="demo_wo_alkhail_foundation" model="construction.work.order">
+        <field name="name">Foundation Slab &amp; Site Works</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="wbs_id" ref="demo_wbs_alkhail_civil"/>
+        <field name="planned_start">2024-02-01</field>
+        <field name="planned_end">2024-07-31</field>
+        <field name="actual_start">2024-02-03</field>
+        <field name="actual_end">2024-07-20</field>
+        <field name="state">done</field>
+        <field name="planned_cost">8000000</field>
+        <field name="actual_cost">7820000</field>
+        <field name="priority">0</field>
+    </record>
+
+    <record id="demo_wo_alkhail_steel_erection" model="construction.work.order">
+        <field name="name">Structural Steel Erection</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="wbs_id" ref="demo_wbs_alkhail_steel"/>
+        <field name="planned_start">2024-06-01</field>
+        <field name="planned_end">2024-11-30</field>
+        <field name="actual_start">2024-06-05</field>
+        <field name="actual_end">2024-11-15</field>
+        <field name="state">done</field>
+        <field name="planned_cost">6800000</field>
+        <field name="actual_cost">6650000</field>
+        <field name="priority">0</field>
+    </record>
+
+    <record id="demo_wo_alkhail_fitout" model="construction.work.order">
+        <field name="name">Dock Levellers, Racking &amp; Fit-Out</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="wbs_id" ref="demo_wbs_alkhail_fitout"/>
+        <field name="planned_start">2024-11-01</field>
+        <field name="planned_end">2025-05-31</field>
+        <field name="actual_start">2024-11-05</field>
+        <field name="actual_end">2025-05-25</field>
+        <field name="state">done</field>
+        <field name="planned_cost">3200000</field>
+        <field name="actual_cost">3180000</field>
+        <field name="priority">0</field>
+    </record>
+
+    <record id="demo_qc_alkhail_final" model="construction.quality.check">
+        <field name="name">Final Handover Inspection</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="wbs_id" ref="demo_wbs_alkhail_fitout"/>
+        <field name="work_order_id" ref="demo_wo_alkhail_fitout"/>
+        <field name="check_date">2025-05-25</field>
+        <field name="check_type">final</field>
+        <field name="result">pass</field>
+        <field name="state">completed</field>
+        <field name="remarks">Final handover inspection passed with zero defects and zero open non-conformances. Project closed out clean.</field>
+    </record>
+
+    <record id="demo_sc_alkhail_steel" model="construction.subcontract">
+        <field name="name">Structural Steel Supply &amp; Erection</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="wbs_id" ref="demo_wbs_alkhail_steel"/>
+        <field name="subcontractor_id" ref="demo_subcontractor_steel"/>
+        <field name="start_date">2024-06-01</field>
+        <field name="end_date">2024-11-30</field>
+        <field name="contract_value">10500000</field>
+        <field name="amount_paid">10500000</field>
+        <field name="retention_percent">5</field>
+        <field name="state">active</field>
+        <field name="scope_of_work">Supply, fabricate, deliver and erect structural steel frame and purlins for the warehouse envelope.</field>
+        <field name="payment_terms">Paid in full at practical completion. Retention released after the defects liability period.</field>
+    </record>
+
+    <record id="demo_mr_alkhail_steel" model="construction.material.requisition">
+        <field name="name">Structural Steel Purlins &amp; Cladding Sheets</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="work_order_id" ref="demo_wo_alkhail_steel_erection"/>
+        <field name="date_requested">2024-09-01</field>
+        <field name="date_required">2024-09-20</field>
+        <field name="state">received</field>
+    </record>
+
+    <record id="demo_mr_alkhail_steel_line_1" model="construction.material.requisition.line">
+        <field name="requisition_id" ref="demo_mr_alkhail_steel"/>
+        <field name="description">Steel Purlins &amp; Insulated Cladding Sheets</field>
+        <field name="qty_requested">5200</field>
+        <field name="qty_approved">5200</field>
+        <field name="qty_received">5200</field>
+        <field name="unit_price">145</field>
+    </record>
+
+    <record id="demo_progress_billing_alkhail" model="construction.progress.billing">
+        <field name="name">Progress Billing - Final Account</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="billing_date">2025-05-31</field>
+        <field name="percent_complete">100</field>
+        <field name="amount_previously_billed">22000000</field>
+        <field name="state">draft</field>
+        <field name="notes">Final earned-value claim closing out the contract at 100% completion against prior billings to date.</field>
+    </record>
+
+    <record id="demo_exp_alkhail_equipment" model="construction.expense">
+        <field name="name">Crane &amp; Equipment Mobilization - Full Project Cycle</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="date">2025-05-30</field>
+        <field name="category_id" ref="expense_category_equipment"/>
+        <field name="amount">410000</field>
+        <field name="partner_id" ref="demo_vendor_equipment"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative crane and equipment mobilization/demobilization costs across the project lifecycle.</field>
+    </record>
+
+    <record id="demo_exp_alkhail_labour" model="construction.expense">
+        <field name="name">Site Labour - Full Project Cycle</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="date">2025-05-30</field>
+        <field name="category_id" ref="expense_category_labour"/>
+        <field name="amount">1850000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative direct labour costs from site mobilization through handover.</field>
+    </record>
+
+    <record id="demo_exp_alkhail_material" model="construction.expense">
+        <field name="name">Steel &amp; Cladding Materials - Full Project Cycle</field>
+        <field name="project_id" ref="demo_project_alkhail"/>
+        <field name="date">2025-05-30</field>
+        <field name="category_id" ref="expense_category_material"/>
+        <field name="amount">3200000</field>
+        <field name="partner_id" ref="demo_vendor_supplies"/>
+        <field name="state">approved</field>
+        <field name="description">Cumulative structural and envelope material costs across the project lifecycle.</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- HSE Incidents, Transmittals & Documents - so the HSE,         -->
+    <!-- Document Management, and Transmittal dashboard widgets have  -->
+    <!-- real sample data instead of rendering empty on a fresh demo  -->
+    <!-- install.                                                     -->
+    <!-- ============================================================ -->
+
+    <record id="demo_hse_near_miss" model="construction.hse.incident">
+        <field name="name">Near Miss - Unsecured Scaffold Plank, Level 9</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="date" eval="DateTime.now() - relativedelta(days=18)"/>
+        <field name="incident_type">near_miss</field>
+        <field name="severity">medium</field>
+        <field name="description">Loose scaffold plank found unsecured on Level 9 during routine walk-around. No injury occurred; area cordoned off immediately.</field>
+        <field name="corrective_action">Plank re-secured and scaffold tag re-inspected. Toolbox talk delivered to the scaffolding crew on tagging procedure.</field>
+        <field name="status">closed</field>
+    </record>
+
+    <record id="demo_hse_tbt" model="construction.hse.incident">
+        <field name="name">Toolbox Talk - Working at Height</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="date" eval="DateTime.now() - relativedelta(days=7)"/>
+        <field name="incident_type">tbt</field>
+        <field name="severity">low</field>
+        <field name="description">Weekly toolbox talk covering working-at-height procedures, harness inspection, and fall-arrest anchor points ahead of structural works mobilization.</field>
+        <field name="status">closed</field>
+    </record>
+
+    <record id="demo_hse_marina_lti" model="construction.hse.incident">
+        <field name="name">Lost Time Injury - Hand Laceration During Formwork Strip</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="date" eval="DateTime.now() - relativedelta(days=40)"/>
+        <field name="incident_type">lti</field>
+        <field name="severity">high</field>
+        <field name="description">Worker sustained a hand laceration while stripping formwork on the remedial recast at columns L8-L12. Treated on-site then referred to clinic; one day lost.</field>
+        <field name="corrective_action">Edge protection added to formwork panels. Crew re-briefed on PPE (cut-resistant gloves) compliance before resuming strip-out.</field>
+        <field name="status">investigating</field>
+    </record>
+
+    <record id="demo_doc_dwg_alnoor" model="construction.document">
+        <field name="name">Structural Drawings - Foundation Level Issue 3</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="category">DWG</field>
+        <field name="status">approved</field>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=60)).date()"/>
+    </record>
+
+    <record id="demo_doc_method_statement" model="construction.document">
+        <field name="name">Method Statement - Raft Foundation Concrete Pour</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="category">WMS</field>
+        <field name="status">approved</field>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=45)).date()"/>
+    </record>
+
+    <record id="demo_doc_ncr_marina" model="construction.document">
+        <field name="name">NCR - Concrete Cylinder Test Failure Columns L8-L12</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="category">NCR</field>
+        <field name="status">issued</field>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=30)).date()"/>
+    </record>
+
+    <record id="demo_doc_boq_bridge" model="construction.document">
+        <field name="name">Approved BOQ - Bridge Expansion</field>
+        <field name="project_id" ref="demo_project_bridge"/>
+        <field name="category">BOQ</field>
+        <field name="status">approved</field>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=90)).date()"/>
+    </record>
+
+    <record id="demo_transmittal_dwg_alnoor" model="construction.transmittal">
+        <field name="name">Issue of Foundation Drawings Rev 3 for Construction</field>
+        <field name="project_id" ref="demo_project_alnoor"/>
+        <field name="recipient_id" ref="demo_subcontractor_steel"/>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=58)).date()"/>
+        <field name="state">acknowledged</field>
+        <field name="document_ids" eval="[(4, ref('demo_doc_dwg_alnoor'))]"/>
+        <field name="remarks">Issued for construction following structural sign-off.</field>
+    </record>
+
+    <record id="demo_transmittal_ncr_marina" model="construction.transmittal">
+        <field name="name">NCR Notification - Columns L8-L12 Concrete Failure</field>
+        <field name="project_id" ref="demo_project_marina"/>
+        <field name="recipient_id" ref="demo_subcontractor_civil"/>
+        <field name="issue_date" eval="(DateTime.now() - relativedelta(days=29)).date()"/>
+        <field name="state">received</field>
+        <field name="document_ids" eval="[(4, ref('demo_doc_ncr_marina'))]"/>
+        <field name="remarks">Formal notice of non-conformance requiring remedial action plan within 5 working days.</field>
+    </record>
+
+    </data>
+</odoo>

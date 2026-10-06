@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="sgc_meeting_ai_group_user" model="res.groups">
+            <field name="name">SGC Meeting AI / User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+        </record>
+        <record id="sgc_meeting_ai_group_manager" model="res.groups">
+            <field name="name">SGC Meeting AI / Manager</field>
+            <field name="implied_ids" eval="[(4, ref('sgc_meeting_ai_group_user'))]" />
+            <field name="user_ids" eval="[(4, ref('base.user_admin'))]" />
+        </record>
+    </data>
+</odoo>

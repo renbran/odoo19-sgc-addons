@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- =============================================================
+             Scheduled Report Config — tree view
+             ============================================================= -->
+        <record id="view_crm_dashboard_report_config_tree" model="ir.ui.view">
+            <field name="name">crm.dashboard.report.config.tree</field>
+            <field name="model">crm.dashboard.report.config</field>
+            <field name="arch" type="xml">
+                <list string="Scheduled Reports"
+                      decoration-muted="state=='paused'"
+                      decoration-success="state=='active' and last_run">
+                    <field name="name"/>
+                    <field name="frequency"/>
+                    <field name="export_format"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state=='active'"
+                           decoration-muted="state=='paused'"/>
+                    <field name="next_run"/>
+                    <field name="last_run"/>
+                    <field name="run_count"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Scheduled Report Config — form view
+             ============================================================= -->
+        <record id="view_crm_dashboard_report_config_form" model="ir.ui.view">
+            <field name="name">crm.dashboard.report.config.form</field>
+            <field name="model">crm.dashboard.report.config</field>
+            <field name="arch" type="xml">
+                <form string="Scheduled Report">
+                    <header>
+                        <button name="action_run_now" type="object"
+                                string="Run Now" class="btn-primary"
+                                icon="fa-play"
+                                confirm="Run this report and email the file to all recipients?"/>
+                        <button name="action_activate" type="object"
+                                string="Activate"
+                                class="btn-success"
+                                invisible="state=='active'"
+                                icon="fa-check"/>
+                        <button name="action_pause" type="object"
+                                string="Pause"
+                                class="btn-warning"
+                                invisible="state=='paused'"
+                                icon="fa-pause"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="active,paused"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1><field name="name" placeholder="e.g. Weekly Executive Summary"/></h1>
+                        </div>
+                        <group>
+                            <group string="Schedule" name="schedule">
+                                <field name="frequency"/>
+                                <field name="day_of_week"
+                                       invisible="frequency!='weekly'"
+                                       required="frequency=='weekly'"/>
+                                <field name="day_of_month"
+                                       invisible="frequency!='monthly'"
+                                       required="frequency=='monthly'"/>
+                                <field name="hour" widget="float_time"/>
+                                <field name="minute"/>
+                            </group>
+                            <group string="Output" name="output">
+                                <field name="export_format"/>
+                                <field name="recipients" widget="char"
+                                       placeholder="ceo@example.com, cmo@example.com"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Filter" name="filter">
+                                <field name="filter_dict"
+                                       widget="ace"
+                                       options="{'mode': 'json', 'theme': 'monokai'}"
+                                       placeholder='{"period": "last_30_days"}'/>
+                                <p class="text-muted mt-2">
+                                    Allowed keys:
+                                    <code>period</code>,
+                                    <code>date_from</code>,
+                                    <code>date_to</code>,
+                                    <code>user_id</code>,
+                                    <code>team_id</code>,
+                                    <code>source_id</code>,
+                                    <code>stage_id</code>,
+                                    <code>company_id</code>
+                                </p>
+                            </page>
+                            <page string="Description" name="description">
+                                <field name="description" placeholder="What is this report for?"/>
+                            </page>
+                            <page string="Schedule Details" name="schedule_details">
+                                <group>
+                                    <field name="next_run" readonly="1"/>
+                                    <field name="last_run" readonly="1"/>
+                                    <field name="run_count" readonly="1"/>
+                                </group>
+                            </page>
+                            <page string="Run History" name="history">
+                                <field name="run_history_ids" readonly="1" nolabel="1">
+                                    <list decoration-danger="state=='failed'"
+                                          decoration-success="state=='sent'">
+                                        <field name="run_at"/>
+                                        <field name="state" widget="badge"
+                                               decoration-success="state=='sent'"
+                                               decoration-danger="state=='failed'"/>
+                                        <field name="manual" widget="boolean"/>
+                                        <field name="filename"/>
+                                        <field name="file_size"/>
+                                        <field name="recipients"/>
+                                        <field name="error_message"
+                                               invisible="state!='failed'"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Scheduled Report Config — search
+             ============================================================= -->
+        <record id="view_crm_dashboard_report_config_search" model="ir.ui.view">
+            <field name="name">crm.dashboard.report.config.search</field>
+            <field name="model">crm.dashboard.report.config</field>
+            <field name="arch" type="xml">
+                <search string="Scheduled Reports">
+                    <field name="name"/>
+                    <field name="frequency"/>
+                    <field name="export_format"/>
+                    <field name="state"/>
+                    <filter name="active" string="Active"
+                            domain="[('state', '=', 'active')]"/>
+                    <filter name="paused" string="Paused"
+                            domain="[('state', '=', 'paused')]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Scheduled Report Run — tree (read-only history)
+             ============================================================= -->
+        <record id="view_crm_dashboard_report_run_tree" model="ir.ui.view">
+            <field name="name">crm.dashboard.report.run.tree</field>
+            <field name="model">crm.dashboard.report.run</field>
+            <field name="arch" type="xml">
+                <list string="Report Runs"
+                      decoration-danger="state=='failed'"
+                      decoration-success="state=='sent'">
+                    <field name="config_id"/>
+                    <field name="run_at"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state=='sent'"
+                           decoration-danger="state=='failed'"/>
+                    <field name="manual" widget="boolean"/>
+                    <field name="filename"/>
+                    <field name="file_size"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             PDF export template (printed by wkhtmltopdf)
+             Self-contained HTML — no external assets — so wkhtmltopdf
+             can render it without a network. Brand colours are inline.
+             ============================================================= -->
+        <template id="dashboard_pdf_template" name="CRM Dashboard PDF Export">
+            <html>
+            <head>
+                <meta charset="utf-8"/>
+                <title>CRM Executive Dashboard</title>
+                <style>
+                    @page { size: A4 landscape; margin: 10mm; }
+                    body {
+                        font-family: "Helvetica", "Arial", sans-serif;
+                        color: #13294B;
+                        font-size: 10pt;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    h1 {
+                        color: #0B1F3A;
+                        font-size: 20pt;
+                        margin: 0 0 4pt 0;
+                        border-bottom: 2pt solid #A37C27;
+                        padding-bottom: 4pt;
+                    }
+                    h2 {
+                        color: #0B1F3A;
+                        font-size: 12pt;
+                        margin: 14pt 0 4pt 0;
+                        border-bottom: 1pt solid #D8C08C;
+                        padding-bottom: 2pt;
+                    }
+                    .meta {
+                        color: #757575;
+                        font-size: 8pt;
+                        margin-bottom: 8pt;
+                    }
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                        font-size: 8.5pt;
+                        margin-bottom: 4pt;
+                    }
+                    th {
+                        background: #0B1F3A;
+                        color: #F8F4EA;
+                        padding: 4pt 6pt;
+                        text-align: left;
+                        font-weight: 600;
+                    }
+                    td {
+                        padding: 3pt 6pt;
+                        border-bottom: 0.5pt solid #EDE6D3;
+                    }
+                    tr:nth-child(even) td { background: #F8F4EA; }
+                    .kpi-grid {
+                        display: block;
+                        margin-bottom: 6pt;
+                    }
+                    .kpi-card {
+                        background: #FFFFFF;
+                        border-left: 3pt solid #A37C27;
+                        padding: 6pt 8pt;
+                        margin: 3pt 0;
+                        page-break-inside: avoid;
+                    }
+                    .kpi-card.warn { border-left-color: #FFC107; }
+                    .kpi-card.danger { border-left-color: #DC3545; }
+                    .kpi-card.success { border-left-color: #198754; }
+                    .kpi-card .title {
+                        color: #757575;
+                        font-size: 7.5pt;
+                        text-transform: uppercase;
+                        letter-spacing: 0.04em;
+                    }
+                    .kpi-card .value {
+                        color: #0B1F3A;
+                        font-size: 14pt;
+                        font-weight: 700;
+                    }
+                    .alert {
+                        background: #FFFFFF;
+                        border-left: 3pt solid #DC3545;
+                        padding: 5pt 8pt;
+                        margin: 3pt 0;
+                        page-break-inside: avoid;
+                    }
+                    .alert.warn { border-left-color: #FFC107; }
+                    .alert.success { border-left-color: #198754; }
+                    .alert .title { font-weight: 600; color: #0B1F3A; }
+                    .alert .message { color: #757575; font-size: 8pt; }
+                </style>
+            </head>
+            <body>
+                <h1>CRM Executive Dashboard</h1>
+                <div class="meta">
+                    Period: <t t-esc="period"/>
+                    <t t-if="date_from"> | From: <t t-esc="date_from"/></t>
+                    <t t-if="date_to"> | To: <t t-esc="date_to"/></t>
+                    <t t-if="company"> | Company: <t t-esc="company.name"/></t>
+                    | Generated: <t t-esc="generated_at"/>
+                </div>
+
+                <h2>Executive KPI Overview</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Metric</th>
+                            <th style="text-align:right">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="kpi" t-value="payload.get('kpi', {})"/>
+                        <t t-foreach="['total','new_today','new_week','new_month','qualified','unqualified','awaiting_action']" t-as="k">
+                            <tr>
+                                <td>Leads</td>
+                                <td><t t-esc="k.replace('_',' ').title()"/></td>
+                                <td style="text-align:right"><t t-esc="kpi.get('leads', {}).get(k, '—')"/></td>
+                            </tr>
+                        </t>
+                        <t t-foreach="['total','open','won','lost','created_today','created_week','created_month']" t-as="k">
+                            <tr>
+                                <td>Opportunities</td>
+                                <td><t t-esc="k.replace('_',' ').title()"/></td>
+                                <td style="text-align:right"><t t-esc="kpi.get('opportunities', {}).get(k, '—')"/></td>
+                            </tr>
+                        </t>
+                        <t t-foreach="['pipeline_value','forecast','won','month','quarter','year']" t-as="k">
+                            <tr>
+                                <td>Revenue</td>
+                                <td><t t-esc="k.replace('_',' ').title()"/></td>
+                                <td style="text-align:right"><t t-esc="kpi.get('revenue', {}).get(k, '—')"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <h2>Executive Alerts</h2>
+                <t t-foreach="payload.get('alerts', [])" t-as="a">
+                    <t t-set="alert_lvl" t-value="a.get('level')"/>
+                    <t t-set="alert_is_valid" t-value="alert_lvl in ('info','warning','danger','success')"/>
+                    <t t-set="alert_cls" t-value="'alert ' + (alert_lvl if alert_is_valid else '')"/>
+                    <div t-att-class="alert_cls">
+                        <div class="title"><t t-esc="a.get('title')"/></div>
+                        <div class="message"><t t-esc="a.get('message')"/></div>
+                    </div>
+                </t>
+
+                <h2>Sales Funnel</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th style="text-align:right">Count</th>
+                            <th style="text-align:right">Value</th>
+                            <th style="text-align:right">Conversion %</th>
+                            <th style="text-align:right">Drop-off %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="payload.get('funnel', {}).get('stages', [])" t-as="s">
+                            <tr>
+                                <td><t t-esc="s.get('name')"/></td>
+                                <td style="text-align:right"><t t-esc="s.get('count')"/></td>
+                                <td style="text-align:right"><t t-esc="'%.2f' % (s.get('value') or 0)"/></td>
+                                <td style="text-align:right"><t t-esc="'%.1f' % (s.get('conversion') or 0)"/>%</td>
+                                <td style="text-align:right"><t t-esc="'%.1f' % (s.get('drop_off') or 0)"/>%</td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <h2>Lead Source Analysis</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Source</th>
+                            <th style="text-align:right">Leads</th>
+                            <th style="text-align:right">Conversion %</th>
+                            <th style="text-align:right">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="payload.get('lead_analytics', {}).get('sources', [])" t-as="s">
+                            <tr>
+                                <td><t t-esc="s.get('name')"/></td>
+                                <td style="text-align:right"><t t-esc="s.get('leads')"/></td>
+                                <td style="text-align:right"><t t-esc="'%.1f' % (s.get('conversion_rate') or 0)"/>%</td>
+                                <td style="text-align:right"><t t-esc="'%.2f' % (s.get('revenue') or 0)"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <h2>Productivity (Top 10)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th style="text-align:right">Leads</th>
+                            <th style="text-align:right">Activities</th>
+                            <th style="text-align:right">Conversion %</th>
+                            <th style="text-align:right">Revenue</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="payload.get('productivity', {}).get('users', [])[:10]" t-as="u">
+                            <tr>
+                                <td><t t-esc="u.get('name')"/></td>
+                                <td style="text-align:right"><t t-esc="u.get('leads_assigned')"/></td>
+                                <td style="text-align:right"><t t-esc="u.get('activities_completed')"/></td>
+                                <td style="text-align:right"><t t-esc="'%.1f' % (u.get('conversion_rate') or 0)"/>%</td>
+                                <td style="text-align:right"><t t-esc="'%.2f' % (u.get('revenue_generated') or 0)"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <h2>Business Health</h2>
+                <table>
+                    <tbody>
+                        <t t-set="h" t-value="payload.get('startup', {}).get('business_health', {})"/>
+                        <tr><td>Last booking date</td><td><t t-esc="h.get('last_booking_date') or '—'"/></td></tr>
+                        <tr><td>Days since last booking</td><td><t t-esc="h.get('days_since_booking') or '—'"/></td></tr>
+                        <tr><td>Days since last won opp</td><td><t t-esc="h.get('days_since_won_opp') or '—'"/></td></tr>
+                        <tr><td>Days since last new lead</td><td><t t-esc="h.get('days_since_lead') or '—'"/></td></tr>
+                        <t t-set="r" t-value="payload.get('startup', {}).get('risk', {})"/>
+                        <tr><td>Stale opportunities</td><td><t t-esc="r.get('stagnant_opps', 0)"/></td></tr>
+                        <tr><td>Overdue follow-ups</td><td><t t-esc="r.get('overdue_followups', 0)"/></td></tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        </template>
+
+    </data>
+</odoo>

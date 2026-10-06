@@ -1,0 +1,120 @@
+/* Particle Text Effect Styles */
+
+.sgc-particle-text-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    border-radius: var(--r-lg, 12px);
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.sgc-particle-text-canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    background: transparent;
+    cursor: pointer;
+    border-radius: var(--r-lg, 12px);
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+.sgc-particle-text-canvas:active {
+    cursor: grab;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sgc-particle-text-canvas {
+        display: none;
+    }
+
+    .sgc-particle-text-fallback {
+        display: block !important;
+    }
+}
+
+/* Fallback text display for accessibility and performance-first rendering */
+.sgc-particle-text-fallback {
+    display: none;
+    padding: 2rem;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--sgc-cyan, #00d4ff);
+    line-height: 1.4;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+    .sgc-particle-text-canvas {
+        max-height: 300px;
+    }
+
+    .sgc-particle-text-fallback {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .sgc-particle-text-canvas {
+        max-height: 250px;
+    }
+
+    .sgc-particle-text-fallback {
+        font-size: 1.25rem;
+        padding: 1.5rem;
+    }
+}
+
+/* Loading state */
+.sgc-particle-text-loading {
+    opacity: 0.6;
+}
+
+.sgc-particle-text-loading::after {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    margin: auto;
+    margin-top: 1rem;
+    border: 2px solid var(--sgc-cyan, #00d4ff);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: sgc-spin 0.8s linear infinite;
+}
+
+@keyframes sgc-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Premium settling glow for final message authority landing */
+@keyframes sgc-particle-settle-glow {
+    0% {
+        filter: drop-shadow(0 0 0px rgba(0, 212, 255, 0)) drop-shadow(0 0 0px rgba(123, 47, 190, 0));
+    }
+    40% {
+        filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.35)) drop-shadow(0 0 8px rgba(123, 47, 190, 0.15));
+    }
+    70% {
+        filter: drop-shadow(0 0 32px rgba(0, 212, 255, 0.42)) drop-shadow(0 0 20px rgba(123, 47, 190, 0.28));
+    }
+    100% {
+        filter: drop-shadow(0 0 28px rgba(0, 212, 255, 0.38)) drop-shadow(0 0 18px rgba(123, 47, 190, 0.24));
+    }
+}
+
+.sgc-particle-text-canvas.sgc-particle-settle {
+    animation: sgc-particle-settle-glow 1800ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sgc-particle-text-canvas.sgc-particle-settle {
+        animation: none;
+    }
+}

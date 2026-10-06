@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- =============================================================
+             Scheduled Report Config — kanban (executive visual)
+             ============================================================= -->
+        <record id="view_crm_dashboard_report_config_kanban" model="ir.ui.view">
+            <field name="name">crm.dashboard.report.config.kanban</field>
+            <field name="model">crm.dashboard.report.config</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" class="o_kanban_dashboard">
+                    <field name="name"/>
+                    <field name="frequency"/>
+                    <field name="export_format"/>
+                    <field name="state"/>
+                    <field name="next_run"/>
+                    <field name="last_run"/>
+                    <field name="run_count"/>
+                    <field name="recipients"/>
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_card_header">
+                                    <div class="o_kanban_card_header_title">
+                                        <div class="o_primary">
+                                            <strong><t t-esc="record.name.value"/></strong>
+                                        </div>
+                                        <div class="o_secondary">
+                                            <span class="badge rounded-pill text-bg-info">
+                                                <t t-esc="record.frequency.value"/>
+                                            </span>
+                                            <span class="badge rounded-pill text-bg-secondary ms-1">
+                                                <t t-esc="record.export_format.value.toUpperCase()"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_card_body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <small class="text-muted">Next run</small>
+                                            <div><t t-esc="record.next_run.value || '—'"/></div>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-muted">Last run</small>
+                                            <div><t t-esc="record.last_run.value || '—'"/></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Recipients</small>
+                                        <div class="text-truncate">
+                                            <t t-esc="record.recipients.value"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_card_footer">
+                                    <span><i class="fa fa-play"/> <t t-esc="record.run_count.value"/> runs</span>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Alert Rule — kanban
+             ============================================================= -->
+        <record id="view_crm_dashboard_alert_rule_kanban" model="ir.ui.view">
+            <field name="name">crm.dashboard.alert.rule.kanban</field>
+            <field name="model">crm.dashboard.alert.rule</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="severity">
+                    <field name="name"/>
+                    <field name="rule_type"/>
+                    <field name="threshold"/>
+                    <field name="severity"/>
+                    <field name="active"/>
+                    <field name="trigger_count"/>
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_global_click">
+                                <div class="o_kanban_card_header">
+                                    <div class="o_kanban_card_header_title">
+                                        <div class="o_primary">
+                                            <strong><t t-esc="record.name.value"/></strong>
+                                        </div>
+                                        <div class="o_secondary">
+                                            <span class="badge rounded-pill text-bg-secondary">
+                                                <t t-esc="record.rule_type.value"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_card_body">
+                                    <div>
+                                        <small class="text-muted">Threshold</small>
+                                        <div><strong><t t-esc="record.threshold.value"/></strong></div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Triggered</small>
+                                        <div><t t-esc="record.trigger_count.value"/> times</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+    </data>
+</odoo>

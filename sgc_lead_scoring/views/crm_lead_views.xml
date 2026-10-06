@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend CRM Lead Form View -->
+    <record id="crm_lead_view_form_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.llm.scoring</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <data>
+            <!-- Add unified AI Enrich button in header -->
+            <xpath expr="//header" position="inside">
+                <button name="action_enrich_with_ai" string="🤖 AI Enrich" type="object" class="oe_highlight" icon="fa-magic" invisible="not active" help="Enrich this lead with AI-powered analysis (scoring + customer research)"/>
+                <button name="action_regenerate_report" string="⟳ Refresh Report" type="object" class="btn-secondary" invisible="not ai_enrichment_data" help="Regenerate the AI report from existing data (no API call)"/>
+            </xpath>
+
+            <!-- Add automation status badge in header -->
+            <xpath expr="//header" position="inside">
+                <field name="ai_enrichment_status" widget="badge"
+                    decoration-success="ai_enrichment_status == 'enriched'"
+                    decoration-info="ai_enrichment_status == 'scored'"
+                    decoration-danger="ai_enrichment_status == 'failed'"
+                    decoration-warning="ai_enrichment_status == 'pending'"
+                    title="AI Enrichment Status"/>
+                <span class="badge text-bg-success ms-1"
+                    invisible="not auto_enrich"
+                    title="Auto-enrich enabled">🔄 Auto</span>
+            </xpath>
+
+            <!-- Add WhatsApp field next to phone in main contact group -->
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="x_whatsapp" widget="phone" string="WhatsApp"/>
+            </xpath>
+
+            <!-- Add AI Score after probability -->
+            <xpath expr="//field[@name='probability']" position="after">
+                <field name="ai_probability_score" widget="progressbar" options="{'current_value': 'ai_probability_score'}" help="AI-calculated probability score based on lead quality"/>
+                <!-- Fields needed in header for status badge - must be in form body to be loaded -->
+                <field name="ai_enrichment_status" invisible="1"/>
+                <field name="auto_enrich" invisible="1"/>
+                <field name="ai_enrichment_data" invisible="1"/>
+                <field name="auto_enrich_global_enabled" invisible="1"/>
+            </xpath>
+
+            <!-- Add AI Scoring tab -->
+            <xpath expr="//notebook" position="inside">
+                <page string="AI Scoring" name="ai_scoring">
+                    <group>
+                    <group string="AI Probability Score">
+                        <field name="ai_probability_score" widget="gauge" options="{'max_value': 100, 'style': 'width:200px; height: 150px;'}"/>
+                        <field name="ai_enrichment_status" readonly="1" widget="badge"
+                            decoration-success="ai_enrichment_status == 'enriched'"
+                            decoration-info="ai_enrichment_status == 'scored'"
+                            decoration-danger="ai_enrichment_status == 'failed'"
+                            decoration-warning="ai_enrichment_status == 'pending'"/>
+                        <field name="ai_last_enrichment_date" readonly="1"/>
+                        <field name="auto_enrich"/>
+                    </group>
+
+                    <group string="Score Breakdown">
+                        <field name="ai_completeness_score" widget="progressbar" readonly="1"/>
+                        <field name="ai_clarity_score" widget="progressbar" readonly="1"/>
+                        <field name="ai_engagement_score" widget="progressbar" readonly="1"/>
+                    </group>
+
+                    <group string="Automation Status" colspan="2">
+                        <field name="auto_enrich_global_enabled" invisible="1"/>
+                        <field name="auto_enrich" readonly="1" invisible="1"/>
+                        <label for="auto_enrich" string="Lead Auto-Enrich" invisible="not auto_enrich" class="o_form_label"/>
+                        <div invisible="not auto_enrich" class="text-success">
+                            <i class="fa fa-check-circle"/> Enabled - Lead will be enriched automatically
+                        </div>
+                        <label for="auto_enrich" string="Lead Auto-Enrich" invisible="auto_enrich" class="o_form_label"/>
+                        <div invisible="auto_enrich" class="text-muted">
+                            <i class="fa fa-ban"/> Disabled - Manual enrichment only
+                        </div>
+                        <div class="mt8">
+                            <label for="auto_enrich_global_enabled" string="Global Auto-Enrich" class="text-muted"/>
+                            <span class="badge text-bg-secondary" invisible="auto_enrich_global_enabled">
+                                OFF - Enable in Settings &gt; LLM Lead Scoring
+                            </span>
+                            <span class="badge text-bg-success" invisible="not auto_enrich_global_enabled">
+                                ON - Hourly cron will enrich pending leads
+                            </span>
+                        </div>
+                    </group>
+
+                    <group string="AI Enrichment Report" invisible="not ai_enrichment_report" colspan="2">
+                        <field name="ai_enrichment_report" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+
+                    <group string="AI Analysis Summary" invisible="ai_enrichment_report" colspan="2">
+                        <field name="ai_analysis_summary" readonly="1" nolabel="1" placeholder="Run AI enrichment to see analysis..." colspan="2"/>
+                    </group>
+
+                    <group string="Raw Enrichment Data (JSON)" invisible="1" colspan="2">
+                        <field name="ai_enrichment_data" readonly="1" nolabel="1" colspan="2"/>
+                    </group>
+                    </group>
+                </page>
+
+                <!-- BANT Framework tab -->
+                <page string="BANT" name="bant">
+                    <div class="o_group o_form_inner">
+                        <div class="row pb-2 mb-2" style="border-bottom: 1px solid #ddd;">
+                            <div class="col-xs-12">
+                                <h5 class="sgc_bant_adaptive" style="font-weight: 600; margin: 0;"><i class="fa fa-question-circle" style="margin-right: 6px;"/>Call Script — Ask These Questions</h5>
+                                <small class="sgc_bant_adaptive">Document the prospect's responses for each BANT criterion below.</small>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4 mb-4" style="padding: 0 5px;">
+                            <!-- Budget -->
+                            <div class="col-xs-12 col-md-6" style="margin-bottom: 24px;">
+                                <div style="background: #fff; border-radius: 8px; padding: 16px 16px 20px; border: 2px solid #28a745; box-shadow: 0 1px 4px rgba(0,0,0,0.07);">
+                                    <div style="margin-bottom: 14px;">
+                                        <span style="display: inline-block; background: #28a745; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Budget</span>
+                                        <h6 class="sgc_bant_card_question" style="font-size: 14px; font-weight: 600; margin: 0 0 6px; line-height: 1.4;">
+                                            What is the budget allocated for this project or solution?
+                                        </h6>
+                                    </div>
+                                    <field name="x_bant_budget" placeholder="Enter prospect's budget details from the call..." nolabel="1" class="sgc_bant_field" style="min-height: 80px; background: #fff !important; color: #212529 !important;"/>
+                                </div>
+                            </div>
+
+                            <!-- Authority -->
+                            <div class="col-xs-12 col-md-6" style="margin-bottom: 24px;">
+                                <div style="background: #fff; border-radius: 8px; padding: 16px 16px 20px; border: 2px solid #0d6efd; box-shadow: 0 1px 4px rgba(0,0,0,0.07);">
+                                    <div style="margin-bottom: 14px;">
+                                        <span style="display: inline-block; background: #0d6efd; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Authority</span>
+                                        <h6 class="sgc_bant_card_question" style="font-size: 14px; font-weight: 600; margin: 0 0 6px; line-height: 1.4;">
+                                            Who is the decision-maker? Are you the final authority on this purchase?
+                                        </h6>
+                                    </div>
+                                    <field name="x_bant_authority" placeholder="Enter prospect's authority details from the call..." nolabel="1" class="sgc_bant_field" style="min-height: 80px; background: #fff !important; color: #212529 !important;"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4" style="padding: 0 5px;">
+                            <!-- Need -->
+                            <div class="col-xs-12 col-md-6" style="margin-bottom: 24px;">
+                                <div style="background: #fff; border-radius: 8px; padding: 16px 16px 20px; border: 2px solid #e67e22; box-shadow: 0 1px 4px rgba(0,0,0,0.07);">
+                                    <div style="margin-bottom: 14px;">
+                                        <span style="display: inline-block; background: #e67e22; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Need</span>
+                                        <h6 class="sgc_bant_card_question" style="font-size: 14px; font-weight: 600; margin: 0 0 6px; line-height: 1.4;">
+                                            What is the primary need or pain point you are trying to solve?
+                                        </h6>
+                                    </div>
+                                    <field name="x_bant_need" placeholder="Enter prospect's need details from the call..." nolabel="1" class="sgc_bant_field" style="min-height: 80px; background: #fff !important; color: #212529 !important;"/>
+                                </div>
+                            </div>
+
+                            <!-- Timeline -->
+                            <div class="col-xs-12 col-md-6" style="margin-bottom: 24px;">
+                                <div style="background: #fff; border-radius: 8px; padding: 16px 16px 20px; border: 2px solid #6f42c1; box-shadow: 0 1px 4px rgba(0,0,0,0.07);">
+                                    <div style="margin-bottom: 14px;">
+                                        <span style="display: inline-block; background: #6f42c1; color: #fff; border-radius: 4px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">Timeline</span>
+                                        <h6 class="sgc_bant_card_question" style="font-size: 14px; font-weight: 600; margin: 0 0 6px; line-height: 1.4;">
+                                            What is the expected timeline for implementation or decision?
+                                        </h6>
+                                    </div>
+                                    <field name="x_bant_timeline" placeholder="Enter prospect's timeline details from the call..." nolabel="1" class="sgc_bant_field" style="min-height: 80px; background: #fff !important; color: #212529 !important;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </page>
+
+                <!-- Enriched Data tab (Apollo/Abstract/Hunter enrichment fields) -->
+                <page string="Enriched Data" name="enriched_data">
+                    <group>
+                    <group string="Enrichment Status">
+                        <field name="x_apollo_enrichment_status" widget="badge"
+                            decoration-success="x_apollo_enrichment_status == 'enriched'"
+                            decoration-danger="x_apollo_enrichment_status == 'failed'"/>
+                        <field name="x_apollo_last_enriched"/>
+                        <field name="x_enriched_by"/>
+                    </group>
+                    <group string="Contact Info">
+                        <field name="x_job_title"/>
+                        <field name="x_seniority"/>
+                        <field name="x_department"/>
+                        <field name="x_email_verified"/>
+                        <field name="x_person_linkedin" widget="url"/>
+                        <field name="x_mobile_phone"/>
+                        <field name="x_whatsapp" widget="phone"/>
+                    </group>
+                    <group string="Company Details">
+                        <field name="x_company_industry"/>
+                        <field name="x_employee_count"/>
+                        <field name="x_annual_revenue"/>
+                        <field name="x_funding_total"/>
+                        <field name="x_funding_stage"/>
+                        <field name="x_tech_stack"/>
+                    </group>
+                    <group string="Social &amp; Online">
+                        <field name="x_company_linkedin" widget="url"/>
+                        <field name="x_company_twitter" widget="url"/>
+                    </group>
+                    <group string="Scoring &amp; Assignment">
+                        <field name="x_scored_by"/>
+                        <field name="x_assigned_date"/>
+                        <field name="x_last_activity_date"/>
+                        <field name="x_industry_fit"/>
+                        <field name="x_territory"/>
+                        <field name="x_emirate"/>
+                    </group>
+                    <group string="Contact Authority &amp; Engagement">
+                        <field name="x_contact_authority"/>
+                        <field name="x_last_contact_date"/>
+                        <field name="x_days_since_activity"/>
+                        <field name="x_location_score"/>
+                        <field name="x_sales_play"/>
+                        <field name="x_geo_city"/>
+                    </group>
+                    </group>
+                </page>
+            </xpath>
+            </data>
+        </field>
+    </record>
+
+    <!-- Extend CRM Lead Tree View -->
+    <record id="crm_lead_view_tree_inherit" model="ir.ui.view">
+        <field name="name">crm.lead.tree.inherit.llm.scoring</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='probability']" position="after">
+                <field name="x_whatsapp" optional="hide" string="WhatsApp"/>
+                <field name="ai_probability_score" optional="show" widget="progressbar"/>
+                <field name="ai_enrichment_status" optional="show" widget="badge"
+                    decoration-success="ai_enrichment_status == 'enriched'"
+                    decoration-info="ai_enrichment_status == 'scored'"
+                    decoration-danger="ai_enrichment_status == 'failed'"
+                    decoration-warning="ai_enrichment_status == 'pending'"/>
+            </xpath>
+        </field>
+    </record>
+
+
+
+    <!-- Action for batch enrichment - unified with single lead action -->
+    <record id="action_batch_enrich_leads" model="ir.actions.server">
+        <field name="name">🤖 AI Enrich Selected Leads</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_enrich_with_ai()
+        </field>
+    </record>
+
+    <!-- Action to regenerate reports for selected leads -->
+    <record id="action_regenerate_reports" model="ir.actions.server">
+        <field name="name">Regenerate AI Reports</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+count = 0
+for lead in records:
+    if lead.ai_enrichment_data:
+        lead.action_regenerate_report()
+        count += 1
+action = {
+    'type': 'ir.actions.client',
+    'tag': 'display_notification',
+    'params': {
+        'title': 'Reports Regenerated',
+        'message': str(count) + ' lead report(s) regenerated successfully.',
+        'type': 'success',
+        'sticky': False,
+    }
+}
+        </field>
+    </record>
+</odoo>

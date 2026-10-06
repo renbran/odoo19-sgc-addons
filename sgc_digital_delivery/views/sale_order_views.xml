@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── SALE ORDER FORM — digital delivery status + resend button ────── -->
+  <record id="sale_order_form_digital" model="ir.ui.view">
+    <field name="name">sale.order.form.digital</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+
+      <!-- Resend button — only sales managers can trigger resend -->
+      <xpath expr="//header" position="inside">
+        <button name="action_resend_digital_products"
+                string="Resend Digital Files"
+                type="object"
+                icon="fa-download"
+                class="btn-secondary"
+                groups="sales_team.group_sale_manager"
+                invisible="digital_delivery_state not in ('sent', 'partial', 'pending', 'error')"/>
+      </xpath>
+
+      <!-- Digital delivery state + date after the standard 'state' field -->
+      <xpath expr="//field[@name='state']" position="after">
+        <field name="digital_delivery_state"
+               widget="badge"
+               decoration-success="digital_delivery_state == 'sent'"
+               decoration-warning="digital_delivery_state == 'partial'"
+               decoration-info="digital_delivery_state == 'pending'"
+               decoration-danger="digital_delivery_state == 'error'"
+               invisible="digital_delivery_state == 'none'"/>
+        <field name="digital_delivery_date"
+               invisible="not digital_delivery_date"
+               string="Sent on"
+               widget="datetime"/>
+      </xpath>
+
+    </field>
+  </record>
+
+  <!-- ── SALE ORDER LIST — Digital delivery column ────────────────────── -->
+  <record id="sale_order_list_digital" model="ir.ui.view">
+    <field name="name">sale.order.list.digital</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+    <field name="arch" type="xml">
+      <field name="state" position="after">
+        <field name="digital_delivery_state"
+               string="Digital"
+               optional="show"
+               invisible="digital_delivery_state == 'none'"/>
+      </field>
+    </field>
+  </record>
+
+</odoo>
+

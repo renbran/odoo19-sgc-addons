@@ -1,0 +1,65 @@
+// Fix 6: Add !default to all SCSS variables for downstream override support
+$glass-bg-light: rgba(255, 255, 255, 0.15) !default;
+$glass-bg-medium: rgba(255, 255, 255, 0.10) !default;
+$glass-bg-dark: rgba(255, 255, 255, 0.08) !default;
+$glass-bg-darker: rgba(255, 255, 255, 0.05) !default;
+$glass-dropdown: rgba(70, 80, 90, 0.85) !default;
+$glass-border: rgba(255, 255, 255, 0.18) !default;
+$glass-border-light: rgba(255, 255, 255, 0.25) !default;
+
+$blur-light: 30px !default;
+$blur-medium: 35px !default;
+$blur-heavy: 40px !default;
+
+$primary-color: rgba(13, 33, 55, 1) !default;
+$primary-gradient: linear-gradient(90deg, rgba(13, 33, 55, 0.6), rgba(30, 50, 80, 0.5)) !default;
+$accent-gold: #C7A23A !default;
+$hover-bg: rgba(255, 255, 255, 0.18) !default;
+
+$text-white: #ffffff !default;
+$text-muted: rgba(255, 255, 255, 0.65) !default;
+
+$radius-sm: 12px !default;
+$radius-md: 18px !default;
+$radius-lg: 22px !default;
+$radius-xl: 26px !default;
+$radius-pill: 999px !default;
+
+$shadow-medium: 0 10px 40px rgba(0, 0, 0, 0.4) !default;
+$shadow-heavy: 0 20px 70px rgba(0, 0, 0, 0.5) !default;
+
+$transition-base: all 0.25s ease !default;
+
+@mixin glass-effect($bg, $blur) {
+    background: $bg !important;
+    backdrop-filter: blur($blur) saturate(180%) !important;
+}
+
+@mixin glass-border($color: $glass-border) {
+    border: 1px solid $color !important;
+}
+
+@mixin glass-card($bg: $glass-bg-light, $blur: $blur-medium) {
+    @include glass-effect($bg, $blur);
+    @include glass-border;
+    border-radius: $radius-xl;
+}
+
+@mixin transparent-bg {
+    background: transparent !important;
+}
+
+@mixin text-white-color {
+    color: $text-white !important;
+}
+
+// =====================================================================
+// GLOBAL: remove text-shadow/glow from every element in the theme.
+// White text on dark glass is readable without it; white text on white
+// cards stays invisible (intentionally — those areas need dark text).
+// Override per-element with `text-shadow: <value> !important;` if you
+// ever need it back.
+// =====================================================================
+.o_web_client *:not(.sgc_bant_adaptive):not(.sgc_bant_adaptive *) {
+    text-shadow: none !important;
+}

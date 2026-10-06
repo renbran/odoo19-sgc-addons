@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ConstructionDashboard">
+        <div class="sgc-dashboard">
+
+            <!-- Header -->
+            <header class="sgc-header">
+                <div class="sgc-header__brand">
+                    <div class="sgc-header__brand-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 21V9l9-6 9 6v12"/>
+                            <path d="M9 21v-7h6v7"/>
+                        </svg>
+                    </div>
+                    <div class="sgc-header__brand-text">
+                        <div class="sgc-header__brand-name"><t t-esc="state.company_name"/></div>
+                        <div class="sgc-header__brand-sub">Executive Dashboard</div>
+                    </div>
+                </div>
+                <div class="sgc-header__actions">
+                    <button class="sgc-icon-btn" title="Search">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+                        </svg>
+                    </button>
+                    <button class="sgc-icon-btn" title="Notifications">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                        </svg>
+                        <span t-if="state.alerts.length" style="position:absolute; top:-2px; right:-2px; background:var(--status-critical); color:white; font-size:10px; font-weight:700; border-radius:999px; padding:1px 5px;"><t t-esc="state.alerts.length"/></span>
+                    </button>
+                    <button class="sgc-icon-btn sgc-theme-toggle" t-on-click="toggleTheme" title="Toggle theme">
+                        <svg class="sgc-theme-toggle__icon sgc-theme-toggle__icon--sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+                        </svg>
+                        <svg class="sgc-theme-toggle__icon sgc-theme-toggle__icon--moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                    <button class="sgc-user-chip">
+                        <span class="sgc-user-chip__avatar"><t t-esc="userInitials"/></span>
+                        <span class="sgc-user-chip__text">
+                            <span class="sgc-user-chip__name"><t t-esc="userName"/></span>
+                            <span class="sgc-user-chip__role"><t t-esc="userLogin"/></span>
+                        </span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main canvas -->
+            <main class="sgc-main">
+                <div class="sgc-grid">
+
+                    <!-- Row 1: Top financial KPIs -->
+                    <div class="sgc-kpi-row">
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Total Portfolio Revenue</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="formatCurrency(state.total_revenue)"/></div>
+                            <div class="sgc-kpi__sub">vs last month</div>
+                            <div class="sgc-kpi__trend sgc-kpi__trend--up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15l7-7 7 7"/></svg> 2.5%</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Direct Project Costs</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--amber">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M6 6V4M18 6V4"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="formatCurrency(state.total_costs)"/></div>
+                            <div class="sgc-kpi__sub">vs last month</div>
+                            <div class="sgc-kpi__trend sgc-kpi__trend--up"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg> 1% improvement</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Net Operating Profit</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-7"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="formatCurrency(state.net_profit)"/></div>
+                            <div class="sgc-kpi__sub">Healthy Margin</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Active Work-in-Progress</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--cyan">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-7h6v7"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="state.active_work_in_progress"/></div>
+                            <div class="sgc-kpi__sub">Sites operational</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Projects At Critical Risk</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--red">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.7" fill="currentColor"/></svg>
+                                </div>
+                            </div>
+                            <div t-attf-class="sgc-kpi__value {{state.critical_risk_count > 0 ? 'sgc-kpi__value--critical' : ''}}"><t t-esc="state.critical_risk_count"/></div>
+                            <div class="sgc-kpi__sub">Immediate Action Needed</div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Secondary operational KPIs -->
+                    <div class="sgc-kpi-row">
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">WIP Value</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--blue">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="formatCompact(state.wip_value)"/></div>
+                            <div class="sgc-kpi__sub">Across active projects</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Receivables</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="formatCompact(state.receivables)"/></div>
+                            <div class="sgc-kpi__sub">Outstanding invoices</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Open RFQs</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--cyan">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><circle cx="11" cy="14" r="2"/><path d="M13 16l3 3"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="state.open_rfqs"/></div>
+                            <div class="sgc-kpi__sub">Material requisitions submitted</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Open NCRs</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--red">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 14h6"/></svg>
+                                </div>
+                            </div>
+                            <div t-attf-class="sgc-kpi__value {{state.critical_ncrs > 0 ? 'sgc-kpi__value--critical' : ''}}"><t t-esc="state.critical_ncrs"/></div>
+                            <div class="sgc-kpi__sub">Quality issues pending</div>
+                        </div>
+                        <div class="sgc-kpi">
+                            <div class="sgc-kpi__header">
+                                <div class="sgc-kpi__label">Equipment Utilization</div>
+                                <div class="sgc-kpi__icon sgc-kpi__icon--green">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12A10 10 0 1 1 12 2"/><path d="M22 2 12 12"/></svg>
+                                </div>
+                            </div>
+                            <div class="sgc-kpi__value"><t t-esc="state.equipment_utilization"/>%</div>
+                            <div class="sgc-kpi__sub">Active fleet</div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 (hero): Project Health Matrix + Critical Alerts -->
+                    <div class="sgc-hero-row">
+                        <div class="sgc-card">
+                            <div class="sgc-card__header">
+                                <div>
+                                    <div class="sgc-card__title">Project Health Matrix</div>
+                                    <div class="sgc-card__title-sub">Cost vs Schedule performance</div>
+                                </div>
+                                <div class="sgc-card__toolbar">
+                                    <span class="sgc-card__chip">14 Total</span>
+                                </div>
+                            </div>
+                            <div class="sgc-card__body sgc-card__body--matrix">
+                                <div class="sgc-chart" t-ref="healthMatrix"/>
+                            </div>
+                            <div class="sgc-matrix-legend">
+                                <div class="sgc-matrix-legend__row">
+                                    <div class="sgc-matrix-legend__item"><span class="sgc-matrix-legend__dot sgc-matrix-legend__dot--green"/>On Track</div>
+                                    <div class="sgc-matrix-legend__item"><span class="sgc-matrix-legend__dot sgc-matrix-legend__dot--amber"/>At Risk</div>
+                                </div>
+                                <div class="sgc-matrix-legend__row">
+                                    <div class="sgc-matrix-legend__item"><span class="sgc-matrix-legend__dot sgc-matrix-legend__dot--red"/>Critical</div>
+                                    <div class="sgc-matrix-legend__item"><span class="sgc-matrix-legend__dot sgc-matrix-legend__dot--blue"/>Completed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sgc-alerts">
+                            <div class="sgc-alerts__header">
+                                <div class="sgc-alerts__title">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    Critical Alerts
+                                </div>
+                                <a class="sgc-alerts__title" style="color:var(--text-secondary); font-size:11px; text-transform:none; letter-spacing:0; font-weight:600; cursor:pointer;">View All &gt;</a>
+                            </div>
+                            <div class="sgc-alerts__list">
+                                <t t-foreach="state.alerts" t-as="alert" t-key="alert.project_id">
+                                    <div t-attf-class="sgc-alert {{alert.type === 'Warning' ? 'sgc-alert--warning' : ''}}">
+                                        <div class="sgc-alert__head">
+                                            <div class="sgc-alert__name" t-esc="alert.project_name"/>
+                                            <span t-attf-class="sgc-alert__badge sgc-alert__badge--{{alert.type === 'Warning' ? 'warning' : 'critical'}}" t-esc="alert.type"/>
+                                        </div>
+                                        <div class="sgc-alert__reason">
+                                            <span class="sgc-alert__reason-strong" t-esc="alert.reason"/>
+                                            <t t-esc="alert.detail"/>
+                                        </div>
+                                        <div class="sgc-alert__meta">
+                                            <span>Delay Impact: <strong t-esc="alert.delay_impact"/></span>
+                                            <span>Due Date: <strong t-esc="alert.due_date"/></span>
+                                        </div>
+                                    </div>
+                                </t>
+                                <div t-if="!state.alerts.length" style="text-align:center; padding:32px 16px; color:var(--text-tertiary); font-size:13px;">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    <p style="margin-top:8px;">All projects are on track</p>
+                                </div>
+                            </div>
+                            <div class="sgc-alerts__footer">View All Alerts &gt;</div>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Financial Performance + Cash Position -->
+                    <div class="sgc-financial-row">
+                        <div class="sgc-card">
+                            <div class="sgc-card__header">
+                                <div>
+                                    <div class="sgc-card__title">Portfolio Financial Performance</div>
+                                    <div class="sgc-card__title-sub">Revenue / Cost / Net Profit</div>
+                                </div>
+                                <div class="sgc-card__toolbar">
+                                    <span class="sgc-card__chip sgc-card__chip--active" t-on-click="() => this.setFinancialPeriod('ytd')" t-att-style="state.financial_period === 'ytd' ? 'background:var(--brand-primary); color:white;' : ''">YTD</span>
+                                    <span class="sgc-card__chip" t-on-click="() => this.setFinancialPeriod('monthly')" t-att-style="state.financial_period === 'monthly' ? 'background:var(--brand-primary); color:white;' : ''">Monthly</span>
+                                </div>
+                            </div>
+                            <div class="sgc-card__body">
+                                <div class="sgc-chart" t-ref="financialChart"/>
+                            </div>
+                        </div>
+
+                        <div class="sgc-card sgc-cash-position">
+                            <div class="sgc-card__header">
+                                <div>
+                                    <div class="sgc-card__title">Cash Position</div>
+                                    <div class="sgc-card__title-sub">Working capital snapshot</div>
+                                </div>
+                            </div>
+                            <div class="sgc-cash-position__grid">
+                                <div class="sgc-cash-stat">
+                                    <div class="sgc-cash-stat__label">WIP Value</div>
+                                    <div class="sgc-cash-stat__value"><t t-esc="formatCompact(state.wip_value)"/></div>
+                                </div>
+                                <div class="sgc-cash-stat">
+                                    <div class="sgc-cash-stat__label">Receivables</div>
+                                    <div class="sgc-cash-stat__value"><t t-esc="formatCompact(state.receivables)"/></div>
+                                </div>
+                                <div class="sgc-cash-stat">
+                                    <div class="sgc-cash-stat__label">Pending Billing</div>
+                                    <div class="sgc-cash-stat__value"><t t-esc="formatCompact(state.pending_billing)"/></div>
+                                </div>
+                                <div class="sgc-cash-stat sgc-cash-stat--warning">
+                                    <div class="sgc-cash-stat__label">Overdue Invoices</div>
+                                    <div class="sgc-cash-stat__value"><t t-esc="formatCompact(state.overdue_invoices)"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Project Status pills + WO/MR breakdowns -->
+                    <div class="sgc-status-strip">
+                        <div class="sgc-status-card">
+                            <div class="sgc-status-card__title">Project Status</div>
+                            <div class="sgc-status-card__pills">
+                                <div class="sgc-pill sgc-pill--green">
+                                    <span class="sgc-pill__dot"/>
+                                    <span class="sgc-pill__label">Active</span>
+                                    <span class="sgc-pill__value"><t t-esc="state.projects_active"/></span>
+                                </div>
+                                <div class="sgc-pill sgc-pill--blue">
+                                    <span class="sgc-pill__dot"/>
+                                    <span class="sgc-pill__label">Completed</span>
+                                    <span class="sgc-pill__value"><t t-esc="state.projects_completed"/></span>
+                                </div>
+                                <div class="sgc-pill sgc-pill--amber">
+                                    <span class="sgc-pill__dot"/>
+                                    <span class="sgc-pill__label">On Hold</span>
+                                    <span class="sgc-pill__value"><t t-esc="state.projects_on_hold"/></span>
+                                </div>
+                                <div class="sgc-pill sgc-pill--red">
+                                    <span class="sgc-pill__dot"/>
+                                    <span class="sgc-pill__label">Delayed</span>
+                                    <span class="sgc-pill__value"><t t-esc="state.projects_delayed"/></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sgc-status-card">
+                            <div class="sgc-status-card__title">Work Orders</div>
+                            <div class="sgc-status-card__bars">
+                                <t t-foreach="[['draft','Draft'],['confirmed','Confirmed'],['in_progress','In Progress'],['done','Done'],['cancelled','Cancelled']]" t-as="row" t-key="row[0]">
+                                    <div class="sgc-bar-row">
+                                        <span class="sgc-bar-row__label" t-esc="row[1]"/>
+                                        <span class="sgc-bar-row__count" t-esc="state.wo_by_state[row[0]]"/>
+                                        <div class="sgc-bar-row__track">
+                                            <div class="sgc-bar-row__fill sgc-bar-row__fill--wo"
+                                                 t-attf-style="width: {state.wo_by_state[row[0]] > 0 ? Math.min(100, (state.wo_by_state[row[0]] / (state.wo_by_state['draft'] + state.wo_by_state['confirmed'] + state.wo_by_state['in_progress'] + state.wo_by_state['done'] + state.wo_by_state['cancelled'] || 1)) * 100) : 0}%;"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="sgc-status-card">
+                            <div class="sgc-status-card__title">Material Requisitions</div>
+                            <div class="sgc-status-card__bars">
+                                <t t-foreach="[['draft','Draft'],['submitted','Submitted'],['approved','Approved'],['received','Received']]" t-as="row" t-key="row[0]">
+                                    <div class="sgc-bar-row">
+                                        <span class="sgc-bar-row__label" t-esc="row[1]"/>
+                                        <span class="sgc-bar-row__count" t-esc="state.mrr_by_state[row[0]]"/>
+                                        <div class="sgc-bar-row__track">
+                                            <div class="sgc-bar-row__fill sgc-bar-row__fill--mrr"
+                                                 t-attf-style="width: {state.mrr_by_state[row[0]] > 0 ? Math.min(100, (state.mrr_by_state[row[0]] / (state.mrr_by_state['draft'] + state.mrr_by_state['submitted'] + state.mrr_by_state['approved'] + state.mrr_by_state['received'] || 1)) * 100) : 0}%;"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Upcoming Milestones -->
+                    <div class="sgc-status-card sgc-milestones-card">
+                        <div class="sgc-status-card__title">Upcoming Milestones</div>
+                        <div class="sgc-milestones sgc-milestones--horizontal">
+                            <t t-if="!state.milestones.length" style="display:block; padding:32px 8px; text-align:center; color:var(--text-tertiary); font-size:13px;">
+                                No active work orders scheduled.
+                            </t>
+                            <t t-foreach="state.milestones" t-as="m" t-key="m_index">
+                                <div t-attf-class="sgc-milestone sgc-milestone--priority-{{m.priority}}">
+                                    <div class="sgc-milestone__icon" t-attf-style="background: {m.state === 'in_progress' ? 'var(--status-on-track-soft)' : m.state === 'confirmed' ? 'var(--accent-cyan-soft, rgba(6,182,212,0.12))' : 'var(--surface-muted)'};">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                                        </svg>
+                                    </div>
+                                    <div class="sgc-milestone__body">
+                                        <div class="sgc-milestone__name" t-esc="m.name"/>
+                                        <div class="sgc-milestone__meta">
+                                            <span t-esc="m.project"/>
+                                            <span>·</span>
+                                            <span t-esc="m.state.replace('_', ' ')"/>
+                                        </div>
+                                    </div>
+                                    <div class="sgc-milestone__cost"><t t-esc="formatCompact(m.planned_cost)"/></div>
+                                    <div class="sgc-milestone__date" t-esc="m.due"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Row 6: UAE Operations Map (full-bleed) -->
+                    <div class="sgc-map sgc-map--full-bleed">
+                        <div class="sgc-map__header">
+                            <div>
+                                <div class="sgc-map__title">UAE Projects Map</div>
+                                <div class="sgc-map__subtitle">Overview of Active Construction Projects</div>
+                            </div>
+                            <div class="sgc-map__controls">
+                                <button class="sgc-map__chip" title="Select date">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                                    <span>May 20, 2025</span>
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                                </button>
+                                <button class="sgc-map__chip" title="Filters">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                    <span>Filters</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sgc-map__viewport" t-ref="mapViewport"/>
+                        <div class="sgc-map__legend">
+                            <div class="sgc-map__legend-title">STATUS LEGEND</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--green"/>ON TRACK</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--green-sub"/>Projects on schedule</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--warning"/>WARNING</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--warning-sub"/>Projects at risk</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--critical"/>CRITICAL</div>
+                            <div class="sgc-map__legend-item"><span class="sgc-map__legend-dot sgc-map__legend-dot--critical-sub"/>Immediate attention</div>
+                        </div>
+                        <div class="sgc-map__overlay">
+                            <div class="sgc-map__overlay-title">Portfolio Summary</div>
+                            <div class="sgc-map__overlay-row"><span>Dubai</span><strong t-esc="state.emirate_counts.dubai"/></div>
+                            <div class="sgc-map__overlay-row"><span>Abu Dhabi</span><strong t-esc="state.emirate_counts.abu_dhabi"/></div>
+                            <div class="sgc-map__overlay-row"><span>Sharjah</span><strong t-esc="state.emirate_counts.sharjah"/></div>
+                            <div class="sgc-map__overlay-row"><span>Ajman</span><strong t-esc="state.emirate_counts.ajman"/></div>
+                            <div class="sgc-map__overlay-row"><span>Umm Al Quwain</span><strong t-esc="state.emirate_counts.umm_al_quwain"/></div>
+                            <div class="sgc-map__overlay-row"><span>Ras Al Khaimah</span><strong t-esc="state.emirate_counts.ras_al_khaimah"/></div>
+                            <div class="sgc-map__overlay-row"><span>Fujairah</span><strong t-esc="state.emirate_counts.fujairah"/></div>
+                            <div class="sgc-map__overlay-divider"/>
+                            <div class="sgc-map__overlay-row"><span>Total Portfolio Value</span><strong t-esc="formatCompact(state.total_contract_value)"/></div>
+                            <div class="sgc-map__overlay-row"><span>Active Projects</span><strong t-esc="state.projects_active"/></div>
+                            <div class="sgc-map__overlay-row sgc-map__overlay-row--critical"><span>Critical Projects</span><strong t-esc="state.critical_risk_count"/></div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+        </div>
+    </t>
+</templates>

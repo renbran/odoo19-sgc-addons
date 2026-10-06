@@ -1,0 +1,32 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Backend Theme — Odoo brand-variable overrides
+// -----------------------------------------------------------------------------
+// Loaded via a ('before', ...) directive so this file compiles BEFORE
+// `web/static/src/scss/primary_variables.scss`. That lets Odoo's own `!default`
+// cascade (and every internal map it builds from these values) recompute from
+// the SGC palette instead of the default Odoo purple.
+//
+// NOTE ON DRY: the authoritative token source is
+// `sgc_theme_common/static/src/scss/_sgc_tokens.scss`. That file is appended to
+// this same bundle but AFTER Odoo's primary variables, so its `$sgc-*` SCSS
+// variables are NOT yet in scope at this early point. The three brand base
+// colours are therefore mirrored here as literal hex (kept identical to the
+// tokens). Everything else in the theme reads the tokens, not these literals.
+// =============================================================================
+
+// SGC brand base colours (mirror of _sgc_tokens.scss — keep in sync)
+$sgc-navy-lit:  #0F2C4C;
+$sgc-gold-lit:  #C9A227;
+$sgc-cream-lit: #F5EFE0;
+
+// --- Retint Odoo's brand system from the SGC palette -------------------------
+// `$o-brand-primary` / `$o-action` derive from these via !default in Odoo's
+// primary_variables.scss, so setting the base colours cascades everywhere.
+$o-community-color:  $sgc-navy-lit;
+$o-enterprise-color: $sgc-navy-lit;
+$o-brand-secondary:  $sgc-gold-lit;
+
+// Web client chrome & canvas
+$o-webclient-background-color: $sgc-cream-lit;
+$o-navbar-background:          $sgc-navy-lit;

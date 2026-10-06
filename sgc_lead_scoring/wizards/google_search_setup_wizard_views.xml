@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Google Search Setup Wizard View -->
+    <record id="view_google_search_setup_wizard" model="ir.ui.view">
+        <field name="name">google.search.setup.wizard.form</field>
+        <field name="model">google.search.setup.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="step" invisible="1"/>
+                <field name="test_success" invisible="1"/>
+
+                <!-- Introduction Step -->
+                <group invisible="step != 'intro'">
+                    <div class="alert alert-info" role="alert">
+                        <h3>🌐 Google Custom Search Setup</h3>
+                        <p>
+                            <strong>What you'll get:</strong>
+                        </p>
+                        <ul>
+                            <li>✅                                <strong>100 FREE searches per day</strong>
+                            </li>
+                            <li>✅ Real-time company research</li>
+                            <li>✅ Recent news and developments</li>
+                            <li>✅ More accurate lead enrichment</li>
+                        </ul>
+                        <p>
+                            <strong>Setup time:</strong> 5-10 minutes</p>
+                        <p>
+                            <strong>Requirements:</strong> Google account (free)</p>
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>💰 Cost:</strong> FREE for up to 100 queries/day<br/>
+                        After free tier: $5 per 1,000 queries (optional)
+                    </div>
+                </group>
+
+                <!-- API Key Step -->
+                <group invisible="step != 'api_key'">
+                    <div class="alert alert-info" role="alert">
+                        <h4>📝 Step 1: Get Your API Key</h4>
+                        <ol>
+                            <li>Go to: <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Google Custom Search API</a>
+                            </li>
+                            <li>Click <strong>"Get a Key"</strong>
+                            </li>
+                            <li>Create or select a project</li>
+                            <li>Copy your API key</li>
+                            <li>Paste it below</li>
+                        </ol>
+                    </div>
+                    <field name="api_key" password="True" placeholder="AIzaSyABC123..."/>
+                    <div class="text-muted">
+                        Your API key starts with "AIzaSy..." and is 39 characters long
+                    </div>
+                </group>
+
+                <!-- Search Engine Step -->
+                <group invisible="step != 'search_engine'">
+                    <div class="alert alert-info" role="alert">
+                        <h4>🔧 Step 2: Create Search Engine</h4>
+                        <ol>
+                            <li>Go to: <a href="https://programmablesearchengine.google.com/controlpanel/create" target="_blank">Create Search Engine</a>
+                            </li>
+                            <li>Name it: "Lead Research Engine"</li>
+                            <li>Search the entire web: Select <strong>"Search the entire web"</strong>
+                            </li>
+                            <li>Click <strong>"Create"</strong>
+                            </li>
+                            <li>Copy the <strong>Search Engine ID</strong>
+                            </li>
+                            <li>Paste it below</li>
+                        </ol>
+                    </div>
+                    <field name="search_engine_id" placeholder="017576662512468239146:omuauf_lfve"/>
+                    <div class="text-muted">
+                        Search Engine ID is a long string with numbers and colons
+                    </div>
+                </group>
+
+                <!-- Test Step -->
+                <group invisible="step != 'test'">
+                    <div class="alert alert-info" role="alert">
+                        <h4>✅ Step 3: Test Your Configuration</h4>
+                        <p>Let's verify everything is working correctly.</p>
+                    </div>
+                    <field name="api_key" readonly="1" password="True"/>
+                    <field name="search_engine_id" readonly="1"/>
+                    <field name="test_query" placeholder="Try: Tesla Inc"/>
+                    <button name="action_test_connection" string="Run Test" type="object" class="btn-primary"/>
+                    <field name="test_result" readonly="1" widget="text" invisible="not test_result"/>
+                </group>
+
+                <!-- Complete Step -->
+                <group invisible="step != 'complete'">
+                    <div class="alert alert-success" role="alert">
+                        <h3>🎉 Setup Complete!</h3>
+                        <p>
+                            <strong>Google Custom Search is now enabled.</strong>
+                        </p>
+                        <p>Your leads will now benefit from:</p>
+                        <ul>
+                            <li>✅ Real-time web research</li>
+                            <li>✅ Recent company news</li>
+                            <li>✅ More accurate insights</li>
+                            <li>✅ Better lead scoring</li>
+                        </ul>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        <strong>💡 Usage Tips:</strong>
+                        <ul>
+                            <li>Free quota: 100 searches/day (resets daily)</li>
+                            <li>Each lead enrichment uses 2-3 searches</li>
+                            <li>~30-40 leads can be enriched per day for free</li>
+                            <li>Monitor usage in CRM settings</li>
+                        </ul>
+                    </div>
+                </group>
+
+                <footer>
+                    <button string="Previous" name="action_previous_step" type="object" invisible="step == 'intro' or step == 'complete'" class="btn-secondary"/>
+                    <button string="Next" name="action_next_step" type="object" invisible="step == 'complete'" class="btn-primary"/>
+                    <button string="Save &amp; Close" name="action_save_and_close" type="object" invisible="step != 'complete'" class="btn-success"/>
+                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_google_search_setup_wizard" model="ir.actions.act_window">
+        <field name="name">Google Custom Search Setup</field>
+        <field name="res_model">google.search.setup.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

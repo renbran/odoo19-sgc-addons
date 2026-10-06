@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_pricing_tiers" name="SGC Pricing Tiers">
+        <section class="s_sgc_pricing_tiers sgc-watermark--skyline sgc-geo--arabesque sgc-palette--navy-cream"
+                 data-name="SGC Pricing Tiers" data-snippet="s_sgc_pricing_tiers">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container text-center sgc-reveal">
+                <h2 class="s_sgc_pricing_tiers_title">Flexible Engagement. <span class="sgc-accent-word">Scalable Results.</span></h2>
+                <p class="s_sgc_pricing_tiers_kicker">Four tiers. Endless possibilities.</p>
+                <div class="row align-items-end s_sgc_pricing_tiers_row">
+                    <div class="col-6 col-lg-3 s_sgc_pricing_card s_sgc_pricing_card--1">
+                        <span class="s_sgc_pricing_tier_name">Tier 1 — Office</span>
+                        <span class="s_sgc_pricing_price">AED 15,000</span>
+                        <span class="s_sgc_pricing_level">Foundation Level</span>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_pricing_card s_sgc_pricing_card--2">
+                        <span class="s_sgc_pricing_tier_name">Tier 2 — Developer Ops</span>
+                        <span class="s_sgc_pricing_price">AED 22,000</span>
+                        <span class="s_sgc_pricing_level">Expansion Level</span>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_pricing_card s_sgc_pricing_card--3">
+                        <span class="s_sgc_pricing_tier_name">Tier 3 — Growth</span>
+                        <span class="s_sgc_pricing_price">AED 40,000</span>
+                        <span class="s_sgc_pricing_level">Strategic Level</span>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_pricing_card s_sgc_pricing_card--4">
+                        <span class="s_sgc_pricing_tier_name">Tier 4 — Entities</span>
+                        <span class="s_sgc_pricing_price">AED 75,000</span>
+                        <span class="s_sgc_pricing_level">Enterprise Level</span>
+                    </div>
+                </div>
+                <div class="row text-center s_sgc_pricing_tiers_points">
+                    <div class="col-6 col-lg-3"><i class="fa fa-compass"/><span>Establish Clarity</span></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-bar-chart"/><span>Drive Momentum</span></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-star"/><span>Create Lasting Impact</span></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-refresh"/><span>Realise Transformation</span></div>
+                </div>
+            </div>
+            <div class="s_sgc_pricing_tiers_bar text-center">
+                <span>One partner. Every stage. Real results.</span>
+            </div>
+        </section>
+    </template>
+</odoo>

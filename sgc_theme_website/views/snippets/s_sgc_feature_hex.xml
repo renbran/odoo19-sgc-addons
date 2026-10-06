@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_feature_hex" name="SGC Feature Grid">
+        <section class="s_sgc_feature_hex sgc-hex-hover" data-name="SGC Feature Grid" data-snippet="s_sgc_feature_hex">
+            <div class="container">
+                <div class="text-center mb-5 sgc-reveal">
+                    <h2>Why teams choose SGC</h2>
+                    <p class="lead">Engineered advantages, delivered as one system.</p>
+                </div>
+                <div class="row s_sgc_feature_grid row-cols-1 row-cols-md-3 g-4">
+                    <div class="col">
+                        <div class="s_sgc_feature sgc-reveal">
+                            <div class="sgc-hex"><i class="fa fa-bolt" role="img" aria-label="Automation"/></div>
+                            <h4>Automation first</h4>
+                            <p>Cut manual steps with workflows tuned to your operation.</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="s_sgc_feature sgc-reveal">
+                            <div class="sgc-hex"><i class="fa fa-shield" role="img" aria-label="Security"/></div>
+                            <h4>Secure by design</h4>
+                            <p>Role-based access and audit trails baked in from day one.</p>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="s_sgc_feature sgc-reveal">
+                            <div class="sgc-hex"><i class="fa fa-line-chart" role="img" aria-label="Insight"/></div>
+                            <h4>Clear insight</h4>
+                            <p>Dashboards that turn data into decisions, not noise.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

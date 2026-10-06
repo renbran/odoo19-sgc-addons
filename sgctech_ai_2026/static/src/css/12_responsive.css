@@ -1,0 +1,94 @@
+/* ── 12_responsive.css ────────────────────────────────────── */
+
+/* ── 1280px — large desktop ──────────────────────────────── */
+@media (max-width: 1280px) {
+  :root { --container: 1100px; }
+  .sgc26-hero__h1 { font-size: clamp(2.2rem, 5.5vw, 4.2rem); }
+  .sgc26-pricing-grid { gap: var(--sp-6); }
+}
+
+/* ── 1024px — tablet landscape ───────────────────────────── */
+@media (max-width: 1024px) {
+  :root { --section-y: 5rem; --nav-h: 70px; }
+  .sgc26-hero__inner { grid-template-columns: 1fr; gap: var(--sp-12); text-align: center; }
+  .sgc26-hero__left { align-items: center; }
+  .sgc26-hero__sub { max-width: 640px; }
+  .sgc26-hero__right { display: none; }
+  .sgc26-footer__grid { grid-template-columns: 1fr 1fr; }
+  .sgc26-pricing-grid { grid-template-columns: 1fr 1fr; }
+  .sgc26-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .sgc26-industry-featured { grid-template-columns: 1fr; }
+}
+
+/* ── 768px — tablet portrait ─────────────────────────────── */
+@media (max-width: 768px) {
+  :root { --section-y: 4rem; --sp-8: 1.5rem; }
+
+  /* Nav: hide links, show hamburger */
+  .sgc26-nav__links,
+  .sgc26-nav__cta { display: none; }
+  .sgc26-nav__hamburger { display: flex; }
+
+  /* Grids collapse to single column */
+  .sgc26-grid-2,
+  .sgc26-grid-3,
+  .sgc26-grid-4 { grid-template-columns: 1fr; }
+  .sgc26-pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+  .sgc26-footer__grid { grid-template-columns: 1fr; }
+
+  /* Featured industry card */
+  .sgc26-industry-featured { padding: var(--sp-8); }
+  .sgc26-industry-featured::before { width: 100%; height: 3px; bottom: auto; right: 0; }
+
+  /* Hero adjustments */
+  .sgc26-hero__badge { font-size: 0.72rem; }
+  .sgc26-hero__chip { display: none; }
+
+  /* Cards */
+  .sgc26-card,
+  .sgc26-feature-card,
+  .sgc26-pricing-card,
+  .sgc26-industry-card { border-radius: var(--r-xl); }
+}
+
+/* ── 480px — mobile ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  :root { --section-y: 3rem; }
+
+  .sgc26-container,
+  .sgc26-container-wide { padding: 0 var(--sp-4); }
+
+  .sgc26-h1 { font-size: 2rem; }
+  .sgc26-h2 { font-size: 1.6rem; }
+  .sgc26-hero__h1 { font-size: 2.2rem; }
+  .sgc26-kpi-number { font-size: 2rem; }
+
+  .sgc26-btn-lg { padding: 0.875rem 1.75rem; font-size: 1rem; }
+  .sgc26-cta-group { flex-direction: column; align-items: stretch; }
+  .sgc26-cta-group .sgc26-btn { text-align: center; justify-content: center; }
+
+  .sgc26-pricing-toggle { flex-direction: column; gap: var(--sp-3); }
+
+  .sgc26-footer__legal { text-align: center; }
+  .sgc26-footer__email-form { flex-direction: column; }
+
+  /* Chip cards always hidden on small screens */
+  .sgc26-hero__chip { display: none; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .sgc26-mesh-bg { animation: none; }
+  [data-sgc-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- ==================== KYC NOTIFICATION SEARCH VIEW ==================== -->
+        
+        <record id="view_kyc_notification_search" model="ir.ui.view">
+            <field name="name">kyc.notification.search</field>
+            <field name="model">kyc.notification</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="kyc_application_id"/>
+                    <field name="partner_name"/>
+                    <field name="recipient_email"/>
+                    <field name="subject"/>
+                    <field name="notification_type"/>
+                    <field name="status"/>
+                    
+                    
+                    
+                    <!-- Status Filters -->
+                    <filter name="filter_draft" string="Draft" domain="[('status', '=', 'draft')]"/>
+                    <filter name="filter_scheduled" string="Scheduled" domain="[('status', '=', 'scheduled')]"/>
+                    <filter name="filter_sent" string="Sent" domain="[('status', '=', 'sent')]"/>
+                    <filter name="filter_failed" string="Failed" domain="[('status', '=', 'failed')]"/>
+                    <filter name="filter_read" string="Read" domain="[('status', '=', 'read')]"/>
+                    
+                    
+                    
+                    <!-- Delivery Filters -->
+                    <filter name="filter_email_enabled" string="Email Enabled" domain="[('email_enabled', '=', True)]"/>
+                    <filter name="filter_sms_enabled" string="SMS Enabled" domain="[('sms_enabled', '=', True)]"/>
+                    <filter name="filter_inapp_enabled" string="In-App Notification" domain="[('inapp_enabled', '=', True)]"/>
+                    
+                    
+                    
+                    <!-- Priority Filters -->
+                    <filter name="filter_urgent" string="Urgent" domain="[('priority', '=', 'urgent')]"/>
+                    <filter name="filter_high_priority" string="High Priority" domain="[('priority', '=', 'high')]"/>
+                    <filter name="filter_critical" string="Critical" domain="[('is_critical', '=', True)]"/>
+                    <filter name="filter_pending_acknowledgment" string="Pending Acknowledgment" domain="[('requires_acknowledgment', '=', True), ('acknowledged_date', '=', False)]"/>
+                    
+                    
+                    
+                    <!-- Type Filters -->
+                    <filter name="filter_approval_workflow" string="Approval Workflow" domain="[('notification_category', '=', 'approval_workflow')]"/>
+                    <filter name="filter_document_request" string="Document Request" domain="[('notification_category', '=', 'document_request')]"/>
+                    <filter name="filter_reminder" string="Reminder" domain="[('notification_category', '=', 'reminder')]"/>
+                    
+                    
+                    
+                    <group>
+                        <filter name="group_by_status" string="Status" context="{'group_by': 'status'}"/>
+                        <filter name="group_by_notification_type" string="Notification Type" context="{'group_by': 'notification_type'}"/>
+                        <filter name="group_by_priority" string="Priority" context="{'group_by': 'priority'}"/>
+                        <filter name="group_by_recipient_type" string="Recipient Type" context="{'group_by': 'recipient_type'}"/>
+                        <filter name="group_by_create_date" string="Created Date" context="{'group_by': 'create_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC NOTIFICATION TREE VIEW ==================== -->
+        
+        <record id="view_kyc_notification_tree" model="ir.ui.view">
+            <field name="name">kyc.notification.tree</field>
+            <field name="model">kyc.notification</field>
+            <field name="arch" type="xml">
+                <list decoration-success="status == 'sent'" decoration-danger="status == 'failed'" decoration-warning="status == 'scheduled'" decoration-info="status == 'draft'">
+                    <field name="kyc_application_id"/>
+                    <field name="subject"/>
+                    <field name="recipient_email"/>
+                    <field name="notification_type"/>
+                    <field name="status" decoration-success="status == 'sent'" decoration-danger="status == 'failed'"/>
+                    <field name="priority" decoration-danger="priority in ('urgent')" decoration-warning="priority == 'high'"/>
+                    <field name="email_sent" widget="boolean" optional="hide"/>
+                    <field name="sms_sent" widget="boolean" optional="hide"/>
+                    <field name="create_date" widget="date"/>
+                    <field name="email_sent_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC NOTIFICATION FORM VIEW ==================== -->
+        
+        <record id="view_kyc_notification_form" model="ir.ui.view">
+            <field name="name">kyc.notification.form</field>
+            <field name="model">kyc.notification</field>
+            <field name="arch" type="xml">
+                <form class="o_kyc_form o_kyc_notification_form">
+                    <!-- Status Bar -->
+                    <header>
+                        <button name="action_send_email" string="Send Email" type="object" 
+                                class="btn-primary"/>
+                        <button name="action_send_sms" string="Send SMS" type="object" 
+                                class="btn-primary"/>
+                        <button name="action_schedule" string="Schedule" type="object" class="btn-info"/>
+                        <button name="action_retry_send" string="Retry" type="object" class="btn-warning"/>
+                        <button name="action_acknowledge" string="Acknowledge" type="object" 
+                                class="btn-success"/>
+                        
+                        <field name="status" widget="statusbar" statusbar_visible="draft,scheduled,sent,failed,read"/>
+                    </header>
+                    
+                    <!-- Sheet -->
+                    <sheet class="o_kyc_sheet">
+                        <!-- Alerts -->
+                        <div class="alert alert-danger o_kyc_alert o_kyc_alert_danger" role="alert" invisible="not is_critical">
+                            <strong>Critical Notification:</strong> This is a critical notification requiring immediate action.
+                        </div>
+                        
+                        <div class="alert alert-warning o_kyc_alert o_kyc_alert_warning" role="alert" invisible="not requires_acknowledgment">
+                            <strong>Acknowledgment Required:</strong> This notification requires recipient acknowledgment.
+                        </div>
+                        
+                        <div class="alert alert-danger o_kyc_alert o_kyc_alert_danger" role="alert" invisible="status != 'failed'">
+                            <strong>Send Failed:</strong> <field name="last_error" inline="1"/><br/>
+                            Attempts: <field name="send_attempts" inline="1"/> / <field name="max_send_attempts" inline="1"/>
+                        </div>
+                        
+                        <!-- Header -->
+                        <div class="oe_title o_kyc_title_block">
+                            <h1>
+                                <field name="subject"/>
+                            </h1>
+                            <div class="row o_kyc_summary_row">
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Application:</strong>
+                                    <field name="kyc_application_id" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Type:</strong>
+                                    <field name="notification_type" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Status:</strong>
+                                    <field name="status" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Priority:</strong>
+                                    <field name="priority" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabs -->
+                        <notebook>
+                            <!-- BASIC INFO TAB -->
+                            <page string="Notification Information" name="notification_info">
+                                <group>
+                                    <group string="Application &amp; Type">
+                                        <field name="kyc_application_id" readonly="1"/>
+                                        <field name="partner_name" readonly="1"/>
+                                        <field name="kyc_state" readonly="1"/>
+                                        <field name="notification_type" readonly="1"/>
+                                        <field name="notification_category" readonly="1"/>
+                                    </group>
+                                    
+                                    <group string="Priority &amp; Urgency">
+                                        <field name="priority"/>
+                                        <field name="is_critical" widget="boolean"/>
+                                        <field name="requires_acknowledgment" widget="boolean"/>
+                                        <field name="acknowledged_by_id" readonly="1"/>
+                                        <field name="acknowledged_date" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- RECIPIENT TAB -->
+                            <page string="Recipients" name="recipients">
+                                <group>
+                                    <group string="Recipient Information">
+                                        <field name="recipient_type"/>
+                                        <field name="recipient_user_id"/>
+                                        <field name="recipient_partner_id"/>
+                                        <field name="recipient_email" required="1"/>
+                                        <field name="phone_number"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- CONTENT DELIVERY TAB -->
+                            <page string="Content &amp; Delivery" name="content_delivery">
+                                <group string="Message Content">
+                                    <field name="subject" nolabel="1" colspan="2" required="1"/>
+                                    <field name="body" nolabel="1" colspan="2"/>
+                                    <field name="summary" nolabel="1" colspan="2"/>
+                                </group>
+                                
+                                <group string="Delivery Channels" colspan="2">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <strong>Email</strong>
+                                            <field name="email_enabled" widget="boolean"/>
+                                            <field name="email_sent" widget="boolean" readonly="1"/>
+                                            <field name="email_sent_date" readonly="1"/>
+                                            <field name="email_bounce" widget="boolean" readonly="1"/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>SMS</strong>
+                                            <field name="sms_enabled" widget="boolean"/>
+                                            <field name="sms_sent" widget="boolean" readonly="1"/>
+                                            <field name="sms_sent_date" readonly="1"/>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <strong>In-App</strong>
+                                            <field name="inapp_enabled" widget="boolean"/>
+                                            <field name="inapp_created" widget="boolean" readonly="1"/>
+                                            <field name="inapp_read" widget="boolean" readonly="1"/>
+                                            <field name="inapp_read_date" readonly="1"/>
+                                        </div>
+                                    </div>
+                                </group>
+                                
+                                <group string="Delivery Status">
+                                    <field name="delivery_status" readonly="1" nolabel="1" colspan="2"/>
+                                </group>
+                            </page>
+                            
+                            <!-- SCHEDULING TAB -->
+                            <page string="Scheduling" name="scheduling">
+                                <group>
+                                    <group string="Send Scheduling">
+                                        <field name="schedule_send" widget="boolean"/>
+                                        <field name="send_date"/>
+                                        <field name="time_until_send" readonly="1"/>
+                                    </group>
+                                    
+                                    <group string="Reminder Configuration">
+                                        <field name="is_reminder" widget="boolean"/>
+                                        <field name="reminder_days_before"/>
+                                        <field name="reminder_date" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- TEMPLATES TAB -->
+                            <page string="Templates" name="templates">
+                                <group>
+                                    <field name="email_template_id"/>
+                                    <field name="sms_template_id"/>
+                                </group>
+                            </page>
+                            
+                            <!-- ATTACHMENTS TAB -->
+                            <page string="Attachments" name="attachments">
+                                <field name="attachment_ids" nolabel="1"/>
+                            </page>
+                            
+                            <!-- AUDIT TRAIL TAB -->
+                            <page string="Audit Trail" name="audit_trail">
+                                <group>
+                                    <group string="Creation Information">
+                                        <field name="created_by_id" readonly="1"/>
+                                        <field name="create_date" readonly="1"/>
+                                    </group>
+                                    
+                                    <group string="Send Information">
+                                        <field name="sent_by_id" readonly="1"/>
+                                        <field name="send_attempts" readonly="1"/>
+                                        <field name="max_send_attempts" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <chatter reload_on_post="True">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </chatter>
+                </form>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC NOTIFICATION KANBAN VIEW ==================== -->
+        
+        <record id="view_kyc_notification_kanban" model="ir.ui.view">
+            <field name="name">kyc.notification.kanban</field>
+            <field name="model">kyc.notification</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kyc_kanban" default_group_by="status" quick_create="false">
+                    <field name="status"/>
+                    <field name="kyc_application_id"/>
+                    <field name="subject"/>
+                    <field name="recipient_email"/>
+                    <field name="priority"/>
+                    <field name="delivery_status"/>
+                    <field name="is_critical"/>
+                    <field name="requires_acknowledgment"/>
+                    <field name="acknowledged_date"/>
+                    
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_card o_kyc_kanban_card">
+                                <div class="oe_kanban_content o_kyc_kanban_content">
+                                    <div class="oe_kanban_title o_kyc_kanban_title">
+                                        <strong><field name="subject"/></strong>
+                                    </div>
+                                    <div class="oe_kanban_subtitle o_kyc_kanban_subtitle">
+                                        <field name="kyc_application_id"/>
+                                    </div>
+                                    <div class="oe_kanban_text o_kyc_kanban_text">
+                                        <small>
+                                            <field name="recipient_email"/>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="oe_kanban_footer_left o_kyc_kanban_footer_left">
+                                        <small>
+                                            <span t-if="record.priority.raw_value == 'urgent'" class="badge badge-danger">Urgent</span>
+                                            <span t-elif="record.priority.raw_value == 'high'" class="badge badge-warning">High</span>
+                                            <span t-elif="record.is_critical.raw_value" class="badge badge-danger">Critical</span>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="oe_kanban_footer_right o_kyc_kanban_footer_right">
+                                        <span t-if="record.requires_acknowledgment.raw_value and !record.acknowledged_date.value" class="badge badge-info">ACK</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="oe_kanban_card_bottom o_kyc_kanban_card_bottom" style="margin-top: 5px;">
+                                    <button name="action_send_email" string="Email" type="object" 
+                                            class="btn btn-sm btn-primary"/>
+                                    <button name="action_schedule" string="Schedule" type="object" 
+                                            class="btn btn-sm btn-info"/>
+                                    <button name="action_acknowledge" string="ACK" type="object" 
+                                            class="btn btn-sm btn-success"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- ==================== ACTION WINDOWS ==================== -->
+        
+        <record id="action_kyc_notification" model="ir.actions.act_window">
+            <field name="name">KYC Notifications</field>
+            <field name="res_model">kyc.notification</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="search_view_id" ref="view_kyc_notification_search"/>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Click to create a new notification.
+                </p>
+            </field>
+        </record>
+        
+        <record id="action_kyc_notification_pending" model="ir.actions.act_window">
+            <field name="name">Pending Notifications</field>
+            <field name="res_model">kyc.notification</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('status', 'in', ('draft', 'scheduled'))]</field>
+        </record>
+        
+        <record id="action_kyc_notification_failed" model="ir.actions.act_window">
+            <field name="name">Failed Notifications</field>
+            <field name="res_model">kyc.notification</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('status', '=', 'failed')]</field>
+        </record>
+        
+        <record id="action_kyc_notification_critical" model="ir.actions.act_window">
+            <field name="name">Critical Notifications</field>
+            <field name="res_model">kyc.notification</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('is_critical', '=', True)]</field>
+        </record>
+        
+    </data>
+</odoo>
+
+

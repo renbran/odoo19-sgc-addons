@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Transaction Monitoring      -->
+        <!-- Runs daily at 2:00 AM                        -->
+        <!-- ============================================ -->
+        <record id="cron_transaction_monitoring" model="ir.cron">
+            <field name="name">AML: Transaction Monitoring Scan</field>
+            <field name="model_id" ref="model_aml_transaction_alert"/>
+            <field name="state">code</field>
+            <field name="code">model.run_transaction_monitoring()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Sanctions Batch Screening   -->
+        <!-- Runs weekly on Sunday                        -->
+        <!-- ============================================ -->
+        <record id="cron_batch_screening" model="ir.cron">
+            <field name="name">AML: Batch Sanctions Screening</field>
+            <field name="model_id" ref="model_aml_screening_result"/>
+            <field name="state">code</field>
+            <field name="code">model.run_batch_screening()</field>
+            <field name="interval_number">7</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Free Sanctions List Sync    -->
+        <!-- Runs weekly to refresh UN/OFAC/EU/UK feeds    -->
+        <!-- ============================================ -->
+        <record id="cron_free_sanctions_sync" model="ir.cron">
+            <field name="name">AML: Free Sanctions Sources Sync</field>
+            <field name="model_id" ref="model_aml_opensanctions_config"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_sync_free_lists()</field>
+            <field name="interval_number">7</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Auto-Escalate High Severity Alerts -->
+        <!-- Runs every 4 hours                            -->
+        <!-- ============================================ -->
+        <record id="cron_auto_escalate_alerts" model="ir.cron">
+            <field name="name">AML: Auto-Escalate High Severity Alerts</field>
+            <field name="model_id" ref="model_aml_transaction_alert"/>
+            <field name="state">code</field>
+            <field name="code">model.auto_escalate_high_severity()</field>
+            <field name="interval_number">4</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Full OpenSanctions Sync     -->
+        <!-- Runs monthly — streams 1.2 M+ records from   -->
+        <!-- OpenSanctions default dataset                 -->
+        <!-- ============================================ -->
+        <record id="cron_full_sanctions_sync" model="ir.cron">
+            <field name="name">AML: Full OpenSanctions Dataset Sync (1.2M+)</field>
+            <field name="model_id" ref="model_aml_opensanctions_config"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_sync_full_dataset()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Periodic Review Scheduler   -->
+        <!-- Runs daily — checks next_review_date          -->
+        <!-- ============================================ -->
+        <record id="cron_periodic_review" model="ir.cron">
+            <field name="name">AML: Periodic Review Reminder</field>
+            <field name="model_id" ref="model_aml_risk_assessment"/>
+            <field name="state">code</field>
+            <field name="code">model.run_periodic_review_check()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Scheduled Action: Document Expiry Check       -->
+        <!-- Runs daily — checks KYC document expiry dates -->
+        <!-- ============================================ -->
+        <record id="cron_document_expiry" model="ir.cron">
+            <field name="name">AML: Document Expiry Monitor</field>
+            <field name="model_id" ref="model_aml_risk_assessment"/>
+            <field name="state">code</field>
+            <field name="code">model.run_document_expiry_check()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="True"/>
+            <field name="doall" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

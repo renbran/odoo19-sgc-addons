@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="fetchmail_hiring" model="fetchmail.server">
+        <field name="name">Mailcow HR - hiring@sgctech.ai</field>
+        <field name="server">mail.sgctech.ai</field>
+        <field name="server_type">imap</field>
+        <field name="port">993</field>
+        <field name="is_ssl">True</field>
+        <field name="user">hiring@sgctech.ai</field>
+        <field name="password"></field>
+        <field name="object_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="state">draft</field>
+        <field name="active">True</field>
+        <field name="attach">True</field>
+        <field name="original">True</field>
+        <field name="configuration">Created by sgc_recruitment_ai module. Set password and activate via Settings &gt; Technical &gt; Incoming Mail Servers.</field>
+    </record>
+
+    <record id="fetchmail_recruitment" model="fetchmail.server">
+        <field name="name">Mailcow HR - recruitment@sgctech.ai</field>
+        <field name="server">mail.sgctech.ai</field>
+        <field name="server_type">imap</field>
+        <field name="port">993</field>
+        <field name="is_ssl">True</field>
+        <field name="user">recruitment@sgctech.ai</field>
+        <field name="password"></field>
+        <field name="object_id" ref="hr_recruitment.model_hr_applicant"/>
+        <field name="state">draft</field>
+        <field name="active">True</field>
+        <field name="attach">True</field>
+        <field name="original">True</field>
+        <field name="configuration">Created by sgc_recruitment_ai module. Set password and activate via Settings &gt; Technical &gt; Incoming Mail Servers.</field>
+    </record>
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_bank_email_monitor_root"
+              name="Email Transactions"
+              parent="account.menu_finance"
+              sequence="99"/>
+
+    <menuitem id="menu_bank_email_transaction_list"
+              name="Parsed Transactions"
+              parent="menu_bank_email_monitor_root"
+              action="action_bank_email_transaction"
+              sequence="10"/>
+
+    <menuitem id="menu_bank_vendor_rule_list"
+              name="Vendor Rules"
+              parent="menu_bank_email_monitor_root"
+              action="action_bank_vendor_rule"
+              sequence="20"
+              groups="account.group_account_user"/>
+</odoo>

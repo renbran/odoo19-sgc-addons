@@ -1,0 +1,96 @@
+/* =====================================================================
+   CRM Executive Dashboard — Dark Theme Variant
+   =====================================================================
+   Activated by adding the ``ced-theme-dark`` class to the root
+   .ced-dashboard element. Deep navy base with gold accents.
+   ===================================================================== */
+
+.ced-dashboard.ced-theme-dark {
+    background: #050d18;
+    color: var(--ced-white);
+}
+
+.ced-dashboard.ced-theme-dark .ced-dashboard__title {
+    color: var(--ced-secondary);
+}
+
+.ced-dashboard.ced-theme-dark .ced-section__title {
+    color: var(--ced-secondary);
+    border-bottom-color: var(--ced-secondary-soft);
+}
+
+.ced-dashboard.ced-theme-dark .ced-kpi-card,
+.ced-dashboard.ced-theme-dark .ced-chart,
+.ced-dashboard.ced-theme-dark .ced-productivity-card,
+.ced-dashboard.ced-theme-dark .ced-leads-card,
+.ced-dashboard.ced-theme-dark .ced-alert {
+    background: #0a1628;
+    color: var(--ced-white);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.ced-dashboard.ced-theme-dark .ced-kpi-card__title,
+.ced-dashboard.ced-theme-dark .ced-kpi-card__value,
+.ced-dashboard.ced-theme-dark .ced-chart__title,
+.ced-dashboard.ced-theme-dark .ced-alert__title,
+.ced-dashboard.ced-theme-dark .ced-productivity-card h3,
+.ced-dashboard.ced-theme-dark .ced-leads-card h3 {
+    color: var(--ced-white);
+}
+
+.ced-dashboard.ced-theme-dark .ced-kpi-card__subtitle,
+.ced-dashboard.ced-theme-dark .ced-productivity-card td,
+.ced-dashboard.ced-theme-dark .ced-leads-card td,
+.ced-dashboard.ced-theme-dark .ced-alert__message,
+.ced-dashboard.ced-theme-dark .ced-chart__subtitle {
+    color: var(--ced-white);
+    opacity: 0.75;
+}
+
+.ced-dashboard.ced-theme-dark .ced-productivity-card td,
+.ced-dashboard.ced-theme-dark .ced-leads-card td {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.ced-dashboard.ced-theme-dark .ced-productivity-card td:last-child,
+.ced-dashboard.ced-theme-dark .ced-leads-card td:last-child {
+    color: var(--ced-secondary);
+}
+
+.ced-dashboard.ced-theme-dark .ced-funnel__stage {
+    background: #0a1628;
+}
+
+.ced-dashboard.ced-theme-dark .ced-funnel__bar {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.ced-dashboard.ced-theme-dark .ced-funnel__count,
+.ced-dashboard.ced-theme-dark .ced-funnel__value {
+    color: var(--ced-secondary);
+}
+
+.ced-dashboard.ced-theme-dark .ced-kpi-card--gold {
+    background: linear-gradient(135deg, #0a1628 0%, var(--ced-secondary-soft) 100%);
+}
+
+.ced-dashboard.ced-theme-dark .ced-filter__select {
+    background: #0a1628;
+    color: var(--ced-white);
+    border-color: var(--ced-secondary-soft);
+}
+
+.ced-dashboard.ced-theme-dark .ced-btn--gold {
+    background: var(--ced-secondary);
+    color: var(--ced-primary);
+}
+
+.ced-dashboard.ced-theme-dark .ced-empty-state {
+    background: #0a1628;
+    color: var(--ced-white);
+    border-color: var(--ced-secondary-soft);
+}
+
+.ced-dashboard.ced-theme-dark .ced-loading-state {
+    color: var(--ced-white);
+}

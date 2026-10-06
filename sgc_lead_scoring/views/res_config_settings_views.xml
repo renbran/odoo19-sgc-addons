@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extend Settings View -->
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.llm.lead.scoring</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="LLM Lead Scoring" string="LLM Lead Scoring" name="llm_lead_scoring" groups="sales_team.group_sale_manager">
+                    <block title="AI-Powered Lead Scoring" id="llm_lead_scoring_settings">
+                        <setting help="Automatically enrich leads using scheduled action">
+                            <field name="auto_enrich_enabled"/>
+                            <div invisible="not auto_enrich_enabled">
+                                <div class="mt16">
+                                    <field name="auto_enrich_new_leads" class="oe_inline"/>
+                                    <label for="auto_enrich_new_leads"/>
+                                </div>
+                                <div class="mt8">
+                                    <field name="auto_enrich_on_update" class="oe_inline"/>
+                                    <label for="auto_enrich_on_update"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting help="Use LLM to research customers from publicly available sources">
+                            <field name="enable_customer_research"/>
+                        </setting>
+                    </block>
+                    <block title="Web Research Configuration (Google Custom Search)">
+                        <div class="alert alert-info">
+                            <strong>🌐 Live Web Research Integration (FREE)</strong>
+                            <br/>
+                            Google Custom Search API provides <strong>100 free searches per day</strong>.                            <br/>
+                            This enables real-time company research instead of relying on LLM's outdated training data.
+                        </div>
+                        <setting string="Enable Live Web Research" help="Use Google Custom Search API for real-time web data (100 free queries/day)">
+                            <field name="enable_web_research" widget="boolean_toggle"/>
+                            <div class="mt16" invisible="not enable_web_research">
+                                <button name="%(sgc_lead_scoring.action_google_search_setup_wizard)d" type="action" string="Setup Guide" class="btn-link" icon="fa-question-circle"/>
+                            </div>
+                        </setting>
+                        <setting string="Google API Key" invisible="not enable_web_research">
+                            <field name="google_search_api_key" password="True" placeholder="AIzaSy..."/>
+                            <div class="text-muted">
+                                Get free API key: <a href="https://developers.google.com/custom-search/v1/overview" target="_blank">Google Custom Search</a>
+                            </div>
+                        </setting>
+                        <setting string="Search Engine ID" invisible="not enable_web_research">
+                            <field name="google_search_engine_id" placeholder="017576662512468239146:omuauf_lfve"/>
+                            <div class="text-muted">
+                                Create free search engine: <a href="https://programmablesearchengine.google.com/" target="_blank">Programmable Search Engine</a>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Enhanced Research (Google Maps &amp; Digital Presence)">
+                        <div class="alert alert-warning">
+                            <strong>📍 Google Maps Integration</strong>
+                            <br/>
+                            Requires Google Maps Places API key. Provides business ratings, reviews, address verification.
+                            <br/>
+                            <a href="https://console.cloud.google.com/apis/library/places-backend.googleapis.com" target="_blank">Enable Places API</a>
+                        </div>
+                        <setting string="Enable Google Maps Lookup" help="Look up business details from Google Maps (ratings, reviews, address)">
+                            <field name="enable_maps_research" widget="boolean_toggle"/>
+                        </setting>
+                        <setting string="Google Maps API Key" invisible="not enable_maps_research">
+                            <field name="google_maps_api_key" password="True" placeholder="AIzaSy..."/>
+                            <div class="text-muted">
+                                Get API key: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a>
+                            </div>
+                        </setting>
+                        <setting string="Enable Tech Stack Analysis" help="Analyze company website for CMS, analytics, marketing tools">
+                            <field name="enable_tech_analysis" widget="boolean_toggle"/>
+                        </setting>
+                        <setting string="Enable Digital Presence Check" help="Check company presence on LinkedIn, Facebook, and other platforms">
+                            <field name="enable_digital_presence" widget="boolean_toggle"/>
+                        </setting>
+                    </block>
+                    <block title="Apollo.io Enrichment (Primary)">
+                        <div class="alert alert-info">
+                            <strong>🚀 Apollo.io Enrichment — Primary</strong>
+                            <br/>
+                            Tried first. Fills missing contact &amp; company data (job title, industry, employee count, tech stack, funding, LinkedIn, verified email, mobile phone).
+                            Uses Apollo.io API v1 Organization &amp; People Match endpoints.
+                        </div>
+                        <setting string="Apollo.io API Key" help="API key for company/person enrichment. Get it from Apollo.io > Settings > API Key">
+                            <field name="apollo_api_key" password="True" placeholder="sk_..."/>
+                            <div class="text-muted">
+                                Get API key: <a href="https://apollo.io/settings" target="_blank">Apollo.io Settings</a>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Abstract API Enrichment (Fallback)">
+                        <div class="alert alert-info">
+                            <strong>🔤 Abstract API Enrichment — Fallback 1</strong>
+                            <br/>
+                            Tried second if Apollo fails. Free tier: fills company data (industry, employee count, revenue, tech stack, LinkedIn, social profiles, description, logo).
+                            No credit card required. 100+ free lookups/month at 1 req/sec.
+                        </div>
+                        <setting string="Abstract API Key" help="API key for company enrichment. Get it from https://abstractapi.com/api/company-enrichment">
+                            <field name="abstract_api_key" password="True" placeholder="ee5e..." />
+                            <div class="text-muted">
+                                Get free API key: <a href="https://app.abstractapi.com/users/signup" target="_blank">Abstract API Signup</a>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Hunter.io Enrichment (Fallback)">
+                        <div class="alert alert-info">
+                            <strong>🔍 Hunter.io Enrichment</strong>
+                            <br/>
+                            Third fallback tier. Company enrichment by domain with industry, tags, phone, email, social profiles.
+                            Free tier: 25 requests/month. Good UAE coverage.
+                        </div>
+                        <setting string="Hunter.io API Key" help="API key for company enrichment. Get it from https://hunter.io/api-keys">
+                            <field name="hunter_api_key" password="True" placeholder="21141c..." />
+                            <div class="text-muted">
+                                Get free API key: <a href="https://hunter.io/users/sign_up" target="_blank">Hunter.io Signup</a>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="LLM Configuration">
+                        <setting string="Default LLM Provider" help="Select the default LLM provider for lead scoring">
+                            <field name="llm_provider_id" placeholder="Select LLM Provider..." context="{'form_view_ref': 'sgc_lead_scoring.view_llm_provider_form'}"/>
+                        </setting>
+                    </block>
+                    <block title="Scoring Weights">
+                        <div class="alert alert-info">
+                            Configure how different factors contribute to the AI probability score.
+                            Total must equal 100%.
+                        </div>
+                        <setting string="Completeness Weight">
+                            <field name="weight_completeness" class="oe_inline"/>
+                            <span>%</span>
+                        </setting>
+                        <setting string="Clarity Weight">
+                            <field name="weight_clarity" class="oe_inline"/>
+                            <span>%</span>
+                        </setting>
+                        <setting string="Engagement Weight">
+                            <field name="weight_engagement" class="oe_inline"/>
+                            <span>%</span>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ============================================================
+             CRM Executive Dashboard menu
+             Order matters: action records must be defined BEFORE
+             menu records that reference them.
+             ============================================================ -->
+
+        <!-- Window action that opens the dashboard URL -->
+        <record id="action_crm_dashboard_open" model="ir.actions.act_url">
+            <field name="name">Open Executive Dashboard</field>
+            <field name="type">ir.actions.act_url</field>
+            <field name="url">/crm-dashboard</field>
+            <field name="target">self</field>
+        </record>
+
+        <record id="action_crm_dashboard_executive" model="ir.actions.act_url">
+            <field name="name">Open Executive Dashboard (Executive View)</field>
+            <field name="type">ir.actions.act_url</field>
+            <field name="url">/crm-dashboard/executive</field>
+            <field name="target">self</field>
+        </record>
+
+        <!-- =============================================================
+             Window actions for new models (manager+)
+             ============================================================= -->
+        <record id="action_crm_dashboard_report_config" model="ir.actions.act_window">
+            <field name="name">Scheduled Reports</field>
+            <field name="res_model">crm.dashboard.report.config</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="search_view_id" ref="view_crm_dashboard_report_config_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Schedule your first dashboard report
+                </p>
+                <p>
+                    Configure recurring exports (daily, weekly, or monthly)
+                    and have them emailed to a list of recipients.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_crm_dashboard_report_run" model="ir.actions.act_window">
+            <field name="name">Report Run History</field>
+            <field name="res_model">crm.dashboard.report.run</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p>
+                    History of scheduled report executions.
+                    Sent and failed runs are kept for audit.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_crm_dashboard_alert_rule" model="ir.actions.act_window">
+            <field name="name">Alert Rules</field>
+            <field name="res_model">crm.dashboard.alert.rule</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="search_view_id" ref="view_crm_dashboard_alert_rule_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first alert rule
+                </p>
+                <p>
+                    Threshold-based alerts evaluated by the KPI engine.
+                    Tune sensitivity without code changes.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_crm_dashboard_filter" model="ir.actions.act_window">
+            <field name="name">Saved Filters</field>
+            <field name="res_model">crm.dashboard.filter</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_crm_dashboard_filter_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Save your favourite filter
+                </p>
+                <p>
+                    Persist the period, team, and source combinations
+                    you check often and reload them with one click.
+                </p>
+            </field>
+        </record>
+
+        <!-- =============================================================
+             Menus
+             ============================================================= -->
+
+        <!-- Top-level menu inside CRM -->
+        <record id="menu_crm_dashboard_root" model="ir.ui.menu">
+            <field name="name">Executive Dashboard</field>
+            <field name="parent_id" ref="crm.crm_menu_root"/>
+            <field name="sequence">5</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_user'))]"/>
+            <field name="action" ref="action_crm_dashboard_open"/>
+        </record>
+
+        <!-- Sub-menu: Executive View (alias URL) -->
+        <record id="menu_crm_dashboard_executive" model="ir.ui.menu">
+            <field name="name">Executive View</field>
+            <field name="parent_id" ref="menu_crm_dashboard_root"/>
+            <field name="sequence">10</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_executive'))]"/>
+            <field name="action" ref="action_crm_dashboard_executive"/>
+        </record>
+
+        <!-- Sub-menu: Alert Rules (manager+) -->
+        <record id="menu_crm_dashboard_alert_rules" model="ir.ui.menu">
+            <field name="name">Alert Rules</field>
+            <field name="parent_id" ref="menu_crm_dashboard_root"/>
+            <field name="sequence">20</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_manager'))]"/>
+            <field name="action" ref="action_crm_dashboard_alert_rule"/>
+        </record>
+
+        <!-- Sub-menu: Saved Filters (user+) -->
+        <record id="menu_crm_dashboard_filters" model="ir.ui.menu">
+            <field name="name">Saved Filters</field>
+            <field name="parent_id" ref="menu_crm_dashboard_root"/>
+            <field name="sequence">30</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_user'))]"/>
+            <field name="action" ref="action_crm_dashboard_filter"/>
+        </record>
+
+        <!-- Sub-menu: Scheduled Reports (manager+) -->
+        <record id="menu_crm_dashboard_reports" model="ir.ui.menu">
+            <field name="name">Scheduled Reports</field>
+            <field name="parent_id" ref="menu_crm_dashboard_root"/>
+            <field name="sequence">40</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_manager'))]"/>
+            <field name="action" ref="action_crm_dashboard_report_config"/>
+        </record>
+
+        <!-- Sub-menu: Run History (manager+) -->
+        <record id="menu_crm_dashboard_report_runs" model="ir.ui.menu">
+            <field name="name">Report Run History</field>
+            <field name="parent_id" ref="menu_crm_dashboard_reports"/>
+            <field name="sequence">50</field>
+            <field name="group_ids" eval="[(4, ref('crm_executive_dashboard.group_crm_dashboard_manager'))]"/>
+            <field name="action" ref="action_crm_dashboard_report_run"/>
+        </record>
+    </data>
+</odoo>

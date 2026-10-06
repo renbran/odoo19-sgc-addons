@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SGC Construction Management — End-to-End Workflow Showcase</title>
+<style>
+  :root{
+    --navy:#101b34;
+    --navy-2:#1c2c52;
+    --amber:#d97706;
+    --amber-light:#fdf1e2;
+    --green:#15803d;
+    --green-light:#eef9f1;
+    --red:#b91c1c;
+    --red-light:#fdecec;
+    --gray-50:#f7f8fa;
+    --gray-100:#eef0f4;
+    --gray-300:#d7dbe3;
+    --gray-500:#6b7280;
+    --ink:#1f2533;
+    --page-w: 1040px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:0; background:#dfe3ea;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    color: var(--ink);
+  }
+  .page{
+    width: var(--page-w);
+    margin: 28px auto;
+    background:#fff;
+    box-shadow: 0 6px 24px rgba(16,27,52,0.18);
+    position: relative;
+    padding-bottom: 64px;
+    min-height: 1320px;
+  }
+  /* ---------- Letterhead header ---------- */
+  .letterhead{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding: 26px 48px 18px 48px;
+    border-bottom: 3px solid var(--navy);
+  }
+  .letterhead .brand{ display:flex; gap:14px; align-items:flex-start; }
+  .brand-mark{
+    width:46px; height:46px; border-radius:10px;
+    background: linear-gradient(135deg, var(--navy), var(--navy-2));
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:18px; letter-spacing:0.5px; flex-shrink:0;
+  }
+  .brand-text .co-name{ font-weight:700; font-size:13.5px; color: var(--navy); line-height:1.3; }
+  .brand-text .co-addr{ font-size:10.5px; color: var(--gray-500); max-width:340px; line-height:1.4; margin-top:2px;}
+  .letterhead .doc-meta{ text-align:right; }
+  .doc-meta .kicker{ font-size:10.5px; letter-spacing:1.6px; text-transform:uppercase; color: var(--amber); font-weight:700;}
+  .doc-meta .title{ font-size:16px; font-weight:700; color: var(--navy); margin-top:2px;}
+
+  /* ---------- Footer ---------- */
+  .footer{
+    position:absolute; left:0; right:0; bottom:0;
+    display:flex; justify-content:space-between;
+    padding: 14px 48px; border-top:1px solid var(--gray-300);
+    font-size:10px; color: var(--gray-500); letter-spacing:0.3px;
+  }
+  .footer b{ color: var(--navy); }
+
+  /* ---------- Cover page ---------- */
+  .cover-body{ padding: 60px 56px 0 56px; }
+  .cover-eyebrow{
+    display:inline-block; font-size:11px; letter-spacing:2px; text-transform:uppercase;
+    color:#fff; background: var(--amber); padding:6px 14px; border-radius:20px; font-weight:700;
+  }
+  .cover-title{
+    font-size:40px; font-weight:800; color: var(--navy); margin: 22px 0 6px 0; line-height:1.15;
+  }
+  .cover-sub{ font-size:16px; color: var(--gray-500); max-width: 640px; line-height:1.6; }
+  .meta-table{
+    margin-top:34px; border-collapse:collapse; width:100%; max-width:620px;
+  }
+  .meta-table th, .meta-table td{
+    text-align:left; padding:10px 18px; font-size:12px; border:1px solid var(--gray-300);
+  }
+  .meta-table th{ background: var(--gray-100); color:var(--navy); text-transform:uppercase; letter-spacing:0.6px; font-size:10.5px;}
+  .chip-row{ margin-top:30px; display:flex; flex-wrap:wrap; gap:10px; max-width:640px; }
+  .chip{
+    background: var(--navy); color:#fff; font-size:11.5px; font-weight:600;
+    padding:8px 16px; border-radius:18px; letter-spacing:0.3px;
+  }
+  .chip.amber{ background: var(--amber); }
+  .cover-purpose{
+    margin-top:40px; background: var(--gray-50); border-left:4px solid var(--amber);
+    padding:20px 24px; max-width: 640px; border-radius: 0 8px 8px 0;
+  }
+  .cover-purpose .label{ font-size:11px; text-transform:uppercase; letter-spacing:1.2px; color:var(--amber); font-weight:700; margin-bottom:6px;}
+  .cover-purpose p{ margin:0; font-size:13.5px; line-height:1.6; color:var(--ink); }
+  .cover-shot{
+    margin: 40px 56px 0 56px;
+    border-radius:10px; overflow:hidden; border:1px solid var(--gray-300);
+    box-shadow: 0 10px 30px rgba(16,27,52,0.18);
+  }
+  .cover-shot img{ width:100%; display:block; }
+
+  /* ---------- Section page header band ---------- */
+  .section-band{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding: 26px 48px 0 48px;
+  }
+  .section-band .label{ font-size:11px; letter-spacing:1.6px; text-transform:uppercase; color: var(--amber); font-weight:700;}
+  .section-band .topic{ font-size:20px; font-weight:800; color:var(--navy); margin-top:4px;}
+  .section-band .pageno{ font-size:11px; color: var(--gray-500); }
+  .section-body{ padding: 18px 48px 0 48px; }
+
+  h3.step-title{
+    font-size:15px; color:var(--navy); margin: 26px 0 8px 0; display:flex; align-items:center; gap:10px;
+  }
+  .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:24px; height:24px; border-radius:50%; background:var(--navy); color:#fff;
+    font-size:12px; font-weight:700; flex-shrink:0;
+  }
+  p.lead{ font-size:13px; line-height:1.65; color:#3a4255; margin: 6px 0 16px 0; }
+
+  .shot{
+    border:1px solid var(--gray-300); border-radius:8px; overflow:hidden;
+    box-shadow: 0 4px 14px rgba(16,27,52,0.10); margin: 10px 0 18px 0;
+  }
+  .shot img{ width:100%; display:block; }
+  .shot .cap{
+    background: var(--gray-50); border-top:1px solid var(--gray-300);
+    padding:8px 14px; font-size:11px; color: var(--gray-500);
+  }
+
+  .callout{
+    border-radius:8px; padding:14px 18px; margin: 14px 0; font-size:12.5px; line-height:1.55;
+    border-left:4px solid var(--amber); background: var(--amber-light);
+  }
+  .callout.tip .label, .callout .label{
+    display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:1px;
+    font-weight:700; color: var(--amber); margin-bottom:4px;
+  }
+  .callout.success{ border-left-color: var(--green); background: var(--green-light); }
+  .callout.success .label{ color: var(--green); }
+  .callout.danger{ border-left-color: var(--red); background: var(--red-light); }
+  .callout.danger .label{ color: var(--red); }
+  .callout code{
+    background:#fff; border:1px solid var(--gray-300); border-radius:4px; padding:1px 6px; font-size:11.5px;
+  }
+
+  .grid2{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin:14px 0; }
+  .card{
+    border:1px solid var(--gray-300); border-radius:8px; padding:16px 18px; background:#fff;
+  }
+  .card .tag{
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase;
+    padding:3px 10px; border-radius:12px; margin-bottom:8px;
+  }
+  .tag.red{ background:var(--red-light); color:var(--red);}
+  .tag.green{ background:var(--green-light); color:var(--green);}
+  .card h4{ margin:0 0 6px 0; font-size:13.5px; color:var(--navy); }
+  .card .kpi{ font-size:22px; font-weight:800; margin:6px 0 2px 0; }
+  .card .kpi.red{ color:var(--red); }
+  .card .kpi.green{ color:var(--green); }
+  .card .kpi-sub{ font-size:11px; color:var(--gray-500); }
+
+  table.kpi-table{ width:100%; border-collapse:collapse; margin:14px 0 22px 0; font-size:11.5px;}
+  table.kpi-table th, table.kpi-table td{ border:1px solid var(--gray-300); padding:8px 12px; text-align:left;}
+  table.kpi-table th{ background:var(--navy); color:#fff; font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px;}
+  table.kpi-table tr:nth-child(even) td{ background:var(--gray-50); }
+  .pill-red{ color:var(--red); font-weight:700;}
+  .pill-green{ color:var(--green); font-weight:700;}
+
+  .flow-strip{
+    display:flex; align-items:center; gap:8px; margin: 18px 0; flex-wrap:wrap;
+  }
+  .flow-node{
+    background: var(--navy); color:#fff; font-size:11px; font-weight:600;
+    padding:8px 14px; border-radius:6px; white-space:nowrap;
+  }
+  .flow-arrow{ color: var(--amber); font-weight:800; font-size:14px; }
+
+  .toc-list{ list-style:none; padding:0; margin:18px 0; columns:2; column-gap:40px; }
+  .toc-list li{ font-size:13px; padding:7px 0; border-bottom:1px dashed var(--gray-300); color:var(--ink); }
+  .toc-list li b{ color:var(--navy); margin-right:6px; }
+
+  .closing-grid{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; margin-top:18px;}
+  @media print{
+    body{ background:#fff; }
+    .page{ box-shadow:none; margin:0; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- COVER PAGE -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Live Workflow Showcase</div>
+      <div class="title">Construction Business Suite · Odoo 19</div>
+    </div>
+  </div>
+
+  <div class="cover-body">
+    <span class="cover-eyebrow">End-to-End Walkthrough</span>
+    <div class="cover-title">From a Failed Inspection<br>to a Posted Invoice</div>
+    <p class="cover-sub">
+      A screenshot-by-screenshot walkthrough of the SGC Construction Management module,
+      run live against a fresh Odoo 19 instance. It follows real project, billing, quality,
+      and accounting records end to end — including the moment the system blocks a client
+      invoice because of a failed structural inspection, something a spreadsheet would only
+      catch after the damage was done.
+    </p>
+
+    <table class="meta-table">
+      <tr><th>Version</th><th>System</th><th>Environment</th><th>Captured</th></tr>
+      <tr>
+        <td>1.0</td>
+        <td>Odoo 19.0 / PostgreSQL 16</td>
+        <td>Local Docker Compose</td>
+        <td>June 2026</td>
+      </tr>
+    </table>
+
+    <div class="chip-row">
+      <span class="chip">Dashboard</span>
+      <span class="chip">Projects</span>
+      <span class="chip">BOQ</span>
+      <span class="chip">WBS</span>
+      <span class="chip amber">Quality Gate</span>
+      <span class="chip">RA Billing</span>
+      <span class="chip">Subcontracts</span>
+      <span class="chip">Expenses</span>
+      <span class="chip">Accounting</span>
+    </div>
+
+    <div class="cover-purpose">
+      <div class="label">What this document shows</div>
+      <p>
+        Four live demo projects, each engineered to exercise a different real-world contracting
+        scenario: a healthy in-progress job, a steady civil-works job, a troubled job with a
+        terminated subcontractor and a blocked invoice, and a clean closed-out benchmark job.
+        Every screenshot below was captured from the running application — nothing is mocked.
+      </p>
+    </div>
+  </div>
+
+  <div class="cover-shot">
+    <img src="e2e_screenshots/02_dashboard.png" alt="Construction Dashboard overview">
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>End-to-End Workflow Showcase</span>
+    <span>Page 1</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 2: CONTENTS / SCENARIO OVERVIEW -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Page Guide</div>
+      <div class="title">Contents &amp; Scenario Overview</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title">Walkthrough Contents</h3>
+    <ul class="toc-list">
+      <li><b>1.</b> Login &amp; Dashboard</li>
+      <li><b>2.</b> Project Portfolio at a Glance</li>
+      <li><b>3.</b> Planning — BOQ &amp; WBS Phases</li>
+      <li><b>4.</b> Quality Control on Marina Heights</li>
+      <li><b>5.</b> The Billing Gate — Live Block</li>
+      <li><b>6.</b> Successful Billing on Al Noor Tower</li>
+      <li><b>7.</b> Money Moving Into Accounting</li>
+      <li><b>8.</b> Subcontracts &amp; Expenses → Vendor Bills</li>
+      <li><b>9.</b> The Healthy Benchmark — Al Khail</li>
+      <li><b>10.</b> Recent Enhancements — Map, Tooltips &amp; Layout</li>
+      <li><b>11.</b> Final Dashboard — The Full Picture</li>
+    </ul>
+
+    <h3 class="step-title"><span class="step-num">★</span>The Four Demo Projects</h3>
+    <p class="lead">Each project was built to stress a different, realistic contracting scenario rather than a generic happy path.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <span class="tag red">RAG: Red</span>
+        <h4>Al Noor Tower — Residential Complex</h4>
+        <div class="kpi-sub">85M AED contract · early structural stage</div>
+        <p class="kpi-sub" style="margin-top:8px;">Steel subcontract billed progressively (2M to date, not the full 12.5M lump sum) — margin recovers to a believable <b>41.2%</b>.</p>
+      </div>
+      <div class="card">
+        <span class="tag red">RAG: Red</span>
+        <h4>Highway Bridge — Sector 7</h4>
+        <div class="kpi-sub">42M AED contract · civil works in progress</div>
+        <p class="kpi-sub" style="margin-top:8px;">Real labour and material costs recorded against the 35% earned-value claim — <b>21.8%</b> gross margin.</p>
+      </div>
+      <div class="card">
+        <span class="tag red">RAG: Red</span>
+        <h4>Marina Heights — Commercial Office Tower</h4>
+        <div class="kpi-sub">65M AED contract · subcontractor terminated</div>
+        <p class="kpi-sub" style="margin-top:8px;">A failed structural inspection blocks client billing on the affected phase while ~10.36M in real costs keep accumulating.</p>
+      </div>
+      <div class="card">
+        <span class="tag green">RAG: Green</span>
+        <h4>Al Khail Logistics Warehouse</h4>
+        <div class="kpi-sub">28M AED contract · closed out</div>
+        <p class="kpi-sub" style="margin-top:8px;">Delivered on time, on budget, zero open non-conformances — the benchmark every other project is measured against.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="label">Module Structure at a Glance</span>
+      The project sits in the middle. <b>Planning</b> (BOQ, WBS, Work Orders), <b>Execution</b> (Material Requisitions,
+      Quality Checks, Site Progress), and <b>Finance</b> (RA Billing, Progress Billing, Expenses &amp; Subcontracts) all
+      connect back to that one project record and its analytic account.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Contents &amp; Scenario Overview</span>
+    <span>Page 2</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 3: LOGIN & DASHBOARD -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 1</div>
+      <div class="title">Login &amp; Dashboard</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">1</span>Sign in to the running instance</h3>
+    <p class="lead">A fresh Odoo 19 database, provisioned by Docker Compose, with the Construction Management module already installed and demo data loaded.</p>
+    <div class="shot">
+      <img src="e2e_screenshots/01_login.png" alt="Odoo login screen">
+      <div class="cap">localhost:8069 — database <code>construction_test</code>, user <code>admin</code></div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">2</span>Land straight on the Construction Dashboard</h3>
+    <p class="lead">
+      The OWL-powered dashboard renders an ECharts portfolio view and a Leaflet site map across all
+      active projects, with live RAG (Red/Amber/Green) health indicators computed from real progress,
+      schedule, and budget data — not static labels.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/02_dashboard.png" alt="Construction dashboard with charts and map">
+      <div class="cap">Construction Dashboard — portfolio KPIs, RAG map, and project health at a glance</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Login &amp; Dashboard</span>
+    <span>Page 3</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 4: PROJECT PORTFOLIO -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 2</div>
+      <div class="title">Project Portfolio at a Glance</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">3</span>Open the Projects list</h3>
+    <p class="lead">All four demo projects, each with its client, contract value, and status visible without opening a single record.</p>
+    <div class="shot">
+      <img src="e2e_screenshots/03_projects_list.png" alt="Projects list view">
+      <div class="cap">Projects — Al Noor, Highway Bridge, Marina Heights, Al Khail</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">4</span>Drill into Marina Heights — the troubled project</h3>
+    <p class="lead">
+      Smart buttons on the project form give a single click into every related record: BOQ, WBS Phases,
+      Work Orders, Requisitions, Subcontracts, RA Billing, and Quality Checks. Marina Heights shows
+      <b>3 open Quality items</b> — that count is the thread we follow through the rest of this walkthrough.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/04_marina_project_form.png" alt="Marina Heights project form with smart buttons">
+      <div class="cap">Marina Heights Business Tower — project form with cross-model smart buttons</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Project Portfolio at a Glance</span>
+    <span>Page 4</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 5: PLANNING - BOQ & WBS -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 3</div>
+      <div class="title">Planning — BOQ &amp; WBS Phases</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">5</span>The Bill of Quantities — the rulebook for billing</h3>
+    <p class="lead">
+      The BOQ on Al Noor Tower lists every contract item with its quantity and unit rate. This becomes the
+      ceiling that RA Billing lines are checked against — a billing line can never claim more cumulative
+      quantity than the BOQ allows.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/10_boq_form.png" alt="BOQ form for Al Noor Tower">
+      <div class="cap">Main BOQ — Al Noor Tower, approved with civil, structural, electrical, and finishing lines</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">6</span>WBS Phases — breaking the job into trackable pieces</h3>
+    <p class="lead">
+      Work Breakdown Structure phases carry their own planned cost, planned/actual dates, and progress
+      percentage. The project's overall progress and RAG status are derived from these phases, not typed
+      in by hand.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/11_wbs_list.png" alt="WBS phases list for Al Noor Tower">
+      <div class="cap">WBS Phases — Foundation, Structural Works, MEP, Finishing</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Planning — BOQ &amp; WBS Phases</span>
+    <span>Page 5</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 6: QUALITY CONTROL -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 4</div>
+      <div class="title">Quality Control on Marina Heights</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">7</span>Three quality records, one real failure</h3>
+    <p class="lead">
+      A concrete cylinder test failed on columns L8–L12, a re-inspection is in progress on the remedial
+      work order, and a minor safety item was already resolved. The failed check is what matters next.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/05_marina_quality_list.png" alt="Quality checks list for Marina Heights">
+      <div class="cap">Quality Checks — Marina Heights: 1 failed, 1 in-progress re-inspection, 1 resolved safety item</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">8</span>Inside the failed inspection</h3>
+    <p class="lead">
+      The remarks and corrective action are logged directly on the record — honeycombing on columns L9
+      and L11, strength results below grade C40, demolition and recast required before re-inspection.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/06_failed_quality_check.png" alt="Failed quality check detail">
+      <div class="cap">Concrete Cylinder Test — Columns L8-L12: result Fail, state Failed</div>
+    </div>
+
+    <div class="callout danger">
+      <span class="label">Why this matters</span>
+      This single failed check, tied to the structural-frame WBS phase, is enough to stop a client invoice
+      from being created for that phase — automatically, the moment someone tries. No manual cross-checking required.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Quality Control on Marina Heights</span>
+    <span>Page 6</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 7: THE BILLING GATE - LIVE BLOCK -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 5</div>
+      <div class="title">The Billing Gate — Live Block</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">9</span>An RA Bill, approved and ready — except it isn't</h3>
+    <p class="lead">
+      RA Bill No. 1 on Marina Heights is fully drafted and internally approved, covering the structural
+      frame BOQ line. A finance user clicks <b>Create Invoice</b>.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/07_marina_rab_form.png" alt="Marina RA Billing form, approved state">
+      <div class="cap">RA Bill No. 1 — Structural Works (Quality Hold): state Approved, Create Invoice available</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">10</span>The system stops it — live, in the UI</h3>
+    <p class="lead">
+      No silent failure, no swallowed exception — a clear validation dialog naming the exact quality
+      check responsible, so the finance user knows precisely what to chase down.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/08_blocked_invoice_error.png" alt="Validation error blocking invoice creation">
+      <div class="cap">Live error: "Cannot create invoice: blocked by failed quality check(s): Concrete Cylinder Test - Columns L8-L12"</div>
+    </div>
+
+    <div class="callout success">
+      <span class="label">Scoped, not blunt</span>
+      The hold is scoped to the <b>structural-frame WBS phase</b> that the failed check belongs to — billing
+      for an unrelated, fully-complete phase on the same project still goes through normally. A failed
+      inspection on one part of the job doesn't freeze revenue for the rest of it.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>The Billing Gate — Live Block</span>
+    <span>Page 7</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 8: SUCCESSFUL BILLING -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 6</div>
+      <div class="title">Successful Billing on Al Noor Tower</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">11</span>Two RA Bills, clean and invoiced</h3>
+    <p class="lead">Al Noor Tower has no open quality holds, so both running-account bills moved straight through to invoice.</p>
+    <div class="shot">
+      <img src="e2e_screenshots/12_alnoor_ra_billing_list.png" alt="Al Noor RA Billing list">
+      <div class="cap">RA Billing — Al Noor Tower: RA Bill No. 1 (Foundation) and No. 2 (Raft Foundation), both invoiced</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">12</span>RA Bill No. 1, fully posted</h3>
+    <p class="lead">
+      Quantity-based billing against the BOQ, retention automatically calculated at 5%, and a direct link
+      to the customer invoice it generated.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/13_alnoor_rab_posted.png" alt="Al Noor RA Bill posted form">
+      <div class="cap">RA Bill No. 1 — Foundation Works: state Posted, linked Customer Invoice</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Successful Billing on Al Noor Tower</span>
+    <span>Page 8</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 9: MONEY MOVING INTO ACCOUNTING -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 7</div>
+      <div class="title">Money Moving Into Accounting</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">13</span>The generated customer invoice</h3>
+    <p class="lead">
+      One click from the RA Bill opens the real <code>account.move</code> record it created — posted,
+      numbered, with the retention deduction as a separate line, and tagged to the project's analytic
+      account so it feeds every cost report automatically.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/14_posted_invoice.png" alt="Posted customer invoice in Accounting">
+      <div class="cap">INV/2025/00001 — posted, project-tagged via analytic distribution</div>
+    </div>
+
+    <div class="flow-strip">
+      <div class="flow-node">RA Bill (Approved)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Create Invoice</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">account.move (Draft)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Posted</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Project Dashboard KPIs</div>
+    </div>
+
+    <div class="callout">
+      <span class="label">One source of truth</span>
+      Once posted, this invoice's lines are exactly what the project's <code>total_billed</code> and
+      <code>margin_percent</code> figures on the dashboard are computed from — there is no separate
+      "reporting" number to reconcile against the real ledger.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Money Moving Into Accounting</span>
+    <span>Page 9</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 10: SUBCONTRACTS & EXPENSES -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 8</div>
+      <div class="title">Subcontracts &amp; Expenses → Vendor Bills</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">14</span>A terminated subcontract, costs and all</h3>
+    <p class="lead">
+      Marina Heights' civil subcontractor was terminated for performance default after the structural
+      failure. 9.5M AED was already paid before termination — that cash genuinely left the business, so
+      it's booked as a real cost even while the matching client billing stays on hold.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/15_marina_subcontract_terminated.png" alt="Terminated subcontract form">
+      <div class="cap">Civil &amp; Structural Subcontract (Terminated) — 22M contract, 9.5M paid, final account in dispute</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">15</span>Expenses, four deep on this one project</h3>
+    <p class="lead">Progress payments, legal fees from the termination dispute, remedial rework materials, and a rejected standby-crane claim.</p>
+    <div class="shot">
+      <img src="e2e_screenshots/16_marina_expenses_list.png" alt="Marina expenses list">
+      <div class="cap">Expenses — Marina Heights: subcontract progress payment, legal fees, rework materials, one rejected claim</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">16</span>From expense to posted vendor bill</h3>
+    <p class="lead">Approving an expense and creating its bill produces a real <code>account.move</code> (vendor bill), posted and tagged to the same project.</p>
+    <div class="shot">
+      <img src="e2e_screenshots/17_marina_expense_form.png" alt="Marina expense form with linked vendor bill">
+      <div class="cap">Civil Subcontract — Progress Payment to Date: state Posted, linked Vendor Bill</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Subcontracts &amp; Expenses → Vendor Bills</span>
+    <span>Page 10</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 11: THE HEALTHY BENCHMARK -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 9</div>
+      <div class="title">The Healthy Benchmark — Al Khail</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">17</span>What "done right" looks like</h3>
+    <p class="lead">
+      Al Khail Logistics Warehouse closed out on time, on budget, with zero open non-conformances at
+      handover. Every WBS phase is complete, every work order is done, and the final earned-value
+      invoice is posted.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/18_alkhail_project_form.png" alt="Al Khail project form, completed">
+      <div class="cap">Al Khail Logistics Warehouse Complex — state Completed, RAG Green</div>
+    </div>
+
+    <table class="kpi-table">
+      <tr><th>Project</th><th>RAG</th><th>Billed</th><th>Expenses</th><th>Margin</th></tr>
+      <tr><td>Al Noor Tower</td><td class="pill-red">Red</td><td>4.87M</td><td>2.87M</td><td>41.2%</td></tr>
+      <tr><td>Highway Bridge</td><td class="pill-red">Red</td><td>14.70M</td><td>11.50M</td><td>21.8%</td></tr>
+      <tr><td>Marina Heights</td><td class="pill-red">Red</td><td>0 (blocked)</td><td>10.36M</td><td>0%</td></tr>
+      <tr><td><b>Al Khail Warehouse</b></td><td class="pill-green">Green</td><td>6.00M</td><td>5.46M</td><td><b>9.0%</b></td></tr>
+    </table>
+
+    <div class="callout success">
+      <span class="label">The contrast is the point</span>
+      Four projects, four different real outcomes — computed live from posted accounting records,
+      not hand-typed into the demo. That's the difference between a system that manages this and a
+      spreadsheet that just stores it.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>The Healthy Benchmark — Al Khail</span>
+    <span>Page 11</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 12: RECENT ENHANCEMENTS -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 10</div>
+      <div class="title">Recent Enhancements — Map, Tooltips &amp; Layout</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">19</span>Hero KPI row &amp; financial layout</h3>
+    <p class="lead">
+      The dashboard was restructured into a hero/financial layout: ten KPI tiles (revenue, direct costs,
+      net operating profit, active WIP, critical-risk count, WIP value, receivables, open RFQs, open NCRs,
+      equipment utilization) sit above a live Project Health Matrix scatter chart and a critical-alerts feed.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/20_dashboard_hero_kpis.png" alt="Dashboard hero KPI row and project health matrix">
+      <div class="cap">Executive Dashboard — hero KPI row with the Project Health Matrix (cost vs. schedule) chart</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">20</span>Portfolio Financial Performance — live tooltips</h3>
+    <p class="lead">
+      Hovering any month on the Revenue / Cost / Net Profit chart surfaces a formatted-currency tooltip
+      computed from real project records, not placeholder text.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/21_financial_performance_tooltip.png" alt="Financial performance chart with formatted tooltip">
+      <div class="cap">Portfolio Financial Performance — tooltip showing Revenue / Cost / Net Profit in formatted currency</div>
+    </div>
+
+    <h3 class="step-title"><span class="step-num">21</span>Click-to-form map popups</h3>
+    <p class="lead">
+      Clicking a project pin on the portfolio map now opens a popup card — RAG status, manager, progress,
+      margin, open NCR count, and last site-diary entry — with a direct link into that project's form.
+      A floating Portfolio Summary overlay docks beside the map without colliding with its own
+      zoom/layer controls.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/22_map_click_to_form_popup.png" alt="Map pin popup with click-to-form link, Marina Heights">
+      <div class="cap">Marina Heights pin — click-to-form popup (RED status, 2 open NCRs) with the floating Portfolio Summary overlay</div>
+    </div>
+
+    <div class="callout success">
+      <span class="label">Two install-time bugs fixed during this pass</span>
+      The ECharts CDN asset was declared with an invalid <code>('include', url)</code> manifest directive
+      instead of a bare URL string, so <code>window.echarts</code> never loaded and both dashboard charts
+      rendered empty. Separately, <code>.sgc-dashboard</code>'s <code>position: absolute; inset: 0</code>
+      escaped past its <code>position: static</code> parent to the viewport's top-left corner, overlapping
+      Odoo's own top navbar. Both are fixed: the manifest now lists the CDN URL directly, and
+      <code>.o_action_manager:has(.sgc-dashboard)</code> is scoped to <code>position: relative</code> so the
+      dashboard correctly fills the action area below the navbar.
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Recent Enhancements — Map, Tooltips &amp; Layout</span>
+    <span>Page 12</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PAGE 13: FINAL DASHBOARD / CLOSING -->
+<!-- ============================================================ -->
+<div class="page">
+  <div class="letterhead">
+    <div class="brand">
+      <div class="brand-mark">SGC</div>
+      <div class="brand-text">
+        <div class="co-name">SGC TECH AI (Scholarix Global Consultant FZE)</div>
+        <div class="co-addr">Maseed Building Office No. 304, 119/12st, Al Rigga, Dubai (AE), United Arab Emirates</div>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="kicker">Section 11</div>
+      <div class="title">Final Dashboard — The Full Picture</div>
+    </div>
+  </div>
+
+  <div class="section-body">
+    <h3 class="step-title"><span class="step-num">22</span>Back where we started — now fully populated</h3>
+    <p class="lead">
+      Every screen in this walkthrough feeds back into this one view. The portfolio chart, the RAG site
+      map, and the KPI cards all reflect the live records this document just walked through — the blocked
+      invoice on Marina Heights, the posted invoice on Al Noor, the closed-out benchmark on Al Khail.
+    </p>
+    <div class="shot">
+      <img src="e2e_screenshots/19_final_dashboard.png" alt="Final construction dashboard with all four projects">
+      <div class="cap">Construction Dashboard — all four projects, live financial and quality data</div>
+    </div>
+
+    <div class="closing-grid">
+      <div class="card">
+        <h4>What was verified end to end</h4>
+        <p class="kpi-sub">
+          Login → Dashboard → Project → BOQ/WBS → Quality Check → blocked invoice attempt →
+          successful invoice → posted account.move → vendor bill → portfolio rollup. Every step
+          captured live, no screen mocked or recreated after the fact.
+        </p>
+      </div>
+      <div class="card">
+        <h4>Key takeaway</h4>
+        <p class="kpi-sub">
+          The quality gate, the analytic-tagged accounting entries, and the per-project RAG status
+          are the parts of this workflow a manual spreadsheet process structurally cannot enforce in
+          real time — they're why the system exists.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span><b>SGC TECH AI</b> · Construction Management Suite</span>
+    <span>Final Dashboard — The Full Picture</span>
+    <span>Page 13</span>
+  </div>
+</div>
+
+</body>
+</html>

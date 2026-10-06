@@ -1,0 +1,43 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — website palette & fonts (web._assets_primary_variables)
+// -----------------------------------------------------------------------------
+// This file loads AFTER Odoo's and website's own primary variables (topological
+// dependency order), so it uses the intended user-override hooks rather than
+// !default:
+//   * $o-user-theme-color-palette  — force the 5 theme colours to the SGC palette
+//   * $o-theme-font-configs         — register the SGC serif heading font
+//   * $o-user-website-values        — select serif headings + Open Sans body
+//
+// Colour values mirror the shared tokens (branding/SGC-BRAND.md, spec §11).
+// Kept as literals here because $sgc-* SCSS vars are not guaranteed to be in
+// scope at this point in the primary-variables cascade; the authoritative token
+// source remains sgc_theme_common/static/src/scss/_sgc_tokens.scss.
+// =============================================================================
+
+// --- SGC theme colour palette -----------------------------------------------
+// o-color-1 primary · o-color-2 secondary · o-color-3 light · o-color-4 white
+// · o-color-5 dark text.
+$o-user-theme-color-palette: (
+    'o-color-1': #0F2C4C,  // navy   — primary
+    'o-color-2': #C9A227,  // gold   — secondary / accent
+    'o-color-3': #F5EFE0,  // cream  — light background
+    'o-color-4': #FFFFFF,  // white
+    'o-color-5': #14232F,  // ink    — dark text
+);
+
+// --- Register the SGC serif heading font ------------------------------------
+// 'Open Sans' already ships in $o-theme-font-configs; we add Playfair Display.
+$o-theme-font-configs: map-merge($o-theme-font-configs, (
+    'Playfair Display': (
+        'family': ('Playfair Display', 'Crimson Text', Georgia, serif),
+        'url': 'Playfair+Display:400,400i,500,600,700,700i',
+    ),
+));
+
+// --- Default typography: serif headings, clean sans body --------------------
+$o-user-website-values: (
+    'default-headings-font': 'Playfair Display',
+    'headings-font': 'Playfair Display',
+    'font': 'Open Sans',
+);

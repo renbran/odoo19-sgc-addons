@@ -1,0 +1,136 @@
+/* Storefront polish for the SGC corporate + commerce experience */
+.sgc-storefront {
+    background:
+        radial-gradient(circle at top left, rgba(0, 212, 255, 0.08), transparent 26%),
+        radial-gradient(circle at top right, rgba(123, 47, 190, 0.10), transparent 24%),
+        linear-gradient(180deg, #060e1a 0%, #0a1628 100%);
+}
+
+.sgc-storefront #wrapwrap,
+.sgc-storefront #wrap {
+    background: transparent;
+}
+
+.sgc-storefront .o_wsale_products_main_row,
+.sgc-storefront .o_wsale_products_grid_table_wrapper,
+.sgc-storefront .o_wsale_product_page,
+.sgc-storefront .o_wsale_cart_page {
+    color: var(--sgc-text-1);
+}
+
+.sgc-storefront .o_wsale_products_main_row .card,
+.sgc-storefront .oe_website_sale .card,
+.sgc-storefront .o_wsale_product_page .card,
+.sgc-storefront .o_wsale_cart_page .card,
+.sgc-storefront .o_wsale_order_summary {
+    background: rgba(11, 21, 36, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 22px;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(18px);
+}
+
+.sgc-storefront .o_wsale_product_grid_wrapper .oe_product,
+.sgc-storefront .oe_product {
+    padding: 10px;
+}
+
+.sgc-storefront .oe_product_cart,
+.sgc-storefront .o_wsale_product_page .js_sale,
+.sgc-storefront .o_wsale_products_grid_table_wrapper .table {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 22px;
+}
+
+.sgc-storefront .oe_product_image,
+.sgc-storefront .o_carousel_product_outer,
+.sgc-storefront .o_wsale_product_page img {
+    border-radius: 18px;
+}
+
+.sgc-storefront .oe_product .o_wsale_product_information,
+.sgc-storefront .oe_product .text-body,
+.sgc-storefront .oe_product .text-muted,
+.sgc-storefront .o_wsale_product_page .text-muted,
+.sgc-storefront .o_wsale_product_page .css_attribute_color_name {
+    color: var(--sgc-text-2) !important;
+}
+
+.sgc-storefront .oe_currency_value,
+.sgc-storefront .product_price,
+.sgc-storefront .oe_price {
+    color: var(--sgc-cyan) !important;
+    font-weight: 700;
+}
+
+.sgc-storefront .btn-primary,
+.sgc-storefront .a-submit,
+.sgc-storefront #add_to_cart_wrap .btn {
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--sgc-cyan), #46b6ff);
+    color: #06111d;
+    box-shadow: 0 18px 40px rgba(0, 212, 255, 0.22);
+}
+
+.sgc-storefront .btn-outline-primary,
+.sgc-storefront .btn-secondary {
+    border-radius: 999px;
+}
+
+.sgc-storefront .form-control,
+.sgc-storefront .form-select,
+.sgc-storefront .input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--sgc-text-1);
+    border-radius: 14px;
+}
+
+.sgc-storefront .o_wsale_products_searchbar_form,
+.sgc-storefront .o_shop_discussion_rating {
+    background: rgba(12, 23, 39, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+    padding: 12px 16px;
+}
+
+.sgc-storefront .accordion,
+.sgc-storefront .o_wsale_products_categories,
+.sgc-storefront .o_pricelist_dropdown,
+.sgc-storefront .o_sortby_dropdown {
+    background: rgba(11, 21, 36, 0.76);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 18px;
+}
+
+.sgc-storefront .breadcrumb,
+.sgc-storefront .nav-pills,
+.sgc-storefront .dropdown-menu {
+    background: rgba(8, 16, 29, 0.92);
+    border-color: rgba(255, 255, 255, 0.10);
+    border-radius: 16px;
+}
+
+.sgc-storefront .dropdown-item,
+.sgc-storefront .breadcrumb-item,
+.sgc-storefront .breadcrumb-item a,
+.sgc-storefront .nav-link {
+    color: var(--sgc-text-2);
+}
+
+.sgc-storefront .dropdown-item:hover,
+.sgc-storefront .nav-link:hover,
+.sgc-storefront .breadcrumb-item a:hover {
+    color: var(--sgc-cyan);
+}
+
+.sgc-cart-link {
+    position: relative;
+}
+
+.sgc-storefront .badge.bg-primary,
+.sgc-storefront .my_cart_quantity {
+    background: linear-gradient(135deg, var(--sgc-violet), var(--sgc-cyan)) !important;
+    border: 0;
+}

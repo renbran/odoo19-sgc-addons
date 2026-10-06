@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_project_soa">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="oe_structure"/>
+
+                        <div class="row mt-4 mb-4">
+                            <div class="col-12 text-center">
+                                <h2 class="fw-bold">PROJECT STATEMENT OF ACCOUNT</h2>
+                                <h4 t-field="o.name"/>
+                                <span t-field="o.ref"/>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Client:</strong> <span t-field="o.client_id"/><br/>
+                                <strong>Location:</strong> <span t-field="o.location"/><br/>
+                                <strong>Project Manager:</strong> <span t-field="o.project_manager_id"/>
+                            </div>
+                            <div class="col-6 text-end">
+                                <strong>Contract Value:</strong> <span t-field="o.contract_value" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/><br/>
+                                <strong>Start Date:</strong> <span t-field="o.start_date"/><br/>
+                                <strong>End Date:</strong> <span t-field="o.end_date"/>
+                            </div>
+                        </div>
+
+                        <t t-set="data" t-value="report_data[o.id]"/>
+
+                        <h4 class="mt-4 border-bottom pb-2">Customer Invoices (Revenue)</h4>
+                        <table class="table table-sm o_main_table table-striped mt-2">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Number</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Amount</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_revenue" t-value="0.0"/>
+                                <t t-foreach="data['invoices']" t-as="inv">
+                                    <tr>
+                                        <td><span t-field="inv.invoice_date"/></td>
+                                        <td><span t-field="inv.name"/></td>
+                                        <td><span t-field="inv.payment_state"/></td>
+                                        <td class="text-end">
+                                            <span t-field="inv.amount_total_signed"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="inv.amount_residual_signed"/>
+                                        </td>
+                                        <t t-set="total_revenue" t-value="total_revenue + inv.amount_total_signed"/>
+                                    </tr>
+                                </t>
+                                <tr class="fw-bold">
+                                    <td colspan="3" class="text-end">Total Revenue Earned:</td>
+                                    <td class="text-end">
+                                        <span t-esc="total_revenue" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h4 class="mt-5 border-bottom pb-2">Vendor Bills (Expenses)</h4>
+                        <table class="table table-sm o_main_table table-striped mt-2">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Number</th>
+                                    <th>Vendor</th>
+                                    <th class="text-end">Amount</th>
+                                    <th class="text-end">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="total_expense" t-value="0.0"/>
+                                <t t-foreach="data['bills']" t-as="bill">
+                                    <tr>
+                                        <td><span t-field="bill.invoice_date"/></td>
+                                        <td><span t-field="bill.name"/></td>
+                                        <td><span t-field="bill.partner_id"/></td>
+                                        <td class="text-end">
+                                            <span t-esc="-bill.amount_total_signed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-esc="-bill.amount_residual_signed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                        <t t-set="total_expense" t-value="total_expense - bill.amount_total_signed"/>
+                                    </tr>
+                                </t>
+                                <tr class="fw-bold">
+                                    <td colspan="3" class="text-end">Total Project Expenses:</td>
+                                    <td class="text-end">
+                                        <span t-esc="total_expense" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row mt-5">
+                            <div class="col-6 offset-6">
+                                <table class="table table-sm">
+                                    <tr class="border-top fw-bold fs-5">
+                                        <td>PROJECT MARGIN</td>
+                                        <td class="text-end">
+                                            <span t-esc="total_revenue - total_expense" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="oe_structure"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

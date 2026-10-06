@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_construction_hse_incident_tree" model="ir.ui.view">
+        <field name="name">construction.hse.incident.tree</field>
+        <field name="model">construction.hse.incident</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="severity == 'critical'" decoration-warning="severity == 'high'">
+                <field name="date"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="incident_type"/>
+                <field name="severity"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_construction_hse_incident_form" model="ir.ui.view">
+        <field name="name">construction.hse.incident.form</field>
+        <field name="model">construction.hse.incident</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_investigate" string="Investigate" type="object" invisible="status != 'open'" class="oe_highlight"/>
+                    <button name="action_close" string="Close" type="object" invisible="status == 'closed'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="open,investigating,closed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="date"/>
+                            <field name="incident_type"/>
+                        </group>
+                        <group>
+                            <field name="severity"/>
+                            <field name="reported_by"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+                        <page string="Corrective Action">
+                            <field name="corrective_action"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_construction_hse_incident" model="ir.actions.act_window">
+        <field name="name">HSE Incidents</field>
+        <field name="res_model">construction.hse.incident</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

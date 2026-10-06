@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_roadmap" name="SGC Roadmap">
+        <section class="s_sgc_roadmap sgc-watermark--none sgc-geo--hairline sgc-palette--navy-cream"
+                 data-name="SGC Roadmap" data-snippet="s_sgc_roadmap">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <h2 class="text-center s_sgc_roadmap_title">The 90-Day <span class="sgc-accent-word">Transformation Roadmap</span></h2>
+                <p class="text-center s_sgc_roadmap_kicker">A four-stage journey from strategy to sustainable impact.</p>
+
+                <div class="row text-center s_sgc_roadmap_steps">
+                    <div class="col-6 col-lg-3 s_sgc_roadmap_step">
+                        <span class="s_sgc_roadmap_node"><i class="fa fa-search"/></span>
+                        <span class="s_sgc_roadmap_number">1</span>
+                        <h5>Assess</h5>
+                        <span class="s_sgc_roadmap_stage">Discovery</span>
+                        <p>Understand the current state, identify opportunities, and define priorities.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_roadmap_step">
+                        <span class="s_sgc_roadmap_node"><i class="fa fa-pencil-square-o"/></span>
+                        <span class="s_sgc_roadmap_number">2</span>
+                        <h5>Design</h5>
+                        <span class="s_sgc_roadmap_stage">Planning</span>
+                        <p>Create a clear roadmap with defined initiatives, resources, and governance.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_roadmap_step">
+                        <span class="s_sgc_roadmap_node"><i class="fa fa-cogs"/></span>
+                        <span class="s_sgc_roadmap_number">3</span>
+                        <h5>Implement</h5>
+                        <span class="s_sgc_roadmap_stage">Execution</span>
+                        <p>Execute the plan, mobilize resources, and drive meaningful progress.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_roadmap_step">
+                        <span class="s_sgc_roadmap_node"><i class="fa fa-line-chart"/></span>
+                        <span class="s_sgc_roadmap_number">4</span>
+                        <h5>Optimize</h5>
+                        <span class="s_sgc_roadmap_stage">Refinement</span>
+                        <p>Measure impact, refine processes, and ensure continuous improvement.</p>
+                    </div>
+                </div>
+
+                <div class="row g-3 s_sgc_roadmap_phases">
+                    <div class="col-lg-3 s_sgc_roadmap_phase">
+                        <span class="s_sgc_roadmap_phase_badge">Days 1–22</span>
+                        <ul class="list-unstyled">
+                            <li><i class="fa fa-check"/>Evaluate current state</li>
+                            <li><i class="fa fa-check"/>Identify opportunities</li>
+                            <li><i class="fa fa-check"/>Define success metrics</li>
+                            <li><i class="fa fa-check"/>Align on priorities</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 s_sgc_roadmap_phase">
+                        <span class="s_sgc_roadmap_phase_badge">Days 23–45</span>
+                        <ul class="list-unstyled">
+                            <li><i class="fa fa-check"/>Develop target operating model</li>
+                            <li><i class="fa fa-check"/>Build transformation roadmap</li>
+                            <li><i class="fa fa-check"/>Define initiatives &amp; resources</li>
+                            <li><i class="fa fa-check"/>Establish governance</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 s_sgc_roadmap_phase">
+                        <span class="s_sgc_roadmap_phase_badge">Days 46–75</span>
+                        <ul class="list-unstyled">
+                            <li><i class="fa fa-check"/>Mobilize teams &amp; resources</li>
+                            <li><i class="fa fa-check"/>Execute transformation plan</li>
+                            <li><i class="fa fa-check"/>Manage change &amp; adoption</li>
+                            <li><i class="fa fa-check"/>Track progress &amp; outcomes</li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 s_sgc_roadmap_phase">
+                        <span class="s_sgc_roadmap_phase_badge">Days 76–90</span>
+                        <ul class="list-unstyled">
+                            <li><i class="fa fa-check"/>Measure performance impact</li>
+                            <li><i class="fa fa-check"/>Refine processes &amp; capabilities</li>
+                            <li><i class="fa fa-check"/>Capture lessons learned</li>
+                            <li><i class="fa fa-check"/>Drive continuous improvement</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="row text-center s_sgc_roadmap_principles">
+                    <div class="col-6 col-lg-3"><i class="fa fa-eye"/><h6>Clarity</h6><p>Clear understanding of priorities and opportunities.</p></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-compass"/><h6>Alignment</h6><p>Aligned strategy, teams, and resources.</p></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-users"/><h6>Execution</h6><p>Disciplined execution driving measurable results.</p></div>
+                    <div class="col-6 col-lg-3"><i class="fa fa-line-chart"/><h6>Impact</h6><p>Sustainable outcomes and continuous growth.</p></div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

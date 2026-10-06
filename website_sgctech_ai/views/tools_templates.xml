@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sgc_odoo_roi_calculator" name="Odoo ROI Calculator">
+        <t t-set="title">Odoo ROI Calculator | Estimate Payback in 60 Seconds | SGC TECH AI</t>
+        <t t-set="meta_description">Free Odoo ROI calculator. Estimate implementation cost, payback timeline and 3-year net benefit for your UAE business in 60 seconds.</t>
+        <t t-call="website.layout">
+            <div id="wrap" class="sgc-main-wrap oe_structure">
+                <section class="sgc-roi-hero">
+                    <div class="container">
+                        <div class="sgc-roi-hero-inner">
+                            <p class="sgc-roi-kicker">Free Tool</p>
+
+                            <!-- Particle Text Effect for ROI Calculator -->
+                            <div class="sgc-particle-text-wrapper sgc-reveal"
+                                 data-particle-text-effect="true"
+                                 data-particle-words="Odoo ROI in 60s|Calculate Savings|Implementation Cost|Payback Timeline">
+                                <canvas class="sgc-particle-text-canvas" aria-hidden="true"></canvas>
+                                <!-- Fallback text for accessibility and no-JS users -->
+                                <div class="sgc-particle-text-fallback">
+                                    See Your Odoo ROI<br/>in 60 Seconds
+                                </div>
+                            </div>
+
+                            <h1>See Your Odoo ROI in 60 Seconds</h1>
+                            <p>Estimate implementation cost, payback timeline, and 3-year net benefit for your business.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="sgc-roi-section">
+                    <div class="container">
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="sgc-roi-card">
+                                    <h3>Business Inputs</h3>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="roi_annual_revenue">Annual Revenue (AED)</label>
+                                        <input id="roi_annual_revenue" type="number" class="form-control" min="1" placeholder="e.g. 25000000"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="roi_employees">Number of Employees</label>
+                                        <input id="roi_employees" type="number" class="form-control" min="1" placeholder="e.g. 45"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Pain Points</label>
+                                        <div class="sgc-roi-checks">
+                                            <label><input type="checkbox" value="manual_reporting"/> Manual reporting</label>
+                                            <label><input type="checkbox" value="inventory_errors"/> Inventory inaccuracies</label>
+                                            <label><input type="checkbox" value="slow_collections"/> Slow invoicing/collections</label>
+                                            <label><input type="checkbox" value="duplicate_data"/> Duplicate data entry</label>
+                                            <label><input type="checkbox" value="approval_delays"/> Approval bottlenecks</label>
+                                        </div>
+                                    </div>
+                                    <button id="roi_calculate_btn" class="sgc-btn sgc-btn-primary">Calculate ROI</button>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="sgc-roi-card" id="roi_results_card">
+                                    <h3>Estimated ROI Snapshot</h3>
+                                    <div id="roi_results_empty" class="text-muted">Enter your business inputs to calculate your estimate.</div>
+                                    <div id="roi_results" class="d-none">
+                                        <ul class="sgc-roi-metrics">
+                                            <li><span>Estimated Annual Savings</span><strong id="roi_annual_savings">-</strong></li>
+                                            <li><span>Year 1 Total Cost</span><strong id="roi_year1_cost">-</strong></li>
+                                            <li><span>Year 1 Net Benefit</span><strong id="roi_year1_net">-</strong></li>
+                                            <li><span>ROI (Year 1)</span><strong id="roi_year1_percent">-</strong></li>
+                                            <li><span>Payback Timeline</span><strong id="roi_payback">-</strong></li>
+                                            <li><span>3-Year Net Benefit</span><strong id="roi_3y_benefit">-</strong></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sgc-roi-card mt-4 d-none" id="roi_lead_card">
+                            <h3>Get Full Report by Email</h3>
+                            <p class="text-muted">Use your company email and we will send your detailed assessment and recommended rollout path.</p>
+                            <div class="row g-3">
+                                <div class="col-md-4"><input id="roi_name" class="form-control" type="text" placeholder="Your name"/></div>
+                                <div class="col-md-4"><input id="roi_company" class="form-control" type="text" placeholder="Company"/></div>
+                                <div class="col-md-4"><input id="roi_email" class="form-control" type="email" placeholder="Company email"/></div>
+                            </div>
+                            <button id="roi_lead_btn" class="sgc-btn sgc-btn-ghost mt-3">Send My Report</button>
+                            <p id="roi_lead_message" class="mt-3 mb-0"></p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

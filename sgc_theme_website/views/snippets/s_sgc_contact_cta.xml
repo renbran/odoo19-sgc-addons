@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_contact_cta" name="SGC Contact CTA">
+        <section class="s_sgc_contact_cta sgc-watermark--burj-khalifa sgc-geo--hexagon sgc-palette--navy-cream sgc-logo-on"
+                 data-name="SGC Contact CTA" data-snippet="s_sgc_contact_cta">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <div class="row align-items-center">
+                    <div class="col-lg-7">
+                        <h2 class="s_sgc_contact_cta_title">Build a More <span class="sgc-accent-word">Resilient Business</span></h2>
+                        <p class="s_sgc_contact_cta_kicker">Clarity. Control. Confidence.</p>
+                        <div class="s_sgc_contact_card">
+                            <ul class="list-unstyled">
+                                <li><i class="fa fa-envelope"/><a href="mailto:info@sgctech.ai">info@sgctech.ai</a></li>
+                                <li><i class="fa fa-phone"/><a href="tel:+971521985231">+971 52 198 5231</a></li>
+                                <li><i class="fa fa-globe"/><a href="https://sgctech.ai">www.sgctech.ai</a></li>
+                            </ul>
+                        </div>
+                        <div class="s_sgc_contact_social">
+                            <a href="#" class="s_sgc_social_icon"><i class="fa fa-linkedin"/></a>
+                            <a href="#" class="s_sgc_social_icon"><i class="fa fa-facebook"/></a>
+                            <a href="#" class="s_sgc_social_icon"><i class="fa fa-instagram"/></a>
+                            <a href="#" class="s_sgc_social_icon"><i class="fa fa-youtube-play"/></a>
+                            <a href="#" class="s_sgc_social_icon"><i class="fa fa-twitter"/></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 text-center s_sgc_contact_cta_action">
+                        <a href="#" class="btn btn-gold btn-lg">Get in touch</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

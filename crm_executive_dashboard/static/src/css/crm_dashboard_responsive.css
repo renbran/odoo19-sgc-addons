@@ -1,0 +1,100 @@
+/* =====================================================================
+   CRM Executive Dashboard — Responsive Layout
+   =====================================================================
+   Breakpoints:
+     - >= 1200px : full layout (4 KPI columns, 3 chart columns)
+     - 768-1199px : 2 KPI columns, 2 chart columns
+     - < 768px   : 1 column stack, smaller fonts
+   ===================================================================== */
+
+/* Large desktops (default, 1200+) */
+@media (min-width: 1200px) {
+    .ced-kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .ced-productivity-grid,
+    .ced-leads-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+/* Tablets and small desktops (768-1199) */
+@media (min-width: 768px) and (max-width: 1199px) {
+    .ced-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .ced-productivity-grid,
+    .ced-leads-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .ced-dashboard__title {
+        font-size: 24px;
+    }
+    .ced-kpi-card__value {
+        font-size: 20px;
+    }
+}
+
+/* Mobile (< 768) */
+@media (max-width: 767px) {
+    .ced-dashboard {
+        padding: var(--ced-space-md);
+    }
+    .ced-dashboard__header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .ced-dashboard__title {
+        font-size: 20px;
+    }
+    .ced-dashboard__filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .ced-filter__select,
+    .ced-btn {
+        width: 100%;
+    }
+    .ced-kpi-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .ced-productivity-grid,
+    .ced-leads-grid,
+    .ced-charts-grid,
+    .ced-alerts-grid {
+        grid-template-columns: 1fr;
+    }
+    .ced-kpi-card {
+        padding: var(--ced-space-sm);
+        min-height: 72px;
+    }
+    .ced-kpi-card__icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    .ced-kpi-card__value {
+        font-size: 18px;
+    }
+    .ced-funnel__stage {
+        flex-wrap: wrap;
+    }
+    .ced-funnel__stage-name {
+        flex: 1 0 100%;
+    }
+    .ced-section__title {
+        font-size: 16px;
+    }
+}
+
+/* Very small screens (< 480) */
+@media (max-width: 479px) {
+    .ced-kpi-grid {
+        grid-template-columns: 1fr;
+    }
+    .ced-productivity-card table,
+    .ced-leads-card table {
+        font-size: 11px;
+    }
+}

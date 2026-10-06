@@ -1,0 +1,101 @@
+/* ── 05_buttons.css ───────────────────────────────────────── */
+
+.sgc26-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.75rem 1.75rem;
+  border-radius: var(--r-full);
+  font-family: var(--font-head);
+  font-weight: var(--fw-semibold);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform var(--t-fast) var(--ease-spring),
+              box-shadow var(--t-base) var(--ease),
+              background var(--t-fast) var(--ease);
+  text-decoration: none;
+  white-space: nowrap;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer sweep on hover */
+.sgc26-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 0.45s var(--ease-out);
+}
+.sgc26-btn:hover::after { transform: translateX(100%); }
+.sgc26-btn:hover { transform: translateY(-2px); }
+.sgc26-btn:active { transform: translateY(0); }
+
+/* Primary — cyan → violet gradient fill */
+.sgc26-btn-primary {
+  background: var(--grad-brand);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0,212,255,0.25);
+}
+.sgc26-btn-primary:hover {
+  box-shadow: 0 8px 32px rgba(0,212,255,0.40), var(--glow-cyan);
+}
+
+/* Secondary — violet fill */
+.sgc26-btn-secondary {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(123,47,190,0.25);
+}
+.sgc26-btn-secondary:hover {
+  box-shadow: 0 8px 32px rgba(123,47,190,0.40), var(--glow-violet);
+}
+
+/* Ghost — transparent with cyan border */
+.sgc26-btn-ghost {
+  background: transparent;
+  color: var(--cyan);
+  border: 1.5px solid var(--cyan-a35);
+}
+.sgc26-btn-ghost:hover {
+  background: var(--cyan-a10);
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 4px 20px rgba(0,212,255,0.18);
+}
+
+/* Outline dark */
+.sgc26-btn-outline {
+  background: var(--glass-bg);
+  color: var(--t1);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.sgc26-btn-outline:hover {
+  border-color: var(--glass-border-h);
+  background: var(--glass-bg-h);
+}
+
+/* Sizes */
+.sgc26-btn-sm { padding: 0.5rem 1.2rem; font-size: 0.85rem; }
+.sgc26-btn-lg { padding: 1rem 2.25rem; font-size: 1.05rem; }
+
+/* Icon button */
+.sgc26-btn-icon {
+  width: 44px; height: 44px;
+  padding: 0;
+  justify-content: center;
+  border-radius: var(--r-md);
+}
+
+/* CTA group */
+.sgc26-cta-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  align-items: center;
+}

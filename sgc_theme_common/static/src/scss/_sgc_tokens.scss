@@ -1,0 +1,126 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// SGC "Aurum" design tokens — SINGLE SOURCE OF TRUTH (SCSS)
+// -----------------------------------------------------------------------------
+// Injected into `web._assets_primary_variables`, so these variables are in
+// scope for BOTH the backend (`web.assets_backend`) and the frontend
+// (`web.assets_frontend`) SCSS compilation contexts.
+//
+// Values are the AUTHORITATIVE brand hex from branding/SGC-BRAND.md
+// (navy #0F2C4C / gold #C9A227 / cream #F5EFE0). The older values in
+// brand_asset/braand_prompt.md are stale for the token layer (see spec §11).
+//
+// All values are `!default` so a downstream theme MAY override a single token
+// before this file compiles, without editing the source of truth.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. Core brand palette
+// -----------------------------------------------------------------------------
+$sgc-navy:        #0F2C4C !default;  // primary — chrome, headlines, feature icons
+$sgc-gold:        #C9A227 !default;  // accent  — badges, dividers, CTA
+$sgc-cream:       #F5EFE0 !default;  // background — warm off-white canvas
+
+// Derived shades (kept in-family; used for hover/active/borders/gradients)
+$sgc-navy-900:    #081A30 !default;  // deepest navy
+$sgc-navy-800:    #0B2340 !default;
+$sgc-navy-700:    $sgc-navy !default;
+$sgc-navy-600:    #163A5E !default;
+$sgc-navy-500:    #1F4A73 !default;  // lighter navy (links / focus on cream)
+$sgc-navy-400:    #3D6690 !default;
+
+$sgc-gold-700:    #A8871E !default;  // gold pressed / gold text on cream (AA)
+$sgc-gold-600:    #B9971F !default;
+$sgc-gold-500:    $sgc-gold !default;
+$sgc-gold-400:    #D8B84E !default;
+$sgc-gold-300:    #E6CE7E !default;  // gold hover glow
+
+$sgc-cream-100:   #FBF8F1 !default;  // near-white surface
+$sgc-cream-200:   $sgc-cream !default;
+$sgc-cream-300:   #ECE3CE !default;  // subtle cream border / zebra row
+$sgc-cream-400:   #E0D4B8 !default;
+
+// Neutral ink & surfaces
+$sgc-ink:         #14232F !default;  // body text (AA on cream & white)
+$sgc-ink-soft:    #43535F !default;  // muted text (AA on cream/white)
+$sgc-white:       #FFFFFF !default;
+$sgc-border:      #D8CDB4 !default;  // hairline on cream surfaces
+
+// -----------------------------------------------------------------------------
+// 2. Semantic status colours (chosen for WCAG-AA text contrast)
+// -----------------------------------------------------------------------------
+$sgc-success:     #1E7E45 !default;  // AA text on white
+$sgc-warning:     #8A5A00 !default;  // AA text on white (amber-brown)
+$sgc-danger:      #A32C2C !default;  // AA text on white
+$sgc-info:        #1F5C8B !default;  // AA text on white
+
+// -----------------------------------------------------------------------------
+// 3. Type scale (modular ~1.2). Serif headings, sans body (spec / brand).
+// -----------------------------------------------------------------------------
+$sgc-font-heading: 'Playfair Display', 'Crimson Text', Georgia, 'Times New Roman', serif !default;
+$sgc-font-body:    'Open Sans', 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !default;
+
+$sgc-fs-xs:        0.75rem  !default;  // 12px
+$sgc-fs-sm:        0.875rem !default;  // 14px
+$sgc-fs-base:      1rem     !default;  // 16px
+$sgc-fs-md:        1.125rem !default;  // 18px
+$sgc-fs-lg:        1.375rem !default;  // 22px
+$sgc-fs-xl:        1.75rem  !default;  // 28px
+$sgc-fs-2xl:       2.25rem  !default;  // 36px
+$sgc-fs-3xl:       3rem     !default;  // 48px
+$sgc-fs-4xl:       3.75rem  !default;  // 60px
+
+$sgc-lh-tight:     1.15 !default;
+$sgc-lh-base:      1.55 !default;
+$sgc-fw-body:      400  !default;
+$sgc-fw-medium:    500  !default;
+$sgc-fw-semibold:  600  !default;
+$sgc-fw-bold:      700  !default;
+
+// -----------------------------------------------------------------------------
+// 4. Spacing scale (4px base)
+// -----------------------------------------------------------------------------
+$sgc-space-0:      0        !default;
+$sgc-space-1:      0.25rem  !default;  // 4px
+$sgc-space-2:      0.5rem   !default;  // 8px
+$sgc-space-3:      0.75rem  !default;  // 12px
+$sgc-space-4:      1rem     !default;  // 16px
+$sgc-space-5:      1.5rem   !default;  // 24px
+$sgc-space-6:      2rem     !default;  // 32px
+$sgc-space-7:      3rem     !default;  // 48px
+$sgc-space-8:      4rem     !default;  // 64px
+
+// -----------------------------------------------------------------------------
+// 5. Radius
+// -----------------------------------------------------------------------------
+$sgc-radius-xs:    2px    !default;
+$sgc-radius-sm:    4px    !default;
+$sgc-radius-md:    8px    !default;
+$sgc-radius-lg:    14px   !default;
+$sgc-radius-xl:    24px   !default;
+$sgc-radius-pill:  999px  !default;
+
+// -----------------------------------------------------------------------------
+// 6. Shadows (soft, brand-tinted)
+// -----------------------------------------------------------------------------
+$sgc-shadow-xs:    0 1px 2px rgba(15, 44, 76, 0.08) !default;
+$sgc-shadow-sm:    0 2px 6px rgba(15, 44, 76, 0.10) !default;
+$sgc-shadow-md:    0 6px 18px rgba(15, 44, 76, 0.12) !default;
+$sgc-shadow-lg:    0 14px 40px rgba(15, 44, 76, 0.16) !default;
+$sgc-shadow-gold:  0 6px 20px rgba(201, 162, 39, 0.28) !default;
+
+// -----------------------------------------------------------------------------
+// 7. Motion (durations + easings). Consumers MUST gate on prefers-reduced-motion.
+// -----------------------------------------------------------------------------
+$sgc-dur-fast:     120ms !default;   // backend micro-transitions (<=150ms)
+$sgc-dur-base:     240ms !default;
+$sgc-dur-slow:     420ms !default;
+$sgc-ease-standard: cubic-bezier(0.2, 0, 0, 1)      !default;
+$sgc-ease-out:      cubic-bezier(0.16, 1, 0.3, 1)   !default;
+$sgc-ease-in-out:   cubic-bezier(0.65, 0, 0.35, 1)  !default;
+
+// -----------------------------------------------------------------------------
+// 8. Layout helpers
+// -----------------------------------------------------------------------------
+$sgc-container-max: 1200px !default;
+$sgc-hex-clip:      polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%) !default;

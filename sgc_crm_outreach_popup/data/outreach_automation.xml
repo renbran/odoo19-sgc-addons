@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Fires when a lead enters stage Valid Contact (id 10) from any other stage -->
+        <record id="automation_outreach_popup" model="base.automation">
+            <field name="name">CRM: Outreach email choice popup on Valid Contact</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="trigger">on_write</field>
+            <field name="trigger_field_ids" eval="[(4, ref('crm.field_crm_lead__stage_id'))]"/>
+            <field name="filter_pre_domain">[('stage_id', '!=', 10)]</field>
+            <field name="filter_domain">[('stage_id', '=', 10)]</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <record id="action_outreach_popup" model="ir.actions.server">
+            <field name="name">Show outreach email choice popup</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="base_automation_id" ref="automation_outreach_popup"/>
+            <field name="state">code</field>
+            <field name="code"><![CDATA[
+partner = env.user.partner_id
+if partner:
+    for rec in records:
+        if rec.outreach_mail_sent:
+            continue
+        env['bus.bus']._sendone(partner, 'sgc_outreach_popup', {
+            'action': {
+                'type': 'ir.actions.act_window',
+                'name': 'Choose Outreach Email — %s' % rec.name,
+                'res_model': 'crm.outreach.wizard',
+                'views': [[False, 'form']],
+                'target': 'new',
+                'context': {'default_lead_id': rec.id},
+            },
+        })
+]]></field>
+        </record>
+
+    </data>
+</odoo>

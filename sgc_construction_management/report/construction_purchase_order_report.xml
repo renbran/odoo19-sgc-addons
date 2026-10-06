@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Report Action: appears under the Print menu of the Purchase Order -->
+    <record id="action_report_construction_purchase_order" model="ir.actions.report">
+        <field name="name">Purchase Order / LPO</field>
+        <field name="model">construction.purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_construction_purchase_order</field>
+        <field name="report_file">sgc_construction_management.report_construction_purchase_order</field>
+        <field name="binding_model_id" ref="model_construction_purchase_order"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="sgc_construction_management.paperformat_construction_portrait"/>
+    </record>
+
+    <template id="report_construction_purchase_order">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="sgc_construction_management.construction_external_layout">
+                    <div class="page">
+                        <div class="row">
+                            <div class="col-7">
+                                <h2 t-if="o.state in ('rfq','sent')">Request for Quotation</h2>
+                                <h2 t-else="">Local Purchase Order</h2>
+                                <h4 class="text-muted"><span t-field="o.ref"/></h4>
+                            </div>
+                            <div class="col-5 text-end">
+                                <strong>Date:</strong> <span t-field="o.order_date"/><br/>
+                                <strong>Expected:</strong> <span t-field="o.expected_date"/><br/>
+                                <strong>Status:</strong> <span t-field="o.state"/>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-6">
+                                <strong>Vendor</strong>
+                                <div t-if="o.vendor_id">
+                                    <span t-field="o.vendor_id"/><br/>
+                                    <span t-field="o.vendor_id.vat" t-if="o.vendor_id.vat"/>
+                                </div>
+                                <div t-else="" class="text-muted">(To be selected)</div>
+                            </div>
+                            <div class="col-6">
+                                <strong>Project</strong>
+                                <div><span t-field="o.project_id"/></div>
+                                <div t-if="o.wbs_id"><span t-field="o.wbs_id"/></div>
+                                <div t-if="o.delivery_address"><strong>Deliver to:</strong> <span t-field="o.delivery_address"/></div>
+                            </div>
+                        </div>
+
+                        <table class="table table-sm mt-4">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Qty</th>
+                                    <th>UOM</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="idx" t-value="0"/>
+                                <tr t-foreach="o.line_ids" t-as="line">
+                                    <t t-set="idx" t-value="idx + 1"/>
+                                    <td><span t-esc="idx"/></td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                        <span t-if="not line.name" t-field="line.product_id"/>
+                                    </td>
+                                    <td class="text-end"><span t-field="line.quantity"/></td>
+                                    <td><span t-field="line.uom_id"/></td>
+                                    <td class="text-end">
+                                        <span t-field="line.price_unit"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-field="line.price_subtotal"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-7"/>
+                            <div class="col-5">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Untaxed Amount</td>
+                                        <td class="text-end">
+                                            <span t-field="o.amount_untaxed"
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Taxes</td>
+                                        <td class="text-end">
+                                            <span t-field="o.amount_tax"
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td><strong>Total</strong></td>
+                                        <td class="text-end">
+                                            <strong><span t-field="o.amount_total"
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/></strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div t-if="o.payment_terms" class="mt-2">
+                            <strong>Payment Terms:</strong> <span t-field="o.payment_terms"/>
+                        </div>
+                        <div t-if="o.notes" class="mt-2">
+                            <strong>Notes</strong>
+                            <p t-field="o.notes"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_bank_email_transaction_form" model="ir.ui.view">
+        <field name="name">bank.email.transaction.form</field>
+        <field name="model">bank.email.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Bank Email Transaction">
+                <header>
+                    <button name="action_confirm"
+                            type="object"
+                            string="Confirm"
+                            class="btn-primary"
+                            invisible="state != 'pending'"/>
+                    <button name="action_post_to_accounting"
+                            type="object"
+                            string="Post to Accounting"
+                            class="btn-primary"
+                            invisible="state != 'confirmed'"/>
+                    <button name="action_ignore"
+                            type="object"
+                            string="Ignore"
+                            class="btn-secondary"
+                            invisible="state in ('posted', 'ignored')"/>
+                    <button name="action_retry_ai"
+                            type="object"
+                            string="Re-run Parser"
+                            class="btn-warning"
+                            invisible="state not in ('pending', 'error')"/>
+                        <button name="action_suggest_reconciliation"
+                            type="object"
+                            string="Suggest Match"
+                            class="btn-secondary"
+                            invisible="state in ('ignored',)"/>
+                        <button name="action_accept_reconciliation_hint"
+                            type="object"
+                            string="Accept Hint"
+                            class="btn-secondary"
+                            invisible="parser_suggested_move_state != 'suggested'"/>
+                        <button name="action_generate_learning_rule"
+                            type="object"
+                            string="Learn Rule Draft"
+                            class="btn-secondary"
+                            invisible="state not in ('confirmed', 'posted')"/>
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="pending,confirmed,posted"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Transaction">
+                            <field name="transaction_type"/>
+                            <field name="amount"/>
+                            <field name="currency_id"/>
+                            <field name="transaction_date"/>
+                            <field name="transaction_ref"/>
+                            <field name="description"/>
+                            <field name="payment_method"/>
+                            <field name="expense_category"/>
+                            <field name="card_last4"/>
+                        </group>
+                        <group string="Accounting">
+                            <field name="bank_journal_id"/>
+                            <field name="partner_id"/>
+                            <field name="account_id"/>
+                            <field name="parser_suggested_move_id"/>
+                            <field name="parser_suggested_move_score"/>
+                            <field name="parser_suggested_move_remark"/>
+                            <field name="parser_suggested_move_state"/>
+                            <field name="learned_rule_id"/>
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                            <field name="bank_statement_line_id"
+                                   readonly="1"
+                                   invisible="not bank_statement_line_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Parser Analysis" name="ai_analysis">
+                            <group>
+                                <group>
+                                    <field name="ai_confidence" widget="progressbar"/>
+                                    <field name="ai_suggested_bank"/>
+                                    <field name="ai_suggested_partner"/>
+                                    <field name="ai_suggested_account"/>
+                                </group>
+                                <group>
+                                    <field name="ai_notes"/>
+                                </group>
+                            </group>
+                            <group string="Matched Rule" name="ai_raw">
+                                <field name="ai_raw_response" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Original Email" name="original_email">
+                            <group>
+                                <group>
+                                    <field name="email_from"/>
+                                    <field name="email_subject"/>
+                                    <field name="email_date"/>
+                                </group>
+                                <group>
+                                    <field name="email_message_id"/>
+                                </group>
+                            </group>
+                            <separator string="Email Body"/>
+                            <field name="email_body" widget="html" readonly="1"/>
+                        </page>
+                        <page string="Reconciliation Assist" name="recon_assist">
+                            <group>
+                                <group>
+                                    <field name="parser_suggested_move_id"/>
+                                    <field name="parser_suggested_move_score"/>
+                                    <field name="parser_suggested_move_state"/>
+                                </group>
+                                <group>
+                                    <field name="parser_suggested_move_reason"/>
+                                    <field name="parser_suggested_move_remark"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_bank_email_transaction_list" model="ir.ui.view">
+        <field name="name">bank.email.transaction.list</field>
+        <field name="model">bank.email.transaction</field>
+        <field name="arch" type="xml">
+            <list decoration-warning="state == 'pending'"
+                  decoration-success="state == 'posted'"
+                  decoration-danger="state == 'error'"
+                  decoration-muted="state == 'ignored'"
+                  multi_edit="1">
+                <field name="name"/>
+                <field name="transaction_date"/>
+                <field name="transaction_type"/>
+                <field name="amount" sum="Total"/>
+                <field name="currency_id" optional="hide"/>
+                <field name="description"/>
+                <field name="payment_method" optional="show"/>
+                <field name="expense_category" optional="show"/>
+                <field name="bank_journal_id"/>
+                <field name="partner_id" optional="show"/>
+                <field name="parser_suggested_move_id" optional="show"/>
+                <field name="parser_suggested_move_score" optional="show"/>
+                <field name="parser_suggested_move_remark" optional="show"/>
+                <field name="ai_confidence" widget="progressbar" string="Confidence"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'pending'"
+                       decoration-success="state == 'posted'"
+                       decoration-danger="state == 'error'"
+                       decoration-info="state == 'confirmed'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_bank_email_transaction_search" model="ir.ui.view">
+        <field name="name">bank.email.transaction.search</field>
+        <field name="model">bank.email.transaction</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="description"/>
+                <field name="partner_id"/>
+                <field name="bank_journal_id"/>
+                <field name="email_from"/>
+                <filter name="filter_pending"
+                        string="Pending"
+                        domain="[('state', '=', 'pending')]"/>
+                <filter name="filter_confirmed"
+                        string="Confirmed"
+                        domain="[('state', '=', 'confirmed')]"/>
+                <filter name="filter_posted"
+                        string="Posted"
+                        domain="[('state', '=', 'posted')]"/>
+                <filter name="filter_error"
+                        string="Errors"
+                        domain="[('state', '=', 'error')]"/>
+                <filter name="filter_recon_suggested"
+                    string="Match Suggested"
+                    domain="[('parser_suggested_move_state', '=', 'suggested')]"/>
+                <filter name="filter_learning_ready"
+                    string="Rule Learned"
+                    domain="[('learned_rule_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_credits"
+                        string="Credits"
+                        domain="[('transaction_type', '=', 'credit')]"/>
+                <filter name="filter_debits"
+                        string="Debits"
+                        domain="[('transaction_type', '=', 'debit')]"/>
+                <group>
+                    <filter name="group_journal"
+                            string="Bank Journal"
+                            domain="[]"
+                            context="{'group_by': 'bank_journal_id'}"/>
+                    <filter name="group_type"
+                            string="Transaction Type"
+                            domain="[]"
+                            context="{'group_by': 'transaction_type'}"/>
+                    <filter name="group_status"
+                            string="Status"
+                            domain="[]"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_date"
+                            string="Transaction Date"
+                            domain="[]"
+                            context="{'group_by': 'transaction_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_bank_email_transaction" model="ir.actions.act_window">
+        <field name="name">Parsed Transactions</field>
+        <field name="res_model">bank.email.transaction</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_bank_email_transaction_search"/>
+        <field name="context">{'search_default_filter_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No transactions yet
+            </p>
+            <p>
+                Bank notification emails will appear here once the monitor
+                processes them.
+            </p>
+        </field>
+    </record>
+
+</odoo>

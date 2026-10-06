@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Security Category -->
+    <record id="module_construction_management_category" model="ir.module.category">
+        <field name="name">Construction Management</field>
+        <field name="description">Manage access to Construction Management features.</field>
+        <field name="sequence">55</field>
+    </record>
+
+    <!-- Groups -->
+    <record id="group_construction_user" model="res.groups">
+        <field name="name">SGC Construction User</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="group_construction_manager" model="res.groups">
+        <field name="name">SGC Construction Manager</field>
+        <field name="implied_ids" eval="[(4, ref('group_construction_user'))]"/>
+    </record>
+
+    <record id="group_construction_admin" model="res.groups">
+        <field name="name">SGC Construction Administrator</field>
+        <field name="implied_ids" eval="[(4, ref('group_construction_manager'))]"/>
+    </record>
+
+    <record id="group_construction_pm" model="res.groups">
+        <field name="name">SGC Construction Project Manager</field>
+        <field name="implied_ids" eval="[(4, ref('group_construction_user'))]"/>
+    </record>
+
+    <record id="group_construction_finance" model="res.groups">
+        <field name="name">SGC Construction Finance</field>
+        <field name="implied_ids" eval="[(4, ref('group_construction_user')), (4, ref('account.group_account_invoice'))]"/>
+    </record>
+
+    <!-- Multi-company Rules -->
+    <record id="construction_project_comp_rule" model="ir.rule">
+        <field name="name">Construction Project Multi-Company</field>
+        <field name="model_id" ref="model_construction_project"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_boq_comp_rule" model="ir.rule">
+        <field name="name">Construction BOQ Multi-Company</field>
+        <field name="model_id" ref="model_construction_boq"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_wbs_comp_rule" model="ir.rule">
+        <field name="name">Construction WBS Multi-Company</field>
+        <field name="model_id" ref="model_construction_wbs"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_work_order_comp_rule" model="ir.rule">
+        <field name="name">Construction Work Order Multi-Company</field>
+        <field name="model_id" ref="model_construction_work_order"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_billing_comp_rule" model="ir.rule">
+        <field name="name">Construction Billing Multi-Company</field>
+        <field name="model_id" ref="model_construction_ra_billing"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_expense_comp_rule" model="ir.rule">
+        <field name="name">Construction Expense Multi-Company</field>
+        <field name="model_id" ref="model_construction_expense"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="construction_purchase_order_comp_rule" model="ir.rule">
+        <field name="name">Construction Purchase Order Multi-Company</field>
+        <field name="model_id" ref="model_construction_purchase_order"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

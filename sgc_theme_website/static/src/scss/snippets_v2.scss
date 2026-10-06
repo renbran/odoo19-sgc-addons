@@ -1,0 +1,836 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — v2 snippet library styles (web.assets_frontend)
+// The 13 "SGC TECH" snippets added on top of the original 7. Reuses $sgc-*
+// tokens, .sgc-reveal / .sgc-hex / sgc-micro from theme.scss and the
+// .sgc-watermark / .sgc-geo / .sgc-palette / .sgc-logo-lockup utilities from
+// _sgc_decor.scss. All motion gated on prefers-reduced-motion.
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// 1. Brand Hero
+// -----------------------------------------------------------------------------
+.s_sgc_brand_hero {
+    position: relative;
+    overflow: hidden;
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_brand_hero_corridor {
+        position: absolute;
+        z-index: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 38%;
+        pointer-events: none;
+        background:
+            repeating-linear-gradient(
+                100deg,
+                rgba($sgc-navy, 0.10) 0 18px,
+                transparent 18px 64px
+            );
+        mask-image: linear-gradient(to left, black, transparent);
+        -webkit-mask-image: linear-gradient(to left, black, transparent);
+    }
+
+    .s_sgc_brand_hero_inner { padding: $sgc-space-6 0; }
+
+    .s_sgc_brand_hero_title {
+        font-size: $sgc-fs-4xl;
+        font-weight: $sgc-fw-bold;
+        letter-spacing: 0.02em;
+        margin-bottom: $sgc-space-3;
+    }
+    .sgc-accent-word { color: $sgc-gold-700; }
+
+    .s_sgc_brand_hero_ring {
+        width: min(50%, 320px);
+        height: 14px;
+        margin: 0 auto $sgc-space-4;
+        border: 2px solid $sgc-gold;
+        border-radius: 50%;
+        opacity: 0.85;
+    }
+
+    .s_sgc_brand_hero_tagline {
+        font-size: $sgc-fs-lg;
+        color: $sgc-ink-soft;
+        margin-bottom: $sgc-space-5;
+    }
+
+    &.sgc-palette--cream-navy {
+        .s_sgc_brand_hero_ring { border-color: $sgc-gold-300; }
+        .s_sgc_brand_hero_corridor {
+            background: repeating-linear-gradient(
+                100deg,
+                rgba($sgc-gold, 0.14) 0 18px,
+                transparent 18px 64px
+            );
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 2. Split Feature
+// -----------------------------------------------------------------------------
+.s_sgc_split_feature {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_split_feature_head { margin-bottom: $sgc-space-6; }
+    .s_sgc_split_feature_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        margin-bottom: $sgc-space-3;
+    }
+    .s_sgc_split_feature_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: $sgc-fs-sm;
+        font-weight: $sgc-fw-semibold;
+        color: $sgc-ink-soft;
+    }
+
+    .s_sgc_split_feature_person {
+        position: relative;
+        img { aspect-ratio: 4/3; object-fit: cover; width: 100%; }
+    }
+    .s_sgc_split_feature_person_tag {
+        position: absolute;
+        left: $sgc-space-4;
+        bottom: $sgc-space-4;
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        padding: $sgc-space-2 $sgc-space-4;
+        border-radius: $sgc-radius-sm;
+        strong { display: block; font-family: $sgc-font-heading; }
+        span { font-size: $sgc-fs-sm; color: $sgc-gold-300; }
+    }
+    .s_sgc_split_feature_person--right .s_sgc_split_feature_person_tag {
+        left: auto;
+        right: $sgc-space-4;
+    }
+
+    .s_sgc_split_feature_divider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80px;
+    }
+    .s_sgc_split_feature_diamond {
+        width: 34px;
+        height: 34px;
+        border: 2px solid $sgc-gold;
+        transform: rotate(45deg);
+    }
+
+    .s_sgc_split_feature_points { margin-top: $sgc-space-7; }
+    .s_sgc_split_feature_point {
+        padding: $sgc-space-4;
+        .s_sgc_split_feature_point_badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: $sgc-radius-pill;
+            background-color: $sgc-gold;
+            color: $sgc-navy;
+            margin-bottom: $sgc-space-3;
+        }
+        p { color: $sgc-ink-soft; font-size: $sgc-fs-sm; }
+    }
+
+    &.sgc-palette--cream-navy .s_sgc_split_feature_kicker,
+    &.sgc-palette--cream-navy .s_sgc_split_feature_point p { color: rgba($sgc-cream, 0.75); }
+}
+
+// -----------------------------------------------------------------------------
+// 3. Before / After
+// -----------------------------------------------------------------------------
+.s_sgc_before_after {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_before_after_head { margin-bottom: $sgc-space-6; }
+    .s_sgc_before_after_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        margin-bottom: $sgc-space-2;
+    }
+    .s_sgc_before_after_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-ink-soft;
+    }
+
+    .s_sgc_before_after_panel {
+        border-radius: $sgc-radius-lg;
+        padding: $sgc-space-5;
+        margin-bottom: $sgc-space-4;
+        height: 100%;
+    }
+    .s_sgc_before_after_panel--before {
+        background-color: $sgc-cream-300;
+        border: 1px solid $sgc-border;
+    }
+    .s_sgc_before_after_panel--after {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+    }
+    .s_sgc_before_after_badge {
+        display: inline-block;
+        font-weight: $sgc-fw-semibold;
+        font-size: $sgc-fs-sm;
+        padding: $sgc-space-1 $sgc-space-3;
+        border-radius: $sgc-radius-pill;
+        margin-bottom: $sgc-space-4;
+    }
+    .s_sgc_before_after_panel--before .s_sgc_before_after_badge {
+        background-color: $sgc-gold-300;
+        color: $sgc-navy;
+    }
+    .s_sgc_before_after_panel--after .s_sgc_before_after_badge {
+        background-color: $sgc-gold;
+        color: $sgc-navy;
+    }
+    .s_sgc_before_after_list li {
+        padding: $sgc-space-2 0;
+        i { margin-right: $sgc-space-2; }
+    }
+    .s_sgc_before_after_panel--before .s_sgc_before_after_list i { color: $sgc-danger; }
+    .s_sgc_before_after_panel--after .s_sgc_before_after_list i { color: $sgc-gold-300; }
+
+    .s_sgc_before_after_benefits {
+        margin-top: $sgc-space-7;
+        i {
+            display: block;
+            font-size: $sgc-fs-xl;
+            color: $sgc-gold-700;
+            margin-bottom: $sgc-space-2;
+        }
+        h6 { font-size: $sgc-fs-sm; }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Three Pillars
+// -----------------------------------------------------------------------------
+.s_sgc_three_pillars {
+    padding-top: var(--sgc-section-pad);
+    padding-left: $sgc-space-5;
+    padding-right: $sgc-space-5;
+    padding-bottom: 0;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_three_pillars_title { font-size: $sgc-fs-3xl; font-weight: $sgc-fw-bold; margin-bottom: $sgc-space-2; }
+    .s_sgc_three_pillars_kicker {
+        color: $sgc-gold-700;
+        font-weight: $sgc-fw-medium;
+        margin-bottom: $sgc-space-7;
+    }
+
+    .s_sgc_pillar {
+        padding: 0 $sgc-space-4 $sgc-space-6;
+        .s_sgc_pillar_column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: $sgc-space-4;
+        }
+        .s_sgc_pillar_capital { width: 64px; height: 12px; border-radius: $sgc-radius-sm; background-color: $sgc-gold; }
+        .s_sgc_pillar_shaft { width: 40px; height: 84px; background-color: $sgc-navy; margin-top: 2px; }
+        .s_sgc_pillar_base { width: 72px; height: 10px; border-radius: $sgc-radius-sm; background-color: $sgc-gold; margin-top: 2px; }
+        .s_sgc_pillar_number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: $sgc-radius-pill;
+            border: 1px solid $sgc-gold;
+            color: $sgc-gold-700;
+            font-weight: $sgc-fw-semibold;
+            margin-bottom: $sgc-space-2;
+        }
+        h5 { margin-bottom: $sgc-space-2; }
+        p { color: $sgc-ink-soft; font-size: $sgc-fs-sm; }
+    }
+
+    .s_sgc_three_pillars_bar {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        padding: $sgc-space-3 $sgc-space-4;
+        font-size: $sgc-fs-sm;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 5. Comparison Table
+// -----------------------------------------------------------------------------
+.s_sgc_comparison_table {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_comparison_table_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        margin-bottom: $sgc-space-6;
+    }
+
+    .s_sgc_comparison_table_table {
+        background-color: $sgc-white;
+        border-radius: $sgc-radius-lg;
+        overflow: hidden;
+        box-shadow: $sgc-shadow-sm;
+
+        th, td { padding: $sgc-space-3 $sgc-space-4; vertical-align: middle; }
+        thead th {
+            font-family: $sgc-font-heading;
+            font-weight: $sgc-fw-semibold;
+        }
+        .s_sgc_comparison_table_th--old { color: $sgc-ink-soft; }
+        .s_sgc_comparison_table_th--new { background-color: $sgc-navy; color: $sgc-cream; }
+        tbody td:first-child { font-weight: $sgc-fw-semibold; color: $sgc-navy; }
+        tbody td:last-child { background-color: rgba($sgc-gold, 0.08); }
+    }
+
+    .s_sgc_comparison_table_points {
+        margin-top: $sgc-space-7;
+        i {
+            display: block;
+            font-size: $sgc-fs-xl;
+            color: $sgc-gold-700;
+            margin-bottom: $sgc-space-2;
+        }
+        p { color: $sgc-ink-soft; font-size: $sgc-fs-sm; }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 6. Dashboard Showcase
+// -----------------------------------------------------------------------------
+.s_sgc_dashboard_showcase {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-navy;
+    color: $sgc-cream;
+
+    .s_sgc_dashboard_showcase_head { margin-bottom: $sgc-space-6; }
+    .s_sgc_dashboard_showcase_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        color: $sgc-white;
+        margin-bottom: $sgc-space-2;
+    }
+    .s_sgc_dashboard_showcase_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-gold-300;
+    }
+    .s_sgc_dashboard_showcase_note {
+        display: flex;
+        gap: $sgc-space-3;
+        i { font-size: $sgc-fs-xl; color: $sgc-gold; }
+        p { font-size: $sgc-fs-sm; color: rgba($sgc-cream, 0.8); margin: 0; }
+    }
+
+    .s_sgc_dashboard_showcase_frame {
+        border-radius: $sgc-radius-lg;
+        overflow: hidden;
+        box-shadow: $sgc-shadow-lg;
+        background-color: $sgc-navy-900;
+        border: 1px solid rgba($sgc-gold, 0.25);
+    }
+    .s_sgc_dashboard_showcase_titlebar {
+        display: flex;
+        gap: $sgc-space-2;
+        padding: $sgc-space-3 $sgc-space-4;
+        background-color: $sgc-navy-800;
+        span {
+            width: 10px; height: 10px; border-radius: $sgc-radius-pill;
+            background-color: rgba($sgc-gold, 0.4);
+        }
+    }
+    .s_sgc_dashboard_showcase_body { padding: $sgc-space-5; }
+
+    .s_sgc_kpi_card {
+        display: flex;
+        flex-direction: column;
+        background-color: rgba($sgc-cream, 0.06);
+        border: 1px solid rgba($sgc-gold, 0.2);
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-3;
+    }
+    .s_sgc_kpi_label { font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.7); text-transform: uppercase; letter-spacing: 0.04em; }
+    .s_sgc_kpi_value { font-family: $sgc-font-heading; font-size: $sgc-fs-xl; color: $sgc-white; font-weight: $sgc-fw-bold; }
+    .s_sgc_kpi_delta { font-size: $sgc-fs-xs; color: $sgc-gold-300; }
+
+    .s_sgc_dashboard_showcase_charts { margin-top: $sgc-space-4; }
+    .s_sgc_chart_card {
+        background-color: rgba($sgc-cream, 0.06);
+        border: 1px solid rgba($sgc-gold, 0.2);
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-3;
+    }
+    .s_sgc_chart_title { display: block; font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.75); margin-bottom: $sgc-space-2; }
+    .s_sgc_chart_bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        height: 60px;
+        span {
+            flex: 1;
+            background: linear-gradient(180deg, $sgc-gold-300, $sgc-gold);
+            border-radius: 2px 2px 0 0;
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 7. Layer Pyramid
+// -----------------------------------------------------------------------------
+.s_sgc_layer_pyramid {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_layer_pyramid_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        margin-bottom: $sgc-space-6;
+    }
+
+    .s_sgc_layer_pyramid_stack { margin: 0 auto $sgc-space-7; }
+
+    .s_sgc_pyramid_layer {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-4 $sgc-space-5;
+        margin: 0 auto $sgc-space-2;
+        border-top: 2px solid $sgc-gold;
+    }
+    .s_sgc_pyramid_layer--3 { max-width: 62%; background-color: $sgc-navy-500; }
+    .s_sgc_pyramid_layer--2 { max-width: 82%; background-color: $sgc-navy-700; }
+    .s_sgc_pyramid_layer--1 { max-width: 100%; background-color: $sgc-navy-900; }
+
+    .s_sgc_pyramid_layer_label {
+        display: block;
+        font-size: $sgc-fs-xs;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: $sgc-gold-300;
+        margin-bottom: $sgc-space-3;
+    }
+    .s_sgc_pyramid_items {
+        i { display: block; font-size: $sgc-fs-lg; color: $sgc-gold; margin-bottom: $sgc-space-1; }
+        span { font-size: $sgc-fs-xs; }
+    }
+    .s_sgc_pyramid_annotation {
+        strong { display: block; color: $sgc-gold-300; font-family: $sgc-font-heading; }
+        p { font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.75); margin: 0; }
+    }
+
+    .s_sgc_layer_pyramid_badges {
+        .s_sgc_pyramid_badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: $sgc-radius-pill;
+            border: 2px solid $sgc-gold;
+            color: $sgc-gold-700;
+            margin-bottom: $sgc-space-2;
+        }
+        p { font-size: $sgc-fs-xs; font-weight: $sgc-fw-semibold; text-transform: uppercase; letter-spacing: 0.04em; }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 8. Flow Diagram
+// -----------------------------------------------------------------------------
+.s_sgc_flow_diagram {
+    position: relative;
+    padding-top: var(--sgc-section-pad);
+    padding-left: $sgc-space-5;
+    padding-right: $sgc-space-5;
+    padding-bottom: 0;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_flow_diagram_title { text-align: center; font-size: $sgc-fs-3xl; font-weight: $sgc-fw-bold; margin-bottom: $sgc-space-2; }
+    .s_sgc_flow_diagram_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-gold-700;
+        margin-bottom: $sgc-space-6;
+    }
+
+    .s_sgc_flow_col_label {
+        display: block;
+        font-weight: $sgc-fw-semibold;
+        text-transform: uppercase;
+        font-size: $sgc-fs-xs;
+        letter-spacing: 0.06em;
+        color: $sgc-navy;
+        margin-bottom: $sgc-space-3;
+    }
+    .s_sgc_flow_col ul li {
+        padding: $sgc-space-1 0;
+        i { width: 20px; color: $sgc-gold-700; margin-right: $sgc-space-2; }
+    }
+
+    .s_sgc_flow_engine {
+        .s_sgc_flow_engine_circle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 84px;
+            height: 84px;
+            border-radius: $sgc-radius-pill;
+            background-color: $sgc-navy;
+            color: $sgc-gold;
+            font-size: $sgc-fs-2xl;
+            margin-bottom: $sgc-space-2;
+        }
+        strong { display: block; font-size: $sgc-fs-sm; }
+    }
+
+    .s_sgc_flow_layer_card {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        border-left: 3px solid $sgc-gold;
+        border-radius: $sgc-radius-sm;
+        padding: $sgc-space-2 $sgc-space-3;
+        margin-bottom: $sgc-space-2;
+        strong { display: block; }
+        p { margin: 0; font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.75); }
+    }
+
+    .s_sgc_flow_outcomes li {
+        display: flex;
+        gap: $sgc-space-2;
+        padding: $sgc-space-1 0;
+        i { color: $sgc-gold-700; margin-top: 4px; }
+        strong { display: block; font-size: $sgc-fs-sm; }
+        span { font-size: $sgc-fs-xs; color: $sgc-ink-soft; }
+    }
+
+    .s_sgc_flow_diagram_capabilities {
+        margin-top: $sgc-space-7;
+        padding-bottom: $sgc-space-6;
+        border-top: 1px solid $sgc-border;
+        padding-top: $sgc-space-5;
+        i { display: block; font-size: $sgc-fs-lg; color: $sgc-gold-700; margin-bottom: $sgc-space-1; }
+        span { font-size: $sgc-fs-xs; }
+    }
+
+    .s_sgc_flow_diagram_bar {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        padding: $sgc-space-3 $sgc-space-4;
+        font-size: $sgc-fs-sm;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 9. Roadmap
+// -----------------------------------------------------------------------------
+.s_sgc_roadmap {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_roadmap_title { font-size: $sgc-fs-3xl; font-weight: $sgc-fw-bold; margin-bottom: $sgc-space-2; }
+    .s_sgc_roadmap_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-gold-700;
+        margin-bottom: $sgc-space-7;
+    }
+
+    .s_sgc_roadmap_steps {
+        position: relative;
+        margin-bottom: $sgc-space-7;
+        &::before {
+            content: "";
+            position: absolute;
+            top: 32px;
+            left: 12%;
+            right: 12%;
+            height: 2px;
+            background-color: $sgc-gold;
+            z-index: 0;
+        }
+    }
+    .s_sgc_roadmap_step {
+        position: relative;
+        z-index: 1;
+        padding: 0 $sgc-space-3;
+        .s_sgc_roadmap_node {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: $sgc-radius-pill;
+            background-color: $sgc-navy;
+            color: $sgc-gold;
+            font-size: $sgc-fs-lg;
+            border: 2px solid $sgc-gold;
+        }
+        .s_sgc_roadmap_number { display: block; color: $sgc-gold-700; font-weight: $sgc-fw-bold; margin-top: $sgc-space-2; }
+        h5 { margin-bottom: 0; }
+        .s_sgc_roadmap_stage { display: block; font-size: $sgc-fs-xs; text-transform: uppercase; letter-spacing: 0.06em; color: $sgc-ink-soft; margin-bottom: $sgc-space-2; }
+        p { font-size: $sgc-fs-sm; color: $sgc-ink-soft; }
+    }
+
+    .s_sgc_roadmap_phase {
+        background-color: $sgc-white;
+        border: 1px solid $sgc-border;
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-4;
+        height: 100%;
+        .s_sgc_roadmap_phase_badge {
+            display: inline-block;
+            background-color: $sgc-navy;
+            color: $sgc-gold-300;
+            font-size: $sgc-fs-xs;
+            font-weight: $sgc-fw-semibold;
+            padding: $sgc-space-1 $sgc-space-3;
+            border-radius: $sgc-radius-pill;
+            margin-bottom: $sgc-space-3;
+        }
+        li { font-size: $sgc-fs-sm; padding: $sgc-space-1 0; i { color: $sgc-gold-700; margin-right: $sgc-space-2; } }
+    }
+
+    .s_sgc_roadmap_principles {
+        margin-top: $sgc-space-7;
+        i { display: block; font-size: $sgc-fs-lg; color: $sgc-gold-700; margin-bottom: $sgc-space-2; }
+        p { font-size: $sgc-fs-xs; color: $sgc-ink-soft; }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 10. Hexagon Grid
+// -----------------------------------------------------------------------------
+.s_sgc_hexagon_grid {
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_hexagon_grid_title { font-size: $sgc-fs-3xl; font-weight: $sgc-fw-bold; margin-bottom: $sgc-space-7; }
+
+    .s_sgc_hex_tile { max-width: 220px; margin: 0 auto; }
+    .s_sgc_hex_tile_shape {
+        width: 100%;
+        aspect-ratio: 1/0.87;
+        clip-path: $sgc-hex-clip;
+        background-size: cover;
+        background-position: center;
+        box-shadow: $sgc-shadow-md;
+        @include sgc-card-lift;
+    }
+    .s_sgc_hex_tile:hover .s_sgc_hex_tile_shape {
+        @media (prefers-reduced-motion: no-preference) { transform: translateY(-4px); }
+    }
+    .s_sgc_hex_tile_label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $sgc-space-2;
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        border-radius: $sgc-radius-sm;
+        padding: $sgc-space-2 $sgc-space-3;
+        margin-top: -$sgc-space-3;
+        position: relative;
+        z-index: 1;
+        font-size: $sgc-fs-sm;
+        font-weight: $sgc-fw-semibold;
+        i { color: $sgc-gold; }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 11. Leadership
+// -----------------------------------------------------------------------------
+.s_sgc_leadership {
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_leadership_inner { padding: var(--sgc-section-pad) $sgc-space-6; }
+    .s_sgc_leadership_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        border-top: 2px solid $sgc-gold;
+        padding-top: $sgc-space-4;
+        margin-bottom: $sgc-space-2;
+    }
+    .s_sgc_leadership_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-gold-700;
+        margin-bottom: $sgc-space-6;
+    }
+    .s_sgc_leadership_cred {
+        border-right: 1px solid $sgc-border;
+        &:last-child { border-right: none; }
+        .s_sgc_leadership_cred_icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: $sgc-radius-pill;
+            background-color: $sgc-navy;
+            color: $sgc-gold;
+            margin-bottom: $sgc-space-3;
+        }
+        h6 { font-size: $sgc-fs-sm; margin-bottom: $sgc-space-2; }
+        p { font-size: $sgc-fs-xs; color: $sgc-ink-soft; }
+    }
+
+    .s_sgc_leadership_portrait {
+        min-height: 260px;
+        img { width: 100%; height: 100%; object-fit: cover; }
+    }
+
+    .s_sgc_leadership_stats {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        > div { padding: $sgc-space-5 $sgc-space-4; }
+        i { display: block; font-size: $sgc-fs-xl; color: $sgc-gold; margin-bottom: $sgc-space-2; }
+        strong { display: block; font-family: $sgc-font-heading; font-size: $sgc-fs-lg; }
+        span { font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.75); }
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 12. Pricing Tiers
+// -----------------------------------------------------------------------------
+.s_sgc_pricing_tiers {
+    padding-top: var(--sgc-section-pad);
+    padding-left: $sgc-space-5;
+    padding-right: $sgc-space-5;
+    padding-bottom: 0;
+    background-color: $sgc-cream;
+    color: $sgc-ink;
+
+    .s_sgc_pricing_tiers_title { font-size: $sgc-fs-3xl; font-weight: $sgc-fw-bold; margin-bottom: $sgc-space-2; }
+    .s_sgc_pricing_tiers_kicker {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: $sgc-fs-sm;
+        color: $sgc-gold-700;
+        margin-bottom: $sgc-space-7;
+    }
+
+    .s_sgc_pricing_tiers_row { margin-bottom: $sgc-space-7; }
+    .s_sgc_pricing_card {
+        display: flex;
+        flex-direction: column;
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        border-top: 3px solid $sgc-gold;
+        border-radius: $sgc-radius-md $sgc-radius-md 0 0;
+        padding: $sgc-space-4 $sgc-space-3;
+        margin: 0 $sgc-space-2;
+    }
+    .s_sgc_pricing_tier_name { font-size: $sgc-fs-xs; text-transform: uppercase; letter-spacing: 0.04em; color: $sgc-gold-300; }
+    .s_sgc_pricing_price { font-family: $sgc-font-heading; font-size: $sgc-fs-xl; font-weight: $sgc-fw-bold; margin: $sgc-space-2 0; }
+    .s_sgc_pricing_level { font-size: $sgc-fs-xs; color: rgba($sgc-cream, 0.7); }
+
+    .s_sgc_pricing_card--1 { padding-top: $sgc-space-3; }
+    .s_sgc_pricing_card--2 { padding-top: $sgc-space-4; background-color: $sgc-navy-700; }
+    .s_sgc_pricing_card--3 { padding-top: $sgc-space-5; background-color: $sgc-navy-800; }
+    .s_sgc_pricing_card--4 { padding-top: $sgc-space-6; background-color: $sgc-navy-900; box-shadow: $sgc-shadow-gold; }
+
+    .s_sgc_pricing_tiers_points {
+        padding-bottom: $sgc-space-6;
+        i { display: block; font-size: $sgc-fs-lg; color: $sgc-gold-700; margin-bottom: $sgc-space-2; }
+        span { font-size: $sgc-fs-xs; font-weight: $sgc-fw-semibold; }
+    }
+
+    .s_sgc_pricing_tiers_bar {
+        background-color: $sgc-navy;
+        color: $sgc-cream;
+        padding: $sgc-space-3 $sgc-space-4;
+        font-size: $sgc-fs-sm;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// 13. Contact CTA
+// -----------------------------------------------------------------------------
+.s_sgc_contact_cta {
+    position: relative;
+    padding: var(--sgc-section-pad) $sgc-space-5;
+    background-color: $sgc-navy;
+    color: $sgc-cream;
+
+    .s_sgc_contact_cta_title {
+        font-size: $sgc-fs-3xl;
+        font-weight: $sgc-fw-bold;
+        color: $sgc-white;
+        margin-bottom: $sgc-space-2;
+    }
+    .s_sgc_contact_cta_kicker {
+        color: $sgc-gold-300;
+        font-weight: $sgc-fw-medium;
+        margin-bottom: $sgc-space-5;
+    }
+
+    .s_sgc_contact_card {
+        background-color: rgba($sgc-cream, 0.06);
+        border: 1px solid rgba($sgc-gold, 0.3);
+        border-radius: $sgc-radius-md;
+        padding: $sgc-space-4;
+        margin-bottom: $sgc-space-5;
+        display: inline-block;
+        li {
+            padding: $sgc-space-1 0;
+            i { width: 24px; color: $sgc-gold; margin-right: $sgc-space-2; }
+            a { color: $sgc-cream; text-decoration: none; }
+            a:hover { color: $sgc-gold-300; }
+        }
+    }
+
+    .s_sgc_contact_social {
+        .s_sgc_social_icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: $sgc-radius-pill;
+            background-color: rgba($sgc-gold, 0.15);
+            color: $sgc-gold;
+            margin-right: $sgc-space-2;
+            @include sgc-micro(background-color, transform);
+            &:hover { background-color: $sgc-gold; color: $sgc-navy; transform: translateY(-2px); }
+        }
+    }
+
+    .s_sgc_contact_cta_action { margin-top: $sgc-space-5; }
+
+    &.sgc-palette--navy-cream { background-color: $sgc-navy; color: $sgc-cream; }
+}

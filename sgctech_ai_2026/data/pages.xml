@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Home page -->
+  <record id="sgctech_page_home_2026" model="website.page">
+    <field name="name">SGC Tech AI — Home</field>
+    <field name="url">/sgctech/home</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_home_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- Industries -->
+  <record id="sgctech_page_industries_2026" model="website.page">
+    <field name="name">Industries — SGC Tech AI</field>
+    <field name="url">/sgctech/industries</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_industries_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- How We Work -->
+  <record id="sgctech_page_how_we_work_2026" model="website.page">
+    <field name="name">How We Work — SGC Tech AI</field>
+    <field name="url">/sgctech/how-we-work</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_how_we_work_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- Pricing -->
+  <record id="sgctech_page_pricing_2026" model="website.page">
+    <field name="name">Pricing — SGC Tech AI</field>
+    <field name="url">/sgctech/pricing</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_pricing_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- Compliance -->
+  <record id="sgctech_page_compliance_2026" model="website.page">
+    <field name="name">Compliance — SGC Tech AI</field>
+    <field name="url">/sgctech/compliance</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_compliance_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- About -->
+  <record id="sgctech_page_about_2026" model="website.page">
+    <field name="name">About — SGC Tech AI</field>
+    <field name="url">/sgctech/about</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_about_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+  <!-- Contact -->
+  <record id="sgctech_page_contact_2026" model="website.page">
+    <field name="name">Contact — SGC Tech AI</field>
+    <field name="url">/sgctech/contact</field>
+    <field name="view_id" ref="sgctech_ai_2026.sgctech_contact_2026"/>
+    <field name="website_published">True</field>
+    <field name="is_published">True</field>
+  </record>
+
+</odoo>

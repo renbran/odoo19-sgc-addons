@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- SGC Tech AI - Default booking resource calendar -->
+    <record id="sgc_resource_calendar_consultation" model="resource.calendar">
+        <field name="name">SGC Business Hours (Mon-Fri 09:00-18:00)</field>
+        <field name="tz">Asia/Singapore</field>
+    </record>
+
+    <!-- Default SGC Tech AI booking types -->
+    <record id="sgc_booking_type_ai_consultation" model="resource.booking.type">
+        <field name="name">AI Strategy Consultation</field>
+        <field name="duration">1</field>
+        <field name="slot_duration">0.5</field>
+        <field name="modifications_deadline">4</field>
+        <field name="resource_calendar_id" ref="sgc_resource_calendar_consultation" />
+        <field name="combination_assignment">sorted</field>
+        <field name="ai_scheduling_enabled" eval="True" />
+        <field name="requester_advice"><![CDATA[Book an AI strategy session with SGC Tech experts. We'll analyze your business needs and recommend the right AI solutions.]]></field>
+    </record>
+
+    <record id="sgc_booking_type_tech_demo" model="resource.booking.type">
+        <field name="name">Technology Demo</field>
+        <field name="duration">1</field>
+        <field name="slot_duration">0.5</field>
+        <field name="modifications_deadline">2</field>
+        <field name="resource_calendar_id" ref="sgc_resource_calendar_consultation" />
+        <field name="combination_assignment">random</field>
+        <field name="ai_scheduling_enabled" eval="True" />
+        <field name="requester_advice"><![CDATA[Schedule a live demo of SGC Tech AI capabilities including smart scheduling, lead scoring, and AI-assisted finance.]]></field>
+    </record>
+
+    <record id="sgc_booking_type_onboarding" model="resource.booking.type">
+        <field name="name">Platform Onboarding</field>
+        <field name="duration">0.5</field>
+        <field name="slot_duration">0.25</field>
+        <field name="modifications_deadline">2</field>
+        <field name="resource_calendar_id" ref="sgc_resource_calendar_consultation" />
+        <field name="combination_assignment">sorted</field>
+        <field name="ai_scheduling_enabled" eval="True" />
+        <field name="requester_advice"><![CDATA[Get started with SGC Tech AI platform. Our team will walk you through setup and configuration.]]></field>
+    </record>
+
+    <record id="sgc_booking_type_support" model="resource.booking.type">
+        <field name="name">Technical Support</field>
+        <field name="duration">0.5</field>
+        <field name="slot_duration">0.25</field>
+        <field name="modifications_deadline">1</field>
+        <field name="resource_calendar_id" ref="sgc_resource_calendar_consultation" />
+        <field name="combination_assignment">sorted</field>
+        <field name="ai_scheduling_enabled" eval="False" />
+        <field name="requester_advice"><![CDATA[Book a technical support session for troubleshooting, configuration help, or integration questions.]]></field>
+    </record>
+</odoo>

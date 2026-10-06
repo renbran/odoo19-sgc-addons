@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+
+    <!--
+        Assembled demo / showcase page built around the professional-services +
+        SaaS vertical (spec §10 Q3). This full page also serves as the basis for
+        the store's big _screenshot. It t-calls the seven SGC snippets, which are
+        defined in the snippet template files loaded earlier in the manifest.
+    -->
+    <record id="sgc_demo_page" model="website.page">
+        <field name="name">Aurum Demo</field>
+        <field name="type">qweb</field>
+        <field name="url">/aurum-demo</field>
+        <field name="is_published">True</field>
+        <field name="website_indexed" eval="False"/>
+        <field name="key">sgc_theme_website.sgc_demo_page</field>
+        <field name="arch" type="xml">
+            <t name="Aurum Demo" t-name="sgc_theme_website.sgc_demo_page">
+                <t t-call="website.layout">
+                    <div id="wrap" class="oe_structure">
+                        <t t-call="sgc_theme_website.s_sgc_hero"/>
+                        <t t-call="sgc_theme_website.s_sgc_feature_hex"/>
+                        <t t-call="sgc_theme_website.s_sgc_stats"/>
+                        <t t-call="sgc_theme_website.s_sgc_showcase"/>
+                        <t t-call="sgc_theme_website.s_sgc_testimonial"/>
+                        <t t-call="sgc_theme_website.s_sgc_cta"/>
+                        <t t-call="sgc_theme_website.s_sgc_footer"/>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+</odoo>

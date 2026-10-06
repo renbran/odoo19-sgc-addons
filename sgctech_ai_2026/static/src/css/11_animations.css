@@ -1,0 +1,114 @@
+/* ── 11_animations.css ────────────────────────────────────── */
+
+/* ── Mesh background pulse ───────────────────────────────── */
+@keyframes sgcMesh {
+  0%   { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  33%  { background-position: 30% 10%, 70% 90%, 20% 80%; }
+  66%  { background-position: 60% 40%, 40% 60%, 80% 20%; }
+  100% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+}
+
+/* ── Entry animations ────────────────────────────────────── */
+@keyframes sgc26FadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sgc26FadeInDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes sgc26FadeInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes sgc26FadeInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes sgc26FadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sgc26ScaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Continuous animations ───────────────────────────────── */
+@keyframes sgc26Pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(1.15); }
+}
+@keyframes sgc26Float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-12px); }
+}
+@keyframes sgc26Spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes sgc26ScrollWheel {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%       { transform: translateY(8px); opacity: 0.4; }
+}
+@keyframes sgc26Shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Scroll-reveal states ────────────────────────────────── */
+[data-sgc-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity var(--t-slow) var(--ease-out),
+              transform var(--t-slow) var(--ease-out);
+}
+[data-sgc-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+[data-sgc-reveal="left"] {
+  transform: translateX(-32px);
+}
+[data-sgc-reveal="left"].revealed {
+  transform: translateX(0);
+}
+[data-sgc-reveal="right"] {
+  transform: translateX(32px);
+}
+[data-sgc-reveal="right"].revealed {
+  transform: translateX(0);
+}
+[data-sgc-reveal="scale"] {
+  transform: scale(0.88);
+}
+[data-sgc-reveal="scale"].revealed {
+  transform: scale(1);
+}
+
+/* Staggered delay helpers */
+[data-sgc-delay="100"] { transition-delay: 100ms; }
+[data-sgc-delay="200"] { transition-delay: 200ms; }
+[data-sgc-delay="300"] { transition-delay: 300ms; }
+[data-sgc-delay="400"] { transition-delay: 400ms; }
+[data-sgc-delay="500"] { transition-delay: 500ms; }
+[data-sgc-delay="600"] { transition-delay: 600ms; }
+[data-sgc-delay="800"] { transition-delay: 800ms; }
+
+/* ── Gradient border shimmer ─────────────────────────────── */
+.sgc26-border-shimmer {
+  background: linear-gradient(90deg,
+    var(--glass-border) 0%,
+    var(--cyan-a50) 40%,
+    var(--violet-a35) 60%,
+    var(--glass-border) 100%);
+  background-size: 200% auto;
+  animation: sgc26Shimmer 3s linear infinite;
+}
+
+/* ── Hero entry sequence ─────────────────────────────────── */
+.sgc26-hero__badge   { animation: sgc26FadeInDown 0.7s 0.10s ease both; }
+.sgc26-hero__h1      { animation: sgc26FadeInUp   0.8s 0.20s ease both; }
+.sgc26-hero__sub     { animation: sgc26FadeInUp   0.8s 0.35s ease both; }
+.sgc26-cta-group     { animation: sgc26FadeInUp   0.8s 0.48s ease both; }
+.sgc26-hero__chips   { animation: sgc26FadeInRight 0.9s 0.30s ease both; }

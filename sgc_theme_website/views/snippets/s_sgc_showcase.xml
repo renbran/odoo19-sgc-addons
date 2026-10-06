@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_showcase" name="SGC Showcase">
+        <section class="s_sgc_showcase" data-name="SGC Showcase" data-snippet="s_sgc_showcase">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <img class="s_sgc_showcase_media s_sgc_tilt img-fluid"
+                             src="/website/static/src/img/library/office.webp"
+                             alt="Product dashboard mockup"
+                             data-sgc-tilt-max="8"/>
+                    </div>
+                    <div class="col-lg-6 s_sgc_showcase_copy sgc-reveal sgc-reveal--right">
+                        <h2>Everything in one clear view</h2>
+                        <p>From finance to fulfilment, SGC brings your operation onto a single,
+                           navigable surface — no more tab-hopping to answer a simple question.</p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fa fa-check text-warning me-2"/>Real-time KPIs</li>
+                            <li class="mb-2"><i class="fa fa-check text-warning me-2"/>Role-based dashboards</li>
+                            <li class="mb-2"><i class="fa fa-check text-warning me-2"/>Export-ready reports</li>
+                        </ul>
+                        <a href="#" class="btn btn-primary">See a live demo</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

@@ -1,0 +1,336 @@
+/* =============================================================================
+   Payment Account Enhanced - Simplified CSS for Odoo 17 Compliance
+   =============================================================================
+   
+   This file replaces all previous CSS/SCSS files with a single, clean,
+   Odoo 17 compliant stylesheet for the payment module.
+   
+   ============================================================================= */
+
+/* ===== VARIABLES ===== */
+:root {
+  --osus-burgundy: #8b1538;
+  --osus-burgundy-light: #a41e3a;
+  --osus-burgundy-dark: #6d0f2a;
+  --osus-gold: #d4af37;
+  --osus-gold-light: #f5e67b;
+  --osus-cream: #faf8f3;
+  --osus-text-dark: #2c2c2c;
+  --osus-text-light: #666;
+  --osus-border: #ddd;
+  --osus-radius: 8px;
+  --osus-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --osus-shadow-md: 0 4px 12px rgba(139, 21, 56, 0.15);
+}
+
+/* ===== PAYMENT FORM ENHANCEMENTS ===== */
+
+/* Enhanced payment form styling */
+.o_form_view .o_payment_enhanced_form {
+  background: linear-gradient(135deg, var(--osus-cream) 0%, #ffffff 100%);
+  border-radius: var(--osus-radius);
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: var(--osus-shadow);
+}
+
+/* Custom buttons */
+.btn-osus-primary {
+  background: linear-gradient(
+    135deg,
+    var(--osus-burgundy) 0%,
+    var(--osus-burgundy-light) 100%
+  );
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: var(--osus-radius);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-osus-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--osus-burgundy-dark) 0%,
+    var(--osus-burgundy) 100%
+  );
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: var(--osus-shadow-md);
+}
+
+/* Workflow status indicators */
+.o_payment_status_badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.o_payment_status_badge.draft {
+  background: #f8f9fa;
+  color: var(--osus-text-light);
+  border: 1px solid var(--osus-border);
+}
+
+.o_payment_status_badge.under_review {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.o_payment_status_badge.for_approval {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.o_payment_status_badge.approved {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.o_payment_status_badge.posted {
+  background: linear-gradient(
+    135deg,
+    var(--osus-burgundy) 0%,
+    var(--osus-burgundy-light) 100%
+  );
+  color: white;
+  border: none;
+}
+
+/* ===== PAYMENT VOUCHER STYLES ===== */
+
+/* Main voucher container */
+.o_payment_voucher_container {
+  font-family: -webkit-system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border: 1px solid var(--osus-border);
+  border-radius: var(--osus-radius);
+  overflow: hidden;
+  box-shadow: var(--osus-shadow);
+}
+
+/* Voucher header */
+.o_payment_voucher_header {
+  background: linear-gradient(
+    135deg,
+    var(--osus-burgundy) 0%,
+    var(--osus-burgundy-light) 100%
+  );
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+.o_payment_voucher_title {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.o_payment_voucher_subtitle {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Voucher meta information */
+.o_payment_voucher_meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  gap: 20px;
+}
+
+.o_payment_voucher_number,
+.o_payment_voucher_date {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 4px;
+  text-align: center;
+  flex: 1;
+}
+
+.o_payment_voucher_number strong,
+.o_payment_voucher_date strong {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+  opacity: 0.8;
+}
+
+/* Voucher body */
+.o_payment_voucher_body {
+  padding: 30px;
+}
+
+/* Company information */
+.o_payment_voucher_company {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--osus-gold);
+}
+
+.o_payment_voucher_company_name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--osus-burgundy);
+  margin: 0 0 5px 0;
+}
+
+.o_payment_voucher_company_details {
+  font-size: 14px;
+  color: var(--osus-text-light);
+  margin: 0;
+}
+
+/* Payment details table */
+.o_payment_voucher_details {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.o_payment_voucher_details th,
+.o_payment_voucher_details td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.o_payment_voucher_details th {
+  background: var(--osus-cream);
+  font-weight: 600;
+  color: var(--osus-burgundy);
+  width: 30%;
+}
+
+.o_payment_voucher_details td {
+  color: var(--osus-text-dark);
+}
+
+/* Amount highlighting */
+.o_payment_voucher_amount {
+  background: linear-gradient(
+    135deg,
+    var(--osus-gold) 0%,
+    var(--osus-gold-light) 100%
+  );
+  color: var(--osus-burgundy);
+  font-weight: 700;
+  font-size: 16px;
+  padding: 15px;
+  text-align: center;
+  border-radius: var(--osus-radius);
+  margin: 20px 0;
+}
+
+/* QR Code section */
+.o_payment_voucher_qr {
+  text-align: center;
+  margin: 30px 0;
+  padding: 20px;
+  background: var(--osus-cream);
+  border-radius: var(--osus-radius);
+}
+
+.o_payment_voucher_qr img {
+  border: 2px solid var(--osus-burgundy);
+  border-radius: var(--osus-radius);
+  padding: 10px;
+  background: white;
+}
+
+.o_payment_voucher_qr_text {
+  margin: 15px 0 0 0;
+  font-size: 14px;
+  color: var(--osus-text-light);
+}
+
+/* Signature section */
+.o_payment_voucher_signatures {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  gap: 30px;
+}
+
+.o_payment_voucher_signature {
+  flex: 1;
+  text-align: center;
+  padding-top: 30px;
+  border-top: 1px solid var(--osus-text-light);
+}
+
+.o_payment_voucher_signature_label {
+  font-size: 12px;
+  color: var(--osus-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Footer */
+.o_payment_voucher_footer {
+  background: var(--osus-cream);
+  padding: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--osus-text-light);
+  border-top: 1px solid var(--osus-border);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+  .o_payment_voucher_container {
+    margin: 10px;
+    border-radius: 0;
+  }
+
+  .o_payment_voucher_meta {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .o_payment_voucher_signatures {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .o_payment_voucher_details th,
+  .o_payment_voucher_details td {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .o_payment_voucher_container {
+    box-shadow: none;
+    border: none;
+    max-width: none;
+    margin: 0;
+  }
+
+  .o_payment_voucher_header {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .btn-osus-primary {
+    display: none;
+  }
+}

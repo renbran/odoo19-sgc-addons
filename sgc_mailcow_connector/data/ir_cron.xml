@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="ir_cron_mailcow_sync" model="ir.cron">
+            <field name="name">Mailcow: Sync Mailboxes</field>
+            <field name="model_id" ref="model_mailcow_mailbox"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_sync_mailboxes()</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <!-- Created INACTIVE: enable manually only after the API key is
+                 configured and the first manual sync has been reviewed. -->
+            <field name="active" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

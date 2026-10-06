@@ -1,0 +1,217 @@
+/* =====================================================================
+   CRM Executive Dashboard — Charts & Alerts
+   =====================================================================
+   Chart container, canvas sizing, alert cards, source breakdown,
+   funnel viz.
+   ===================================================================== */
+
+/* --- Charts grid --- */
+.ced-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: var(--ced-space-md);
+}
+
+.ced-chart {
+    background: var(--ced-primary-light);
+    border-radius: var(--ced-radius-md);
+    padding: var(--ced-space-md);
+    box-shadow: var(--ced-shadow-sm);
+    border-top: 2px solid var(--ced-secondary);
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.ced-chart__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--ced-space-md);
+    flex-wrap: wrap;
+    gap: var(--ced-space-sm);
+}
+
+.ced-chart__title {
+    font-family: var(--ced-font-display);
+    font-size: 15px;
+    color: var(--ced-secondary);
+    margin: 0;
+}
+
+.ced-chart__subtitle {
+    font-size: 11px;
+    color: var(--ced-white);
+    opacity: 0.6;
+}
+
+.ced-chart__body {
+    flex: 1;
+    position: relative;
+    min-height: 220px;
+}
+
+.ced-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 260px;
+}
+
+.ced-chart__empty {
+    text-align: center;
+    color: var(--ced-white);
+    opacity: 0.6;
+    padding: var(--ced-space-xl);
+    font-style: italic;
+}
+
+/* --- Alerts --- */
+.ced-alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--ced-space-md);
+}
+
+.ced-alert {
+    background: var(--ced-primary-light);
+    border-radius: var(--ced-radius-md);
+    padding: var(--ced-space-md);
+    box-shadow: var(--ced-shadow-sm);
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ced-space-md);
+    border-left: 4px solid var(--ced-secondary);
+}
+
+.ced-alert--success {
+    border-left-color: var(--ced-success);
+    background: linear-gradient(135deg, var(--ced-primary-light) 0%, rgba(30, 193, 152, 0.06) 100%);
+}
+
+.ced-alert--info {
+    border-left-color: var(--ced-secondary);
+}
+
+.ced-alert--warning {
+    border-left-color: var(--ced-warning);
+    background: linear-gradient(135deg, var(--ced-primary-light) 0%, rgba(243, 156, 18, 0.08) 100%);
+}
+
+.ced-alert--danger {
+    border-left-color: var(--ced-danger);
+    background: linear-gradient(135deg, var(--ced-primary-light) 0%, rgba(231, 76, 60, 0.06) 100%);
+}
+
+.ced-alert__icon {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.ced-alert--success .ced-alert__icon {
+    background: rgba(30, 193, 152, 0.15);
+    color: var(--ced-success);
+}
+
+.ced-alert--info .ced-alert__icon {
+    background: var(--ced-secondary-soft);
+    color: var(--ced-secondary);
+}
+
+.ced-alert--warning .ced-alert__icon {
+    background: rgba(243, 156, 18, 0.2);
+    color: var(--ced-warning);
+}
+
+.ced-alert--danger .ced-alert__icon {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--ced-danger);
+}
+
+.ced-alert__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.ced-alert__title {
+    font-weight: 600;
+    color: var(--ced-white);
+    margin-bottom: 2px;
+    font-size: 14px;
+}
+
+.ced-alert__message {
+    font-size: 12px;
+    color: var(--ced-white);
+    opacity: 0.85;
+    line-height: 1.4;
+}
+
+/* --- Funnel viz --- */
+.ced-funnel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ced-space-sm);
+}
+
+.ced-funnel__stage {
+    display: flex;
+    align-items: center;
+    gap: var(--ced-space-md);
+    padding: var(--ced-space-sm) var(--ced-space-md);
+    border-radius: var(--ced-radius-sm);
+    background: var(--ced-primary-light);
+    border-left: 3px solid var(--ced-secondary);
+}
+
+.ced-funnel__stage--won {
+    border-left-color: var(--ced-success);
+    background: rgba(30, 193, 152, 0.08);
+}
+
+.ced-funnel__stage-name {
+    font-weight: 600;
+    color: var(--ced-white);
+    flex: 0 0 140px;
+}
+
+.ced-funnel__bar {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--ced-radius-sm);
+    height: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ced-funnel__bar-fill {
+    background: linear-gradient(90deg, var(--ced-secondary), #d4a93a);
+    height: 100%;
+    transition: width var(--ced-transition-slow);
+    border-radius: var(--ced-radius-sm);
+}
+
+.ced-funnel__stage--won .ced-funnel__bar-fill {
+    background: linear-gradient(90deg, var(--ced-success), #2ecc71);
+}
+
+.ced-funnel__count {
+    flex: 0 0 60px;
+    text-align: right;
+    font-family: var(--ced-font-mono);
+    color: var(--ced-secondary);
+    font-weight: 600;
+}
+
+.ced-funnel__value {
+    flex: 0 0 110px;
+    text-align: right;
+    font-family: var(--ced-font-mono);
+    color: var(--ced-secondary);
+    font-weight: 600;
+}

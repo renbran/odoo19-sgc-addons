@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Purchase Order (LPO) List View -->
+    <record id="view_construction_purchase_order_list" model="ir.ui.view">
+        <field name="name">construction.purchase.order.list</field>
+        <field name="model">construction.purchase.order</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="ref"/>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="vendor_id"/>
+                <field name="order_date"/>
+                <field name="expected_date"/>
+                <field name="amount_total"/>
+                <field name="state" widget="badge"
+                    decoration-success="state in ('posted','paid')"
+                    decoration-primary="state in ('confirmed','received')"
+                    decoration-info="state in ('rfq','sent')"
+                    decoration-warning="state == 'bill_created'"
+                    decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Purchase Order (LPO) Form View -->
+    <record id="view_construction_purchase_order_form" model="ir.ui.view">
+        <field name="name">construction.purchase.order.form</field>
+        <field name="model">construction.purchase.order</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_send_rfq" type="object" string="Send RFQ"
+                        invisible="state != 'rfq'" class="btn-secondary"/>
+                    <button name="action_confirm" type="object" string="Confirm Order"
+                        invisible="state not in ('rfq','sent')" class="btn-primary"/>
+                    <button name="action_receive" type="object" string="Mark Received"
+                        invisible="state != 'confirmed'" class="btn-secondary"/>
+                    <button name="action_create_bill" type="object" string="Create Bill"
+                        invisible="state not in ('confirmed','received')" class="btn-primary"
+                        groups="sgc_construction_management.group_construction_finance"/>
+                    <button name="action_cancel_bill" type="object" string="Cancel Bill"
+                        invisible="state != 'bill_created'" class="btn-secondary"
+                        groups="sgc_construction_management.group_construction_finance"/>
+                    <button name="action_reopen_bill" type="object" string="Reopen Bill"
+                        invisible="move_state != 'cancel'" class="btn-primary"
+                        groups="sgc_construction_management.group_construction_finance"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                        invisible="state not in ('rfq','sent','confirmed','received')"/>
+                    <button name="action_reset" type="object" string="Reset to Draft"
+                        invisible="state != 'cancelled'"/>
+                    <field name="move_state" invisible="1"/>
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="rfq,sent,confirmed,received,bill_created,posted,paid"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bill" type="object" class="oe_stat_button"
+                            icon="fa-pencil-square-o" invisible="not move_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Vendor Bill</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="e.g. Cement supply - Tower A"/></h1>
+                        <div><field name="ref" readonly="1"/></div>
+                    </div>
+                    <group>
+                        <group string="Order">
+                            <field name="project_id"/>
+                            <field name="wbs_id"/>
+                            <field name="vendor_id"/>
+                            <field name="requisition_id" readonly="1"/>
+                        </group>
+                        <group string="Dates &amp; Terms">
+                            <field name="order_date"/>
+                            <field name="expected_date"/>
+                            <field name="payment_terms"/>
+                            <field name="delivery_address"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="payment_state" widget="badge"
+                                decoration-success="payment_state == 'paid'"
+                                decoration-info="payment_state == 'partial'"
+                                invisible="not move_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Order Lines">
+                            <field name="line_ids" widget="one2many">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="uom_id"/>
+                                    <field name="quantity"/>
+                                    <field name="price_unit"/>
+                                    <field name="tax_ids" widget="many2many_tags" optional="show"/>
+                                    <field name="price_subtotal" readonly="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="amount_untaxed" readonly="1"/>
+                                <field name="amount_tax" readonly="1"/>
+                                <field name="amount_total" readonly="1" class="oe_subtotal_footer_separator"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Purchase Order (LPO) Action -->
+    <record id="action_construction_purchase_order" model="ir.actions.act_window">
+        <field name="name">Purchase Orders (LPO)</field>
+        <field name="res_model">construction.purchase.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first Purchase Order / LPO</p>
+            <p>Raise an RFQ, award it as a Local Purchase Order, then create the vendor bill in Accounting.</p>
+        </field>
+    </record>
+
+</odoo>

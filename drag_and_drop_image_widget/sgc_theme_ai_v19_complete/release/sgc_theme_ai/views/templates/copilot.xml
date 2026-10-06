@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ─── COPILOT WIDGET INJECTION ────────────────────────── -->
+  <!-- Injected into every page via the layout -->
+  <template id="sgc_copilot_widget" name="SGC AI Copilot" inherit_id="website.layout">
+    <xpath expr="//body" position="inside">
+      <!-- Copilot is rendered by sgc_copilot.js -->
+      <!-- This template provides a server-side fallback message hint -->
+      <div id="sgc-copilot-config"
+           data-phone="971521985231"
+           data-email="hello@sgctech.ai"
+           data-site="sgctech.ai"
+           style="display:none;"
+           aria-hidden="true">
+      </div>
+    </xpath>
+  </template>
+
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_crm_outreach_wizard_form" model="ir.ui.view">
+        <field name="name">crm.outreach.wizard.form</field>
+        <field name="model">crm.outreach.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Send Outreach Email">
+                <group>
+                    <field name="lead_id" readonly="1"/>
+                    <field name="email_type" widget="radio"/>
+                </group>
+                <footer>
+                    <button string="Send Email" class="btn-primary" name="action_send" type="object"/>
+                    <button string="Skip" class="btn-secondary" name="action_skip" type="object"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_crm_outreach_wizard" model="ir.actions.act_window">
+        <field name="name">Send Outreach Email</field>
+        <field name="res_model">crm.outreach.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">form,list</field>
+    </record>
+
+    <!-- Manual button on the lead form, visible in Valid Contact until sent -->
+    <record id="view_crm_lead_form_outreach" model="ir.ui.view">
+        <field name="name">crm.lead.form.outreach.popup</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_outreach_wizard"
+                        string="Send Outreach Email"
+                        type="object"
+                        class="btn-primary"
+                        invisible="stage_id != 10 or outreach_mail_sent"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

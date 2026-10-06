@@ -1,0 +1,186 @@
+/* ── 08_pricing.css ───────────────────────────────────────── */
+
+.sgc26-pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+.sgc26-pricing-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-10) var(--sp-8);
+  position: relative;
+  overflow: hidden;
+  transition: border-color var(--t-base) var(--ease),
+              box-shadow var(--t-base) var(--ease),
+              transform var(--t-base) var(--ease-spring);
+}
+.sgc26-pricing-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--glass-border-h);
+  box-shadow: var(--glass-shadow-h);
+}
+
+/* Featured / most popular card */
+.sgc26-pricing-card--featured {
+  border-color: var(--cyan-a35);
+  background: linear-gradient(160deg, rgba(0,212,255,0.07) 0%, rgba(123,47,190,0.07) 100%);
+  box-shadow: 0 0 0 1px var(--cyan-a18), var(--glass-shadow-h);
+}
+.sgc26-pricing-card--featured:hover {
+  box-shadow: 0 0 0 1px var(--cyan-a50), var(--glow-cyan);
+}
+
+/* Top accent strip */
+.sgc26-pricing-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--glass-border);
+  transition: background var(--t-base) var(--ease);
+}
+.sgc26-pricing-card--featured::before { background: var(--grad-brand); }
+.sgc26-pricing-card:hover::before { background: var(--grad-brand); }
+
+/* Badge */
+.sgc26-pricing-badge {
+  position: absolute;
+  top: var(--sp-4); right: var(--sp-4);
+  background: var(--grad-brand);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+}
+
+/* Tier label */
+.sgc26-pricing-tier {
+  font-size: 0.8rem;
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: var(--sp-3);
+}
+
+/* Price row */
+.sgc26-pricing-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0;
+}
+.sgc26-pricing-currency {
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  font-weight: var(--fw-bold);
+  color: var(--t2);
+}
+.sgc26-pricing-amount {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: var(--fw-xbold);
+  line-height: 1;
+  background: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.sgc26-pricing-period {
+  font-size: 0.875rem;
+  color: var(--t3);
+}
+
+/* Feature list */
+.sgc26-pricing-features {
+  list-style: none;
+  margin: var(--sp-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.sgc26-pricing-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  font-size: 0.9rem;
+  color: var(--t2);
+}
+.sgc26-pricing-features li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--cyan);
+}
+.sgc26-pricing-features li.unavailable {
+  color: var(--t3);
+  text-decoration: line-through;
+}
+.sgc26-pricing-features li.unavailable svg { color: var(--t3); }
+
+/* Divider */
+.sgc26-pricing-divider {
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: var(--sp-6) 0;
+}
+
+/* Contact / custom pricing */
+.sgc26-pricing-contact {
+  background: linear-gradient(135deg, var(--bg-3) 0%, var(--bg-4) 100%);
+  border: 1px solid rgba(0,212,255,0.20);
+  border-radius: var(--r-2xl);
+  padding: var(--sp-12) var(--sp-10);
+  text-align: center;
+  margin-top: var(--sp-12);
+}
+
+/* Pricing toggle (monthly / annual) */
+.sgc26-pricing-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-10);
+}
+.sgc26-pricing-toggle__label {
+  font-size: 0.9rem;
+  color: var(--t2);
+  font-weight: var(--fw-medium);
+}
+.sgc26-pricing-toggle__track {
+  width: 48px; height: 26px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  position: relative;
+  transition: background var(--t-base) var(--ease);
+}
+.sgc26-pricing-toggle__track.active { background: var(--grad-brand); border-color: transparent; }
+.sgc26-pricing-toggle__thumb {
+  width: 20px; height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px; left: 2px;
+  transition: transform var(--t-base) var(--ease-spring);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.30);
+}
+.sgc26-pricing-toggle__track.active .sgc26-pricing-toggle__thumb {
+  transform: translateX(22px);
+}
+.sgc26-pricing-save-badge {
+  background: rgba(0,229,160,0.15);
+  color: var(--emerald);
+  font-size: 0.75rem;
+  font-weight: var(--fw-bold);
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+}

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+        <!-- Payment Approval History Tree View -->
+        <record id="view_payment_approval_history_tree" model="ir.ui.view">
+            <field name="name">payment.approval.history.tree</field>
+            <field name="model">payment.approval.history</field>
+            <field name="arch" type="xml">
+                <list string="Payment Approval History" create="false" edit="false" delete="false">
+                    <field name="approval_date"/>
+                    <field name="payment_voucher_number"/>
+                    <field name="payment_amount" widget="monetary" sum="Total Amount"/>
+                    <field name="action_type"/>
+                    <field name="stage_from"/>
+                    <field name="stage_to"/>
+                    <field name="user_id"/>
+                    <field name="duration_in_stage" widget="float_time"/>
+                    <field name="comments"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Payment Approval History Form View -->
+        <record id="view_payment_approval_history_form" model="ir.ui.view">
+            <field name="name">payment.approval.history.form</field>
+            <field name="model">payment.approval.history</field>
+            <field name="arch" type="xml">
+                <form string="Payment Approval History" create="false" edit="false" delete="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="display_name"/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group string="Payment Information">
+                                <field name="payment_id"/>
+                                <field name="payment_voucher_number"/>
+                                <field name="payment_amount" widget="monetary"/>
+                                <field name="payment_currency_id"/>
+                            </group>
+                            <group string="Action Details">
+                                <field name="action_type"/>
+                                <field name="stage_from"/>
+                                <field name="stage_to"/>
+                                <field name="approval_date"/>
+                                <field name="user_id"/>
+                                <field name="duration_in_stage" widget="float_time"/>
+                            </group>
+                        </group>
+
+                        <group string="Additional Information">
+                            <field name="comments" nolabel="1"/>
+                            <field name="ip_address"/>
+                        </group>
+
+                        <div class="oe_clear"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Payment Approval History Search View -->
+        <record id="view_payment_approval_history_search" model="ir.ui.view">
+            <field name="name">payment.approval.history.search</field>
+            <field name="model">payment.approval.history</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="payment_voucher_number"/>
+                    <field name="user_id"/>
+                    <field name="action_type"/>
+                    <field name="comments"/>
+
+                    <filter name="today" string="Today" domain="[('approval_date', '&gt;=', context_today())]"/>
+                    <filter name="this_week" string="This Week" domain="[('approval_date', '&gt;=', (context_today() - datetime.timedelta(days=7)))]"/>
+                    <filter name="this_month" string="This Month" domain="[('approval_date', '&gt;=', (context_today().replace(day=1)))]"/>
+
+                    <separator/>
+                    <filter name="my_actions" string="My Actions" domain="[('user_id', '=', uid)]"/>
+
+                    <separator/>
+                    <filter name="approvals" string="Approvals" domain="[('action_type', '=', 'approve')]"/>
+                    <filter name="reviews" string="Reviews" domain="[('action_type', '=', 'review')]"/>
+                    <filter name="authorizations" string="Authorizations" domain="[('action_type', '=', 'authorize')]"/>
+                    <filter name="rejections" string="Rejections" domain="[('action_type', '=', 'reject')]"/>
+
+                    <filter name="group_action_type" string="Action Type" domain="[]" context="{'group_by': 'action_type'}"/>
+                    <filter name="group_user" string="User" domain="[]" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_date" string="Date" domain="[]" context="{'group_by': 'approval_date:day'}"/>
+                    <filter name="group_payment" string="Payment" domain="[]" context="{'group_by': 'payment_id'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Payment Approval History Action -->
+        <record id="action_payment_approval_history" model="ir.actions.act_window">
+            <field name="name">Payment Approval History</field>
+            <field name="res_model">payment.approval.history</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_payment_approval_history_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No approval history found
+                </p>
+                <p>
+                    The approval history shows all actions performed on payment vouchers
+                    including reviews, approvals, authorizations, and rejections.
+                </p>
+            </field>
+        </record>
+
+
+</odoo>

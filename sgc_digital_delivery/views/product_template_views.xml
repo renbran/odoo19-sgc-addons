@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ── PRODUCT TEMPLATE FORM — Digital delivery tab ────────────────── -->
+  <record id="product_template_form_digital" model="ir.ui.view">
+    <field name="name">product.template.form.digital</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_form_view"/>
+    <field name="arch" type="xml">
+
+      <xpath expr="//notebook" position="inside">
+        <page string="Digital Delivery" name="digital_delivery">
+
+          <group>
+            <group string="Settings">
+              <field name="is_digital" widget="boolean_toggle"/>
+            </group>
+          </group>
+
+          <group invisible="not is_digital">
+            <group string="Downloadable File">
+              <field name="digital_filename" placeholder="e.g. sgc-theme-v2.zip"/>
+              <field name="digital_file"
+                     filename="digital_filename"
+                     widget="binary"
+                     groups="product.group_product_manager"/>
+            </group>
+            <group string="Statistics">
+              <field name="digital_download_count" readonly="1"/>
+            </group>
+          </group>
+
+          <div class="alert alert-info" role="alert" invisible="not is_digital">
+            <i class="fa fa-lock me-1"/>
+            Buyers receive a <strong>secure, token-signed download link</strong>
+            by email immediately after payment.
+            Direct attachment access is blocked for all non-internal users.
+            Max file size: <strong>50 MB</strong>.
+          </div>
+
+          <div class="alert alert-warning" role="alert" invisible="is_digital">
+            <i class="fa fa-info-circle me-1"/>
+            Enable <strong>Digital Product</strong> to configure a downloadable file.
+          </div>
+
+        </page>
+      </xpath>
+
+    </field>
+  </record>
+
+  <!-- ── PRODUCT LIST VIEW — Digital column ───────────────────────────── -->
+  <record id="product_template_list_digital" model="ir.ui.view">
+    <field name="name">product.template.list.digital</field>
+    <field name="model">product.template</field>
+    <field name="inherit_id" ref="product.product_template_tree_view"/>
+    <field name="arch" type="xml">
+      <field name="name" position="after">
+        <field name="is_digital" string="Digital" optional="show"/>
+      </field>
+    </field>
+  </record>
+
+</odoo>
+

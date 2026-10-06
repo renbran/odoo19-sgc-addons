@@ -1,0 +1,40 @@
+# Exclude these paths when mounting the module into the Odoo container.
+# Files in the module root that are mounted read-only are still visible to Odoo
+# (so e.g. README.md is reachable from inside the container), but they are NOT
+# needed at runtime and should not bloat the image.
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Dev-only (already excluded from shipping module, but kept here for safety)
+.omc/
+.omo/
+.claude/
+.playwright-mcp/
+token-optimizer/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Odoo session
+.session/
+*.odoo-session
+
+# Logs
+*.log
+
+# This Docker setup itself (no need to expose to Odoo)
+docker-compose.yml
+odoo.conf
+.dockerignore
+docker/

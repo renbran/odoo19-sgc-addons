@@ -1,0 +1,66 @@
+# ============================================================
+# Odoo / Python
+# ============================================================
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.spec
+.installed.cfg
+*.egg
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+
+# Virtual environments
+.venv/
+venv/
+env/
+.python-version
+
+# Odoo session / filestore
+.session/
+local/
+odoo-bin
+odoo.conf
+odoo.log
+*.odoo-session
+filestore/
+
+# ============================================================
+# IDE / Editor / Tooling
+# ============================================================
+# OpenCode / OMC
+.omc/
+.omc/sessions/
+.omc/state/
+
+# Claude
+.claude/
+
+# Token optimizer
+token-optimizer/
+
+# VSCode / Cursor / generic editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ============================================================
+# OS / Misc
+# ============================================================
+*.bak
+*.tmp
+*.log
+.DS_Store

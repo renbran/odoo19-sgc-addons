@@ -1,0 +1,281 @@
+/* ============================================================
+   SGC TECH AI — Responsive Design System
+   Mobile-first breakpoints for UAE market (heavy mobile usage)
+   ============================================================ */
+
+/* ─── BREAKPOINTS ────────────────────────────────
+   xs: < 480px   (small phones)
+   sm: 480–767px (phones)
+   md: 768–1023px (tablets)
+   lg: 1024–1279px (small laptops)
+   xl: 1280–1535px (desktops)
+   2xl: ≥ 1536px (large screens)
+   ──────────────────────────────────────────────── */
+
+/* ─── TABLET (< 1024px) ─────────────────────────── */
+@media (max-width: 1023px) {
+
+  h1 { font-size: var(--sgc-text-5xl); }
+  h2 { font-size: var(--sgc-text-4xl); }
+
+  .sgc-nav { padding: 14px 24px; }
+  #sgc-header.scrolled .sgc-nav { padding: 10px 24px; }
+  
+  .sgc-nav-links { display: none; }
+  .sgc-hamburger { display: flex; }
+
+  .sgc-hero { padding: 100px 0 60px; }
+  .sgc-hero-h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); }
+  .sgc-hero-visual { display: none; }
+
+  .sgc-comparison {
+    grid-template-columns: 1fr;
+    gap: var(--sgc-space-6);
+  }
+  .sgc-comparison-vs { margin-top: 0; }
+
+  .sgc-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sgc-space-10);
+  }
+
+  .sgc-products-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sgc-filter-sidebar {
+    position: static;
+  }
+
+  .sgc-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sgc-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sgc-order-summary {
+    position: static;
+  }
+
+  .sgc-product-detail {
+    grid-template-columns: 1fr;
+    gap: var(--sgc-space-8);
+  }
+
+  .sgc-product-gallery { position: static; }
+
+  .sgc-roi-grid { grid-template-columns: 1fr; }
+
+  /* Appointment page */
+  #sgc-appointment-layout {
+    grid-template-columns: 1fr !important;
+    gap: var(--sgc-space-10) !important;
+  }
+
+  .sgc-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .sgc-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ─── MOBILE (< 768px) ──────────────────────────── */
+@media (max-width: 767px) {
+
+  :root {
+    --sgc-space-24: 4rem;
+    --sgc-space-20: 3.5rem;
+    --sgc-space-16: 3rem;
+  }
+
+  h1 { font-size: var(--sgc-text-4xl); }
+  h2 { font-size: var(--sgc-text-3xl); }
+  h3 { font-size: var(--sgc-text-2xl); }
+
+  .sgc-container,
+  .sgc-container-sm,
+  .sgc-container-xl {
+    padding: 0 var(--sgc-space-5);
+  }
+
+  .sgc-section { padding: var(--sgc-space-16) 0; }
+
+  /* Hero */
+  .sgc-hero { padding: 90px 0 48px; }
+  .sgc-hero-h1 { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .sgc-hero-sub { font-size: var(--sgc-text-base); }
+  .sgc-hero-actions { flex-direction: column; align-items: stretch; }
+  .sgc-hero-actions .sgc-btn { text-align: center; justify-content: center; }
+  .sgc-hero-trust { flex-direction: column; gap: var(--sgc-space-3); }
+
+  /* Stats */
+  .sgc-stats-row { flex-wrap: wrap; }
+  .sgc-stat-item {
+    width: 50%;
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid var(--sgc-glass-border);
+  }
+  .sgc-stat-item:nth-child(odd) { border-right: 1px solid var(--sgc-glass-border); }
+  .sgc-stat-item:last-child { border-bottom: none; }
+  .sgc-stat-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+
+  .sgc-stat-item .num { font-size: var(--sgc-text-3xl); }
+
+  /* Grids */
+  .sgc-grid-2,
+  .sgc-grid-3,
+  .sgc-grid-4 { grid-template-columns: 1fr; }
+
+  .sgc-products-grid { grid-template-columns: 1fr; }
+
+  /* Cards */
+  .sgc-card { padding: var(--sgc-space-5); }
+  .sgc-card-pricing { padding: var(--sgc-space-6); }
+  .sgc-card-pricing.featured { transform: scale(1); }
+
+  /* ROI Calculator */
+  .sgc-roi-calc { padding: var(--sgc-space-6); }
+  .sgc-roi-big { font-size: var(--sgc-text-5xl); }
+
+  /* Footer */
+  .sgc-footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--sgc-space-8);
+  }
+
+  .sgc-footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  /* Section Header */
+  .sgc-section-head { margin-bottom: var(--sgc-space-10); }
+  .sgc-section-head h2 { font-size: var(--sgc-text-3xl); }
+  .sgc-section-head p { font-size: var(--sgc-text-base); }
+
+  /* CTA Section */
+  .sgc-cta-section { padding: var(--sgc-space-12) var(--sgc-space-6); }
+
+  /* Mega menu (mobile) */
+  .sgc-mega-menu {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
+    grid-template-columns: 1fr;
+  }
+
+  /* Tabs */
+  .sgc-tabs-nav { flex-wrap: wrap; border-radius: var(--sgc-radius-xl); }
+  .sgc-tab-btn { flex: 1; min-width: 120px; justify-content: center; }
+
+  /* Copilot */
+  .sgc-copilot-panel {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    bottom: 90px;
+    height: 75vh;
+  }
+
+  /* Auth Card */
+  .sgc-auth-card {
+    margin: var(--sgc-space-4);
+    padding: var(--sgc-space-6);
+  }
+
+  /* Case metrics */
+  .sgc-case-metrics { grid-template-columns: repeat(3, 1fr); }
+  .sgc-metric-item .m-val { font-size: var(--sgc-text-lg); }
+
+  .sgc-booking-step2-grid { grid-template-columns: 1fr !important; }
+  .sgc-booking-actions { grid-template-columns: 1fr 1fr !important; }
+
+  /* WhatsApp */
+  .sgc-whatsapp-float { bottom: 86px; right: 18px; }
+  .sgc-whatsapp-btn { width: 52px; height: 52px; font-size: 1.3rem; }
+
+  /* CHECKPOINT C2: keep primary conversion actions always visible on mobile */
+  .sgc-mobile-convert-bar {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ─── SMALL PHONES (< 480px) ────────────────────── */
+@media (max-width: 479px) {
+  h1 { font-size: var(--sgc-text-3xl); }
+
+  .sgc-hero-h1 { font-size: 1.9rem; }
+
+  .sgc-copilot-launcher { bottom: 12px; right: 12px; }
+  .sgc-whatsapp-float { bottom: 82px; right: 10px; }
+  .sgc-whatsapp-label { display: none; }
+
+  .sgc-stat-item { width: 100%; border-right: none; }
+
+  .sgc-case-metrics { grid-template-columns: 1fr; }
+
+  .sgc-booking-actions { grid-template-columns: 1fr !important; }
+
+  .sgc-social-login { flex-direction: column; }
+}
+
+/* ─── PRINT STYLES ──────────────────────────────── */
+@media print {
+  .sgc-copilot-launcher,
+  .sgc-whatsapp-float,
+  #sgc-header,
+  .sgc-footer { display: none !important; }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  * { animation: none !important; }
+}
+
+/* ─── HIGH DPI (RETINA) ─────────────────────────── */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .sgc-nav-logo .logo-mark {
+    image-rendering: -webkit-optimize-contrast;
+  }
+}
+
+/* ─── RTL SUPPORT (ARABIC) ──────────────────────── */
+[dir="rtl"] {
+
+  .sgc-nav { flex-direction: row-reverse; }
+  .sgc-hero-content { text-align: right; }
+  .sgc-hero-actions { justify-content: flex-end; }
+  .sgc-hero-trust { justify-content: flex-end; }
+
+  .sgc-timeline { padding-left: 0; padding-right: 48px; }
+  .sgc-timeline::before { left: auto; right: 16px; }
+  .sgc-timeline-item::before { left: auto; right: -40px; }
+
+  .sgc-footer-bottom { flex-direction: row-reverse; }
+
+  .sgc-copilot-launcher { right: auto; left: 28px; }
+  .sgc-copilot-panel { right: auto; left: 28px; transform-origin: bottom left; }
+  .sgc-whatsapp-float { right: auto; left: 28px; }
+
+  .sgc-toast { right: auto; left: 24px; transform: translateX(-120%); }
+  .sgc-toast.show { transform: translateX(0); }
+
+  .sgc-mega-menu {
+    left: auto;
+    right: 50%;
+    transform: translateX(50%) translateY(-8px);
+  }
+}
+
+/* ─── HOVER MEDIA QUERY ─────────────────────────── */
+@media (hover: none) {
+  .sgc-card:hover { transform: none; }
+  .sgc-btn-primary:hover { transform: none; }
+  .sgc-product-card:hover { transform: none; }
+  .sgc-copilot-trigger:hover { transform: scale(1); }
+}

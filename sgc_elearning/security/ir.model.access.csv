@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_learning_quiz,access_learning_quiz,model_learning_quiz,base.group_user,1,1,1,0
+access_learning_quiz_question,access_learning_quiz_question,model_learning_quiz_question,base.group_user,1,1,1,0
+access_learning_quiz_option,access_learning_quiz_option,model_learning_quiz_option,base.group_user,1,1,1,0
+access_learning_quiz_attempt,access_learning_quiz_attempt,model_learning_quiz_attempt,base.group_user,1,1,1,0
+access_learning_quiz_answer,access_learning_quiz_answer,model_learning_quiz_answer,base.group_user,1,1,1,0
+access_learning_quiz_result,access_learning_quiz_result,model_learning_quiz_result,base.group_user,1,1,1,0

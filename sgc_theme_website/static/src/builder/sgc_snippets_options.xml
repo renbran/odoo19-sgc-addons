@@ -1,0 +1,511 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<!--
+    Builder-option panels for the SGC snippets (Odoo 19 html_builder OWL
+    components). Only built-in actions are used: classAction, dataAttributeAction
+    and styleAction. Builder components (BuilderRow/BuilderSelect/... ) are
+    globally available inside option templates, so no XML imports are required.
+-->
+<templates xml:space="preserve">
+
+    <!-- 1. Hero -->
+    <t t-name="sgc_theme_website.SgcHeroOption">
+        <BuilderRow label.translate="Background">
+            <BuilderSelect>
+                <BuilderSelectItem classAction="''">Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-hero--navy'">Navy</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Text alignment">
+            <BuilderSelect>
+                <BuilderSelectItem classAction="'text-start'">Left</BuilderSelectItem>
+                <BuilderSelectItem classAction="'text-center'">Center</BuilderSelectItem>
+                <BuilderSelectItem classAction="'text-end'">Right</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+    </t>
+
+    <!-- 2. Gold-hexagon feature grid -->
+    <t t-name="sgc_theme_website.SgcFeatureHexOption">
+        <BuilderRow label.translate="Columns">
+            <BuilderSelect applyTo="'.s_sgc_feature_grid'">
+                <BuilderSelectItem classAction="'row-cols-1 row-cols-md-2'">2</BuilderSelectItem>
+                <BuilderSelectItem classAction="'row-cols-1 row-cols-md-3'">3</BuilderSelectItem>
+                <BuilderSelectItem classAction="'row-cols-1 row-cols-md-4'">4</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Hover lift">
+            <BuilderCheckbox classAction="'sgc-hex-hover'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 3. KPI / stat counters -->
+    <t t-name="sgc_theme_website.SgcStatsOption">
+        <BuilderRow label.translate="Animate count-up">
+            <BuilderCheckbox dataAttributeAction="'sgcAnimate'" dataAttributeActionValue="'true'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 4. Testimonial -->
+    <t t-name="sgc_theme_website.SgcTestimonialOption">
+        <BuilderRow label.translate="Layout">
+            <BuilderSelect>
+                <BuilderSelectItem classAction="''">Single</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-testimonial--grid'">Grid</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+    </t>
+
+    <!-- 5. CTA band -->
+    <t t-name="sgc_theme_website.SgcCtaOption">
+        <BuilderRow label.translate="Background">
+            <BuilderSelect>
+                <BuilderSelectItem classAction="''">Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-cta--gold'">Gold</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+    </t>
+
+    <!-- 6. Image / mockup showcase -->
+    <t t-name="sgc_theme_website.SgcShowcaseOption">
+        <BuilderRow label.translate="Media side">
+            <BuilderSelect applyTo="'.row'">
+                <BuilderSelectItem classAction="''">Left</BuilderSelectItem>
+                <BuilderSelectItem classAction="'flex-row-reverse'">Right</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="3D tilt">
+            <BuilderCheckbox classAction="'s_sgc_tilt'" applyTo="'.s_sgc_showcase_media'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 7. Footer -->
+    <t t-name="sgc_theme_website.SgcFooterOption">
+        <BuilderRow label.translate="Show contact column">
+            <BuilderCheckbox classAction="'sgc-footer--contact'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- ========================================================================
+         v2: 13 additional "SGC TECH" snippets. Each panel below repeats the same
+         4 shared-decor rows (watermark / geometry / palette / logo), scoped to
+         its own snippet root via applyTo per the brief's "never leak globally".
+         ==================================================================== -->
+
+    <!-- 8. Brand Hero -->
+    <t t-name="sgc_theme_website.SgcBrandHeroOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_brand_hero'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_brand_hero'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_brand_hero'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_brand_hero'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 9. Split Feature -->
+    <t t-name="sgc_theme_website.SgcSplitFeatureOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_split_feature'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_split_feature'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_split_feature'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_split_feature'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 10. Before / After -->
+    <t t-name="sgc_theme_website.SgcBeforeAfterOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_before_after'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_before_after'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_before_after'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_before_after'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 11. Three Pillars -->
+    <t t-name="sgc_theme_website.SgcThreePillarsOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_three_pillars'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_three_pillars'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_three_pillars'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_three_pillars'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 12. Comparison Table -->
+    <t t-name="sgc_theme_website.SgcComparisonTableOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_comparison_table'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_comparison_table'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_comparison_table'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_comparison_table'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 13. Dashboard Showcase -->
+    <t t-name="sgc_theme_website.SgcDashboardShowcaseOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_dashboard_showcase'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_dashboard_showcase'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_dashboard_showcase'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_dashboard_showcase'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 14. Layer Pyramid -->
+    <t t-name="sgc_theme_website.SgcLayerPyramidOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_layer_pyramid'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_layer_pyramid'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_layer_pyramid'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_layer_pyramid'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 15. Flow Diagram -->
+    <t t-name="sgc_theme_website.SgcFlowDiagramOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_flow_diagram'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_flow_diagram'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_flow_diagram'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_flow_diagram'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 16. Roadmap -->
+    <t t-name="sgc_theme_website.SgcRoadmapOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_roadmap'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_roadmap'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_roadmap'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_roadmap'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 17. Hexagon Grid -->
+    <t t-name="sgc_theme_website.SgcHexagonGridOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_hexagon_grid'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_hexagon_grid'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_hexagon_grid'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_hexagon_grid'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 18. Leadership -->
+    <t t-name="sgc_theme_website.SgcLeadershipOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_leadership'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_leadership'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_leadership'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_leadership'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 19. Pricing Tiers -->
+    <t t-name="sgc_theme_website.SgcPricingTiersOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_pricing_tiers'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_pricing_tiers'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_pricing_tiers'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_pricing_tiers'"/>
+        </BuilderRow>
+    </t>
+
+    <!-- 20. Contact CTA -->
+    <t t-name="sgc_theme_website.SgcContactCtaOption">
+        <BuilderRow label.translate="Landmark watermark">
+            <BuilderSelect applyTo="'.s_sgc_contact_cta'">
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-khalifa'" classAction="'sgc-watermark--burj-khalifa'">Burj Khalifa</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'burj-al-arab'" classAction="'sgc-watermark--burj-al-arab'">Burj Al Arab</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'mosque'" classAction="'sgc-watermark--mosque'">Sheikh Zayed Mosque</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'skyline'" classAction="'sgc-watermark--skyline'">Dubai Skyline</BuilderSelectItem>
+                <BuilderSelectItem dataAttributeAction="'sgcWatermark'" dataAttributeActionValue="'none'" classAction="'sgc-watermark--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Geometry style">
+            <BuilderSelect applyTo="'.s_sgc_contact_cta'">
+                <BuilderSelectItem classAction="'sgc-geo--hexagon'">Hexagon</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--circuit'">Circuit</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--arabesque'">Arabesque</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--hairline'">Hairline</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-geo--none'">None</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Palette variant">
+            <BuilderSelect applyTo="'.s_sgc_contact_cta'">
+                <BuilderSelectItem classAction="'sgc-palette--navy-cream'">Navy-on-Cream</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--cream-navy'">Cream-on-Navy</BuilderSelectItem>
+                <BuilderSelectItem classAction="'sgc-palette--gold-accent'">Gold-Accent</BuilderSelectItem>
+            </BuilderSelect>
+        </BuilderRow>
+        <BuilderRow label.translate="Show SGC logo">
+            <BuilderCheckbox classAction="'sgc-logo-on'" applyTo="'.s_sgc_contact_cta'"/>
+        </BuilderRow>
+    </t>
+
+</templates>

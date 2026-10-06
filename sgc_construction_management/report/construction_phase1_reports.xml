@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Landscape A4 paper format for wide, multi-column reports -->
+    <record id="paperformat_construction_landscape" model="report.paperformat">
+        <field name="name">Construction A4 Landscape</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">32</field>
+        <field name="margin_bottom">26</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">27</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- IPC Report Action -->
+    <record id="action_report_ipc" model="ir.actions.report">
+        <field name="name">Interim Payment Certificate (IPC)</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_ipc_template</field>
+        <field name="report_file">sgc_construction_management.report_ipc_template</field>
+        <field name="print_report_name">'IPC - %s' % (object.ref)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="model_construction_ra_billing"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Statement of Account Report Action — Portrait (client-facing) -->
+    <record id="action_report_statement_account" model="ir.actions.report">
+        <field name="name">Statement of Account</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_soa_template</field>
+        <field name="report_file">sgc_construction_management.report_soa_template</field>
+        <field name="print_report_name">'SOA - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- WIP Report Action -->
+    <record id="action_report_wip" model="ir.actions.report">
+        <field name="name">WIP Report</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_wip_template</field>
+        <field name="report_file">sgc_construction_management.report_wip_template</field>
+        <field name="print_report_name">'WIP - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_landscape"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- VO Register Action -->
+    <record id="action_report_vo_register" model="ir.actions.report">
+        <field name="name">VO Register</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_vo_register_template</field>
+        <field name="report_file">sgc_construction_management.report_vo_register_template</field>
+        <field name="print_report_name">'VO_Register - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_landscape"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Profitability Report Action -->
+    <record id="action_report_profitability" model="ir.actions.report">
+        <field name="name">Project Profitability</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_profitability_template</field>
+        <field name="report_file">sgc_construction_management.report_profitability_template</field>
+        <field name="print_report_name">'Profitability - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_landscape"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- WIP Report Action (Excel) -->
+    <record id="action_report_wip_xlsx" model="ir.actions.report">
+        <field name="name">WIP Report (Excel)</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">sgc_construction_management.report_wip_xlsx</field>
+        <field name="report_file">sgc_construction_management.report_wip_xlsx</field>
+        <field name="print_report_name">'WIP - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- RA Billing Report Action (Excel) -->
+    <record id="action_report_ra_billing_xlsx" model="ir.actions.report">
+        <field name="name">RA Billing (Excel)</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">sgc_construction_management.report_ra_billing_xlsx</field>
+        <field name="report_file">sgc_construction_management.report_ra_billing_xlsx</field>
+        <field name="print_report_name">'RA_Billing - %s' % (object.ref)</field>
+        <field name="binding_model_id" ref="model_construction_ra_billing"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Profitability Report Action (Excel) -->
+    <record id="action_report_profitability_xlsx" model="ir.actions.report">
+        <field name="name">Project Profitability (Excel)</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">sgc_construction_management.report_profitability_xlsx</field>
+        <field name="report_file">sgc_construction_management.report_profitability_xlsx</field>
+        <field name="print_report_name">'Profitability - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Cost-to-Complete Report Action -->
+    <record id="action_report_cost_to_complete" model="ir.actions.report">
+        <field name="name">Cost-to-Complete Report</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_cost_to_complete_template</field>
+        <field name="report_file">sgc_construction_management.report_cost_to_complete_template</field>
+        <field name="print_report_name">'Cost-to-Complete - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Cash Flow Forecast Report Action — Portrait -->
+    <record id="action_report_cash_flow_forecast" model="ir.actions.report">
+        <field name="name">Cash Flow Forecast</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_cash_flow_forecast_template</field>
+        <field name="report_file">sgc_construction_management.report_cash_flow_forecast_template</field>
+        <field name="print_report_name">'Cash Flow Forecast - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Project Monthly Progress Report Action — Portrait -->
+    <record id="action_report_progress_report" model="ir.actions.report">
+        <field name="name">Project Progress Report</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_progress_report_template</field>
+        <field name="report_file">sgc_construction_management.report_progress_report_template</field>
+        <field name="print_report_name">'Progress Report - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="model_construction_project"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Executive Portfolio Report Action (not bound to a single record's Print
+         menu; triggered via the server action / menu item below for the full
+         project set) -->
+    <record id="action_report_executive_portfolio" model="ir.actions.report">
+        <field name="name">Executive Portfolio Report</field>
+        <field name="model">construction.project</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_executive_portfolio_template</field>
+        <field name="report_file">sgc_construction_management.report_executive_portfolio_template</field>
+        <field name="print_report_name">'Executive Portfolio Report'</field>
+        <field name="paperformat_id" ref="paperformat_construction_landscape"/>
+    </record>
+
+    <record id="action_server_executive_portfolio_report" model="ir.actions.server">
+        <field name="name">Executive Portfolio Report</field>
+        <field name="model_id" ref="model_construction_project"/>
+        <field name="state">code</field>
+        <field name="code">action = env.ref('sgc_construction_management.action_report_executive_portfolio').report_action(env['construction.project'].search([]))</field>
+    </record>
+
+    <menuitem id="menu_construction_reporting"
+        name="Reporting"
+        parent="menu_construction_root"
+        sequence="85"/>
+
+    <menuitem id="menu_construction_executive_portfolio"
+        name="Executive Portfolio Report"
+        parent="menu_construction_reporting"
+        action="action_server_executive_portfolio_report"
+        sequence="10"/>
+
+    <!-- RA Billing Report Action (PDF) -->
+    <record id="action_report_ra_billing" model="ir.actions.report">
+        <field name="name">RA Billing Certificate</field>
+        <field name="model">construction.ra.billing</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_ra_billing_template</field>
+        <field name="report_file">sgc_construction_management.report_ra_billing_template</field>
+        <field name="print_report_name">'RA_Billing - %s' % (object.ref)</field>
+        <field name="paperformat_id" ref="paperformat_construction_landscape"/>
+        <field name="binding_model_id" ref="model_construction_ra_billing"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Progress Billing Report Action (PDF) -->
+    <record id="action_report_progress_billing" model="ir.actions.report">
+        <field name="name">Progress Billing Certificate</field>
+        <field name="model">construction.progress.billing</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sgc_construction_management.report_progress_billing_template</field>
+        <field name="report_file">sgc_construction_management.report_progress_billing_template</field>
+        <field name="print_report_name">'Progress_Billing - %s' % (object.ref)</field>
+        <field name="paperformat_id" ref="paperformat_construction_portrait"/>
+        <field name="binding_model_id" ref="model_construction_progress_billing"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

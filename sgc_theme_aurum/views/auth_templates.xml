@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ════════════════════════════════════════════════════════════════════════
+         SGC Aurum Theme — Premium Auth Layout (login / signup / reset)
+         ════════════════════════════════════════════════════════════════════════ -->
+    <template id="aurum_login_layout" inherit_id="website.login_layout" name="Aurum Login Layout" priority="99">
+        <xpath expr="//div[hasclass('oe_website_login_container')]" position="replace">
+            <div class="container aurum-auth-shell py-5">
+                <div class="aurum-auth-grid">
+                    <!-- Brand / trust panel -->
+                    <section class="aurum-auth-brand-panel" aria-label="SGC Tech AI brand">
+                        <div class="aurum-auth-brand-content">
+                            <span class="aurum-auth-kicker">Scholarix Global Consultants</span>
+                            <h1>Premium Odoo + AI delivery for <span>SGC Tech AI</span></h1>
+                            <p>Unified digital experience for corporate brand, eCommerce storefront, client onboarding, and secure account access.</p>
+
+                            <div class="aurum-auth-stat-row">
+                                <div class="aurum-auth-stat-card">
+                                    <strong>30–90 Days</strong>
+                                    <span>Go-live deployment</span>
+                                </div>
+                                <div class="aurum-auth-stat-card">
+                                    <strong>200+</strong>
+                                    <span>ERP packages delivered</span>
+                                </div>
+                                <div class="aurum-auth-stat-card">
+                                    <strong>UAE Ready</strong>
+                                    <span>AED, VAT, Arabic support</span>
+                                </div>
+                            </div>
+
+                            <div class="aurum-auth-trust-list">
+                                <div>Corporate website and store in one visual system</div>
+                                <div>Navy &amp; gold premium interface</div>
+                                <div>Security-first access flow for customers and staff</div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Form panel -->
+                    <section class="aurum-auth-form-panel">
+                        <div t-attf-class="card border-0 mx-auto aurum-auth-card {{login_card_classes or ''}} o_database_list">
+                            <div class="card-body">
+                                <div class="aurum-auth-logo text-center pb-3 border-bottom mb-4">
+                                    <img t-attf-src="/web/binary/company_logo{{ '?dbname='+db if db else '' }}"
+                                         alt="SGC Tech AI logo"
+                                         style="max-height:120px; max-width: 100%; width:auto"/>
+                                    <p class="mb-0 mt-3">Access your SGC workspace, website operations, orders, and premium support flows.</p>
+                                </div>
+
+                                <t t-out="0"/>
+
+                                <div class="text-center small mt-4 pt-3 border-top" t-if="not disable_footer">
+                                    <t t-if="not disable_database_manager">
+                                        <a class="border-end pe-2 me-1" href="/web/database/manager">Manage Databases</a>
+                                    </t>
+                                    <a href="https://scholarixglobal.com" target="_blank" rel="noopener">Powered by <span>Scholarix</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Login form copy -->
+    <template id="aurum_login_form" inherit_id="web.login" name="Aurum Login Form Copy">
+        <xpath expr="//label[@for='login']" position="replace">
+            <label for="login" class="form-label d-flex justify-content-between">Business Email</label>
+        </xpath>
+        <xpath expr="//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <xpath expr="//label[@for='password']" position="replace">
+            <label for="password" class="form-label">Password</label>
+        </xpath>
+        <xpath expr="//input[@id='password']" position="attributes">
+            <attribute name="placeholder">Enter your password</attribute>
+        </xpath>
+        <xpath expr="//button[@type='submit' and not(@name)]" position="replace">
+            <button type="submit" class="btn btn-primary aurum-auth-submit">Enter Workspace</button>
+        </xpath>
+    </template>
+
+    <!-- Sign-up form copy -->
+    <template id="aurum_signup_form" inherit_id="auth_signup.signup" name="Aurum Signup Copy">
+        <xpath expr="//label[@for='name']" position="replace">
+            <label for="name" class="form-label">Full Name</label>
+        </xpath>
+        <xpath expr="//input[@id='name']" position="attributes">
+            <attribute name="placeholder">Your full name</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('field-login')]//label[@for='login']" position="replace">
+            <label for="login" class="form-label">Business Email</label>
+        </xpath>
+        <xpath expr="//div[hasclass('field-login')]//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <xpath expr="//button[@type='submit']" position="replace">
+            <button type="submit" class="btn btn-primary aurum-auth-submit mb-1">Create Secure Account</button>
+        </xpath>
+    </template>
+
+    <!-- Shared signup/reset password fields -->
+    <template id="aurum_signup_fields" inherit_id="auth_signup.fields" name="Aurum Signup Fields Copy">
+        <xpath expr="//label[@for='password']" position="replace">
+            <label for="password" class="form-label">Create Password</label>
+        </xpath>
+        <xpath expr="//input[@id='password']" position="attributes">
+            <attribute name="placeholder">At least 8 characters</attribute>
+        </xpath>
+        <xpath expr="//label[@for='confirm_password']" position="replace">
+            <label for="confirm_password" class="form-label">Confirm Password</label>
+        </xpath>
+        <xpath expr="//input[@id='confirm_password']" position="attributes">
+            <attribute name="placeholder">Re-enter your password</attribute>
+        </xpath>
+    </template>
+
+    <!-- Reset password form copy -->
+    <template id="aurum_reset_form" inherit_id="auth_signup.reset_password" name="Aurum Reset Copy">
+        <xpath expr="//div[hasclass('field-login')]//label[@for='login']" position="replace">
+            <label for="login" class="col-form-label">Business Email</label>
+        </xpath>
+        <xpath expr="//div[hasclass('field-login')]//input[@id='login']" position="attributes">
+            <attribute name="placeholder">name@sgctech.ai</attribute>
+        </xpath>
+        <xpath expr="//button[@type='submit']" position="replace">
+            <button type="submit" class="btn btn-primary aurum-auth-submit">Reset Secure Access</button>
+        </xpath>
+    </template>
+</odoo>

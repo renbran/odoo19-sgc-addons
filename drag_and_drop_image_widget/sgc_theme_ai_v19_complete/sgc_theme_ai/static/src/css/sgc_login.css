@@ -1,0 +1,327 @@
+/* ============================================================
+   SGC TECH AI — Login / Portal Authentication Pages
+   ============================================================ */
+
+/* ─── LOGIN PAGE LAYOUT ─────────────────────────── */
+
+body.o_login_page,
+.sgc-auth-page {
+  background: var(--sgc-gradient-mesh) !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sgc-font-body) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background particles */
+.sgc-auth-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(rgba(0,255,240,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* Orb backgrounds */
+.sgc-auth-page::after {
+  content: '';
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0,255,240,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  top: -100px;
+  left: -100px;
+  animation: sgc-hero-orb 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ─── AUTH CARD ─────────────────────────────────── */
+
+.sgc-auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(12, 30, 52, 0.85);
+  border: 1px solid rgba(0,255,240,0.2);
+  border-radius: var(--sgc-radius-2xl);
+  padding: var(--sgc-space-10);
+  backdrop-filter: blur(30px);
+  box-shadow:
+    0 0 0 1px rgba(0,255,240,0.05),
+    0 20px 80px rgba(0,0,0,0.8),
+    0 0 60px rgba(0,255,240,0.08);
+  position: relative;
+  z-index: var(--sgc-z-raised);
+  animation: sgc-scale-bounce 0.6s ease both;
+}
+
+/* Top gradient line */
+.sgc-auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--sgc-gradient-cta);
+  border-radius: 0 0 var(--sgc-radius-full) var(--sgc-radius-full);
+  box-shadow: 0 0 20px rgba(0,255,240,0.6);
+}
+
+/* ─── AUTH HEADER ───────────────────────────────── */
+
+.sgc-auth-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--sgc-space-3);
+  justify-content: center;
+  margin-bottom: var(--sgc-space-8);
+  text-decoration: none;
+}
+
+.sgc-auth-logo .logo-mark {
+  width: 48px;
+  height: 48px;
+  background: var(--sgc-gradient-cta);
+  border-radius: var(--sgc-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sgc-font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--sgc-deep-navy);
+  box-shadow: 0 0 20px rgba(0,255,240,0.4);
+}
+
+.sgc-auth-logo .logo-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sgc-auth-logo .logo-name {
+  font-family: var(--sgc-font-display);
+  font-size: var(--sgc-text-xl);
+  font-weight: 800;
+  color: var(--sgc-white);
+  letter-spacing: 0.05em;
+}
+
+.sgc-auth-logo .logo-tag {
+  font-size: 0.65rem;
+  color: var(--sgc-electric-cyan);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.sgc-auth-title {
+  font-family: var(--sgc-font-display) !important;
+  font-size: var(--sgc-text-2xl) !important;
+  font-weight: 700 !important;
+  color: var(--sgc-white) !important;
+  text-align: center;
+  margin-bottom: var(--sgc-space-2) !important;
+}
+
+.sgc-auth-subtitle {
+  font-size: var(--sgc-text-sm);
+  color: var(--sgc-white-60);
+  text-align: center;
+  margin-bottom: var(--sgc-space-8);
+}
+
+/* ─── AUTH FORM ─────────────────────────────────── */
+
+.sgc-auth-form .form-group,
+.sgc-auth-form .mb-3 {
+  margin-bottom: var(--sgc-space-5) !important;
+}
+
+.sgc-auth-form label,
+.sgc-auth-form .col-form-label {
+  font-size: var(--sgc-text-sm) !important;
+  font-weight: 600 !important;
+  color: var(--sgc-white-60) !important;
+  margin-bottom: 8px !important;
+  letter-spacing: 0.03em;
+}
+
+.sgc-auth-form .form-control,
+.sgc-auth-form input[type="text"],
+.sgc-auth-form input[type="email"],
+.sgc-auth-form input[type="password"] {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1.5px solid rgba(0,255,240,0.2) !important;
+  border-radius: var(--sgc-radius-lg) !important;
+  color: var(--sgc-white) !important;
+  font-family: var(--sgc-font-body) !important;
+  font-size: var(--sgc-text-base) !important;
+  padding: 14px 18px !important;
+  height: auto !important;
+  min-height: 52px !important;
+  transition: all var(--sgc-transition-fast) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.sgc-auth-form .form-control::placeholder {
+  color: rgba(255,255,255,0.3) !important;
+}
+
+.sgc-auth-form .form-control:focus,
+.sgc-auth-form input:focus {
+  border-color: var(--sgc-electric-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(0,255,240,0.12) !important;
+  background: rgba(0,255,240,0.03) !important;
+}
+
+/* ─── AUTH BUTTON ───────────────────────────────── */
+
+.sgc-auth-form .btn-primary,
+.sgc-auth-form button[type="submit"],
+.sgc-auth-submit {
+  width: 100% !important;
+  background: var(--sgc-gradient-cta) !important;
+  border: none !important;
+  border-radius: var(--sgc-radius-full) !important;
+  color: var(--sgc-deep-navy) !important;
+  font-family: var(--sgc-font-body) !important;
+  font-size: var(--sgc-text-base) !important;
+  font-weight: 700 !important;
+  padding: 16px 32px !important;
+  height: auto !important;
+  min-height: 56px !important;
+  transition: all var(--sgc-transition-base) !important;
+  box-shadow: 0 0 20px rgba(0,255,240,0.3) !important;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.sgc-auth-form .btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 30px rgba(0,255,240,0.5) !important;
+}
+
+/* ─── DIVIDER ───────────────────────────────────── */
+
+.sgc-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sgc-space-4);
+  margin: var(--sgc-space-6) 0;
+}
+
+.sgc-auth-divider::before,
+.sgc-auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--sgc-glass-border);
+}
+
+.sgc-auth-divider span {
+  font-size: var(--sgc-text-xs);
+  color: var(--sgc-white-60);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ─── SOCIAL LOGIN ──────────────────────────────── */
+
+.sgc-social-login {
+  display: flex;
+  gap: var(--sgc-space-3);
+}
+
+.sgc-social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sgc-space-2);
+  padding: 12px;
+  background: var(--sgc-glass-bg-light);
+  border: 1px solid var(--sgc-glass-border);
+  border-radius: var(--sgc-radius-lg);
+  color: var(--sgc-white);
+  font-size: var(--sgc-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--sgc-transition-fast);
+  text-decoration: none;
+  font-family: var(--sgc-font-body);
+}
+
+.sgc-social-btn:hover {
+  background: var(--sgc-white-10);
+  border-color: var(--sgc-white-60);
+  color: var(--sgc-white);
+  transform: translateY(-2px);
+}
+
+/* ─── AUTH FOOTER ───────────────────────────────── */
+
+.sgc-auth-foot {
+  text-align: center;
+  margin-top: var(--sgc-space-6);
+}
+
+.sgc-auth-foot a,
+.sgc-auth-foot p {
+  font-size: var(--sgc-text-sm) !important;
+  color: var(--sgc-white-60) !important;
+}
+
+.sgc-auth-foot a:hover { color: var(--sgc-electric-cyan) !important; }
+
+/* ─── ODOO NATIVE LOGIN OVERRIDES ───────────────── */
+
+.o_login_page .card {
+  background: rgba(12, 30, 52, 0.85) !important;
+  border: 1px solid rgba(0,255,240,0.2) !important;
+  border-radius: 1.5rem !important;
+  backdrop-filter: blur(30px) !important;
+  box-shadow: 0 20px 80px rgba(0,0,0,0.8) !important;
+}
+
+.o_login_page .card-body {
+  padding: 2.5rem !important;
+}
+
+.o_login_page h5.card-title {
+  font-family: var(--sgc-font-display) !important;
+  color: var(--sgc-white) !important;
+  font-size: 1.5rem !important;
+  text-align: center;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Security badges below login */
+.sgc-auth-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sgc-space-4);
+  margin-top: var(--sgc-space-6);
+  flex-wrap: wrap;
+}
+
+.sgc-auth-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--sgc-space-1);
+  font-size: 0.65rem;
+  color: var(--sgc-white-60);
+  letter-spacing: 0.05em;
+}
+
+.sgc-auth-badge .icon {
+  color: var(--sgc-neon-green);
+  font-size: 0.75rem;
+}

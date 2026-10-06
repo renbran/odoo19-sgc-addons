@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Default Document Sequence -->
+        <record id="seq_construction_document_default" model="ir.sequence">
+            <field name="name">Construction Document Default</field>
+            <field name="code">construction.document.default</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Transmittal Sequence -->
+        <record id="seq_construction_transmittal" model="ir.sequence">
+            <field name="name">Construction Transmittal</field>
+            <field name="code">construction.transmittal</field>
+            <field name="prefix"></field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Category Sequences -->
+        <record id="seq_construction_document_VO" model="ir.sequence">
+            <field name="name">VO Sequence</field>
+            <field name="code">construction.document.VO</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="seq_construction_document_RFI" model="ir.sequence">
+            <field name="name">RFI Sequence</field>
+            <field name="code">construction.document.RFI</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="seq_construction_document_NCR" model="ir.sequence">
+            <field name="name">NCR Sequence</field>
+            <field name="code">construction.document.NCR</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="seq_construction_document_DWG" model="ir.sequence">
+            <field name="name">Drawing Sequence</field>
+            <field name="code">construction.document.DWG</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="seq_construction_document_SUB" model="ir.sequence">
+            <field name="name">Submittal Sequence</field>
+            <field name="code">construction.document.SUB</field>
+            <field name="padding">4</field>
+        </record>
+
+        <record id="seq_construction_document_IPC" model="ir.sequence">
+            <field name="name">IPC Sequence</field>
+            <field name="code">construction.document.IPC</field>
+            <field name="padding">4</field>
+        </record>
+    </data>
+</odoo>

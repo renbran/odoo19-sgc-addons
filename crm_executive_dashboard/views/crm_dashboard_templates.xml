@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- =============================================================
+             Main dashboard page (server-rendered shell)
+             Rendered by CrmDashboardController.dashboard_page()
+             The page loads a single vanilla JS file which fetches
+             /crm-dashboard/data and renders the dashboard in plain DOM.
+             No framework, no module imports, no bundle dependencies.
+             ============================================================= -->
+        <template id="dashboard_page" name="CRM Executive Dashboard">
+            <t t-call="web.layout">
+                <t t-set="title">CRM Executive Dashboard</t>
+
+                <style>
+                    .ced-shell {
+                        background: #07111F;
+                        min-height: 100vh;
+                        padding: 0;
+                        font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+                    }
+                    .ced-loading-fallback {
+                        color: #C7A23A;
+                        padding: 32px;
+                        text-align: center;
+                    }
+                    .ced-error {
+                        color: #DC3545;
+                        padding: 16px;
+                        border: 1px solid #DC3545;
+                        border-radius: 8px;
+                        margin: 16px 0;
+                        background: #fff;
+                    }
+                </style>
+
+                <div class="ced-shell">
+                    <t t-if="has_error">
+                        <div class="ced-error">
+                            <strong>Dashboard Error</strong>
+                            <p t-esc="error_message"/>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <t t-set="filter_period" t-value="dashboard_filter.get('period') if dashboard_filter else 'last_30_days'"/>
+                        <t t-set="filter_user" t-value="dashboard_filter.get('user_id') if dashboard_filter else 0"/>
+                        <t t-set="filter_team" t-value="dashboard_filter.get('team_id') if dashboard_filter else 0"/>
+                        <t t-set="filter_source" t-value="dashboard_filter.get('source_id') if dashboard_filter else 0"/>
+                        <t t-set="filter_stage" t-value="dashboard_filter.get('stage_id') if dashboard_filter else 0"/>
+                        <t t-set="filter_company" t-value="dashboard_filter.get('company_id') if dashboard_filter else 0"/>
+                        <div id="ced-root"
+                             t-att-data-filter-period="filter_period"
+                             t-att-data-filter-user="filter_user"
+                             t-att-data-filter-team="filter_team"
+                             t-att-data-filter-source="filter_source"
+                             t-att-data-filter-stage="filter_stage"
+                             t-att-data-filter-company="filter_company">
+                            <div class="ced-loading-fallback">
+                                <i class="fa fa-spinner fa-spin"/> Loading CRM Executive Dashboard…
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <script t-if="not has_error" type="text/javascript"
+                        src="/crm_executive_dashboard/static/src/js/crm_dashboard_vanilla.js"/>
+            </t>
+        </template>
+
+        <!-- =============================================================
+             Error fallback (rendered when main template fails)
+             ============================================================= -->
+        <template id="dashboard_error" name="CRM Dashboard Error">
+            <t t-call="web.layout">
+                <t t-set="title">Dashboard Error</t>
+                <div class="ced-shell">
+                    <div class="ced-error">
+                        <h2>CRM Dashboard Error</h2>
+                        <p t-esc="error_message"/>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+    </data>
+</odoo>

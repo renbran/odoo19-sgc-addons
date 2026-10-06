@@ -1,0 +1,227 @@
+/** @odoo-module **/
+import { Component, useState, onWillStart, onWillDestroy, markup } from "@odoo/owl";
+import { registry } from "@web/core/registry";
+import { rpc } from "@web/core/network/rpc";
+import { useService } from "@web/core/utils/hooks";
+
+class SgcChatPanel extends Component {
+    static template = "sgc_persona.SgcChatPanel";
+
+    setup() {
+        this.state = useState({
+            personas: [],
+            selectedPersona: null,
+            threadId: null,
+            messages: [],
+            inputValue: "",
+            loading: false,
+            streaming: false,
+            eventSource: null,
+            error: null,
+        });
+        this.orm = useService("orm");
+        this.actionService = useService("action");
+        this.notification = useService("notification");
+
+        onWillStart(async () => {
+            await this._initThread();
+            await this._loadPersonas();
+        });
+
+        onWillDestroy(() => {
+            this._closeEventSource();
+        });
+    }
+
+    async _initThread() {
+        try {
+            const providers = await this.orm.searchRead(
+                "llm.provider",
+                [["active", "=", true]],
+                ["id"],
+                { limit: 1, order: "sequence, id" }
+            );
+            if (!providers.length) {
+                this.state.error = "No LLM provider configured. Ask an administrator to set one up.";
+                return;
+            }
+            const models = await this.orm.searchRead(
+                "llm.model",
+                [
+                    ["provider_id", "=", providers[0].id],
+                    ["model_use", "in", ["chat", "multimodal"]],
+                ],
+                ["id"],
+                { limit: 1, order: "sequence, id" }
+            );
+            if (!models.length) {
+                this.state.error = "No LLM chat model available for the configured provider.";
+                return;
+            }
+            const thread = await this.orm.call("llm.thread", "create", [{
+                name: `SGC Chat ${new Date().toISOString()}`,
+                provider_id: providers[0].id,
+                model_id: models[0].id,
+            }]);
+            this.state.threadId = thread;
+        } catch (err) {
+            this.state.error = "Failed to create chat thread: " + (err && err.message ? err.message : err);
+        }
+    }
+
+    onInputKeyup(ev) {
+        if (ev.key === "Enter") {
+            this.sendMessage();
+        }
+    }
+
+    async _loadPersonas() {
+        try {
+            const allAssistants = await this.orm.searchRead(
+                "llm.assistant",
+                [["code", "!=", false]],
+                ["id", "name", "code", "prompt_id"],
+                { order: "name" }
+            );
+            this.state.personas = allAssistants;
+        } catch (err) {
+            this.state.error = "Failed to load personas.";
+        }
+    }
+
+    async selectPersona(ev) {
+        const assistantId = parseInt(ev.target.value, 10);
+        if (!assistantId) {
+            this.state.selectedPersona = null;
+            return;
+        }
+        this.state.selectedPersona = this.state.personas.find(
+            (p) => p.id === assistantId
+        );
+        try {
+            await rpc("/llm/thread/set_assistant", {
+                thread_id: this.state.threadId,
+                assistant_id: assistantId,
+            });
+            this.state.messages = [];
+            this.state.error = null;
+            this._addSystemMessage(
+                `Switched to ${this.state.selectedPersona.name}. How can I help you?`
+            );
+        } catch (err) {
+            this.state.error = "Failed to set persona.";
+        }
+    }
+
+    async sendMessage() {
+        const text = this.state.inputValue.trim();
+        if (!text || !this.state.threadId || !this.state.selectedPersona) {
+            return;
+        }
+
+        this.state.messages.push({
+            id: Date.now(),
+            role: "user",
+            content: text,
+        });
+        this.state.inputValue = "";
+        this.state.loading = true;
+        this.state.streaming = true;
+        this.state.error = null;
+
+        const assistantMsg = {
+            id: Date.now() + 1,
+            role: "assistant",
+            content: "",
+        };
+        this.state.messages.push(assistantMsg);
+
+        this._openEventSource(text);
+    }
+
+    _openEventSource(userMessage) {
+        this._closeEventSource();
+
+        const params = new URLSearchParams({
+            thread_id: this.state.threadId,
+            message: userMessage,
+        });
+        const url = `/llm/thread/generate?${params.toString()}`;
+        const es = new EventSource(url);
+
+        es.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                this._handleSSEEvent(data);
+            } catch (err) {
+                // ignore parse errors in partial chunks
+            }
+        };
+
+        es.onerror = () => {
+            const lastMsg = this.state.messages[this.state.messages.length - 1];
+            if (lastMsg && lastMsg.role === "assistant" && !lastMsg.content) {
+                lastMsg.content = "I'm sorry, I encountered an error. Please try again.";
+            }
+            this.state.loading = false;
+            this.state.streaming = false;
+            es.close();
+            this.state.eventSource = null;
+        };
+
+        this.state.eventSource = es;
+    }
+
+    _closeEventSource() {
+        if (this.state.eventSource) {
+            this.state.eventSource.close();
+            this.state.eventSource = null;
+        }
+    }
+
+    _handleSSEEvent(data) {
+        switch (data.type) {
+            case "message_chunk":
+            case "message_create":
+            case "message_update": {
+                const lastMsg = this.state.messages[this.state.messages.length - 1];
+                if (lastMsg && lastMsg.role === "assistant") {
+                    const content = data.message?.content || data.message?.message || "";
+                    lastMsg.content += content;
+                }
+                break;
+            }
+            case "tool_called":
+            case "tool_succeeded":
+            case "tool_failed":
+                break;
+            case "error": {
+                const lastMsg = this.state.messages[this.state.messages.length - 1];
+                if (lastMsg && lastMsg.role === "assistant") {
+                    lastMsg.content = `Error: ${data.error || "Unknown error"}`;
+                }
+                break;
+            }
+            case "done": {
+                this.state.loading = false;
+                this.state.streaming = false;
+                this._closeEventSource();
+                break;
+            }
+        }
+    }
+
+    _addSystemMessage(text) {
+        this.state.messages.push({
+            id: Date.now(),
+            role: "system",
+            content: text,
+        });
+    }
+
+    formatContent(content) {
+        return markup(content || "");
+    }
+}
+
+registry.category("actions").add("sgc_persona.sgc_chat_panel", SgcChatPanel);

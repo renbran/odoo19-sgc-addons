@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_agreement_tree" model="ir.ui.view">
+        <field name="name">sale.agreement.tree</field>
+        <field name="model">sale.agreement</field>
+        <field name="arch" type="xml">
+            <list string="Yearly Agreements">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="agreement_year"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="sale_order_id"/>
+                <field name="license_uploaded_on"/>
+                <field name="owner_document_uploaded_on"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sale_agreement_form" model="ir.ui.view">
+        <field name="name">sale.agreement.form</field>
+        <field name="model">sale.agreement</field>
+        <field name="arch" type="xml">
+            <form string="Yearly Agreement">
+                <header>
+                    <button name="action_download_agreement_pdf" string="Download Agreement" type="object" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <group col="2">
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="partner_id"/>
+                            <field name="agreement_year"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="sale_order_id"/>
+                        </group>
+                        <group>
+                            <field name="agreement_date"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="num_users"/>
+                            <field name="monthly_subscription_amount" widget="monetary" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group col="2">
+                        <group string="Agreement Contact">
+                            <field name="agreement_contact_person"/>
+                            <field name="agreement_job_title"/>
+                        </group>
+                        <group string="Portal Uploaded Documents">
+                            <field name="license_attachment_id" readonly="1"/>
+                            <field name="license_uploaded_on" readonly="1"/>
+                            <field name="owner_document_attachment_id" readonly="1"/>
+                            <field name="owner_document_uploaded_on" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Subscribed Modules" colspan="2" col="1">
+                        <field name="odoo_modules" nolabel="1" colspan="2"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sale_agreement" model="ir.actions.act_window">
+        <field name="name">Yearly Agreements</field>
+        <field name="res_model">sale.agreement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_sale_agreement_root" name="Agreements" parent="sale.sale_menu_root" action="action_sale_agreement" sequence="35"/>
+</odoo>

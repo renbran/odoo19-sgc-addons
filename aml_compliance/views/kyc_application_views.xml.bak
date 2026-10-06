@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================================= -->
+    <!-- Inherit KYC Application Form to add      -->
+    <!-- Risk Assessment tab and button            -->
+    <!-- ======================================= -->
+
+    <record id="view_kyc_application_form_inherit_aml" model="ir.ui.view">
+        <field name="name">kyc.application.form.inherit.aml</field>
+        <field name="model">kyc.application</field>
+        <field name="inherit_id" ref="kyc_management.view_kyc_application_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add button_box with risk assessment smart button -->
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_risk_assessments"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-shield"
+                            groups="aml_compliance.group_aml_officer">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="risk_assessment_count"/>
+                            </span>
+                            <span class="o_stat_text">Risk Assessments</span>
+                        </div>
+                    </button>
+                    <button name="%(kyc_management.kyc_application_pending_verification_action)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-clock-o">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="verification_ids" eval="len([(4, ref('kyc_management.model_verification_pending'), False)])"/>
+                            </span>
+                            <span class="o_stat_text">Pending Verification</span>
+                        </div>
+                    </button>
+                </div>
+            </xpath>
+
+            <!-- Add risk level alert banner below title -->
+            <xpath expr="//sheet/div[hasclass('oe_title')]" position="after">
+                <div class="alert alert-danger" role="alert"
+                     invisible="current_risk_level not in ('high', 'very_high')">
+                    <span class="fa fa-exclamation-triangle"/> <strong>HIGH RISK CUSTOMER</strong>
+                    — Enhanced Due Diligence (EDD) Required
+                    <field name="current_risk_level" widget="badge"
+                           class="pull-right"
+                           decoration-danger="current_risk_level == 'very_high'"
+                           decoration-warning="current_risk_level == 'high'"/>
+                </div>
+                <div class="alert alert-warning" role="alert"
+                     invisible="current_risk_level != 'medium'">
+                    <span class="fa fa-exclamation-circle"/> <strong>Medium Risk Customer</strong>
+                    — Standard CDD with enhanced monitoring
+                </div>
+                <div class="alert alert-success" role="alert"
+                     invisible="current_risk_level != 'low'">
+                    <span class="fa fa-check-circle"/> <strong>Low Risk Customer</strong>
+                    — Standard Due Diligence
+                </div>
+            </xpath>
+
+            <!-- Add Risk Assessment button in header before statusbar -->
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_trigger_risk_assessment"
+                        string="Run Risk Assessment"
+                        type="object"
+                        class="btn-secondary"
+                        groups="aml_compliance.group_aml_officer"/>
+                <button name="action_run_edd_questionnaire"
+                        string="Run EDD"
+                        type="object"
+                        class="btn-warning"
+                        groups="aml_compliance.group_aml_officer"
+                        invisible="current_risk_level not in ('high', 'very_high')"/>
+            </xpath>
+
+            <!-- Add EDD Checklist tab to notebook if exists -->
+            <xpath expr="//notebook" position="inside">
+                <page string="AML Compliance" name="aml_compliance" invisible="current_risk_level == 'low'">
+                    <group string="Risk Assessment Summary">
+                        <field name="risk_assessment_ids" readonly="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="assessment_date"/>
+                                <field name="computed_risk_score"/>
+                                <field name="computed_risk_level" widget="badge"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="EDD Checklist" invisible="current_risk_level not in ('high', 'very_high')">
+                        <field name="id" widget="many2many_tags" string="EDD Requirements"/>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

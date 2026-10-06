@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- "Create Mailcow Mailbox" in the Users list/form Action menu.
+             Backfills a mailbox for an existing user without touching the
+             core res.users form view. -->
+        <record id="action_mailcow_provision_user" model="ir.actions.server">
+            <field name="name">Create Mailcow Mailbox</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="binding_model_id" ref="base.model_res_users"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">records.action_provision_mailbox()</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sgc_meeting_notes_view_form" model="ir.ui.view">
+        <field name="name">sgc.meeting.notes.form</field>
+        <field name="model">sgc.meeting.notes</field>
+        <field name="arch" type="xml">
+            <form string="AI Notes">
+                <header>
+                    <button
+                        name="action_post_to_chatter"
+                        type="object"
+                        string="Post to Chatter"
+                        class="oe_highlight"
+                        invisible="posted_to_chatter"
+                    />
+                    <button
+                        name="action_email_attendees"
+                        type="object"
+                        string="Email Attendees"
+                        invisible="emailed_to_attendees"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <field name="posted_to_chatter" widget="boolean_button"
+                            options="{'terminology': {'string_yes': 'Posted', 'string_no': 'Draft'}}"
+                        />
+                        <field name="emailed_to_attendees" widget="boolean_button"
+                            options="{'terminology': {'string_yes': 'Emailed', 'string_no': 'Not Sent'}}"
+                        />
+                    </div>
+                    <div class="oe_title">
+                        <label for="display_name" class="oe_edit_only" />
+                        <h1>
+                            <field name="display_name" />
+                        </h1>
+                    </div>
+                    <group name="meta">
+                        <group>
+                            <field name="session_id" />
+                            <field name="transcript_id" />
+                            <field name="provider_id" />
+                            <field name="model" />
+                        </group>
+                        <group>
+                            <field name="tokens_used" />
+                            <field name="prompt_tokens" />
+                            <field name="completion_tokens" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="summary" string="Summary">
+                            <field name="summary" widget="html" />
+                        </page>
+                        <page name="key_points" string="Key Points">
+                            <field name="key_points" widget="html" />
+                        </page>
+                        <page name="decisions" string="Decisions">
+                            <field name="decisions" widget="html" />
+                        </page>
+                        <page name="actions" string="Action Items">
+                            <field name="action_items" widget="html" />
+                        </page>
+                        <page name="risks" string="Risks">
+                            <field name="risks" widget="html" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_notes_view_tree" model="ir.ui.view">
+        <field name="name">sgc.meeting.notes.list</field>
+        <field name="model">sgc.meeting.notes</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="posted_to_chatter"
+                default_order="create_date desc"
+            >
+                <field name="display_name" />
+                <field name="session_id" />
+                <field name="provider_id" />
+                <field name="model" />
+                <field name="tokens_used" />
+                <field name="posted_to_chatter" />
+                <field name="emailed_to_attendees" />
+            </list>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_notes_view_search" model="ir.ui.view">
+        <field name="name">sgc.meeting.notes.search</field>
+        <field name="model">sgc.meeting.notes</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="display_name" />
+                <field name="session_id" />
+                <field name="provider_id" />
+                <filter
+                    name="not_posted"
+                    string="Not Posted to Chatter"
+                    domain="[('posted_to_chatter', '=', False)]"
+                />
+                <filter
+                    name="not_emailed"
+                    string="Not Emailed"
+                    domain="[('emailed_to_attendees', '=', False)]"
+                />
+                <group name="groupby">
+                    <filter
+                        string="Provider"
+                        name="groupby_provider"
+                        context="{'group_by': 'provider_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

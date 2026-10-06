@@ -1,0 +1,76 @@
+// =====================================================================
+// CONTRAST FIXES
+// ---------------------------------------------------------------------
+// Constraints these rules must satisfy:
+// 1. theme_liquid_glass loads LATER in web.assets_backend and paints
+//    form text white with `!important` — at equal specificity it wins.
+//    Every rule here therefore uses doubled classes / deep chains to
+//    out-rank the theme regardless of bundle order.
+// 2. In Odoo 19 the `class` attr of a <field> lands on the WRAPPER div
+//    (.o_field_widget), never on the inner <textarea>/<input>, and form
+//    controls do not inherit `color` — the inner elements must be
+//    targeted explicitly.
+// =====================================================================
+
+// --- BANT tab: cards are forced white in the XML → dark text inside --
+.o_form_view .sgc_bant_field.sgc_bant_field,
+.o_form_view .sgc_bant_field.sgc_bant_field textarea,
+.o_form_view .sgc_bant_field.sgc_bant_field input {
+    color: #1a1a1a !important;
+    -webkit-text-fill-color: #1a1a1a !important;
+    background: #ffffff !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+}
+
+.o_form_view .sgc_bant_field.sgc_bant_field textarea::placeholder,
+.o_form_view .sgc_bant_field.sgc_bant_field input::placeholder {
+    color: #6c757d !important;
+    -webkit-text-fill-color: #6c757d !important;
+}
+
+// Question titles inside the white cards
+.o_form_view h6.sgc_bant_card_question.sgc_bant_card_question {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+// Section header above the cards: give the text its own light chip so it
+// is readable on ANY backdrop (glass, white, dark) instead of guessing
+// the theme's background.
+.o_form_view .sgc_bant_adaptive.sgc_bant_adaptive,
+.o_form_view .sgc_bant_adaptive.sgc_bant_adaptive i,
+.o_form_view .sgc_bant_adaptive.sgc_bant_adaptive small {
+    color: #1a1a1a !important;
+    text-shadow: none !important;
+}
+.o_form_view h5.sgc_bant_adaptive,
+.o_form_view small.sgc_bant_adaptive {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 6px;
+    padding: 3px 10px;
+    margin-top: 4px;
+}
+
+// --- Badges (backend-wide) -------------------------------------------
+// Bootstrap-4 `badge-*` classes ship no background in Odoo 19 (BS5):
+// the theme then paints their text white → invisible chips. Restore the
+// semantic colors everywhere (also fixes kyc_management, om_account_asset).
+.o_web_client .badge.badge-primary   { background-color: #0d6efd !important; color: #ffffff !important; }
+.o_web_client .badge.badge-secondary { background-color: #6c757d !important; color: #ffffff !important; }
+.o_web_client .badge.badge-success   { background-color: #198754 !important; color: #ffffff !important; }
+.o_web_client .badge.badge-danger    { background-color: #dc3545 !important; color: #ffffff !important; }
+.o_web_client .badge.badge-warning   { background-color: #ffc107 !important; color: #212529 !important; }
+.o_web_client .badge.badge-info     { background-color: #0dcaf0 !important; color: #212529 !important; }
+.o_web_client .badge.badge-pill     { border-radius: 50rem !important; }
+
+// Safety net: any remaining badge with no background class at all gets a
+// dark chip so theme-whitened text can never sit on a white backdrop.
+.o_web_client .badge:not([class*="text-bg-"]):not([class*="bg-"]):not([class*="badge-"]) {
+    background-color: #495057 !important;
+    color: #ffffff !important;
+}

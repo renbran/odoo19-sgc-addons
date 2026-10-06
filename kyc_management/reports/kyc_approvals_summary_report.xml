@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="kyc_approval_summary_report_action" model="ir.actions.report">
+            <field name="name">KYC Approval Summary</field>
+            <field name="model">kyc.approval</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kyc_management.report_kyc_approvals_summary_template</field>
+            <field name="print_report_name">'KYC_Approval_Summary_%s' % (object.kyc_application_id.kyc_id or object.id)</field>
+        </record>
+
+        <template id="report_kyc_approvals_summary_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif; font-size: 12px;">
+
+                            <!-- Report Header -->
+                            <div style="text-align: center; border-bottom: 3px solid #800020; padding-bottom: 12px; margin-bottom: 20px;">
+                                <h2 style="color: #800020; margin-bottom: 4px;">KYC Approvals Summary</h2>
+                                <p style="color: #666; margin: 0;">
+                                    Application: <strong t-field="o.kyc_application_id.kyc_id"/>
+                                    — Reviewed by: <strong t-field="o.approver_id.name"/>
+                                </p>
+                            </div>
+
+                            <!-- Approval Status Overview -->
+                            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Approval Step</strong>
+                                    </td>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.approval_step"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Status</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.status"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Review Start Date</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.review_start_date" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Review End Date</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.review_end_date" t-options='{"widget": "datetime"}'/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Document Verification Section -->
+                            <h4 style="color: #800020; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                Document Verification
+                            </h4>
+                            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Documents Complete</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.documents_complete">
+                                            <span style="color: green;">&#10004; Yes</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: red;">&#10008; No</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.documents_complete_notes">
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Notes</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.documents_complete_notes"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Documents Verified</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.documents_verified">
+                                            <span style="color: green;">&#10004; Yes</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: red;">&#10008; No</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.document_verification_notes">
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Verification Notes</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.document_verification_notes"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Risk Assessment Section -->
+                            <h4 style="color: #800020; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                Risk Assessment
+                            </h4>
+                            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Risk Score</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.risk_score"/> / 100
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Risk Level</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.risk_level"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.risk_assessment_notes">
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Assessment Notes</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.risk_assessment_notes"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- PEP &amp; Sanctions Checks -->
+                            <h4 style="color: #800020; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                PEP &amp; Sanctions Screening
+                            </h4>
+                            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>PEP Check Performed</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.pep_check_performed">
+                                            <span style="color: green;">&#10004; Yes</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: red;">&#10008; No</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>PEP Check Result</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.pep_check_result"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.pep_verification_notes">
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>PEP Notes</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.pep_verification_notes"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Sanctions Check Performed</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.sanctions_check_performed">
+                                            <span style="color: green;">&#10004; Yes</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: red;">&#10008; No</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Sanctions Check Result</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.sanctions_check_result"/>
+                                    </td>
+                                </tr>
+                                <tr t-if="o.sanctions_verification_notes">
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Sanctions Notes</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <span t-field="o.sanctions_verification_notes"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <h4 style="color: #800020; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                Section Verification Checklist
+                            </h4>
+                            <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Source of Funds Verified</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.source_of_funds_verified"><span style="color: green;">&#10004; Yes</span></t>
+                                        <t t-else=""><span style="color: red;">&#10008; No</span></t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Source of Wealth Verified</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.source_of_wealth_verified"><span style="color: green;">&#10004; Yes</span></t>
+                                        <t t-else=""><span style="color: red;">&#10008; No</span></t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Signature Verified</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.signature_verified"><span style="color: green;">&#10004; Yes</span></t>
+                                        <t t-else=""><span style="color: red;">&#10008; No</span></t>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                        <strong>Consents Verified</strong>
+                                    </td>
+                                    <td style="padding: 8px; border: 1px solid #ddd;">
+                                        <t t-if="o.consent_verified"><span style="color: green;">&#10004; Yes</span></t>
+                                        <t t-else=""><span style="color: red;">&#10008; No</span></t>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Decision Section -->
+                            <t t-if="o.status == 'approved'">
+                                <h4 style="color: green; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                    &#10004; Approved
+                                </h4>
+                                <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Approval Date</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.approval_date" t-options='{"widget": "datetime"}'/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.approval_notes">
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Approval Notes</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.approval_notes"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.conditions_for_approval">
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Conditions</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.conditions_for_approval"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <t t-if="o.status == 'rejected'">
+                                <h4 style="color: red; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                    &#10008; Rejected
+                                </h4>
+                                <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Rejection Date</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.rejection_date" t-options='{"widget": "datetime"}'/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.rejection_reason">
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Rejection Reason</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.rejection_reason"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.rejection_suggestions">
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Corrections Required</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.rejection_suggestions"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <!-- Reviewer Comments -->
+                            <t t-if="o.reviewer_comments">
+                                <h4 style="color: #800020; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                    Reviewer Comments
+                                </h4>
+                                <div style="padding: 10px; border: 1px solid #ddd; background: #fafafa; margin-bottom: 20px;">
+                                    <span t-field="o.reviewer_comments"/>
+                                </div>
+                            </t>
+
+                            <!-- Escalation Section -->
+                            <t t-if="o.requires_escalation">
+                                <h4 style="color: #ff8c00; border-bottom: 1px solid #ddd; padding-bottom: 6px;">
+                                    Escalation Details
+                                </h4>
+                                <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="width: 50%; padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Escalated To</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.escalated_to_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Escalation Date</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.escalation_date" t-options='{"widget": "datetime"}'/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.escalation_reason">
+                                        <td style="padding: 8px; border: 1px solid #ddd; background: #f5f5f5;">
+                                            <strong>Reason</strong>
+                                        </td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">
+                                            <span t-field="o.escalation_reason"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </t>
+
+                            <!-- Footer -->
+                            <div style="margin-top: 30px; border-top: 2px solid #800020; padding-top: 10px; text-align: center; color: #999; font-size: 10px;">
+                                <p>This KYC Approvals Summary was generated on <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>.</p>
+                                <p>Confidential — For Internal Compliance Use Only</p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

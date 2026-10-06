@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" preserveAspectRatio="xMidYMax meet" aria-hidden="true" focusable="false">
+    <!-- SGC shared watermark: Sheikh Zayed Mosque silhouette, single-tone line art -->
+    <g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+        <circle cx="200" cy="150" r="60" />
+        <path d="M170 190 L170 252 L230 252 L230 190" />
+        <path d="M60 252 L60 100 C60 80 78 64 96 64 C114 64 132 80 132 100 L132 252" />
+        <circle cx="96" cy="50" r="10" />
+        <path d="M268 252 L268 100 C268 80 286 64 304 64 C322 64 340 80 340 100 L340 252" />
+        <circle cx="304" cy="50" r="10" />
+        <path d="M200 90 L200 74" />
+        <circle cx="200" cy="66" r="6" />
+        <path d="M40 252 L360 252" stroke-width="3" />
+    </g>
+</svg>

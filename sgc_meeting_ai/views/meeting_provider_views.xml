@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Provider Form -->
+    <record id="sgc_meeting_provider_view_form" model="ir.ui.view">
+        <field name="name">sgc.meeting.provider.form</field>
+        <field name="model">sgc.meeting.provider</field>
+        <field name="arch" type="xml">
+            <form string="Meeting Provider">
+                <header />
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_sessions"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-calendar"
+                        >
+                            <field name="session_count" widget="statinfo" string="Sessions" />
+                        </button>
+                        <button
+                            name="action_open_notes"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text"
+                        >
+                            <field name="notes_count" widget="statinfo" string="Notes" />
+                        </button>
+                    </div>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"
+                    />
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" placeholder="Provider name" />
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="identifiers" string="Identifiers">
+                            <field name="code" />
+                            <field name="sequence" />
+                            <field name="active" invisible="1" />
+                            <field name="icon" placeholder="fa-video-camera" />
+                            <field name="color" widget="color_picker" />
+                        </group>
+                        <group name="integration" string="Integration">
+                            <field name="link_pattern" placeholder="https://meet.example.com/{meeting_id}" />
+                            <field name="webhook_url" readonly="1" widget="CopyClipboardChar" />
+                            <field name="webhook_token" password="True" />
+                            <button
+                                name="regenerate_webhook_token"
+                                type="object"
+                                string="Regenerate Token"
+                                class="btn-link"
+                                groups="base.group_system"
+                            />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="description" string="Setup Instructions">
+                            <field name="description" placeholder="Step-by-step setup guide for this provider..." />
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_provider_view_tree" model="ir.ui.view">
+        <field name="name">sgc.meeting.provider.list</field>
+        <field name="model">sgc.meeting.provider</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="not active">
+                <field name="sequence" widget="handle" />
+                <field name="name" />
+                <field name="code" />
+                <field name="session_count" />
+                <field name="notes_count" />
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_provider_view_search" model="ir.ui.view">
+        <field name="name">sgc.meeting.provider.search</field>
+        <field name="model">sgc.meeting.provider</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="code" />
+                <filter
+                    name="active"
+                    string="Active"
+                    domain="[('active', '=', True)]"
+                />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+</odoo>

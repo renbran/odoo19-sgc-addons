@@ -1,0 +1,24 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kyc_application_user,KYC Application - User,kyc_management.model_kyc_application,kyc_management.group_kyc_user,1,0,1,0
+access_kyc_application_approver,KYC Application - Approver,kyc_management.model_kyc_application,kyc_management.group_kyc_approver,1,1,0,0
+access_kyc_application_admin,KYC Application - Admin,kyc_management.model_kyc_application,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_approval_approver,KYC Approval - Approver,kyc_management.model_kyc_approval,kyc_management.group_kyc_approver,1,1,1,0
+access_kyc_approval_senior_officer,KYC Approval - Senior Officer,kyc_management.model_kyc_approval,kyc_management.group_kyc_senior_officer,1,1,1,0
+access_kyc_approval_admin,KYC Approval - Admin,kyc_management.model_kyc_approval,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_notification_user,KYC Notification - User,kyc_management.model_kyc_notification,kyc_management.group_kyc_user,1,0,0,0
+access_kyc_notification_approver,KYC Notification - Approver,kyc_management.model_kyc_notification,kyc_management.group_kyc_approver,1,1,1,0
+access_kyc_notification_admin,KYC Notification - Admin,kyc_management.model_kyc_notification,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_notification_type_admin,KYC Notification Type - Admin,kyc_management.model_kyc_notification_type,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_clarification_wizard,KYC Clarification Wizard,kyc_management.model_kyc_clarification_wizard,kyc_management.group_kyc_approver,1,1,1,1
+access_kyc_escalation_wizard,KYC Escalation Wizard,kyc_management.model_kyc_escalation_wizard,kyc_management.group_kyc_approver,1,1,1,1
+access_kyc_rejection_wizard,KYC Rejection Wizard,kyc_management.model_kyc_rejection_wizard,kyc_management.group_kyc_approver,1,1,1,1
+access_kyc_source_funds_user,kyc.source.funds.user,kyc_management.model_kyc_source_funds,base.group_user,1,1,1,1
+access_kyc_source_funds_approver,KYC Source of Funds - Approver,kyc_management.model_kyc_source_funds,kyc_management.group_kyc_approver,1,0,0,0
+access_kyc_source_funds_admin,KYC Source of Funds - Admin,kyc_management.model_kyc_source_funds,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_source_funds_portal,kyc.source.funds.portal,kyc_management.model_kyc_source_funds,base.group_portal,1,0,0,0
+access_kyc_source_funds_public,kyc.source.funds.public,kyc_management.model_kyc_source_funds,base.group_public,1,0,0,0
+access_kyc_source_wealth_user,kyc.source.wealth.user,kyc_management.model_kyc_source_wealth,base.group_user,1,1,1,1
+access_kyc_source_wealth_approver,KYC Source of Wealth - Approver,kyc_management.model_kyc_source_wealth,kyc_management.group_kyc_approver,1,0,0,0
+access_kyc_source_wealth_admin,KYC Source of Wealth - Admin,kyc_management.model_kyc_source_wealth,kyc_management.group_kyc_admin,1,1,1,1
+access_kyc_source_wealth_portal,kyc.source.wealth.portal,kyc_management.model_kyc_source_wealth,base.group_portal,1,0,0,0
+access_kyc_source_wealth_public,kyc.source.wealth.public,kyc_management.model_kyc_source_wealth,base.group_public,1,0,0,0

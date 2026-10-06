@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+        <!-- Payment QR Verification Tree View -->
+        <record id="view_payment_qr_verification_tree" model="ir.ui.view">
+            <field name="name">payment.qr.verification.tree</field>
+            <field name="model">payment.qr.verification</field>
+            <field name="arch" type="xml">
+                <list string="QR Verification Log" create="false" edit="false" delete="false">
+                    <field name="verification_date"/>
+                    <field name="verification_code"/>
+                    <field name="payment_voucher_number"/>
+                    <field name="payment_partner_id"/>
+                    <field name="payment_amount" widget="monetary"/>
+                    <field name="verification_method"/>
+                    <field name="verification_status" widget="badge" decoration-success="verification_status == 'success'" decoration-danger="verification_status in ['failed', 'invalid']" decoration-warning="verification_status == 'expired'"/>
+                    <field name="verifier_ip"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Payment QR Verification Form View -->
+        <record id="view_payment_qr_verification_form" model="ir.ui.view">
+            <field name="name">payment.qr.verification.form</field>
+            <field name="model">payment.qr.verification</field>
+            <field name="arch" type="xml">
+                <form string="QR Verification Details" create="false" edit="false" delete="false">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="verification_code"/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group string="Payment Information">
+                                <field name="payment_id"/>
+                                <field name="payment_voucher_number"/>
+                                <field name="payment_partner_id"/>
+                                <field name="payment_amount" widget="monetary"/>
+                                <field name="payment_currency_id"/>
+                                <field name="payment_verification_status"/>
+                            </group>
+                            <group string="Verification Details">
+                                <field name="verification_date"/>
+                                <field name="verification_method"/>
+                                <field name="verification_status"/>
+                                <field name="verifier_ip"/>
+                            </group>
+                        </group>
+
+                        <group string="Technical Information">
+                            <field name="verifier_user_agent"/>
+                            <field name="additional_data"/>
+                        </group>
+
+                        <div class="oe_clear"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Payment QR Verification Search View -->
+        <record id="view_payment_qr_verification_search" model="ir.ui.view">
+            <field name="name">payment.qr.verification.search</field>
+            <field name="model">payment.qr.verification</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="verification_code"/>
+                    <field name="payment_voucher_number"/>
+                    <field name="payment_partner_id"/>
+                    <field name="verifier_ip"/>
+
+                    <filter name="today" string="Today" domain="[('verification_date', '&gt;=', context_today())]"/>
+                    <filter name="this_week" string="This Week" domain="[('verification_date', '&gt;=', (context_today() - datetime.timedelta(days=7)))]"/>
+                    <filter name="this_month" string="This Month" domain="[('verification_date', '&gt;=', (context_today().replace(day=1)))]"/>
+
+                    <separator/>
+                    <filter name="successful" string="Successful" domain="[('verification_status', '=', 'success')]"/>
+                    <filter name="failed" string="Failed" domain="[('verification_status', 'in', ['failed', 'invalid', 'expired'])]"/>
+
+                    <separator/>
+                    <filter name="qr_scan" string="QR Scan" domain="[('verification_method', '=', 'qr_scan')]"/>
+                    <filter name="manual_entry" string="Manual Entry" domain="[('verification_method', '=', 'manual_entry')]"/>
+
+                    <filter name="group_verification_status" string="Status" domain="[]" context="{'group_by': 'verification_status'}"/>
+                    <filter name="group_verification_method" string="Method" domain="[]" context="{'group_by': 'verification_method'}"/>
+                    <filter name="group_date" string="Date" domain="[]" context="{'group_by': 'verification_date:day'}"/>
+                    <filter name="group_payment" string="Payment" domain="[]" context="{'group_by': 'payment_id'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Payment QR Verification Action -->
+        <record id="action_payment_qr_verification" model="ir.actions.act_window">
+            <field name="name">QR Verification Log</field>
+            <field name="res_model">payment.qr.verification</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_payment_qr_verification_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No QR verifications recorded
+                </p>
+                <p>
+                    This log shows all QR code verification attempts for payment vouchers.
+                    Each scan or verification attempt is recorded here for audit purposes.
+                </p>
+            </field>
+        </record>
+
+
+</odoo>

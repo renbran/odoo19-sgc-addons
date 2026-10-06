@@ -1,0 +1,468 @@
+// AI Brain Finance Panel — SGCTech AI Dark Theme
+// Brand primary: #C7A23A (gold) | Dark navy backgrounds | White text
+
+$sgc-gold:       #C7A23A;
+$sgc-gold-dark:  #A88828;
+$sgc-gold-light: #D4AF37;
+$sgc-gold-glow:  rgba(199, 162, 58, 0.15);
+
+$bg-base:        #0f1923;
+$bg-surface:     #1a2637;
+$bg-elevated:    #1e2d3d;
+$bg-card:        #243447;
+
+$border-color:   #2d4057;
+$border-light:   #3a5068;
+
+$text-primary:   #f8fafc;
+$text-secondary: #94a3b8;
+$text-muted:     #64748b;
+
+.o_ai_brain_panel {
+    // Cooperate with Odoo's .o_action rule (display:flex; flex-direction:column; height:100%)
+    // Do NOT fight its flex-direction — put the row layout inside .o_ai_brain_layout instead
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+
+    .o_ai_brain_layout {
+        flex: 1;
+        display: flex;
+        flex-direction: row;
+        min-height: 0;
+        overflow: hidden;
+        background: $bg-base;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: $text-primary;
+    }
+
+    // ── QUICK COMMANDS SIDEBAR ────────────────────────────────────────────────
+    .o_ai_brain_sidebar {
+        width: 210px;
+        min-width: 210px;
+        background: $bg-surface;
+        border-right: 1px solid $border-color;
+        display: flex;
+        flex-direction: column;
+        padding: 18px 10px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar { width: 4px; }
+        &::-webkit-scrollbar-track { background: transparent; }
+        &::-webkit-scrollbar-thumb { background: $border-light; border-radius: 4px; }
+
+        .o_ai_sidebar_title {
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: $sgc-gold;
+            margin: 0 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid $border-color;
+        }
+
+        .o_ai_brain_btn_list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+
+    // ── ACTION BUTTONS ────────────────────────────────────────────────────────
+    .o_ai_brain_btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 7px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-align: left;
+        width: 100%;
+        color: $text-primary;
+        transition: background 0.15s, border-color 0.15s, transform 0.1s;
+
+        .o_ai_btn_icon { font-size: 0.82rem; width: 14px; text-align: center; flex-shrink: 0; }
+
+        &:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        &:not(:disabled):hover { transform: translateX(2px); }
+
+        &.o_ai_active {
+            border-color: $sgc-gold !important;
+            box-shadow: 0 0 0 2px $sgc-gold-glow;
+        }
+
+        &.o_ai_btn_primary   { background: #1d4ed8; &:hover:not(:disabled) { background: #1e40af; } }
+        &.o_ai_btn_info      { background: #0369a1; &:hover:not(:disabled) { background: #075985; } }
+        &.o_ai_btn_success   { background: #15803d; &:hover:not(:disabled) { background: #166534; } }
+        &.o_ai_btn_warning   { background: #b45309; &:hover:not(:disabled) { background: #92400e; } }
+        &.o_ai_btn_danger    { background: #b91c1c; &:hover:not(:disabled) { background: #991b1b; } }
+        &.o_ai_btn_secondary { background: #374151; &:hover:not(:disabled) { background: #1f2937; } }
+    }
+
+    // ── RIGHT MAIN COLUMN ─────────────────────────────────────────────────────
+    .o_ai_brain_main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+
+        // ── TOP 80%: REPORT OUTPUT AREA ──────────────────────────────────────
+        .o_ai_brain_output {
+            flex: 4;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: $bg-base;
+            border-bottom: 1px solid $border-color;
+            overflow: hidden;
+
+            .o_ai_brain_report_bar {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 8px 20px;
+                background: $bg-surface;
+                border-top: 1px solid $border-color;
+                min-height: 44px;
+
+                .o_ai_report_title {
+                    font-size: 0.85rem;
+                    font-weight: 700;
+                    color: $text-primary;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    .fa { color: $sgc-gold; }
+                }
+
+                .o_ai_report_ts {
+                    font-size: 0.72rem;
+                    color: $text-muted;
+                    letter-spacing: 0.02em;
+                }
+
+                .o_ai_report_actions {
+                    display: flex;
+                    gap: 8px;
+
+                    .btn-outline-primary {
+                        border-color: $sgc-gold;
+                        color: $sgc-gold;
+                        background: transparent;
+                        font-size: 0.78rem;
+                        &:hover { background: $sgc-gold; color: #000; font-weight: 700; }
+                    }
+                    .btn-outline-secondary {
+                        border-color: $border-light;
+                        color: $text-secondary;
+                        background: transparent;
+                        font-size: 0.78rem;
+                        &:hover { background: $border-color; color: $text-primary; }
+                    }
+                }
+            }
+
+            .o_ai_brain_loading {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                color: $sgc-gold;
+                p { margin: 0; font-size: 0.9rem; color: $text-secondary; font-style: italic; }
+            }
+
+            .o_ai_brain_empty {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                text-align: center;
+                padding: 40px;
+
+                .fa { color: $sgc-gold; opacity: 0.25; }
+                p { margin: 0; font-size: 0.93rem; color: $text-muted; }
+                .o_ai_empty_sub { font-size: 0.8rem; color: $text-muted; opacity: 0.55; margin-top: 4px; }
+            }
+
+            // Report body — scrollable, slightly elevated background for contrast
+            .o_ai_brain_result_body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px 26px;
+                font-size: 0.88rem;
+                line-height: 1.7;
+                color: $text-primary;
+                background: $bg-elevated;
+
+                &::-webkit-scrollbar { width: 5px; }
+                &::-webkit-scrollbar-track { background: transparent; }
+                &::-webkit-scrollbar-thumb { background: $border-light; border-radius: 4px; }
+
+                h1 { font-size: 1.35rem; font-weight: 700; color: $text-primary; border-bottom: 1px solid $border-color; padding-bottom: 10px; margin: 0 0 18px; }
+                h2 { font-size: 1.1rem; font-weight: 700; color: $sgc-gold; margin: 20px 0 12px; }
+                h3 { font-size: 0.95rem; font-weight: 700; color: $text-secondary; margin: 14px 0 8px; }
+                p  { margin: 6px 0 10px; color: $text-secondary; }
+                hr { border: none; border-top: 1px solid $border-color; margin: 14px 0; }
+                ul, ol { padding-left: 20px; margin: 5px 0 10px; color: $text-secondary; }
+                li { margin: 3px 0; }
+                strong { font-weight: 700; color: $text-primary; }
+
+                // KPI metric cards
+                .ai-metric-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+                    gap: 12px;
+                    margin: 12px 0 18px;
+                }
+                .ai-metric-card {
+                    border: 1px solid $border-color;
+                    border-radius: 10px;
+                    padding: 14px 16px;
+                    background: $bg-card;
+
+                    .ai-metric-label { font-size: 0.7rem; color: $text-muted; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; }
+                    .ai-metric-value { font-size: 1.75rem; font-weight: 700; color: $text-primary; margin-top: 6px; line-height: 1.15; }
+                    .ai-metric-sub   { font-size: 0.75rem; color: $text-muted; margin-top: 4px; }
+
+                    &.danger  { border-color: #7f1d1d; background: #180808; .ai-metric-value { color: #f87171; } }
+                    &.warning { border-color: #78350f; background: #180f04; .ai-metric-value { color: #fbbf24; } }
+                    &.success { border-color: #14532d; background: #061310; .ai-metric-value { color: #4ade80; } }
+                }
+
+                // Progress bars
+                .ai-progress-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+                    gap: 14px;
+                    margin: 12px 0 18px;
+                }
+                .ai-progress-item {
+                    background: $bg-card;
+                    border: 1px solid $border-color;
+                    border-radius: 10px;
+                    padding: 12px 14px;
+
+                    .ai-progress-label { font-size: 0.7rem; color: $text-muted; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+                    .ai-progress-track { height: 6px; background: $border-color; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+                    .ai-progress-fill  { height: 100%; border-radius: 4px; background: $sgc-gold; min-width: 4px; }
+                    .ai-progress-pct   { font-size: 1.5rem; font-weight: 700; color: $text-primary; }
+                    .ai-progress-sub   { font-size: 0.72rem; color: $text-muted; }
+
+                    &.danger  .ai-progress-fill { background: #ef4444; }
+                    &.warning .ai-progress-fill { background: #f59e0b; }
+                    &.success .ai-progress-fill { background: #22c55e; }
+                    &.info    .ai-progress-fill { background: #3b82f6; }
+                }
+
+                // Data tables
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 10px 0 16px;
+                    font-size: 0.83rem;
+                    background: $bg-card;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    border: 1px solid $border-color;
+
+                    thead tr {
+                        background: $bg-elevated;
+                        th {
+                            padding: 9px 12px;
+                            text-align: left;
+                            font-weight: 700;
+                            font-size: 0.72rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.06em;
+                            border-bottom: 1px solid $border-color;
+                            color: $sgc-gold;
+                        }
+                    }
+                    tbody tr {
+                        border-bottom: 1px solid $border-color;
+                        &:last-child { border-bottom: none; }
+                        &:hover { background: $bg-elevated; }
+                        td { padding: 8px 12px; vertical-align: top; color: $text-secondary; }
+                    }
+                }
+
+                // Badges
+                .badge-ok, .badge-warn, .badge-danger, .badge-info {
+                    display: inline-block;
+                    padding: 2px 9px;
+                    border-radius: 9999px;
+                    font-size: 0.7rem;
+                    font-weight: 700;
+                }
+                .badge-ok     { background: #14532d; color: #4ade80; }
+                .badge-warn   { background: #78350f; color: #fbbf24; }
+                .badge-danger { background: #7f1d1d; color: #f87171; }
+                .badge-info   { background: #1e3a5f; color: #60a5fa; }
+
+                // Alert blocks
+                .ai-alert {
+                    border-left: 3px solid;
+                    padding: 10px 14px;
+                    margin: 10px 0;
+                    border-radius: 0 8px 8px 0;
+                    font-size: 0.85rem;
+
+                    &.critical { border-color: #ef4444; background: #180808; color: #f87171; }
+                    &.warning  { border-color: #f59e0b; background: #180f04; color: #fbbf24; }
+                    &.info     { border-color: #3b82f6; background: #080f1e; color: #60a5fa; }
+                    &.success  { border-color: $sgc-gold; background: #061310; color: $sgc-gold-light; }
+                }
+            }
+        }
+
+        // ── BOTTOM 25%: CHAT AREA ────────────────────────────────────────────
+        .o_ai_brain_chat {
+            flex: 1;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            background: $bg-surface;
+
+            .o_ai_chat_header {
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 6px 16px;
+                background: $bg-elevated;
+                border-top: 1px solid $border-color;
+                border-bottom: 1px solid $border-color;
+                font-size: 0.78rem;
+                font-weight: 700;
+                color: $text-secondary;
+                min-height: 34px;
+
+                .fa { margin-right: 5px; color: $sgc-gold; }
+
+                .btn-link {
+                    font-size: 0.72rem;
+                    color: $text-muted;
+                    padding: 0;
+                    text-decoration: none;
+                    &:hover { color: #ef4444; }
+                    .fa { color: inherit; margin-right: 3px; }
+                }
+            }
+
+            // ── INPUT BAR ─────────────────────────────────────────────────────
+            .o_ai_brain_input_bar {
+                flex-shrink: 0;
+                display: flex;
+                align-items: stretch;
+                background: $bg-elevated;
+                border-top: 1px solid $border-color;
+                min-height: 46px;
+
+                .o_ai_message_input {
+                    flex: 1;
+                    padding: 12px 16px;
+                    border: none;
+                    outline: none;
+                    font-size: 0.88rem;
+                    color: $text-primary;
+                    background: transparent;
+                    min-width: 0;
+
+                    &::placeholder { color: $text-muted; }
+                    &:disabled { opacity: 0.5; }
+                }
+
+                .o_ai_send_btn {
+                    flex-shrink: 0;
+                    width: 50px;
+                    background: $sgc-gold;
+                    color: #000;
+                    border: none;
+                    cursor: pointer;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: background 0.15s;
+
+                    &:hover:not(:disabled) { background: $sgc-gold-light; }
+                    &:disabled { background: $border-color; cursor: not-allowed; color: $text-muted; }
+                }
+            }
+        }
+    }
+}
+
+// ── MOBILE RESPONSIVE ────────────────────────────────────────────────────────
+@media (max-width: 767px) {
+    .o_ai_brain_panel .o_ai_brain_layout {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 96px);
+
+        // Sidebar becomes a horizontal scrollable strip at the top
+        .o_ai_brain_sidebar {
+            width: 100%;
+            min-width: 0;
+            flex-direction: row;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 8px 10px;
+            border-right: none;
+            border-bottom: 1px solid $border-color;
+
+            &::-webkit-scrollbar { height: 3px; }
+
+            .o_ai_sidebar_title { display: none; }
+
+            .o_ai_brain_btn_list {
+                flex-direction: row;
+                flex-wrap: nowrap;
+                width: max-content;
+                gap: 6px;
+            }
+
+            .o_ai_brain_btn {
+                white-space: nowrap;
+                width: auto;
+                padding: 6px 10px;
+                font-size: 0.72rem;
+            }
+        }
+
+        // Main area fills remaining height, chat input always accessible
+        .o_ai_brain_main {
+            flex: 1;
+            min-height: 0;
+
+            .o_ai_brain_output { flex: 1; min-height: 200px; }
+
+            .o_ai_brain_chat {
+                min-height: 90px;
+
+                .o_ai_brain_input_bar {
+                    min-height: 52px;
+
+                    .o_ai_message_input {
+                        font-size: 1rem; // prevents iOS auto-zoom on focus
+                        padding: 14px 16px;
+                    }
+
+                    .o_ai_send_btn { width: 56px; font-size: 1.1rem; }
+                }
+            }
+        }
+    }
+}

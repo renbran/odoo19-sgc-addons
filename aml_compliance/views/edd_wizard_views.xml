@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ======================================= -->
+    <!-- EDD Wizard Views                        -->
+    <!-- ======================================= -->
+
+    <!-- EDD Wizard Form -->
+    <record id="view_edd_wizard_form" model="ir.ui.view">
+        <field name="name">aml.edd.wizard.form</field>
+        <field name="model">aml.edd.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Enhanced Due Diligence Questionnaire">
+                <header>
+                    <button name="action_start_questionnaire"
+                            string="Start Questionnaire"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_complete_questionnaire"
+                            string="Complete EDD"
+                            type="object"
+                            class="btn-success"
+                            invisible="state != 'in_progress'"/>
+                    <button special="cancel"
+                            string="Cancel"
+                            invisible="state == 'completed'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,completed"/>
+                </header>
+                <sheet>
+                    <!-- Risk Banner -->
+                    <div class="alert alert-danger" role="alert"
+                         invisible="risk_level != 'very_high'">
+                        <span class="fa fa-exclamation-triangle"/> <strong>Very High Risk Customer</strong>
+                        — Full EDD Required. MLRO approval mandatory before onboarding.
+                    </div>
+                    <div class="alert alert-warning" role="alert"
+                         invisible="risk_level != 'high'">
+                        <span class="fa fa-exclamation-circle"/> <strong>High Risk Customer</strong>
+                        — Enhanced Due Diligence Required.
+                    </div>
+
+                    <group string="Application Details">
+                        <field name="kyc_application_id" readonly="1"/>
+                        <field name="partner_id" readonly="1"/>
+                        <field name="risk_level" readonly="1"/>
+                        <field name="edd_date" readonly="1"/>
+                        <field name="edd_officer_id" readonly="1"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Source of Funds" name="sof">
+                            <group>
+                                <group string="Verification">
+                                    <field name="sof_verified"/>
+                                </group>
+                                <group string="Details">
+                                    <field name="sof_details"
+                                           invisible="sof_verified == 'pending'"
+                                           placeholder="Provide details on source of funds..."/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Source of Wealth" name="sow">
+                            <group>
+                                <group string="Verification">
+                                    <field name="sow_verified"/>
+                                </group>
+                                <group string="Details">
+                                    <field name="sow_details"
+                                           invisible="sow_verified == 'pending'"
+                                           placeholder="Provide details on source of wealth..."/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Business Activity" name="business">
+                            <group>
+                                <group string="Verification">
+                                    <field name="business_activity_verified"/>
+                                </group>
+                                <group string="Details">
+                                    <field name="business_activity_details"
+                                           invisible="business_activity_verified == 'pending'"
+                                           placeholder="Describe business activities..."/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="PEP &amp; Adverse Media" name="pep_media">
+                            <group>
+                                <group string="PEP Check">
+                                    <field name="pep_check_performed"/>
+                                    <field name="pep_result"
+                                           invisible="not pep_check_performed"/>
+                                    <field name="pep_details"
+                                           invisible="not pep_check_performed"/>
+                                </group>
+                                <group string="Adverse Media">
+                                    <field name="adverse_media_check"/>
+                                    <field name="adverse_media_result"
+                                           invisible="not adverse_media_check"/>
+                                    <field name="adverse_media_details"
+                                           invisible="not adverse_media_check"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Beneficial Owners" name="ubo">
+                            <group>
+                                <group string="UBO Verification">
+                                    <field name="ubo_verification"/>
+                                </group>
+                                <group string="Details">
+                                    <field name="ubo_details"
+                                           invisible="ubo_verification == 'pending'"
+                                           placeholder="List ultimate beneficial owners..."/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Assessment" name="assessment">
+                            <group>
+                                <field name="risk_rating_confirmed"/>
+                                <field name="additional_notes"
+                                       placeholder="Additional notes or observations..."/>
+                            </group>
+                            <group string="Final Assessment">
+                                <field name="overall_assessment" required="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- EDD Wizard Action -->
+    <record id="action_edd_wizard" model="ir.actions.act_window">
+        <field name="name">Enhanced Due Diligence</field>
+        <field name="res_model">aml.edd.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Loading EDD Questionnaire...
+            </p>
+        </field>
+    </record>
+
+    <!-- EDD Response List View -->
+    <record id="view_edd_response_list" model="ir.ui.view">
+        <field name="name">aml.edd.response.list</field>
+        <field name="model">aml.edd.response</field>
+        <field name="arch" type="xml">
+            <list string="EDD Responses" decoration-success="overall_assessment == 'approved'"
+                   decoration-warning="overall_assessment == 'approved_conditions'"
+                   decoration-danger="overall_assessment in ('rejected', 'further_review')">
+                <field name="id"/>
+                <field name="partner_id"/>
+                <field name="edd_date"/>
+                <field name="risk_level" widget="badge"/>
+                <field name="edd_officer_id"/>
+                <field name="overall_assessment" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- EDD Response Form View -->
+    <record id="view_edd_response_form" model="ir.ui.view">
+        <field name="name">aml.edd.response.form</field>
+        <field name="model">aml.edd.response</field>
+        <field name="arch" type="xml">
+            <form string="EDD Response">
+                <sheet>
+                    <group>
+                        <group string="Details">
+                            <field name="kyc_application_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="risk_level" readonly="1"/>
+                            <field name="edd_date" readonly="1"/>
+                            <field name="edd_officer_id" readonly="1"/>
+                        </group>
+                        <group string="Assessment">
+                            <field name="overall_assessment" widget="badge"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Source of Funds">
+                            <group>
+                                <field name="sof_verified"/>
+                                <field name="sof_details"/>
+                            </group>
+                        </page>
+                        <page string="Source of Wealth">
+                            <group>
+                                <field name="sow_verified"/>
+                                <field name="sow_details"/>
+                            </group>
+                        </page>
+                        <page string="Business Activity">
+                            <group>
+                                <field name="business_activity_verified"/>
+                                <field name="business_activity_details"/>
+                            </group>
+                        </page>
+                        <page string="PEP &amp; Media">
+                            <group>
+                                <field name="pep_check_performed"/>
+                                <field name="pep_result"/>
+                                <field name="pep_details"/>
+                                <field name="adverse_media_check"/>
+                                <field name="adverse_media_result"/>
+                                <field name="adverse_media_details"/>
+                            </group>
+                        </page>
+                        <page string="UBO">
+                            <group>
+                                <field name="ubo_verification"/>
+                                <field name="ubo_details"/>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <field name="additional_notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- EDD Response Action -->
+    <record id="action_edd_response" model="ir.actions.act_window">
+        <field name="name">EDD Responses</field>
+        <field name="res_model">aml.edd.response</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

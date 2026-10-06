@@ -1,0 +1,16 @@
+{
+    'name': 'Base Account Budget',
+    'author': 'SGC TECH AI',
+    'website_alt': 'https://www.scholarixglobal.com',
+    'website': 'https://www.sgctech.ai',
+    'mobile': '+971-52-198-5231',
+    'support': 'info@sgctech.ai',
+    'version': '19.0.1.0.0',
+    'summary': 'Recovered manifest for base_account_budget',
+    'category': 'Tools',
+    'depends': ['account', 'base'],
+    'data': [],
+    'installable': True,
+    'application': False,
+    'license': 'LGPL-3',
+}

@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <!-- 14 persona prompt templates using the General Assistant Template pattern
+         with {{ role }}, {{ goal }}, {{ background }}, {{ instructions }}, {{ footer }} variables
+         as defined in the existing llm_prompt_assistant (xml_id: llm_assistant.llm_prompt_assistant) -->
+
+    <record id="prompt_finance_analyst" model="llm.prompt">
+        <field name="name">SGC Finance Analyst</field>
+        <field name="description">Prompt template for the Finance Analyst persona — cash, receivables, payables, P&amp;L, VAT, reconciliation</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+- If data is missing, say so clearly.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_aml_officer" model="llm.prompt">
+        <field name="name">SGC AML Officer</field>
+        <field name="description">Prompt template for the AML Compliance Officer persona — risk assessments, KYC, transaction monitoring, sanctions</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+- If data is missing, say so clearly.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_hr_assistant" model="llm.prompt">
+        <field name="name">SGC HR Assistant</field>
+        <field name="description">Prompt template for the HR Assistant persona — headcount, leaves, payroll</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+- Some modules may be absent (hr_holidays, hr_payroll) — indicate gracefully.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_sales_analyst" model="llm.prompt">
+        <field name="name">SGC Sales Analyst</field>
+        <field name="description">Prompt template for the Sales Analyst persona — CRM pipeline, sales performance, orders</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_operations_manager" model="llm.prompt">
+        <field name="name">SGC Operations Manager</field>
+        <field name="description">Prompt template for the Operations Manager persona — stock, inventory, manufacturing</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <!-- Personas 6-14: TODO confirm exact persona names/scope with owner -->
+    <record id="prompt_inventory_specialist" model="llm.prompt">
+        <field name="name">SGC Inventory Specialist</field>
+        <field name="description">TODO confirm with owner — Inventory Specialist prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_customer_support" model="llm.prompt">
+        <field name="name">SGC Customer Support</field>
+        <field name="description">TODO confirm with owner — Customer Support persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_marketing_analyst" model="llm.prompt">
+        <field name="name">SGC Marketing Analyst</field>
+        <field name="description">TODO confirm with owner — Marketing Analyst persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_project_manager" model="llm.prompt">
+        <field name="name">SGC Project Manager</field>
+        <field name="description">TODO confirm with owner — Project Manager persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_procurement_officer" model="llm.prompt">
+        <field name="name">SGC Procurement Officer</field>
+        <field name="description">TODO confirm with owner — Procurement Officer persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_compliance_auditor" model="llm.prompt">
+        <field name="name">SGC Compliance Auditor</field>
+        <field name="description">TODO confirm with owner — Compliance Auditor persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_executive_assistant" model="llm.prompt">
+        <field name="name">SGC Executive Assistant</field>
+        <field name="description">TODO confirm with owner — Executive Assistant persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_it_support" model="llm.prompt">
+        <field name="name">SGC IT Support</field>
+        <field name="description">TODO confirm with owner — IT Support persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+
+    <record id="prompt_data_analyst" model="llm.prompt">
+        <field name="name">SGC Data Analyst</field>
+        <field name="description">TODO confirm with owner — Data Analyst persona prompt template</field>
+        <field name="category_id" ref="llm_assistant.category_general"/>
+        <field name="tag_ids" eval="[(6, 0, [ref('llm_assistant.tag_assistant')])]"/>
+        <field name="format">text</field>
+        <field name="arguments_json">{ "role": {"type": "string", "description": "The role of this assistant", "required": true}, "goal": {"type": "string", "description": "The primary goal", "required": true}, "background": {"type": "string", "description": "Background context", "required": true}, "instructions": {"type": "string", "description": "Specific instructions", "required": true}, "footer": {"type": "string", "description": "Optional footer", "required": false, "default": ""} }</field>
+        <field name="template"><![CDATA[You are a {{ role }}.
+
+Your goal is to {{ goal }}
+
+Background: {{ background }}
+
+Instructions: {{ instructions }}
+
+OUTPUT FORMAT:
+- Use structured HTML with metric cards, tables, and alerts.
+- Every number MUST come from live data — never invent figures.
+
+{{ footer }}]]></field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

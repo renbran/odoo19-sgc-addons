@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- KYC APPLICATION REPORT ACTION -->
+        <record id="kyc_application_report_template" model="ir.actions.report">
+            <field name="name">KYC Application Report</field>
+            <field name="model">kyc.application</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kyc_management.report_kyc_application</field>
+            <field name="print_report_name">'KYC_Application_%s' % object.kyc_id</field>
+        </record>
+
+        <!-- KYC APPLICATION QWeb REPORT TEMPLATE -->
+        <template id="report_kyc_application">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <head>
+                        <meta charset="UTF-8"/>
+                        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+                    </head>
+                    <style>
+                        @page { 
+                            margin: 0.5in 0.6in 0.7in 0.6in; 
+                            background: linear-gradient(to bottom, #ffffff 0%, #f9f7f4 50%, #ffffff 100%);
+                        }
+                        body { 
+                            font-family: 'Arial', sans-serif; 
+                            font-size: 14px; 
+                            margin: 0; 
+                            padding: 0; 
+                            background-color: #ffffff;
+                        }
+                        .page { 
+                            padding: 0 20px; 
+                            background-color: transparent;
+                            margin: 0;
+                        }
+                        .header-section { 
+                            margin-bottom: 16px; 
+                            border-bottom: 3px solid #800020; 
+                            padding-bottom: 12px; 
+                            padding-top: 8px;
+                            background-color: rgba(128, 0, 32, 0.01);
+                            border-radius: 2px;
+                        }
+                        .header-title { 
+                            text-align: center; 
+                            margin-bottom: 8px; 
+                        }
+                        .header-title h1 { 
+                            color: #800020; 
+                            margin: 0; 
+                            font-size: 24px; 
+                            line-height: 1.3; 
+                            font-weight: bold; 
+                            letter-spacing: 0.5px; 
+                        }
+                        .header-title h2 { 
+                            color: #800020; 
+                            margin: 0; 
+                            font-size: 14px; 
+                            line-height: 1.4; 
+                            font-weight: 600; 
+                        }
+                        .status-badge { 
+                            display: inline-block; 
+                            padding: 6px 14px; 
+                            border-radius: 4px; 
+                            font-weight: bold; 
+                            font-size: 11px; 
+                            margin-top: 8px;
+                            border: 2px solid #800020;
+                        }
+                        .status-draft { background-color: #e3f2fd; color: #1976d2; border-color: #1976d2; }
+                        .status-submitted { background-color: #f3e5f5; color: #7b1fa2; border-color: #7b1fa2; }
+                        .status-pending { background-color: #fff3e0; color: #f57c00; border-color: #f57c00; }
+                        .status-approved { background-color: #e8f5e9; color: #388e3c; border-color: #388e3c; }
+                        .status-rejected { background-color: #ffebee; color: #d32f2f; border-color: #d32f2f; }
+                        .meta-info { width: 100%; margin-top: 8px; margin-bottom: 10px; background-color: rgba(128, 0, 32, 0.01); padding: 6px 0; }
+                        .meta-info td { padding: 6px 8px; font-size: 12px; line-height: 1.5; }
+                        .meta-label { font-weight: bold; color: #333; width: 20%; }
+                        .meta-value { color: #555; }
+                        .section-title { 
+                            color: white; 
+                            font-size: 13px; 
+                            font-weight: bold; 
+                            background: linear-gradient(to right, #800020 0%, #a00028 100%);
+                            padding: 10px 12px; 
+                            margin: 14px 0 10px 0; 
+                            border-left: 5px solid #600018; 
+                            line-height: 1.4;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            border-radius: 2px;
+                        }
+                        .info-table { width: 100%; margin-bottom: 12px; border-collapse: collapse; background-color: transparent; }
+                        .info-table tr { border-bottom: 1px solid #e0d5ce; }
+                        .info-table td { padding: 10px 6px; font-size: 13px; line-height: 1.5; }
+                        .label { font-weight: bold; color: #333; width: 22%; }
+                        .label-ar { display: block; font-size: 10px; color: #666; font-weight: normal; margin-top: 3px; direction: rtl; }
+                        .section-title-ar { display: block; font-size: 11px; color: #555; font-weight: normal; margin-top: 3px; direction: rtl; }
+                        .value { color: #555; word-wrap: break-word; }
+                        .signature-box { border: 2px solid #d4c5be; padding: 14px; margin: 12px 0; text-align: center; min-height: 100px; background-color: #faf7f4; overflow: visible; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+                        .signature-box img { max-height: 100px; max-width: 90%; height: auto; }
+                        .sig-info { display: table; width: 100%; padding: 8px 0; margin-top: 10px; }
+                        .sig-cell { display: table-cell; width: 33%; padding: 8px 6px; font-size: 12px; border-top: 1px solid #d4c5be; text-align: left; line-height: 1.4; background-color: rgba(128, 0, 32, 0.01); }
+                        .sig-label { font-weight: bold; font-size: 12px; color: #800020; }
+                        .sig-section { margin-bottom: 14px; }
+                        .section-group { margin-bottom: 12px; }
+                        .footer-info { 
+                            text-align: center; 
+                            font-size: 10px; 
+                            color: #666; 
+                            margin-top: 20px; 
+                            padding-top: 14px;
+                            padding-bottom: 12px;
+                            border-top: 3px solid #800020;
+                            line-height: 1.6;
+                            background-color: rgba(128, 0, 32, 0.01);
+                        }
+                        .pep-warning { background-color: #fff3cd; border-left: 5px solid #800020; padding: 12px; margin: 12px 0; color: #d32f2f; font-weight: bold; font-size: 13px; line-height: 1.6; border-radius: 3px; }
+                        .checkmark { color: #4caf50; }
+                        .xmark { color: #f44336; }
+                    </style>
+
+                    <div class="page" style="padding: 0 20px;">
+                        <!-- HEADER -->
+                        <div class="header-section">
+                            <div class="header-title">
+                                <h1>OSUS REAL ESTATE BROKERAGE L.L.C</h1>
+                                <h2>KYC Application Report<br/><span style="font-size: 10px; color: #555;">تقرير طلب اعرف عميلك</span></h2>
+                                <t t-set="status_colors" t-value="{'draft': 'status-draft', 'submitted': 'status-submitted', 'pending_review': 'status-pending', 'approved': 'status-approved', 'rejected': 'status-rejected'}"/>
+                                <span t-attf-class="status-badge {status_colors.get(o.state, 'status-draft')}">
+                                    <t t-esc="dict(o._fields['state'].selection).get(o.state).upper()"/>
+                                </span>
+                            </div>
+                            <table class="meta-info">
+                                <tr>
+                                    <td class="meta-label">KYC ID:</td>
+                                    <td class="meta-value"><t t-esc="o.kyc_id"/></td>
+                                    <td class="meta-label" style="text-align: right;">Submission Date:</td>
+                                    <td class="meta-value" style="text-align: right;"><t t-esc="o.create_date.strftime('%B %d, %Y') if o.create_date else 'N/A'"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- PERSONAL & IDENTIFICATION -->
+                        <div class="section-group">
+                            <div class="section-title">Personal &amp; Identification<span class="section-title-ar">المعلومات الشخصية والهوية</span></div>
+                            <table class="info-table">
+                                <tr>
+                                    <td class="label">Full Name:<span class="label-ar">الاسم الكامل</span></td>
+                                    <td class="value"><t t-esc="o.first_name"/> <t t-esc="o.last_name"/></td>
+                                    <td class="label">Date of Birth:<span class="label-ar">تاريخ الميلاد</span></td>
+                                    <td class="value"><t t-esc="o.date_of_birth"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Email:<span class="label-ar">البريد الإلكتروني</span></td>
+                                    <td class="value"><t t-esc="o.email"/></td>
+                                    <td class="label">Phone:<span class="label-ar">الهاتف</span></td>
+                                    <td class="value"><t t-esc="o.phone"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Gender:<span class="label-ar">الجنس</span></td>
+                                    <td class="value"><t t-esc="dict(o._fields['gender'].selection or []).get(o.gender, '')"/></td>
+                                    <td class="label">Nationality:<span class="label-ar">الجنسية</span></td>
+                                    <td class="value"><t t-esc="o.nationality_id.name if o.nationality_id else 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Passport No:<span class="label-ar">رقم جواز السفر</span></td>
+                                    <td class="value"><t t-esc="o.passport_number or 'N/A'"/></td>
+                                    <td class="label">Passport Valid:<span class="label-ar">صلاحية الجواز</span></td>
+                                    <td class="value"><t t-if="o.is_passport_valid"><span class="checkmark">[VALID]</span></t><t t-else=""><span class="xmark">[EXPIRED]</span></t></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Emirates ID:<span class="label-ar">الهوية الإماراتية</span></td>
+                                    <td class="value"><t t-esc="o.emirates_id or 'N/A'"/></td>
+                                    <td class="label">Issue/Expiry:<span class="label-ar">الإصدار/الانتهاء</span></td>
+                                    <td class="value"><t t-esc="o.passport_issue_date"/> to <t t-esc="o.passport_expiry_date"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- ADDRESS -->
+                        <div class="section-group">
+                            <div class="section-title">Residential Address<span class="section-title-ar">عنوان السكن</span></div>
+                            <table class="info-table">
+                                <tr>
+                                    <td class="label">Address:<span class="label-ar">العنوان</span></td>
+                                    <td colspan="3" class="value"><t t-out="o.residential_address or 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">City:<span class="label-ar">المدينة</span></td>
+                                    <td class="value"><t t-out="o.residential_city or 'N/A'"/></td>
+                                    <td class="label">State/Emirate:<span class="label-ar">الولاية/الإمارة</span></td>
+                                    <td class="value"><t t-out="o.residential_state or 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Country:<span class="label-ar">البلد</span></td>
+                                    <td class="value"><t t-esc="o.residential_country_id.name if o.residential_country_id else 'N/A'"/></td>
+                                    <td class="label">Postal Code:<span class="label-ar">الرمز البريدي</span></td>
+                                    <td class="value"><t t-out="o.residential_postal_code or 'N/A'"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- EMPLOYMENT -->
+                        <div class="section-group">
+                            <div class="section-title">Employment Details<span class="section-title-ar">تفاصيل العمل</span></div>
+                            <table class="info-table">
+                                <tr>
+                                    <td class="label">Status:<span class="label-ar">الحالة</span></td>
+                                    <td class="value"><t t-esc="dict(o._fields['employment_status'].selection or []).get(o.employment_status, '')"/></td>
+                                    <td class="label">Occupation:<span class="label-ar">المهنة</span></td>
+                                    <td class="value"><t t-esc="o.occupation or 'N/A'"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Employer:<span class="label-ar">صاحب العمل</span></td>
+                                    <td class="value"><t t-esc="o.employer_name or 'N/A'"/></td>
+                                    <td class="label">Years in Role:<span class="label-ar">سنوات الخدمة</span></td>
+                                    <td class="value"><t t-esc="o.years_in_role or '0'"/> years</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- FINANCIAL -->
+                        <div class="section-group">
+                            <div class="section-title">Financial Information<span class="section-title-ar">المعلومات المالية</span></div>
+                            <table class="info-table">
+                                <tr>
+                                    <td class="label">Annual Income:<span class="label-ar">الدخل السنوي</span></td>
+                                    <td class="value"><t t-esc="'{:,.2f}'.format(o.annual_income or 0)"/> <t t-esc="o.currency_id.name if o.currency_id else 'AED'"/></td>
+                                    <td class="label">Purpose:<span class="label-ar">الغرض</span></td>
+                                    <td class="value"><t t-esc="dict(o._fields['purpose_of_transaction'].selection or []).get(o.purpose_of_transaction, 'N/A')"/></td>
+                                </tr>
+                                <tr>
+                                    <td class="label">Payment Method:<span class="label-ar">طريقة الدفع</span></td>
+                                    <td class="value"><t t-esc="dict(o._fields['payment_method'].selection or []).get(o.payment_method, 'N/A')"/></td>
+                                    <td class="label">Source of Funds:<span class="label-ar">مصدر الأموال</span></td>
+                                    <td class="value"><t t-esc="', '.join(o.source_of_funds_ids.mapped('name')) if o.source_of_funds_ids else 'N/A'"/></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- RISK ASSESSMENT -->
+                        <div class="section-group">
+                            <div class="section-title">Risk Assessment<span class="section-title-ar">تقييم المخاطر</span></div>
+                            <t t-if="o.politically_exposed_person == 'yes'">
+                                <div class="pep-warning">[WARNING] POLITICALLY EXPOSED PERSON (PEP)<br/><t t-esc="o.pep_details or 'Details provided'"/></div>
+                            </t>
+                            <t t-else=""><p style="color: #4caf50; margin: 8px 0; font-size: 12px;"><strong>[OK] Not a Politically Exposed Person</strong></p></t>
+                        </div>
+
+                        <!-- CONSENTS -->
+                        <div class="section-group">
+                            <div class="section-title">Consents &amp; Agreements<span class="section-title-ar">الموافقات والاتفاقيات</span></div>
+                            <table style="width: 100%; font-size: 13px;">
+                                <tr>
+                                    <td style="width: 50%; padding: 8px;"><t t-if="o.consent_terms_conditions"><span class="checkmark">[OK]</span></t><t t-else=""><span class="xmark">[NO]</span></t> Terms and Conditions<br/><span style="font-size: 10px; color: #666; direction: rtl;">الشروط والأحكام</span></td>
+                                    <td style="width: 50%; padding: 8px;"><t t-if="o.consent_privacy_policy"><span class="checkmark">[OK]</span></t><t t-else=""><span class="xmark">[NO]</span></t> Privacy Policy<br/><span style="font-size: 10px; color: #666; direction: rtl;">سياسة الخصوصية</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;"><t t-if="o.consent_data_processing"><span class="checkmark">[OK]</span></t><t t-else=""><span class="xmark">[NO]</span></t> Data Processing<br/><span style="font-size: 10px; color: #666; direction: rtl;">معالجة البيانات</span></td>
+                                    <td style="padding: 8px;"><t t-if="o.consent_aml_kyc"><span class="checkmark">[OK]</span></t><t t-else=""><span class="xmark">[NO]</span></t> AML/KYC Verification<br/><span style="font-size: 10px; color: #666; direction: rtl;">التحقق من مكافحة غسل الأموال</span></td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- APPLICANT SIGNATURE -->
+                        <div class="sig-section">
+                            <div class="section-title">Applicant Signature and Declaration<span class="section-title-ar">توقيع المتقدم والإقرار</span></div>
+                            <p style="margin: 12px 0; font-size: 12px; line-height: 1.5;">I hereby certify the information provided is true and complete. False information may result in legal consequences.</p>
+                            <div class="signature-box">
+                                <t t-if="o.signature_image"><img t-att-src="image_data_uri(o.signature_image)" alt="Applicant Signature"/></t>
+                                <t t-else=""><p style="font-size: 9px; color: #999; margin: 0;">Signature not captured</p></t>
+                            </div>
+                                <div class="sig-info">
+                                    <div class="sig-cell"><span class="sig-label">Signed by:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">وقعه</span></span><br/><t t-esc="o.first_name"/> <t t-esc="o.last_name"/></div>
+                                    <div class="sig-cell"><span class="sig-label">Date:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">التاريخ</span></span><br/><t t-if="o.signature_timestamp"><t t-esc="o.signature_timestamp.strftime('%b %d, %Y')"/></t><t t-else="">-</t></div>
+                                    <div class="sig-cell"><span class="sig-label">Location:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">الموقع</span></span><br/><t t-esc="o.signature_location or '-'"/></div>
+                            </div>
+                        </div>
+
+                        <!-- APPROVAL (if approved) -->
+                        <t t-if="o.state == 'approved'">
+                            <div class="sig-section">
+                                <div class="section-title">Approval Authorization<span class="section-title-ar">تفويض الموافقة</span></div>
+                                <p style="margin: 10px 0; font-size: 12px; line-height: 1.5;">Approved by authorized representative of OSUS Real Estate Brokerage L.L.C.</p>
+                                <div class="signature-box">
+                                    <t t-if="o.approver_signature"><img t-att-src="image_data_uri(o.approver_signature)" alt="Approver Signature"/></t>
+                                    <t t-else=""><p style="font-size: 9px; color: #999; margin: 0;">Signature not captured</p></t>
+                                </div>
+                                <div class="sig-info">
+                                    <div class="sig-cell"><span class="sig-label">Approved by:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">تمت الموافقة بواسطة</span></span><br/><t t-esc="o.approver_id.name if o.approver_id else 'N/A'"/></div>
+                                    <div class="sig-cell"><span class="sig-label">Date:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">التاريخ</span></span><br/><t t-if="o.approval_date"><t t-esc="o.approval_date.strftime('%b %d, %Y')"/></t><t t-else="">-</t></div>
+                                    <div class="sig-cell"><span class="sig-label">Status:<br/><span style="font-size: 10px; color: #666; font-weight: normal; direction: rtl;">الحالة</span></span><br/>Approved</div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- REJECTION (if rejected) -->
+                        <t t-if="o.state == 'rejected'">
+                            <div class="sig-section" style="background-color: #ffebee; border-left: 4px solid #d32f2f; padding: 12px; margin: 14px 0;">
+                                <div style="color: #d32f2f; font-weight: bold; margin-bottom: 10px; font-size: 12px;">REJECTION DETAILS</div>
+                                <table class="info-table">
+                                    <tr><td class="label">Reason:<span class="label-ar">السبب</span></td><td class="value"><t t-esc="o.rejection_reason or 'Not specified'"/></td></tr>
+                                    <tr><td class="label">Recommendations:<span class="label-ar">التوصيات</span></td><td class="value"><t t-esc="o.rejection_suggestions or 'Not specified'"/></td></tr>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- FOOTER -->
+                        <div class="footer-info">
+                            Confidential - For internal KYC/AML compliance purposes only.<br/>
+                            Generated: <t t-esc="datetime.datetime.now().strftime('%B %d, %Y')"/> | Doc ID: KYC-<t t-esc="o.kyc_id"/>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

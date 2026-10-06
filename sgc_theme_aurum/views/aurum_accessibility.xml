@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- WCAG Skip-to-content link for keyboard/screen-reader users -->
+    <template id="aurum_skip_link" inherit_id="web.frontend_layout" name="Aurum Skip Link">
+        <xpath expr="//header[@id='top']" position="before">
+            <a href="#wrap" class="aurum-skip-link">
+                Skip to main content
+            </a>
+        </xpath>
+    </template>
+</odoo>

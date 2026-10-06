@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+        <!-- ==================== KYC APPROVAL SEARCH VIEW ==================== -->
+        
+        <record id="view_kyc_approval_search" model="ir.ui.view">
+            <field name="name">kyc.approval.search</field>
+            <field name="model">kyc.approval</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="kyc_application_id"/>
+                    <field name="approver_id"/>
+                    <field name="approval_step"/>
+                    <field name="status"/>
+                    <!-- Note: risk_level is a computed field and is not searchable -->
+                    <!-- <field name="risk_level"/> -->
+                    
+                    <filter name="filter_pending" string="Pending" domain="[('status', '=', 'pending')]"/>
+                    <filter name="filter_in_progress" string="In Progress" domain="[('status', '=', 'in_progress')]"/>
+                    <filter name="filter_approved" string="Approved" domain="[('status', '=', 'approved')]"/>
+                    <filter name="filter_rejected" string="Rejected" domain="[('status', '=', 'rejected')]"/>
+                    <filter name="filter_needs_clarification" string="Needs Clarification" domain="[('status', '=', 'needs_clarification')]"/>
+                    
+                    <!-- Note: Filters using computed or non-existent fields have been commented out -->
+                    <!-- <filter name="filter_high_risk" string="High Risk" domain="[('risk_level', '=', 'high')]"/> -->
+                    <!-- <filter name="filter_pep" string="PEP Cases" domain="[('pep_check_result', 'in', ('potential', 'confirmed'))]"/> -->
+                    <!-- <filter name="filter_escalated" string="Escalated" domain="[('requires_escalation', '=', True)]"/> -->
+                    <!-- <filter name="filter_needs_docs" string="Documents Incomplete" domain="[('documents_complete', '=', False)]"/> -->
+
+                    <group>
+                        <filter name="group_by_status" string="Status" context="{'group_by': 'status'}"/>
+                        <filter name="group_by_step" string="Approval Step" context="{'group_by': 'approval_step'}"/>
+                        <!-- <filter name="group_by_risk_level" string="Risk Level" context="{'group_by': 'risk_level'}"/> -->
+                        <filter name="group_by_approver" string="Approver" context="{'group_by': 'approver_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPROVAL TREE VIEW ==================== -->
+        
+        <record id="view_kyc_approval_tree" model="ir.ui.view">
+            <field name="name">kyc.approval.tree</field>
+            <field name="model">kyc.approval</field>
+            <field name="arch" type="xml">
+                <list decoration-success="status == 'approved'" decoration-danger="status == 'rejected'" decoration-warning="risk_level == 'high'">
+                    <field name="kyc_application_id"/>
+                    <field name="partner_name"/>
+                    <field name="approver_id"/>
+                    <field name="status" decoration-success="status == 'approved'" decoration-danger="status == 'rejected'"/>
+                    <field name="approval_step"/>
+                    <field name="risk_level" decoration-danger="risk_level == 'high'" decoration-warning="risk_level == 'medium'"/>
+                    <field name="review_start_date"/>
+                    <field name="days_in_review" optional="hide"/>
+                    <field name="review_completion_percentage"/>
+                </list>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPROVAL FORM VIEW ==================== -->
+        
+        <record id="view_kyc_approval_form" model="ir.ui.view">
+            <field name="name">kyc.approval.form</field>
+            <field name="model">kyc.approval</field>
+            <field name="arch" type="xml">
+                <form class="o_kyc_form o_kyc_approval_form">
+                    <!-- Status Bar -->
+                    <header>
+                        <button name="action_start_review" string="Start Review" type="object" class="btn-primary"
+                                invisible="status != 'pending'"/>
+                        <button name="action_approve_kyc" string="Approve KYC" type="object" class="btn-success"
+                                invisible="status != 'in_progress'"/>
+                        <button name="action_reject_kyc" string="Reject KYC" type="object" class="btn-danger"
+                                invisible="status != 'in_progress'"/>
+                        <button name="%(kyc_management.action_kyc_clarification_wizard)d" string="Request Clarification" type="action" class="btn-warning"
+                            invisible="status != 'in_progress'"/>
+                        <button name="%(kyc_management.action_kyc_escalation_wizard)d" string="Escalate" type="action" class="btn-info"
+                            invisible="status not in ('pending', 'in_progress', 'needs_clarification')"/>
+                        <button name="action_reset_approval" string="Reset for Re-Review" type="object"
+                                class="btn-warning"
+                                invisible="status not in ('approved', 'rejected')"
+                                groups="kyc_management.group_kyc_admin"
+                                confirm="This will reset the approval back to In Progress and revert the linked application to Pending Review. Continue?"/>
+
+                        <field name="status" widget="statusbar" statusbar_visible="pending,in_progress,approved,rejected,needs_clarification"/>
+                    </header>
+                    
+                    <!-- Sheet -->
+                    <sheet class="o_kyc_sheet">
+                        <!-- Smart Buttons -->
+                        <div class="oe_button_box o_kyc_button_box" name="button_box">
+                            <button name="%(kyc_management.kyc_application_report_template)d" string="Print KYC" type="action" class="oe_stat_button" icon="fa-print">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Print</span>
+                                </div>
+                            </button>
+                            <button name="%(kyc_management.kyc_approval_summary_report_action)d" string="Print Approval Summary" type="action" class="oe_stat_button" icon="fa-file-text-o">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Summary</span>
+                                </div>
+                            </button>
+                        </div>
+                        
+                        <!-- Alerts -->
+                        <div class="alert alert-danger o_kyc_alert o_kyc_alert_danger" role="alert" invisible="risk_level != 'high'">
+                            <strong>High Risk Application:</strong> This application requires senior officer review before approval.
+                        </div>
+                        
+                        <div class="alert alert-warning o_kyc_alert o_kyc_alert_warning" role="alert" invisible="pep_check_result not in ('potential', 'confirmed')">
+                            <strong>PEP Flag:</strong> This applicant may be a Politically Exposed Person.
+                        </div>
+                        
+                        <div class="alert alert-info o_kyc_alert o_kyc_alert_info" role="alert" invisible="not requires_escalation">
+                            <strong>Escalated:</strong> This case has been escalated to <field name="escalated_to_id" readonly="1"/>.
+                        </div>
+                        
+                        <!-- Header -->
+                        <div class="oe_title o_kyc_title_block">
+                            <h1>
+                                KYC Approval: <field name="kyc_application_id" readonly="1"/>
+                            </h1>
+                            <div class="row o_kyc_summary_row">
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Status:</strong>
+                                    <field name="status" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Step:</strong>
+                                    <field name="approval_step" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Approver:</strong>
+                                    <field name="approver_id" readonly="1"/>
+                                </div>
+                                <div class="col-md-3 o_kyc_summary_item">
+                                    <strong>Completion:</strong>
+                                    <field name="review_completion_percentage" readonly="1" widget="progress"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabs -->
+                        <notebook>
+                            <!-- APPLICATION INFO TAB -->
+                            <page string="Application Information" name="application_info">
+                                <group>
+                                    <group string="Applicant Information">
+                                        <field name="kyc_application_id" readonly="1"/>
+                                        <field name="partner_name" readonly="1"/>
+                                        <field name="partner_email" readonly="1"/>
+                                        <field name="age" readonly="1"/>
+                                        <field name="kyc_state" readonly="1"/>
+                                    </group>
+                                    
+                                    <group string="Review Timeline">
+                                        <field name="review_start_date" readonly="1"/>
+                                        <field name="review_end_date" readonly="1"/>
+                                        <field name="days_in_review" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <!-- DOCUMENT VERIFICATION TAB -->
+                            <page string="Document Verification" name="document_verification">
+                                <group string="Document Completeness Check">
+                                    <field name="documents_complete" widget="boolean"/>
+                                    <field name="documents_complete_notes"/>
+                                </group>
+                                
+                                <group string="Document Verification">
+                                    <field name="documents_verified" widget="boolean"/>
+                                    <field name="document_verification_notes"/>
+                                </group>
+
+                                <group string="Financial Source Verification">
+                                    <field name="source_of_funds_verified" widget="boolean"/>
+                                    <field name="source_of_wealth_verified" widget="boolean"/>
+                                </group>
+
+                                <group string="Consent and Signature Verification">
+                                    <field name="signature_verified" widget="boolean"/>
+                                    <field name="consent_verified" widget="boolean"/>
+                                </group>
+                            </page>
+                            
+                            <!-- APPROVALS/REJECTIONS TAB -->
+                            <page string="Approval Decision" name="approval_decision">
+                                <group string="Approval Information">
+                                    <field name="approval_date" readonly="1"/>
+                                    <field name="approved_by_id" readonly="1"/>
+                                    <field name="conditions_for_approval"/>
+                                    <field name="approval_notes"/>
+                                </group>
+                                
+                                <group string="Rejection Information">
+                                    <field name="rejection_date" readonly="1"/>
+                                    <field name="rejected_by_id" readonly="1"/>
+                                    <field name="rejection_reason"/>
+                                    <field name="rejection_suggestions"/>
+                                </group>
+                            </page>
+                            
+                            <!-- CLARIFICATION TAB -->
+                            <page string="Clarifications" name="clarifications">
+                                <group string="Clarification Request">
+                                    <field name="clarification_requested" readonly="1" widget="boolean"/>
+                                    <field name="clarification_request_date" readonly="1"/>
+                                    <field name="clarification_details" readonly="1"/>
+                                </group>
+                                
+                                <group string="Applicant Response">
+                                    <field name="clarification_response"/>
+                                    <field name="clarification_response_date" readonly="1"/>
+                                    <field name="clarification_acceptor_id" readonly="1"/>
+                                </group>
+                            </page>
+                            
+                            <!-- ESCALATION TAB -->
+                            <page string="Escalation" name="escalation">
+                                <group string="Escalation Details">
+                                    <field name="requires_escalation" readonly="1" widget="boolean"/>
+                                    <field name="escalated_to_id" readonly="1"/>
+                                    <field name="escalation_date" readonly="1"/>
+                                    <field name="escalation_reason" readonly="1"/>
+                                </group>
+                            </page>
+                            
+                            <!-- COMMENTS TAB -->
+                            <page string="Reviewer Comments" name="reviewer_comments">
+                                <field name="reviewer_comments" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    
+                    <chatter reload_on_post="True">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="activity_ids" widget="mail_activity"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </chatter>
+                </form>
+            </field>
+        </record>
+        
+        <!-- ==================== KYC APPROVAL KANBAN VIEW ==================== -->
+        
+        <record id="view_kyc_approval_kanban" model="ir.ui.view">
+            <field name="name">kyc.approval.kanban</field>
+            <field name="model">kyc.approval</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kyc_kanban" default_group_by="status" quick_create="false">
+                    <field name="status"/>
+                    <field name="kyc_application_id"/>
+                    <field name="partner_name"/>
+                    <field name="approver_id"/>
+                    <field name="risk_level"/>
+                    <field name="approval_step"/>
+                    <field name="review_completion_percentage"/>
+                    <field name="pep_check_result"/>
+                    
+                    <templates>
+                        <t t-name="card">
+                            <div class="oe_kanban_card o_kyc_kanban_card">
+                                <div class="oe_kanban_content o_kyc_kanban_content">
+                                    <div class="oe_kanban_title o_kyc_kanban_title">
+                                        <strong><field name="kyc_application_id"/></strong>
+                                    </div>
+                                    <div class="oe_kanban_subtitle o_kyc_kanban_subtitle">
+                                        <field name="partner_name"/>
+                                    </div>
+                                    <div class="oe_kanban_text o_kyc_kanban_text">
+                                        <small>
+                                            <span t-if="record.risk_level.raw_value == 'high'" class="badge badge-danger">High Risk</span>
+                                            <span t-elif="record.risk_level.raw_value == 'medium'" class="badge badge-warning">Medium Risk</span>
+                                            <span t-else="" class="badge badge-success">Low Risk</span>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="oe_kanban_footer_left o_kyc_kanban_footer_left">
+                                        <small>
+                                            Step: <field name="approval_step"/>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="oe_kanban_footer_right o_kyc_kanban_footer_right">
+                                        <span t-if="record.pep_check_result.raw_value in ('potential', 'confirmed')" class="badge badge-danger">PEP</span>
+                                        <span class="badge badge-info"><field name="review_completion_percentage"/>%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="oe_kanban_card_bottom o_kyc_kanban_card_bottom" style="margin-top: 5px;">
+                                    <button name="action_start_review" string="Start" type="object" 
+                                            class="btn btn-sm btn-primary"
+                                            invisible="status != 'pending'"/>
+                                    <button name="action_approve_kyc" string="Approve" type="object" 
+                                            class="btn btn-sm btn-success"
+                                            invisible="status != 'in_progress'"/>
+                                    <button name="action_reject_kyc" string="Reject" type="object" 
+                                            class="btn btn-sm btn-danger"
+                                            invisible="status != 'in_progress'"/>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- ==================== ACTION WINDOWS ==================== -->
+        
+        <record id="action_kyc_approval" model="ir.actions.act_window">
+            <field name="name">KYC Approval Workflows</field>
+            <field name="res_model">kyc.approval</field>
+            <field name="view_mode">list,form,kanban</field>
+            <field name="search_view_id" ref="view_kyc_approval_search"/>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Click to start a new KYC approval workflow.
+                </p>
+            </field>
+        </record>
+        
+        <record id="action_kyc_approval_pending" model="ir.actions.act_window">
+            <field name="name">Pending KYC Approvals</field>
+            <field name="res_model">kyc.approval</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('status', '=', 'pending')]</field>
+            <field name="context">{'search_default_filter_pending': 1}</field>
+        </record>
+        
+        <record id="action_kyc_approval_in_progress" model="ir.actions.act_window">
+            <field name="name">In Progress Approvals</field>
+            <field name="res_model">kyc.approval</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="domain">[('status', '=', 'in_progress')]</field>
+            <field name="context">{'search_default_filter_in_progress': 1}</field>
+        </record>
+        
+        <record id="action_kyc_approval_high_risk" model="ir.actions.act_window">
+            <field name="name">High Risk KYC Applications</field>
+            <field name="res_model">kyc.approval</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('risk_level', '=', 'high')]</field>
+            <field name="context">{'search_default_filter_high_risk': 1}</field>
+        </record>
+        
+    </data>
+</odoo>
+

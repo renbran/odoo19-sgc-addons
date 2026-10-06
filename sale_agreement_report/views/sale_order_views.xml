@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Sale Order Form View - Add Agreement Notebook Page -->
+    <record id="sale_order_view_form_agreement" model="ir.ui.view">
+        <field name="name">sale.order.form.agreement</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_agreements" type="object" class="oe_stat_button" icon="fa-file-text-o">
+                    <field name="agreement_count" widget="statinfo" string="Agreements"/>
+                </button>
+            </xpath>
+
+            <!-- Add new notebook page for Agreement fields -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Agreement Details" name="agreement_details">
+                    <group col="2">
+                        <group string="Project Information" name="project_info">
+                            <field name="agreement_contact_person"/>
+                            <field name="agreement_job_title"/>
+                            <field name="agreement_date"/>
+                            <field name="project_start_date"/>
+                            <field name="golive_date"/>
+                            <field name="num_users"/>
+                        </group>
+                        <group string="Support &amp; Modules" name="support_modules">
+                            <field name="monthly_subscription_amount" widget="monetary" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group col="2">
+                        <group string="Client Signature" name="client_signature">
+                            <field name="client_signer_name"/>
+                            <field name="client_sign_date"/>
+                        </group>
+                        <group string="Provider Signature" name="provider_signature">
+                            <field name="provider_signer_name"/>
+                            <field name="provider_sign_date"/>
+                        </group>
+                    </group>
+
+                    <group string="Subscribed Modules" name="subscribed_modules" colspan="2" col="1">
+                        <field name="odoo_modules" nolabel="1" colspan="2" placeholder="e.g., Sales, Inventory, Accounting, CRM, Manufacturing"/>
+                    </group>
+
+                    <group string="Value Proposition" name="value_proposition" colspan="2" col="1">
+                        <field name="value_items" nolabel="1" colspan="2" placeholder="Enter value proposition items (one per line)"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,8 @@
+import { patch } from "@web/core/utils/patch";
+import { PortalHomeCounters } from "@portal/interactions/portal_home_counters";
+
+patch(PortalHomeCounters.prototype, {
+    getCountersAlwaysDisplayed() {
+        return super.getCountersAlwaysDisplayed().concat(["booking_count"]);
+    },
+});

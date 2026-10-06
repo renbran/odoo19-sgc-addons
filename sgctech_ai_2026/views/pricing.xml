@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="sgctech_pricing_2026" name="SGC Pricing 2026">
+    <t t-call="website.layout">
+      <t t-set="no_footer" t-value="False"/>
+
+      <!-- Page hero -->
+      <section class="sgc26-page-hero">
+        <div class="sgc26-page-hero__inner" data-sgc-reveal="1">
+          <p class="sgc26-label">Transparent Pricing</p>
+          <h1 class="sgc26-page-hero-title sgc26-h1">Fixed-Scope Packages</h1>
+          <p class="sgc26-body-lg" style="max-width:560px;text-align:center">
+            Scope defined upfront. Price agreed before work begins. No hourly billing, no scope creep surprises.
+          </p>
+        </div>
+      </section>
+
+      <!-- Annual / Monthly toggle -->
+      <section class="sgc26-section" style="padding-top:2rem;padding-bottom:2rem">
+        <div class="sgc26-container" style="text-align:center">
+          <div class="sgc26-pricing-toggle">
+            <span class="sgc26-pricing-toggle__label">Monthly</span>
+            <div class="sgc26-pricing-toggle__track" role="switch" aria-checked="false" tabindex="0">
+              <div class="sgc26-pricing-toggle__thumb"/>
+            </div>
+            <span class="sgc26-pricing-toggle__label">Annual</span>
+            <span class="sgc26-pricing-save-badge">Save 15%</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pricing cards -->
+      <section class="sgc26-section" style="padding-top:2rem">
+        <div class="sgc26-container">
+          <div class="sgc26-pricing-grid">
+
+            <!-- Core -->
+            <div class="sgc26-pricing-card" data-sgc-reveal="1" data-sgc-delay="100" data-sgc-tilt="1">
+              <p class="sgc26-pricing-tier">Core</p>
+              <h3 class="sgc26-h3" style="margin-bottom:0.5rem">Accounting + Inventory</h3>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                Ideal for trading and retail businesses starting their ERP journey.
+              </p>
+              <div class="sgc26-pricing-price">
+                <span class="sgc26-pricing-currency">AED</span>
+                <span class="sgc26-pricing-amount" data-price-monthly="1">12,500</span>
+                <span class="sgc26-pricing-amount" data-price-annual="1" style="display:none">10,625</span>
+                <span class="sgc26-pricing-period">one-time</span>
+              </div>
+              <hr class="sgc26-pricing-divider"/>
+              <ul class="sgc26-pricing-features">
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Chart of accounts (UAE IFRS)</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> VAT 5% configuration</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> FTA e-invoicing</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Inventory management</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Customer &amp; vendor management</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Data migration (up to 5,000 records)</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> 3-day role-based training</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> 30-day post-go-live support</li>
+                <li class="unavailable"><svg width="16" height="16"><use href="#i-x"/></svg> CRM &amp; Sales</li>
+                <li class="unavailable"><svg width="16" height="16"><use href="#i-x"/></svg> HR &amp; Payroll</li>
+              </ul>
+              <a href="/sgctech/contact?package=core" class="sgc26-btn sgc26-btn-ghost" style="width:100%;justify-content:center">
+                Get Started
+              </a>
+            </div>
+
+            <!-- Growth — featured -->
+            <div class="sgc26-pricing-card sgc26-pricing-card--featured" data-sgc-reveal="1" data-sgc-delay="200" data-sgc-tilt="1">
+              <span class="sgc26-pricing-badge">Most Popular</span>
+              <p class="sgc26-pricing-tier">Growth</p>
+              <h3 class="sgc26-h3" style="margin-bottom:0.5rem">Full Business Suite</h3>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                End-to-end operations: finance, sales, CRM, warehouse, and HR.
+              </p>
+              <div class="sgc26-pricing-price">
+                <span class="sgc26-pricing-currency">AED</span>
+                <span class="sgc26-pricing-amount" data-price-monthly="1">28,500</span>
+                <span class="sgc26-pricing-amount" data-price-annual="1" style="display:none">24,225</span>
+                <span class="sgc26-pricing-period">one-time</span>
+              </div>
+              <hr class="sgc26-pricing-divider"/>
+              <ul class="sgc26-pricing-features">
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Everything in Core</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> CRM pipeline &amp; sales orders</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Purchase management</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Multi-warehouse</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> HR &amp; leave management</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Data migration (up to 20,000 records)</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> 5-day role-based training</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> 60-day post-go-live support</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Quarterly review session</li>
+                <li class="unavailable"><svg width="16" height="16"><use href="#i-x"/></svg> AI Automation layer</li>
+              </ul>
+              <a href="/sgctech/contact?package=growth" class="sgc26-btn sgc26-btn-primary" style="width:100%;justify-content:center">
+                Get Started
+                <svg width="16" height="16"><use href="#i-arrow-right"/></svg>
+              </a>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="sgc26-pricing-card" data-sgc-reveal="1" data-sgc-delay="300" data-sgc-tilt="1">
+              <p class="sgc26-pricing-tier">Enterprise</p>
+              <h3 class="sgc26-h3" style="margin-bottom:0.5rem">Industry-Specific + AI</h3>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                Vertical-specific modules, custom workflows, AI automation, and dedicated account management.
+              </p>
+              <div class="sgc26-pricing-price">
+                <span class="sgc26-pricing-currency">AED</span>
+                <span class="sgc26-pricing-amount" data-price-monthly="1">Custom</span>
+                <span class="sgc26-pricing-amount" data-price-annual="1" style="display:none">Custom</span>
+                <span class="sgc26-pricing-period"/>
+              </div>
+              <hr class="sgc26-pricing-divider"/>
+              <ul class="sgc26-pricing-features">
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Everything in Growth</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Industry vertical modules</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> AI workflow automation</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Custom report development</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Third-party integrations</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Unlimited data migration</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> On-site training available</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> 90-day hypercare</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Dedicated account manager</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> SLA-backed support</li>
+              </ul>
+              <a href="/sgctech/contact?package=enterprise" class="sgc26-btn sgc26-btn-secondary" style="width:100%;justify-content:center">
+                Request Proposal
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Annual retainer -->
+      <section class="sgc26-section" style="padding-top:2rem">
+        <div class="sgc26-container">
+          <div class="sgc26-pricing-contact" data-sgc-reveal="1">
+            <p class="sgc26-label" style="justify-content:center">Annual Retainer</p>
+            <h2 class="sgc26-h2" style="margin-bottom:1rem">Ongoing Support Plans</h2>
+            <p class="sgc26-body-lg" style="max-width:560px;margin:0 auto 2rem">
+              Monthly retainer plans available for functional support, developer access, and system upgrades.
+              Scoped per your actual usage — not a generic hourly block.
+            </p>
+            <a href="/sgctech/contact?type=retainer" class="sgc26-btn sgc26-btn-outline sgc26-btn-lg">
+              Discuss Retainer Options
+              <svg width="18" height="18"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Common Questions</p>
+            <h2 class="sgc26-h2">Pricing FAQs</h2>
+          </div>
+
+          <div class="sgc26-grid-2" style="max-width:900px;margin:0 auto">
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">What is included in the one-time fee?</h4>
+              <p class="sgc26-body-sm">Discovery, configuration, data migration, training, and post-go-live support for the stated period. Hosting is separate.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Can I upgrade packages later?</h4>
+              <p class="sgc26-body-sm">Yes. Each package is modular. You pay the incremental scope cost to add modules — no need to restart the project.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Do you offer ERP hosting?</h4>
+              <p class="sgc26-body-sm">We partner with certified SaaS and on-premise hosting providers. We can advise on the right option for your data residency requirements.</p>
+            </div>
+            <div class="sgc26-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Are prices in AED inclusive of VAT?</h4>
+              <p class="sgc26-body-sm">Prices shown are exclusive of UAE VAT. A VAT invoice will be issued at 5%. We are UAE VAT registered.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </t>
+  </template>
+
+</odoo>

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2025 SGC Tech AI
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Session Form -->
+    <record id="sgc_meeting_session_view_form" model="ir.ui.view">
+        <field name="name">sgc.meeting.session.form</field>
+        <field name="model">sgc.meeting.session</field>
+        <field name="arch" type="xml">
+            <form string="Meeting Session">
+                <header>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="scheduled,in_progress,recording_uploaded,transcribing,transcribed,completed"
+                    />
+                    <button
+                        name="action_dispatch_bot"
+                        type="object"
+                        string="Dispatch Bot"
+                        class="oe_highlight"
+                        invisible="bot_dispatched or not bot_enabled"
+                    />
+                    <button
+                        name="action_process_recording"
+                        type="object"
+                        string="Re-run AI Pipeline"
+                        class="oe_highlight"
+                        invisible="not recording_ids"
+                    />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="%(sgc_meeting_ai.sgc_meeting_recording_action)d"
+                            type="action"
+                            class="oe_stat_button"
+                            icon="fa-microphone"
+                            context="{'default_session_id': id, 'search_default_session_id': id}"
+                        >
+                            <field name="recording_count" widget="statinfo" string="Recordings" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only" />
+                        <h1>
+                            <field name="name" placeholder="Session name" />
+                        </h1>
+                    </div>
+                    <group name="main">
+                        <group name="meeting" string="Meeting">
+                            <field name="meeting_id" />
+                            <field name="provider_id" />
+                            <field name="start" />
+                            <field name="stop" />
+                            <field name="duration_minutes" />
+                            <field name="video_url" widget="url" />
+                        </group>
+                        <group name="ai" string="AI Pipeline">
+                            <field name="bot_enabled" />
+                            <field name="bot_dispatched" />
+                            <field name="bot_id" />
+                            <field name="transcript_id" />
+                            <field name="notes_id" />
+                            <field name="state_message" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_session_view_tree" model="ir.ui.view">
+        <field name="name">sgc.meeting.session.list</field>
+        <field name="model">sgc.meeting.session</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="state == 'completed'"
+                decoration-info="state in ('transcribing', 'summarizing')"
+                decoration-danger="state == 'failed'"
+                decoration-warning="state in ('recording_uploaded', 'transcribed')"
+                default_order="start desc"
+            >
+                <field name="name" />
+                <field name="meeting_id" />
+                <field name="provider_id" />
+                <field name="start" />
+                <field name="duration_minutes" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'completed'"
+                    decoration-info="state in ('transcribing', 'summarizing')"
+                    decoration-danger="state == 'failed'"
+                    decoration-warning="state in ('recording_uploaded', 'transcribed')"
+                />
+                <field name="bot_dispatched" />
+            </list>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_session_view_search" model="ir.ui.view">
+        <field name="name">sgc.meeting.session.search</field>
+        <field name="model">sgc.meeting.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="meeting_id" />
+                <field name="provider_id" />
+                <field name="state" />
+                <separator />
+                <filter
+                    name="pending"
+                    string="Pending Pipeline"
+                    domain="[('state', 'in', ['recording_uploaded', 'transcribing', 'transcribed', 'summarizing'])]"
+                />
+                <filter
+                    name="failed"
+                    string="Failed"
+                    domain="[('state', '=', 'failed')]"
+                />
+                <group name="groupby">
+                    <filter
+                        string="State"
+                        name="groupby_state"
+                        context="{'group_by': 'state'}"
+                    />
+                    <filter
+                        string="Provider"
+                        name="groupby_provider"
+                        context="{'group_by': 'provider_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_recording_view_form" model="ir.ui.view">
+        <field name="name">sgc.meeting.recording.form</field>
+        <field name="model">sgc.meeting.recording</field>
+        <field name="arch" type="xml">
+            <form string="Recording">
+                <header>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="uploaded,transcribing,transcribed"
+                    />
+                    <button
+                        name="action_transcribe"
+                        type="object"
+                        string="Transcribe"
+                        class="oe_highlight"
+                        invisible="state != 'uploaded'"
+                    />
+                </header>
+                <sheet>
+                    <group name="main">
+                        <group>
+                            <field name="display_name" />
+                            <field name="session_id" />
+                            <field name="provider_id" />
+                            <field name="attachment_id" />
+                            <field name="filename" />
+                            <field name="mimetype" />
+                            <field name="file_size" />
+                        </group>
+                        <group>
+                            <field name="duration_seconds" />
+                            <field name="language" />
+                            <field name="transcription_model" />
+                            <field name="uploaded_at" />
+                            <field name="state_message" />
+                            <field name="transcript_id" />
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_recording_view_tree" model="ir.ui.view">
+        <field name="name">sgc.meeting.recording.list</field>
+        <field name="model">sgc.meeting.recording</field>
+        <field name="arch" type="xml">
+            <list
+                decoration-success="state == 'transcribed'"
+                decoration-danger="state == 'failed'"
+                default_order="create_date desc"
+            >
+                <field name="display_name" />
+                <field name="session_id" />
+                <field name="filename" />
+                <field name="mimetype" />
+                <field name="file_size" />
+                <field name="duration_seconds" />
+                <field name="language" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-success="state == 'transcribed'"
+                    decoration-info="state == 'transcribing'"
+                    decoration-danger="state == 'failed'"
+                />
+            </list>
+        </field>
+    </record>
+
+    <!-- Transcript Form -->
+    <record id="sgc_meeting_transcript_view_form" model="ir.ui.view">
+        <field name="name">sgc.meeting.transcript.form</field>
+        <field name="model">sgc.meeting.transcript</field>
+        <field name="arch" type="xml">
+            <form string="Transcript">
+                <header>
+                    <button
+                        name="action_generate_notes"
+                        type="object"
+                        string="Generate AI Notes"
+                        class="oe_highlight"
+                        invisible="notes_id"
+                    />
+                </header>
+                <sheet>
+                    <group name="main">
+                        <group>
+                            <field name="display_name" />
+                            <field name="session_id" />
+                            <field name="recording_id" />
+                            <field name="language" />
+                            <field name="model" />
+                        </group>
+                        <group>
+                            <field name="word_count" />
+                            <field name="char_count" />
+                            <field name="duration_seconds" />
+                            <field name="notes_id" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="text" string="Full Text">
+                            <field name="text" widget="text" readonly="1" />
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="sgc_meeting_transcript_view_tree" model="ir.ui.view">
+        <field name="name">sgc.meeting.transcript.list</field>
+        <field name="model">sgc.meeting.transcript</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="display_name" />
+                <field name="session_id" />
+                <field name="language" />
+                <field name="word_count" />
+                <field name="model" />
+                <field name="notes_id" />
+            </list>
+        </field>
+    </record>
+</odoo>

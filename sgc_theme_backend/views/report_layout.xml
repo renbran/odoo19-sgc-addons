@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+
+    <!--
+        Light, print-safe SGC accent on business documents (spec §4 feature 8).
+        Implemented as a scoped <style> injected into the standard external
+        report layout so NO SCSS is added to a frontend/report asset bundle
+        (keeps the backend theme's SCSS confined to web.assets_backend).
+        Navy headings + a thin gold rule; nothing heavy that would waste toner
+        or break wkhtmltopdf pagination.
+    -->
+    <template id="sgc_report_external_layout_standard"
+              inherit_id="web.external_layout_standard"
+              name="Aurum Report Accent">
+        <xpath expr="//div[contains(@t-attf-class, 'header')]" position="before">
+            <style>
+                .article h2,
+                .article h3 { color: #0F2C4C; }
+                .header { border-bottom: 2px solid #C9A227; padding-bottom: 6px; }
+                .footer { border-top: 1px solid #D8CDB4; }
+                .o_company_tagline { color: #A8871E; }
+            </style>
+        </xpath>
+    </template>
+
+</odoo>

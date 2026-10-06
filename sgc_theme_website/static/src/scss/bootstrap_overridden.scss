@@ -1,0 +1,38 @@
+// (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai
+// =============================================================================
+// Aurum Website Theme — Bootstrap 5 variable overrides
+// (web._assets_frontend_helpers, compiled BEFORE Bootstrap)
+// -----------------------------------------------------------------------------
+// Values mirror the shared SGC tokens (_sgc_tokens.scss). They are written as
+// literals here on purpose: this bundle can compile before the SGC token file
+// is guaranteed to be in scope, and a literal keeps the frontend build robust.
+// Odoo 19 ships Bootstrap 5, so these are the BS5 variable names.
+// =============================================================================
+
+// Typography — serif headings, clean sans body
+$font-family-sans-serif: 'Open Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !default;
+$headings-font-family: 'Playfair Display', 'Crimson Text', Georgia, 'Times New Roman', serif !default;
+$headings-font-weight: 700 !default;
+$headings-color: #0F2C4C !default;
+$lead-font-weight: 400 !default;
+
+// Corner radius
+$border-radius: 8px !default;
+$border-radius-sm: 4px !default;
+$border-radius-lg: 14px !default;
+$border-radius-xl: 24px !default;
+$border-radius-pill: 999px !default;
+
+// Buttons
+$btn-font-weight: 600 !default;
+$btn-border-radius: 4px !default;
+$btn-border-radius-lg: 999px !default;
+
+// Inputs / focus
+$input-border-color: #D8CDB4 !default;
+$input-focus-border-color: #1F4A73 !default;
+$component-active-bg: #0F2C4C !default;
+
+// Links
+$link-color: #1F4A73 !default;
+$link-hover-color: #0F2C4C !default;

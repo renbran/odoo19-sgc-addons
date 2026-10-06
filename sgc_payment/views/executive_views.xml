@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Enhanced Payment Search View with Executive Filters -->
+    <record id="view_account_payment_search_executive" model="ir.ui.view">
+        <field name="name">account.payment.search.executive</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="priority" eval="90"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+
+                <separator/>
+                <filter string="Large Payments (&gt;$10K)" name="large_payments" domain="[('amount', '&gt;=', 10000)]"/>
+                <filter string="Very Large Payments (&gt;$50K)" name="very_large_payments" domain="[('amount', '&gt;=', 50000)]"/>
+                <filter string="Critical Payments (&gt;$100K)" name="critical_payments" domain="[('amount', '&gt;=', 100000)]"/>
+
+                <separator/>
+                <filter string="This Week" name="this_week" domain="[]"/>
+                <filter string="This Month" name="this_month" domain="[]"/>
+                <filter string="This Quarter" name="this_quarter" domain="[]"/>
+                <filter string="This Year" name="this_year" domain="[]"/>
+
+                <separator/>
+                <filter name="group_by_amount_range" string="Amount Range" context="{'group_by': 'amount'}"/>
+                <filter name="group_by_payment_type" string="Payment Type" context="{'group_by': 'payment_type'}"/>
+                <filter name="group_by_partner" string="Partner" context="{'group_by': 'partner_id'}"/>
+                <filter name="group_by_month" string="Month" context="{'group_by': 'date:month'}"/>
+                <filter name="group_by_week" string="Week" context="{'group_by': 'date:week'}"/>
+
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Executive Payment Summary Action -->
+    <record id="action_account_payment_executive_enhanced" model="ir.actions.act_window">
+        <field name="name">Executive Payment Center</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_account_payment_search_executive"/>
+        <field name="context">{
+            'create': False,
+            'search_default_this_month': 1,
+            'search_default_large_payments': 1
+        }</field>
+        <field name="domain">[('amount', '>', 0)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Executive Payment Command Center
+            </p>
+            <p>
+                <strong>Welcome to your executive payment overview.</strong><br/>
+                This dashboard provides high-level insights into payment activities, approval workflows, and financial oversight.
+            </p>
+            <ul>
+                <li><strong>Large Payments:</strong> Focus on significant financial transactions</li>
+                <li><strong>Approval Status:</strong> Monitor workflow bottlenecks</li>
+                <li><strong>Authorization Queue:</strong> Payments requiring executive approval</li>
+                <li><strong>Risk Management:</strong> Overdue approvals and exceptions</li>
+            </ul>
+            <p>Use the filters above to drill down into specific areas of concern or interest.</p>
+        </field>
+    </record>
+
+    <!-- Quick Executive Dashboard Action -->
+    <record id="action_payment_executive_quick_dashboard" model="ir.actions.act_window">
+        <field name="name">Executive Dashboard - Quick View</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="search_view_id" ref="view_account_payment_search_executive"/>
+        <field name="context">{
+            'search_default_this_quarter': 1,
+            'search_default_large_payments': 1,
+            'group_by': ['payment_type', 'date:month'],
+            'pivot_measures': ['amount'],
+            'pivot_column_groupby': ['payment_type'],
+            'pivot_row_groupby': ['date:month', 'payment_type']
+        }</field>
+        <field name="domain">[('amount', '&gt;=', 5000)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Executive Quick Dashboard
+            </p>
+            <p>
+                Rapid insights for executive decision-making focused on significant payments and approval trends.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cron Job for Payment Approval Reminders -->
+    <record id="cron_payment_approval_reminders" model="ir.cron">
+        <field name="name">Payment Approval Reminders</field>
+        <field name="model_id" ref="model_payment_reminder_manager"/>
+        <field name="state">code</field>
+        <field name="code">model.send_approval_reminders()</field>
+        <field name="interval_number">6</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+    <!-- Payment Notification System Cron Job -->
+    <record id="cron_payment_notification_system" model="ir.cron">
+        <field name="name">Payment Notification System</field>
+        <field name="model_id" ref="model_payment_reminder_manager"/>
+        <field name="state">code</field>
+        <field name="code">model.send_payment_notifications()</field>
+        <field name="interval_number">4</field>
+        <field name="interval_type">hours</field>
+        <field name="numbercall">-1</field>
+        <field name="active" eval="True"/>
+        <field name="user_id" ref="base.user_root"/>
+    </record>
+
+    <!-- Server Action for Payment Notification System -->
+    <record id="payment_notification_system_action" model="ir.actions.server">
+        <field name="name">Payment Notification System</field>
+        <field name="model_id" ref="model_payment_reminder_manager"/>
+        <field name="state">code</field>
+        <field name="code">model.send_payment_notifications()</field>
+    </record>
+</odoo>

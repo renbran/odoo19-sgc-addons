@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="llm_publisher_groq" model="llm.publisher">
+            <field name="name">Groq</field>
+            <field name="official" eval="True" />
+            <field name="frontier" eval="True" />
+            <field name="description">Groq is a technology company that provides ultra-low latency AI inference hardware and software solutions. Their LPU (Language Processing Unit) Inference Engine delivers fast inference for LLMs.</field>
+            <field name="meta">{
+                "website": "https://groq.com",
+                "founded": 2016,
+                "headquarters": "Santa Clara, California",
+                "key_products": ["Groq LPU", "GroqCloud"]
+            }</field>
+        </record>
+    </data>
+</odoo>

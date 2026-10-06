@@ -1,0 +1,81 @@
+/* Copyright 2021 Tecnativa - Jairo Llopis
+ * Copyright 2025 SGC Tech AI - Enhanced portal styling
+ * License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). */
+
+// Too many available slots? Allow scrolling
+.slots-dropdown {
+    max-height: 40vh;
+    overflow: auto;
+}
+
+// Show full dropdown if opened at the bottom
+.resource_booking_portal_schedule {
+    overflow: initial;
+}
+
+// SGC Tech AI - Modern portal styling
+.o_booking_calendar {
+    .table {
+        border-radius: 0.5rem;
+        overflow: hidden;
+
+        thead.table-dark th {
+            vertical-align: middle;
+        }
+
+        td .btn-primary {
+            border-radius: 2rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        tfoot td {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+    }
+}
+
+// AI confidence indicator badges
+.ai-confidence-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2em 0.6em;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+
+    &.confidence-high {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    &.confidence-medium {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    &.confidence-low {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+}
+
+// Booking state badges
+.booking-state {
+    &.state-pending {
+        background-color: #ffc107;
+        color: #000;
+    }
+    &.state-scheduled {
+        background-color: #0d6efd;
+        color: #fff;
+    }
+    &.state-confirmed {
+        background-color: #198754;
+        color: #fff;
+    }
+    &.state-canceled {
+        background-color: #6c757d;
+        color: #fff;
+    }
+}

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="sgctech_how_we_work_2026" name="SGC How We Work 2026">
+    <t t-call="website.layout">
+      <t t-set="no_footer" t-value="False"/>
+
+      <section class="sgc26-page-hero">
+        <div class="sgc26-page-hero__inner" data-sgc-reveal="1">
+          <p class="sgc26-label">Delivery Methodology</p>
+          <h1 class="sgc26-page-hero-title sgc26-h1">A Process You Can Track</h1>
+          <p class="sgc26-body-lg" style="text-align:center;max-width:560px">
+            Six phases. Fixed scope gates. Written deliverables at every milestone.
+            Nothing advances without your sign-off.
+          </p>
+        </div>
+      </section>
+
+      <!-- Phase timeline -->
+      <section class="sgc26-section">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Six-Phase Framework</p>
+            <h2 class="sgc26-h2">From Day 1 to Go-Live</h2>
+          </div>
+
+          <!-- Phase 1 -->
+          <div class="sgc26-industry-featured" style="margin-bottom:2rem" data-sgc-reveal="1">
+            <div>
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 01</p>
+              <h3 class="sgc26-h3" style="margin-bottom:0.75rem">Discovery &amp; Business Analysis</h3>
+              <p class="sgc26-body" style="margin-bottom:1.25rem">
+                We conduct structured requirement workshops with your department heads.
+                Current-state process maps are documented, gaps identified, and a written scope
+                document issued for your approval before any configuration begins.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Department-by-department requirement interviews</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Current system audit and data inventory</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Gap analysis report</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Signed scope of work before Phase 2</li>
+              </ul>
+            </div>
+            <div class="sgc26-kpi-tile" style="text-align:center;padding:3rem">
+              <div class="sgc26-kpi-number">5–10</div>
+              <div class="sgc26-kpi-tile__label">Business Days</div>
+              <div class="sgc26-kpi-tile__sub">Typical duration</div>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="sgc26-industry-featured" style="margin-bottom:2rem" data-sgc-reveal="1">
+            <div class="sgc26-kpi-tile" style="text-align:center;padding:3rem">
+              <div class="sgc26-kpi-number">3–7</div>
+              <div class="sgc26-kpi-tile__label">Business Days</div>
+              <div class="sgc26-kpi-tile__sub">Design &amp; Blueprint</div>
+            </div>
+            <div>
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 02</p>
+              <h3 class="sgc26-h3" style="margin-bottom:0.75rem">Solution Blueprint</h3>
+              <p class="sgc26-body" style="margin-bottom:1.25rem">
+                Module selection finalised, workflow diagrams drawn, data model mapped,
+                and integration architecture defined. You receive a blueprint document
+                — the technical contract for the build phase.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Module selection and version locking</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Workflow and approval matrix design</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Chart of accounts mapping (IFRS-UAE)</li>
+                <li><svg width="16" height="16"><use href="#i-check"/></svg> Integration point identification</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Phases 3–6 condensed grid -->
+          <div class="sgc26-grid-2" style="margin-top:1rem" data-sgc-reveal="1">
+            <div class="sgc26-card">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 03</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Configuration Sprint</h4>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                ERP configured to blueprint specification. Custom reports built.
+                Data migration templates prepared and validated against your live data.
+                Staging environment ready for UAT.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Module configuration per blueprint</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Custom report and dashboard build</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Migration templates with validation rules</li>
+              </ul>
+            </div>
+            <div class="sgc26-card">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 04</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">User Acceptance Testing</h4>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                Scripted test scenarios for each role. Defects logged, fixed, and retested.
+                Formal sign-off from your team before data load begins.
+                No go-live without written UAT approval.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Role-based test script library</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Defect tracking and resolution log</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Written UAT sign-off required</li>
+              </ul>
+            </div>
+            <div class="sgc26-card">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 05</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Controlled Go-Live</h4>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                Data loaded to production. Cutover executed with a rollback plan in place.
+                On-site or remote support during the first week of live operation.
+                Opening balances verified and reconciled.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Production data load and verification</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Opening balance reconciliation</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Hypercare support — first week</li>
+              </ul>
+            </div>
+            <div class="sgc26-card">
+              <p class="sgc26-mono" style="margin-bottom:0.5rem">Phase 06</p>
+              <h4 class="sgc26-h4" style="margin-bottom:0.75rem">Post-Go-Live Support</h4>
+              <p class="sgc26-body-sm" style="margin-bottom:1rem">
+                Named support contact. Ticket-based response with SLA by severity.
+                Quarterly review sessions to identify optimisation opportunities
+                and plan the next module phase.
+              </p>
+              <ul class="sgc26-check-list sgc26-check-list--pass">
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> SLA-backed ticket response</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Named support contact</li>
+                <li><svg width="14" height="14"><use href="#i-check"/></svg> Quarterly optimisation reviews</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- What you get -->
+      <section class="sgc26-section" style="background:var(--bg-2)">
+        <div class="sgc26-container">
+          <div class="sgc26-section-title" data-sgc-reveal="1">
+            <p class="sgc26-label">Deliverables</p>
+            <h2 class="sgc26-h2">What You Receive at Each Gate</h2>
+          </div>
+          <div class="sgc26-grid-3">
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-info" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">Scope Document</h4>
+              <p class="sgc26-feature-card__body">Signed before any build work. Defines modules, data, training, and support boundaries.</p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-settings" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">Blueprint Document</h4>
+              <p class="sgc26-feature-card__body">Module configuration guide, workflow diagrams, and integration architecture.</p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="300">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-check" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">UAT Sign-Off Report</h4>
+              <p class="sgc26-feature-card__body">Test scenarios, defect log, resolution evidence, and formal approval record.</p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="100">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-users" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">Role-Based SOPs</h4>
+              <p class="sgc26-feature-card__body">Standard operating procedures for each user role delivered at training completion.</p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="200">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-bar-chart" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">Data Migration Report</h4>
+              <p class="sgc26-feature-card__body">Record counts, validation results, and reconciliation confirmation for every data set loaded.</p>
+            </div>
+            <div class="sgc26-feature-card" data-sgc-reveal="1" data-sgc-delay="300">
+              <div class="sgc26-feature-card__icon"><svg width="22" height="22"><use href="#i-shield" stroke="url(#sgc26-grad-icon)"/></svg></div>
+              <h4 class="sgc26-feature-card__title">Go-Live Checklist</h4>
+              <p class="sgc26-feature-card__body">100-point pre-launch verification checklist signed by both parties before cutover.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="sgc26-section">
+        <div class="sgc26-container" style="text-align:center">
+          <div data-sgc-reveal="1">
+            <h2 class="sgc26-h2" style="margin-bottom:1rem">Ready to See the Process in Action?</h2>
+            <p class="sgc26-body-lg" style="max-width:500px;margin:0 auto 2rem">
+              Schedule a 30-minute session to walk through the methodology and ask any questions.
+            </p>
+            <a href="/sgctech/contact" class="sgc26-btn sgc26-btn-primary sgc26-btn-lg">
+              Book a Session
+              <svg width="18" height="18"><use href="#i-arrow-right"/></svg>
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </t>
+  </template>
+
+</odoo>

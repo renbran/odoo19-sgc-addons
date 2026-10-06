@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- CES Day 1 Assessment Quiz -->
+        <record id="ces_day_1_assessment_quiz" model="learning.quiz">
+            <field name="name">CES Day 1 Written Assessment</field>
+            <field name="description">Comprehensive assessment covering CES Day 1 topics including multiple choice questions and fill-in-the-blank exercises.</field>
+            <field name="passing_score">70</field>
+            <field name="time_limit">60</field>
+            <field name="allow_retake">false</field>
+            <field name="show_result_immediately">true</field>
+            <field name="randomize_questions">false</field>
+            <field name="randomize_options">false</field>
+        </record>
+
+        <!-- Question 1: Multiple Choice -->
+        <record id="ces_q1" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the primary purpose of the Comprehensive Evaluation System (CES)?</field>
+            <field name="points">1</field>
+            <field name="position">1</field>
+            <field name="explanation">The CES is designed to evaluate the overall performance and effectiveness of various systems and processes within the organization.</field>
+        </record>
+
+        <record id="ces_q1_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q1"/>
+            <field name="sequence">1</field>
+            <field name="text">To replace all existing systems</field>
+        </record>
+
+        <record id="ces_q1_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q1"/>
+            <field name="sequence">2</field>
+            <field name="text">To evaluate system performance and effectiveness</field>
+        </record>
+
+        <record id="ces_q1_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q1"/>
+            <field name="sequence">3</field>
+            <field name="text">To reduce operational costs</field>
+        </record>
+
+        <record id="ces_q1_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q1"/>
+            <field name="sequence">4</field>
+            <field name="text">To increase employee workload</field>
+        </record>
+
+        <!-- Question 2: Multiple Choice -->
+        <record id="ces_q2" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which of the following is a key component of the CES framework?</field>
+            <field name="points">1</field>
+            <field name="position">2</field>
+            <field name="explanation">The CES framework consists of several key components that work together to provide comprehensive evaluation.</field>
+        </record>
+
+        <record id="ces_q2_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q2"/>
+            <field name="sequence">1</field>
+            <field name="text">Data collection and analysis</field>
+        </record>
+
+        <record id="ces_q2_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q2"/>
+            <field name="sequence">2</field>
+            <field name="text">Manual reporting systems</field>
+        </record>
+
+        <record id="ces_q2_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q2"/>
+            <field name="sequence">3</field>
+            <field name="text">Paper-based documentation</field>
+        </record>
+
+        <record id="ces_q2_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q2"/>
+            <field name="sequence">4</field>
+            <field name="text">Email communications</field>
+        </record>
+
+        <!-- Question 3: Multiple Choice -->
+        <record id="ces_q3" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the first step in implementing CES?</field>
+            <field name="points">1</field>
+            <field name="position">3</field>
+            <field name="explanation">Implementation begins with thorough assessment of current systems and requirements.</field>
+        </record>
+
+        <record id="ces_q3_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q3"/>
+            <field name="sequence">1</field>
+            <field name="text">Purchase new software</field>
+        </record>
+
+        <record id="ces_q3_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q3"/>
+            <field name="sequence">2</field>
+            <field name="text">Assess current systems and requirements</field>
+        </record>
+
+        <record id="ces_q3_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q3"/>
+            <field name="sequence">3</field>
+            <field name="text">Train all employees</field>
+        </record>
+
+        <record id="ces_q3_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q3"/>
+            <field name="sequence">4</field>
+            <field name="text">Create new policies</field>
+        </record>
+
+        <!-- Question 4: Fill in the Blank -->
+        <record id="ces_q4" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">The CES framework uses ________ to ensure data accuracy and reliability.</field>
+            <field name="correct_answer">standardized protocols</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">4</field>
+        </record>
+
+        <!-- Question 5: Multiple Choice -->
+        <record id="ces_q5" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which metric is most important for CES evaluation?</field>
+            <field name="points">1</field>
+            <field name="position">5</field>
+            <field name="explanation">Performance metrics are crucial for effective CES implementation and evaluation.</field>
+        </record>
+
+        <record id="ces_q5_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q5"/>
+            <field name="sequence">1</field>
+            <field name="text">Cost reduction only</field>
+        </record>
+
+        <record id="ces_q5_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q5"/>
+            <field name="sequence">2</field>
+            <field name="text">Key performance indicators (KPIs)</field>
+        </record>
+
+        <record id="ces_q5_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q5"/>
+            <field name="sequence">3</field>
+            <field name="text">Employee satisfaction</field>
+        </record>
+
+        <record id="ces_q5_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q5"/>
+            <field name="sequence">4</field>
+            <field name="text">System complexity</field>
+        </record>
+
+        <!-- Question 6: Multiple Choice -->
+        <record id="ces_q6" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the role of stakeholders in CES implementation?</field>
+            <field name="points">1</field>
+            <field name="position">6</field>
+            <field name="explanation">Stakeholders play a crucial role in providing input and support for CES implementation.</field>
+        </record>
+
+        <record id="ces_q6_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q6"/>
+            <field name="sequence">1</field>
+            <field name="text">To provide funding only</field>
+        </record>
+
+        <record id="ces_q6_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q6"/>
+            <field name="sequence">2</field>
+            <field name="text">To provide input and support implementation</field>
+        </record>
+
+        <record id="ces_q6_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q6"/>
+            <field name="sequence">3</field>
+            <field name="text">To oversee the project</field>
+        </record>
+
+        <record id="ces_q6_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q6"/>
+            <field name="sequence">4</field>
+            <field name="text">To evaluate results</field>
+        </record>
+
+        <!-- Question 7: Fill in the Blank -->
+        <record id="ces_q7" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">Regular ________ are essential for maintaining CES effectiveness.</field>
+            <field name="correct_answer">audits and reviews</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">7</field>
+        </record>
+
+        <!-- Question 8: Multiple Choice -->
+        <record id="ces_q8" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which tool is commonly used for CES data analysis?</field>
+            <field name="points">1</field>
+            <field name="position">8</field>
+            <field name="explanation">Various tools are available for CES data analysis, each with different capabilities.</field>
+        </record>
+
+        <record id="ces_q8_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q8"/>
+            <field name="sequence">1</field>
+            <field name="text">Spreadsheet software</field>
+        </record>
+
+        <record id="ces_q8_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q8"/>
+            <field name="sequence">2</field>
+            <field name="text">Business intelligence tools</field>
+        </record>
+
+        <record id="ces_q8_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q8"/>
+            <field name="sequence">3</field>
+            <field name="text">Word processors</field>
+        </record>
+
+        <record id="ces_q8_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q8"/>
+            <field name="sequence">4</field>
+            <field name="text">Email clients</field>
+        </record>
+
+        <!-- Question 9: Multiple Choice -->
+        <record id="ces_q9" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is a common challenge in CES implementation?</field>
+            <field name="points">1</field>
+            <field name="position">9</field>
+            <field name="explanation">Implementation challenges need to be addressed proactively for successful CES deployment.</field>
+        </record>
+
+        <record id="ces_q9_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q9"/>
+            <field name="sequence">1</field>
+            <field name="text">Resistance to change</field>
+        </record>
+
+        <record id="ces_q9_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q9"/>
+            <field name="sequence">2</field>
+            <field name="text">Lack of documentation</field>
+        </record>
+
+        <record id="ces_q9_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q9"/>
+            <field name="sequence">3</field>
+            <field name="text">Insufficient funding</field>
+        </record>
+
+        <record id="ces_q9_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q9"/>
+            <field name="sequence">4</field>
+            <field name="text">Too many stakeholders</field>
+        </record>
+
+        <!-- Question 10: Fill in the Blank -->
+        <record id="ces_q10" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">The success of CES depends on proper ________ and training.</field>
+            <field name="correct_answer">planning</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">10</field>
+        </record>
+
+        <!-- Continue with remaining questions... -->
+        <!-- Question 11: Multiple Choice -->
+        <record id="ces_q11" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which department typically leads CES implementation?</field>
+            <field name="points">1</field>
+            <field name="position">11</field>
+            <field name="explanation">Leadership and ownership of CES implementation varies by organization structure.</field>
+        </record>
+
+        <record id="ces_q11_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q11"/>
+            <field name="sequence">1</field>
+            <field name="text">IT department</field>
+        </record>
+
+        <record id="ces_q11_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q11"/>
+            <field name="sequence">2</field>
+            <field name="text">HR department</field>
+        </record>
+
+        <record id="ces_q11_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q11"/>
+            <field name="sequence">3</field>
+            <field name="text">Finance department</field>
+        </record>
+
+        <record id="ces_q11_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q11"/>
+            <field name="sequence">4</field>
+            <field name="text">Marketing department</field>
+        </record>
+
+        <!-- Question 12: Fill in the Blank -->
+        <record id="ces_q12" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">CES should be aligned with the organization's overall ________ goals.</field>
+            <field name="correct_answer">strategic</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">12</field>
+        </record>
+
+        <!-- Question 13: Multiple Choice -->
+        <record id="ces_q13" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the benefit of using automated CES tools?</field>
+            <field name="points">1</field>
+            <field name="position">13</field>
+            <field name="explanation">Automation provides significant advantages in CES implementation and maintenance.</field>
+        </record>
+
+        <record id="ces_q13_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q13"/>
+            <field name="sequence">1</field>
+            <field name="text">Increased efficiency and accuracy</field>
+        </record>
+
+        <record id="ces_q13_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q13"/>
+            <field name="sequence">2</field>
+            <field name="text">Reduced costs</field>
+        </record>
+
+        <record id="ces_q13_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q13"/>
+            <field name="sequence">3</field>
+            <field name="text">Better user experience</field>
+        </record>
+
+        <record id="ces_q13_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q13"/>
+            <field name="sequence">4</field>
+            <field name="text">Faster implementation</field>
+        </record>
+
+        <!-- Question 14: Fill in the Blank -->
+        <record id="ces_q14" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">Data ________ is crucial for CES success.</field>
+            <field name="correct_answer">quality</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">14</field>
+        </record>
+
+        <!-- Question 15: Multiple Choice -->
+        <record id="ces_q15" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">How often should CES be evaluated and updated?</field>
+            <field name="points">1</field>
+            <field name="position">15</field>
+            <field name="explanation">Regular evaluation and updates ensure CES remains effective and relevant.</field>
+        </record>
+
+        <record id="ces_q15_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q15"/>
+            <field name="sequence">1</field>
+            <field name="text">Annually</field>
+        </record>
+
+        <record id="ces_q15_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q15"/>
+            <field name="sequence">2</field>
+            <field name="text">Quarterly or semi-annually</field>
+        </record>
+
+        <record id="ces_q15_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q15"/>
+            <field name="sequence">3</field>
+            <field name="text">Monthly</field>
+        </record>
+
+        <record id="ces_q15_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q15"/>
+            <field name="sequence">4</field>
+            <field name="text">Bi-annually</field>
+        </record>
+
+        <!-- Question 16: Fill in the Blank -->
+        <record id="ces_q16" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">CES implementation requires clear ________ and communication.</field>
+            <field name="correct_answer">objectives</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">16</field>
+        </record>
+
+        <!-- Question 17: Multiple Choice -->
+        <record id="ces_q17" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is a key consideration when selecting CES software?</field>
+            <field name="points">1</field>
+            <field name="position">17</field>
+            <field name="explanation">Software selection requires careful consideration of various factors.</field>
+        </record>
+
+        <record id="ces_q17_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q17"/>
+            <field name="sequence">1</field>
+            <field name="text">Integration capabilities</field>
+        </record>
+
+        <record id="ces_q17_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q17"/>
+            <field name="sequence">2</field>
+            <field name="text">Cost only</field>
+        </record>
+
+        <record id="ces_q17_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q17"/>
+            <field name="sequence">3</field>
+            <field name="text">User interface</field>
+        </record>
+
+        <record id="ces_q17_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q17"/>
+            <field name="sequence">4</field>
+            <field name="text">Vendor reputation</field>
+        </record>
+
+        <!-- Question 18: Fill in the Blank -->
+        <record id="ces_q18" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">Employee ________ is critical for CES adoption.</field>
+            <field name="correct_answer">engagement</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">18</field>
+        </record>
+
+        <!-- Question 19: Multiple Choice -->
+        <record id="ces_q19" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which of these is NOT a typical CES benefit?</field>
+            <field name="points">1</field>
+            <field name="position">19</field>
+            <field name="explanation">CES provides multiple benefits, but some expectations may be unrealistic.</field>
+        </record>
+
+        <record id="ces_q19_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q19"/>
+            <field name="sequence">1</field>
+            <field name="text">Improved decision making</field>
+        </record>
+
+        <record id="ces_q19_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q19"/>
+            <field name="sequence">2</field>
+            <field name="text">Enhanced reporting</field>
+        </record>
+
+        <record id="ces_q19_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q19"/>
+            <field name="sequence">3</field>
+            <field name="text">Elimination of all problems</field>
+        </record>
+
+        <record id="ces_q19_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q19"/>
+            <field name="sequence">4</field>
+            <field name="text">Better resource allocation</field>
+        </record>
+
+        <!-- Question 20: Fill in the Blank -->
+        <record id="ces_q20" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">CES should be designed to be ________ and scalable.</field>
+            <field name="correct_answer">flexible</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">20</field>
+        </record>
+
+        <!-- Question 21: Multiple Choice -->
+        <record id="ces_q21" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the first step in CES planning?</field>
+            <field name="points">1</field>
+            <field name="position">21</field>
+            <field name="explanation">CES planning begins with thorough assessment and goal setting.</field>
+        </record>
+
+        <record id="ces_q21_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q21"/>
+            <field name="sequence">1</field>
+            <field name="text">Conducting a needs assessment</field>
+        </record>
+
+        <record id="ces_q21_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q21"/>
+            <field name="sequence">2</field>
+            <field name="text">Selecting software</field>
+        </record>
+
+        <record id="ces_q21_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q21"/>
+            <field name="sequence">3</field>
+            <field name="text">Training staff</field>
+        </record>
+
+        <record id="ces_q21_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q21"/>
+            <field name="sequence">4</field>
+            <field name="text">Creating policies</field>
+        </record>
+
+        <!-- Question 22: Fill in the Blank -->
+        <record id="ces_q22" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">CES ________ should be measurable and achievable.</field>
+            <field name="correct_answer">goals</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">22</field>
+        </record>
+
+        <!-- Question 23: Multiple Choice -->
+        <record id="ces_q23" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">Which factor most affects CES implementation timeline?</field>
+            <field name="points">1</field>
+            <field name="position">23</field>
+            <field name="explanation">Implementation timeline is influenced by multiple organizational factors.</field>
+        </record>
+
+        <record id="ces_q23_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q23"/>
+            <field name="sequence">1</field>
+            <field name="text">Organizational complexity</field>
+        </record>
+
+        <record id="ces_q23_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q23"/>
+            <field name="sequence">2</field>
+            <field name="text">Budget constraints</field>
+        </record>
+
+        <record id="ces_q23_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q23"/>
+            <field name="sequence">3</field>
+            <field name="text">Staff availability</field>
+        </record>
+
+        <record id="ces_q23_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q23"/>
+            <field name="sequence">4</field>
+            <field name="text">Software selection</field>
+        </record>
+
+        <!-- Question 24: Fill in the Blank -->
+        <record id="ces_q24" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">fill_blank</field>
+            <field name="question_text">CES requires continuous ________ and improvement.</field>
+            <field name="correct_answer">monitoring</field>
+            <field name="fill_blank_count">1</field>
+            <field name="points">1</field>
+            <field name="position">24</field>
+        </record>
+
+        <!-- Question 25: Multiple Choice -->
+        <record id="ces_q25" model="learning.quiz.question">
+            <field name="quiz_id" ref="ces_day_1_assessment_quiz"/>
+            <field name="question_type">multiple_choice</field>
+            <field name="question_text">What is the ultimate goal of CES?</field>
+            <field name="points">1</field>
+            <field name="position">25</field>
+            <field name="explanation">The ultimate goal of CES is to drive continuous improvement and organizational excellence.</field>
+        </record>
+
+        <record id="ces_q25_opt1" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q25"/>
+            <field name="sequence">1</field>
+            <field name="text">Cost reduction</field>
+        </record>
+
+        <record id="ces_q25_opt2" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q25"/>
+            <field name="sequence">2</field>
+            <field name="text">Process automation</field>
+        </record>
+
+        <record id="ces_q25_opt3" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q25"/>
+            <field name="sequence">3</field>
+            <field name="text">Organizational excellence</field>
+        </record>
+
+        <record id="ces_q25_opt4" model="learning.quiz.option">
+            <field name="question_id" ref="ces_q25"/>
+            <field name="sequence">4</field>
+            <field name="text">Employee satisfaction</field>
+        </record>
+
+    </data>
+</odoo>

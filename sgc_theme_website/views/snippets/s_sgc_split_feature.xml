@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_split_feature" name="SGC Split Feature">
+        <section class="s_sgc_split_feature sgc-watermark--none sgc-geo--none sgc-palette--navy-cream"
+                 data-name="SGC Split Feature" data-snippet="s_sgc_split_feature">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container sgc-reveal">
+                <div class="text-center s_sgc_split_feature_head">
+                    <h2 class="s_sgc_split_feature_title">Built by Operators.<br/>
+                        <span class="sgc-accent-word">Not Consultants.</span></h2>
+                    <p class="s_sgc_split_feature_kicker">Real-world experience. Operational excellence. Measurable impact.</p>
+                </div>
+                <div class="row align-items-center s_sgc_split_feature_people">
+                    <div class="col-lg-5 s_sgc_split_feature_person">
+                        <img class="img-fluid rounded" src="/website/static/src/img/library/team.jpg" alt="Team member"/>
+                        <div class="s_sgc_split_feature_person_tag">
+                            <strong>Mohsin Ali</strong>
+                            <span>Strategic Finance</span>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 s_sgc_split_feature_divider" aria-hidden="true">
+                        <span class="s_sgc_split_feature_diamond"/>
+                    </div>
+                    <div class="col-lg-5 s_sgc_split_feature_person s_sgc_split_feature_person--right">
+                        <img class="img-fluid rounded" src="/website/static/src/img/library/team.jpg" alt="Team member"/>
+                        <div class="s_sgc_split_feature_person_tag">
+                            <strong>Renbran Madelo</strong>
+                            <span>Systems &amp; Technology</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row text-center s_sgc_split_feature_points">
+                    <div class="col-6 col-lg-3 s_sgc_split_feature_point">
+                        <span class="s_sgc_split_feature_point_badge"><i class="fa fa-chess-rook"/></span>
+                        <h5>Operator Mindset</h5>
+                        <p>We've led. We build.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_split_feature_point">
+                        <span class="s_sgc_split_feature_point_badge"><i class="fa fa-bullseye"/></span>
+                        <h5>Focused on Impact</h5>
+                        <p>Outcomes over opinions.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_split_feature_point">
+                        <span class="s_sgc_split_feature_point_badge"><i class="fa fa-users"/></span>
+                        <h5>Partners in Growth</h5>
+                        <p>Aligned. Accountable. Invested.</p>
+                    </div>
+                    <div class="col-6 col-lg-3 s_sgc_split_feature_point">
+                        <span class="s_sgc_split_feature_point_badge"><i class="fa fa-line-chart"/></span>
+                        <h5>Built for Scale</h5>
+                        <p>Systems today. Advantage tomorrow.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- App Menu Root -->
+    <menuitem id="menu_construction_root"
+        name="Construction"
+        sequence="1"
+        web_icon="sgc_construction_management,static/description/icon.png"/>
+
+    <!-- Dashboard -->
+    <menuitem id="menu_construction_dashboard"
+        name="Dashboard"
+        parent="menu_construction_root"
+        action="action_construction_dashboard"
+        sequence="10"/>
+
+    <!-- Projects -->
+    <menuitem id="menu_construction_projects"
+        name="Projects"
+        parent="menu_construction_root"
+        action="action_construction_project"
+        sequence="20"/>
+
+    <!-- BOQ -->
+    <menuitem id="menu_construction_boq"
+        name="BOQ"
+        parent="menu_construction_root"
+        action="action_construction_boq"
+        sequence="30"/>
+
+    <!-- Planning -->
+    <menuitem id="menu_construction_planning"
+        name="Planning"
+        parent="menu_construction_root"
+        sequence="40"/>
+
+    <menuitem id="menu_construction_wbs"
+        name="WBS Phases"
+        parent="menu_construction_planning"
+        action="action_construction_wbs"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_work_orders"
+        name="Work Orders"
+        parent="menu_construction_planning"
+        action="action_construction_work_order"
+        sequence="20"/>
+
+    <!-- Site Management -->
+    <menuitem id="menu_construction_site"
+        name="Site"
+        parent="menu_construction_root"
+        sequence="45"/>
+
+    <menuitem id="menu_construction_site_diary"
+        name="Site Diaries"
+        parent="menu_construction_site"
+        action="action_construction_site_diary"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_labor"
+        name="Labor Attendance"
+        parent="menu_construction_site"
+        action="action_construction_labor_attendance"
+        sequence="20"/>
+
+    <menuitem id="menu_construction_equipment"
+        name="Equipment"
+        parent="menu_construction_site"
+        action="action_construction_equipment"
+        sequence="30"/>
+
+    <!-- Document Control -->
+    <menuitem id="menu_construction_documents_root"
+        name="Documents"
+        parent="menu_construction_root"
+        sequence="48"/>
+
+    <menuitem id="menu_construction_document"
+        name="All Documents"
+        parent="menu_construction_documents_root"
+        action="action_construction_document"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_variation_order"
+        name="Variation Orders"
+        parent="menu_construction_documents_root"
+        action="action_construction_variation_order"
+        sequence="15"/>
+
+    <menuitem id="menu_construction_document_folder"
+        name="Folders"
+        parent="menu_construction_documents_root"
+        action="action_construction_document_folder"
+        sequence="20"/>
+
+    <menuitem id="menu_construction_transmittal"
+        name="Transmittals"
+        parent="menu_construction_documents_root"
+        action="action_construction_transmittal"
+        sequence="30"/>
+
+    <!-- Procurement -->
+    <menuitem id="menu_construction_procurement"
+        name="Procurement"
+        parent="menu_construction_root"
+        sequence="50"/>
+
+    <menuitem id="menu_construction_material_requisition"
+        name="Material Requisitions"
+        parent="menu_construction_procurement"
+        action="action_construction_material_requisition"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_purchase_order"
+        name="Purchase Orders (LPO)"
+        parent="menu_construction_procurement"
+        action="action_construction_purchase_order"
+        sequence="15"/>
+
+    <menuitem id="menu_construction_subcontract"
+        name="Subcontracts"
+        parent="menu_construction_procurement"
+        action="action_construction_subcontract"
+        sequence="20"/>
+
+    <!-- Billing -->
+    <menuitem id="menu_construction_billing"
+        name="Billing"
+        parent="menu_construction_root"
+        sequence="60"/>
+
+    <menuitem id="menu_construction_ra_billing"
+        name="RA Billing"
+        parent="menu_construction_billing"
+        action="action_construction_ra_billing"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_progress_billing"
+        name="Progress Billing"
+        parent="menu_construction_billing"
+        action="action_construction_progress_billing"
+        sequence="20"/>
+
+    <!-- Quality -->
+    <menuitem id="menu_construction_quality"
+        name="Quality &amp; HSE"
+        parent="menu_construction_root"
+        sequence="70"/>
+
+    <menuitem id="menu_construction_quality_check"
+        name="Quality Checks"
+        parent="menu_construction_quality"
+        action="action_construction_quality_check"
+        sequence="10"/>
+
+    <menuitem id="menu_construction_hse_incident"
+        name="HSE Incidents"
+        parent="menu_construction_quality"
+        action="action_construction_hse_incident"
+        sequence="20"/>
+
+    <!-- Expenses -->
+    <menuitem id="menu_construction_expenses"
+        name="Expenses"
+        parent="menu_construction_root"
+        action="action_construction_expense"
+        sequence="80"/>
+
+    <!-- Configuration -->
+    <menuitem id="menu_construction_configuration"
+        name="Configuration"
+        parent="menu_construction_root"
+        sequence="100"
+        groups="sgc_construction_management.group_construction_admin"/>
+
+    <menuitem id="menu_construction_expense_category"
+        name="Expense Categories"
+        parent="menu_construction_configuration"
+        action="action_construction_expense_category"
+        sequence="10"/>
+
+</odoo>

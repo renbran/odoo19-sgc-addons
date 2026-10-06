@@ -1,0 +1,7 @@
+/* SGC Tech AI — hide Odoo brand promotion (no external vendor branding) */
+.o_brand_promotion,
+.o_brand_promotion a,
+.o_brand_promotion img,
+a[href*="odoo.com"] {
+    display: none !important;
+}

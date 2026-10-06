@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="sgc_shop_header" name="SGC Shop Banner" inherit_id="website_sale.products">
+    <xpath expr="//div[@id='wrap']" position="before">
+      <div style="background:var(--sgc-gradient-mesh);padding:80px 0 40px;border-bottom:1px solid rgba(0,255,240,0.15);margin-bottom:0;position:relative;overflow:hidden;">
+        <img src="/sgc_theme_ai/static/src/img/hero_bg.png"
+             alt="UAE enterprise software marketplace" loading="lazy"
+             style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.14;pointer-events:none;z-index:0;"/>
+        <div class="sgc-container" style="position:relative;z-index:1;">
+          <span class="sgc-label">store.sgctech.ai</span>
+          <h1 style="font-size:clamp(2rem,4vw,3rem);margin-bottom:0.75rem;">
+            SGC <span class="sgc-highlight">Module Store</span>
+          </h1>
+          <p style="color:rgba(255,255,255,0.6);max-width:500px;font-size:1.05rem;">
+            Odoo modules, AI add-ons, and implementation packages built for UAE enterprises.
+          </p>
+        </div>
+      </div>
+    </xpath>
+  </template>
+
+  <template id="sgc_product_item" name="SGC Product Card" inherit_id="website_sale.products_item">
+    <xpath expr="//form[@role='article']" position="replace">
+      <div class="sgc-product-card">
+        <a t-att-href="product.website_url">
+          <div class="sgc-product-image">
+            <img t-att-src="website_image_url(product, 'image_512')"
+                 t-att-alt="product.name"
+                 loading="lazy"/>
+            <t t-if="product.website_ribbon_id">
+              <div class="sgc-product-badge" t-esc="product.website_ribbon_id.html"/>
+            </t>
+            <t t-if="product.website_published">
+              <div class="sgc-product-wishlist" title="Save for later" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 21s-6.716-4.35-9.193-8.12C1.404 10.744 2.07 6.8 5.6 5.44c2.057-.793 4.163-.15 5.4 1.4 1.237-1.55 3.343-2.193 5.4-1.4 3.53 1.36 4.196 5.304 2.793 7.44C18.716 16.65 12 21 12 21z"/>
+                </svg>
+              </div>
+            </t>
+          </div>
+        </a>
+
+        <div class="sgc-product-body">
+          <div class="sgc-product-category" t-if="product.categ_id">
+            <t t-esc="product.categ_id.name"/>
+          </div>
+          <h3 class="sgc-product-name">
+            <a t-att-href="product.website_url" t-esc="product.name"/>
+          </h3>
+          <p class="sgc-product-desc" t-if="product.description_sale" t-esc="product.description_sale"/>
+        </div>
+
+        <div class="sgc-product-footer">
+          <div class="sgc-product-price">
+            <span class="sgc-price-amount">
+              <t t-call="website_sale.product_price">
+                <t t-set="product" t-value="product"/>
+              </t>
+            </span>
+            <span class="sgc-price-period" t-if="product.subscription_template_id">/ year</span>
+          </div>
+          <t t-if="product.sale_ok">
+            <form t-att-action="'/shop/cart/update'" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <input type="hidden" name="product_id" t-att-value="product.id"/>
+              <input type="hidden" name="add_qty" value="1"/>
+              <button type="submit" class="sgc-add-to-cart">
+                <span>Add -></span>
+              </button>
+            </form>
+          </t>
+        </div>
+      </div>
+    </xpath>
+  </template>
+
+  <template id="sgc_cart" name="SGC Cart" inherit_id="website_sale.cart">
+    <xpath expr="//div[@id='shop_cart']" position="before">
+      <div style="padding:80px 0 20px;">
+        <div class="sgc-container">
+          <span class="sgc-label">Your Cart</span>
+          <h1 style="font-size:2.5rem;margin-bottom:0;">Review Your Order</h1>
+        </div>
+      </div>
+    </xpath>
+  </template>
+
+</odoo>

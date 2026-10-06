@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- (c) SGC TECH — Finance. Systems. Technology. — https://sgctech.ai -->
+<odoo>
+    <template id="s_sgc_hexagon_grid" name="SGC Hexagon Grid">
+        <section class="s_sgc_hexagon_grid sgc-watermark--skyline sgc-geo--circuit sgc-palette--navy-cream"
+                 data-name="SGC Hexagon Grid" data-snippet="s_sgc_hexagon_grid">
+            <img class="sgc-logo-lockup" src="/sgc_theme_website/static/src/img/sgc-logo.png" alt="SGC TECH"/>
+            <div class="container text-center sgc-reveal">
+                <h2 class="s_sgc_hexagon_grid_title">Built for <span class="sgc-accent-word">Complex Industries</span></h2>
+                <div class="row g-4 justify-content-center s_sgc_hexagon_grid_row">
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/office.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-building"/><span>Real Estate</span></div>
+                    </div>
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/bridge.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-wrench"/><span>Construction</span></div>
+                    </div>
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/business_conference.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-heartbeat"/><span>Healthcare</span></div>
+                    </div>
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/manufacturing.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-industry"/><span>Manufacturing</span></div>
+                    </div>
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/sell.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-shopping-bag"/><span>Retail</span></div>
+                    </div>
+                    <div class="col-6 col-md-4 s_sgc_hex_tile">
+                        <div class="s_sgc_hex_tile_shape" style="background-image:url('/website/static/src/img/library/marketing.webp')"/>
+                        <div class="s_sgc_hex_tile_label"><i class="fa fa-briefcase"/><span>Professional Services</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+</odoo>

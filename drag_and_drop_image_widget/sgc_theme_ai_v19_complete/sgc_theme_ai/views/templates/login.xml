@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ─── ENHANCED LOGIN PAGE ─────────────────────────────── -->
+  <!-- Odoo 19: web.login uses oe_structure_login_top/bottom as stable anchors.
+       The form uses t-attf-class (QWeb runtime attr) so it cannot be targeted
+       by a static xpath. We inject our custom UI after oe_structure_login_top
+       and hide the original form via its stable @role="form" attribute. -->
+  <template id="sgc_hide_native_form" name="SGC Hide Native Login Form" inherit_id="web.login">
+    <xpath expr="//form[@role='form']" position="attributes">
+      <attribute name="class">d-none</attribute>
+    </xpath>
+  </template>
+
+  <template id="sgc_login_page" name="SGC TECH AI Login" inherit_id="web.login">
+    <xpath expr="//div[@id='oe_structure_login_top']" position="after">
+      <div class="o_login_page sgc-auth-page">
+
+        <!-- Background orbs (decorative) -->
+        <div class="sgc-orb sgc-orb-cyan" style="width:500px;height:500px;top:-100px;left:-100px;" aria-hidden="true"></div>
+        <div class="sgc-orb sgc-orb-green" style="width:350px;height:350px;bottom:-50px;right:-50px;" aria-hidden="true"></div>
+
+        <!-- Auth Card -->
+        <div class="sgc-auth-card">
+
+          <!-- Logo -->
+          <a href="/" class="sgc-auth-logo">
+            <div class="logo-mark" aria-hidden="true">SG</div>
+            <div class="logo-info">
+              <span class="logo-name">SGC TECH AI</span>
+              <span class="logo-tag">Intelligent Infrastructure · Instant Impact</span>
+            </div>
+          </a>
+
+          <!-- Title -->
+          <h1 class="sgc-auth-title">Welcome Back</h1>
+          <p class="sgc-auth-subtitle">Sign in to your SGC TECH AI workspace</p>
+
+          <!-- Native Odoo Login Form (keep functional) -->
+          <form class="sgc-auth-form" method="post" t-att-action="'/web/login'" role="form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="redirect" t-att-value="redirect or ''"/>
+
+            <div style="margin-bottom:1.5rem;">
+              <label class="sgc-label-text" for="login">Email Address</label>
+              <div class="sgc-input-group">
+                <span class="input-icon">✉</span>
+                <input
+                  type="email"
+                  name="login"
+                  id="login"
+                  class="sgc-input"
+                  t-att-value="login or ''"
+                  placeholder="hello@yourcompany.com"
+                  autocomplete="username"
+                  autofocus="1"
+                  required="1"
+                  aria-required="true"
+                />
+              </div>
+            </div>
+
+            <div style="margin-bottom:2rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+                <label class="sgc-label-text" for="password" style="margin:0;">Password</label>
+                <a href="/web/reset_password" style="font-size:0.8rem;color:var(--sgc-electric-cyan);">Forgot password?</a>
+              </div>
+              <div class="sgc-input-group">
+                <span class="input-icon">🔒</span>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  class="sgc-input"
+                  placeholder="Your secure password"
+                  autocomplete="current-password"
+                  required="1"
+                  aria-required="true"
+                />
+              </div>
+            </div>
+
+            <!-- Error message -->
+            <t t-if="error">
+              <div style="background:rgba(255,77,79,0.1);border:1px solid rgba(255,77,79,0.3);border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:0.875rem;color:#ff7875;">
+                ⚠ <t t-esc="error"/>
+              </div>
+            </t>
+
+            <button type="submit" class="sgc-btn sgc-btn-primary" style="width:100%;justify-content:center;">
+              Sign In to Dashboard →
+            </button>
+
+          </form>
+
+          <!-- Security Badges -->
+          <div class="sgc-auth-security">
+            <span class="sgc-auth-badge">
+              <span class="icon">🔒</span> SSL Encrypted
+            </span>
+            <span class="sgc-auth-badge">
+              <span class="icon">✦</span> Odoo 19 Powered
+            </span>
+            <span class="sgc-auth-badge">
+              <span class="icon">🇦🇪</span> Dubai, UAE
+            </span>
+          </div>
+
+          <!-- Footer link -->
+          <div class="sgc-auth-foot" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.08);">
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.3);">
+              Not yet a client?
+              <a href="/appointment" style="color:var(--sgc-electric-cyan);">Book a free consultation →</a>
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Bottom tagline -->
+        <p style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);font-size:0.7rem;color:rgba(255,255,255,0.2);white-space:nowrap;z-index:0;">
+          SGC TECH AI · Intelligent Infrastructure. Instant Impact. · hello@sgctech.ai
+        </p>
+
+      </div>
+    </xpath>
+  </template>
+
+</odoo>

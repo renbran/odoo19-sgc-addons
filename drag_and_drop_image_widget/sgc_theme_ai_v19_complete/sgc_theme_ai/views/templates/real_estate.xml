@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+  <template id="sgc_real_estate" name="SGC Real Estate Module">
+    <t t-call="website.layout">
+      <t t-set="additional_title">Real Estate ERP Module — 30-Day Free Trial | SGC TECH AI UAE</t>
+      <t t-set="meta_description">Purpose-built Odoo Real Estate module for UAE property agencies. Rental management, commission tracking, RERA compliance, CEO dashboard. 30-day free trial.</t>
+
+      <div id="wrap">
+
+        <!-- HERO -->
+        <section class="sgc-section sgc-bg-hero sgc-bg-grid" style="padding-top:140px;padding-bottom:80px;">
+          <div class="sgc-container">
+            <div style="max-width:720px;">
+              <span class="sgc-label">Real Estate Module</span>
+              <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:999px;padding:6px 16px;margin-bottom:1.5rem;margin-left:0.75rem;">
+                <span style="color:var(--sgc-neon-green);font-size:0.8rem;font-weight:700;">30-Day Free Trial</span>
+              </div>
+              <h1 style="font-size:clamp(2.2rem,5vw,4.2rem);margin-bottom:1.5rem;">
+                The ERP Built for <span class="sgc-highlight">UAE Real Estate</span>
+              </h1>
+              <p style="font-size:1.1rem;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:2.5rem;max-width:580px;">
+                Stop managing your property portfolio in spreadsheets and WhatsApp groups. One platform for listings, tenants, commissions, compliance, and CEO dashboards — deployed in 14 days.
+              </p>
+              <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                <a href="/appointment?package=real_estate&amp;trial=true" class="sgc-btn sgc-btn-primary sgc-btn-xl">
+                  Start 30-Day Free Trial
+                </a>
+                <a href="#re-features" class="sgc-btn sgc-btn-secondary sgc-btn-lg">See All Features</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Real Estate hero visual -->
+        <div style="background:var(--sgc-deep-navy);padding:0 0 40px;">
+          <div class="sgc-container">
+            <div style="border-radius:1.5rem;overflow:hidden;border:1px solid rgba(0,255,240,0.15);box-shadow:0 16px 48px rgba(0,0,0,0.5);position:relative;" class="sgc-reveal">
+              <img src="/sgc_theme_ai/static/src/img/dubai_skyline.png"
+                   alt="UAE real estate portfolio command center — digital property dashboard" loading="lazy"
+                   style="width:100%;height:auto;max-height:380px;object-fit:cover;display:block;"/>
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(3,15,28,0.75) 100%);pointer-events:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAIN POINTS -->
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">The Problem</span>
+              <h2>How UAE agencies <span class="sgc-highlight">lose money</span> every month</h2>
+            </div>
+            <div class="sgc-grid sgc-grid-3 sgc-stagger">
+              <t t-foreach="[
+                ('Missed Renewals', 'Tenancy agreements expire unnoticed. Vacancies cost AED 15,000-50,000 per month per unit while the admin scrambles.'),
+                ('Commission Chaos', 'Agent commission splits calculated manually in Excel. Disputes, errors, and delayed payments killing morale and causing turnover.'),
+                ('Compliance Gaps', 'RERA forms, Ejari registrations, and DLD submissions tracked in email. One missed deadline means fines and license risks.'),
+                ('No CEO Visibility', 'The MD asks for portfolio performance. The ops team spends 2 days pulling numbers from 4 spreadsheets.'),
+                ('Cheque Disasters', 'Post-dated cheques tracked in notebooks. Bounced cheques discovered weeks late. Cash flow management impossible.'),
+                ('Owner Complaints', 'Owners call for updates that require digging through 3 systems. Every call is 30 minutes of manual work.'),
+              ]" t-as="pain">
+                <div class="sgc-card" style="border-color:rgba(255,77,79,0.2);background:rgba(255,77,79,0.04);">
+                  <div style="width:40px;height:40px;background:rgba(255,77,79,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff4d4f" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <h4 style="font-size:1rem;margin-bottom:0.5rem;"><t t-esc="pain[0]"/></h4>
+                  <p style="font-size:0.875rem;color:rgba(255,255,255,0.6);line-height:1.6;"><t t-esc="pain[1]"/></p>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section id="re-features" class="sgc-section sgc-bg-navy">
+          <div class="sgc-container">
+            <div class="sgc-section-head">
+              <span class="sgc-label">Full Feature Set</span>
+              <h2>Everything your agency <span class="sgc-highlight">needs</span></h2>
+            </div>
+            <div class="sgc-grid sgc-grid-3 sgc-stagger">
+              <t t-foreach="[
+                ('Property &amp; Listing Management', 'Centralised property database with photos, documents, unit status, and availability. Publish to Bayut, Property Finder, and Dubizzle from one place.'),
+                ('Tenancy &amp; Lease Automation', 'Digital tenancy contracts, auto-renewal alerts 90/60/30 days out, Ejari generation, and PDF contract dispatch — all automated.'),
+                ('Commission Engine', 'Configure splits, tiers, referral fees, and co-broker commissions. Agents see their earnings in real time. Finance approves in one click.'),
+                ('Cheque Management', 'Log post-dated cheques, set clearance reminders, track bounces, and reconcile with your bank — without spreadsheets.'),
+                ('RERA &amp; Compliance', 'Form A, B, and F templates. DLD submission tracking. RERA license renewal alerts. Audit-ready documentation storage.'),
+                ('Owner Portal', 'Give landlords a login to see their portfolio performance, tenancy status, income statements, and documents — without your team lifting a finger.'),
+                ('CEO Dashboard', 'Real-time KPIs: occupancy rate, revenue by property, agent leaderboard, commission liability, upcoming renewals, and cash flow.'),
+                ('WhatsApp Automation', 'Auto-send rent reminders, renewal notices, cheque clearance alerts, and viewing confirmations via WhatsApp Business API.'),
+                ('Mobile App', 'Agents manage leads, schedule viewings, and update deal status from the field. Full iOS and Android support with offline mode.'),
+              ]" t-as="feat">
+                <div class="sgc-card-feature">
+                  <div class="feature-icon" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <t t-if="feat_index == 0"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></t>
+                      <t t-elif="feat_index == 1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></t>
+                      <t t-elif="feat_index == 2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></t>
+                      <t t-elif="feat_index == 3"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></t>
+                      <t t-elif="feat_index == 4"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></t>
+                      <t t-elif="feat_index == 5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></t>
+                      <t t-elif="feat_index == 6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></t>
+                      <t t-elif="feat_index == 7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></t>
+                      <t t-else=""><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></t>
+                    </svg>
+                  </div>
+                  <h4 style="font-size:0.95rem;margin-bottom:0.5rem;"><t t-esc="feat[0]"/></h4>
+                  <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);line-height:1.6;"><t t-esc="feat[1]"/></p>
+                </div>
+              </t>
+            </div>
+          </div>
+        </section>
+
+        <!-- ROI SNAPSHOT -->
+        <section class="sgc-section sgc-bg-dark">
+          <div class="sgc-container">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;">
+              <div class="sgc-reveal">
+                <span class="sgc-label">Typical Results</span>
+                <h2 style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-bottom:1.5rem;">
+                  Average UAE real estate agency <span class="sgc-highlight">saves AED 420,000/year</span>
+                </h2>
+                <p style="color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:2rem;">
+                  Based on our 20+ UAE real estate deployments, agencies with 10-30 agents typically achieve the following within 6 months of go-live.
+                </p>
+                <a href="/appointment?package=real_estate" class="sgc-btn sgc-btn-primary">Calculate My Agency's ROI</a>
+              </div>
+              <div class="sgc-reveal-right">
+                <div style="display:flex;flex-direction:column;gap:1rem;">
+                  <t t-foreach="[
+                    ('60 hours/month', 'Admin time saved per 10-agent team', '186%'),
+                    ('Zero missed renewals', 'Since automated alerts deployed', '100%'),
+                    ('3 days to 20 mins', 'Cheque-to-cash cycle reduction', '99%'),
+                    ('2 days to 2 hours', 'Monthly financial reporting time', '92%'),
+                  ]" t-as="metric">
+                    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:1rem;padding:1.25rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                      <div>
+                        <p style="font-weight:700;color:white;font-size:0.95rem;margin-bottom:0.2rem;"><t t-esc="metric[0]"/></p>
+                        <p style="color:rgba(255,255,255,0.5);font-size:0.78rem;"><t t-esc="metric[1]"/></p>
+                      </div>
+                      <span style="font-family:var(--sgc-font-display);font-size:1.4rem;font-weight:800;background:var(--sgc-gradient-cta);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;white-space:nowrap;">
+                        <t t-esc="metric[2]"/>
+                      </span>
+                    </div>
+                  </t>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="sgc-section sgc-bg-hero">
+          <div class="sgc-container">
+            <div class="sgc-cta-section">
+              <span class="sgc-label" style="display:inline-flex;margin:0 auto 1.5rem;">30-Day Free Trial — No Credit Card</span>
+              <h2 style="font-size:clamp(1.8rem,4vw,3rem);margin-bottom:1rem;">
+                Try it with your <span class="sgc-highlight">own data</span> for 30 days.
+              </h2>
+              <p style="color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 2.5rem;">
+                We set up a fully configured trial environment with your property data, agent roster, and commission rules — ready in 48 hours. No commitment. No payment details required.
+              </p>
+              <div style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;">
+                <a href="/appointment?package=real_estate&amp;trial=true" class="sgc-btn sgc-btn-primary sgc-btn-xl">
+                  Start Free Trial
+                </a>
+                <a href="https://wa.me/971521985231?text=Hi%20I%27m%20interested%20in%20the%20Real%20Estate%20module%20free%20trial"
+                   target="_blank" rel="noopener noreferrer" class="sgc-btn sgc-btn-whatsapp sgc-btn-lg">
+                  WhatsApp to Set Up Trial
+                </a>
+              </div>
+              <p style="font-size:0.78rem;color:rgba(255,255,255,0.35);margin-top:1.5rem;">
+                Trial includes: Full module access, your data, dedicated setup call, and SGC support for 30 days
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </t>
+  </template>
+
+</odoo>

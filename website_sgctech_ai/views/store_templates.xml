@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sgctech_store_body_classes_products" inherit_id="website_sale.products" name="SGC Tech Store Classes - Products">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="sgc-storefront" separator=" "/>
+        </xpath>
+    </template>
+
+    <template id="sgctech_store_body_classes_product" inherit_id="website_sale.product" name="SGC Tech Store Classes - Product">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="sgc-storefront" separator=" "/>
+        </xpath>
+    </template>
+
+    <template id="sgctech_store_body_classes_checkout" inherit_id="website_sale.checkout_layout" name="SGC Tech Store Classes - Checkout">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="class" add="sgc-storefront" separator=" "/>
+        </xpath>
+    </template>
+
+</odoo>

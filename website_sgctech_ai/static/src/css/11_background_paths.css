@@ -1,0 +1,51 @@
+/* ============================================================
+   SGC TECH AI — Background Paths (canvas overlay)
+   Sits above the hero background image (z-index: 0 / ::after)
+   and the gradient orbs (::before, z-index: 1) but BELOW the
+   particle canvas (--z-particles: 2) and all hero content
+   (--z-content: 10).  No compositing tricks needed — the canvas
+   element's z-index is respected without ambiguity.
+   ============================================================ */
+
+.sgc-bp-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Applied on all non-home pages via website.layout injection. */
+.sgc-bp-canvas-global {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    opacity: 0.85;
+}
+
+#wrapwrap.sgc-theme {
+    position: relative;
+}
+
+#wrapwrap.sgc-theme > *:not(.sgc-bp-canvas-global) {
+    position: relative;
+    z-index: 1;
+}
+
+.sgc-aura-canvas-global {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+#wrapwrap.sgc-theme > *:not(.sgc-bp-canvas-global):not(.sgc-aura-canvas-global) {
+    position: relative;
+    z-index: 1;
+}
