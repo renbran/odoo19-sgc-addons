@@ -46,14 +46,23 @@ export class DfrFilterWidget extends Component {
             return;
         }
         const domain = filterDef.domain ? JSON.parse(filterDef.domain.replace(/'/g, '"')) : [];
-        const results = await this.orm.call(filterDef.model, "name_search", [], {
-            name: term,
-            domain: domain,
-            operator: "ilike",
-            limit: 20,
-        });
-        this.state.searchResults = results.map(([id, display_name]) => ({ id, display_name }));
-        this.state.searchOpen = true;
+        try {
+            const results = await this.orm.call(filterDef.model, "name_search", [], {
+                name: term,
+                args: domain,
+                operator: "ilike",
+                limit: 20,
+            });
+            this.state.searchResults = results.map(([id, display_name]) => ({ id, display_name }));
+            this.state.searchOpen = true;
+        } catch (err) {
+            // e.g. AccessError/auth when a user's allowed companies are
+            // restricted — degrade to an empty list instead of toasting an
+            // RPC_ERROR that breaks the whole filter bar.
+            console.warn("DFR filter search failed", err);
+            this.state.searchResults = [];
+            this.state.searchOpen = false;
+        }
     }
 
     selectMany2One(option) {

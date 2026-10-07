@@ -280,6 +280,7 @@
         background-color: rgba(15, 44, 76, 0.04);
         font-weight: 600;
         cursor: pointer;
+        transition: background 120ms ease;
 
         > td:first-child::before {
             content: "▾";
@@ -290,7 +291,9 @@
             font-size: 11px;
         }
 
+        &:hover { background-color: rgba(15, 44, 76, 0.09); }
         &.sgc-group-collapsed {
+            background-color: rgba(15, 44, 76, 0.02);
             > td:first-child::before { content: "▸"; }
         }
     }
