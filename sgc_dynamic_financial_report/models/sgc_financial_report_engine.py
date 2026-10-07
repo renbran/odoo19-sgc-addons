@@ -1280,6 +1280,62 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 text_columns.add(col)
         return text_columns
 
+    def _group_display_rows_by_type(self, section_rows, display_rows, wizard,
+                                    include_comp=False, budget_active=False):
+        """Insert collapsible group-header rows (one per account_type) into
+        a section's display_rows. Each header sums its child accounts and
+        renders as a parent row; child rows get the ``sgc-group-child`` class
+        and can be toggled by clicking the parent. Mirrors Odoo Enterprise
+        reports: sections stay collapsed by default, and deeper detail is
+        one click away.
+
+        ``section_rows`` and ``display_rows`` must be the same length and in
+        the same order (the caller builds display_rows from section_rows).
+        """
+        if not section_rows or not display_rows:
+            return display_rows
+        from collections import OrderedDict
+        groups = OrderedDict()
+        for raw, disp in zip(section_rows, display_rows):
+            key = raw.get("account_type") or "other"
+            g = groups.setdefault(key, {"rows": [], "debit": 0.0, "credit": 0.0,
+                                        "balance": 0.0, "comp": 0.0, "budget": 0.0})
+            g["rows"].append(disp)
+            g["debit"] += raw["debit"]
+            g["credit"] += raw["credit"]
+            g["balance"] += raw["natural_balance"]
+            if include_comp:
+                g["comp"] += raw.get("comp_natural_balance", 0.0)
+            if budget_active:
+                g["budget"] += raw.get("budget_amount", 0.0)
+        selection = dict(self.env["account.account"]._fields["account_type"].selection)
+        grouped = []
+        for gid, (gtype, g) in enumerate(groups.items(), start=1):
+            label = selection.get(gtype, gtype)
+            header = {
+                "Code": "",
+                "Account Name": f"▸ {label}",
+                "Debit": self._fmt(g["debit"], wizard),
+                "Credit": self._fmt(g["credit"], wizard),
+                "Balance": self._fmt(g["balance"], wizard),
+                "css_class": "sgc-group-row",
+                "sgc_group_id": gid,
+            }
+            if include_comp:
+                header["Comp. Balance"] = self._fmt(g["comp"], wizard)
+            if budget_active:
+                header.update(self._budget_row_cells(
+                    {"budget_amount": g["budget"], "natural_balance": g["balance"],
+                     "variance": g["balance"] - g["budget"],
+                     "variance_pct": ((g["balance"] - g["budget"]) / g["budget"] * 100
+                                      if g["budget"] else 0.0)}, wizard))
+            grouped.append(header)
+            for child in g["rows"]:
+                child["sgc_group_id"] = gid
+                child["css_class"] = (child.get("css_class", "") + " sgc-group-child").strip()
+                grouped.append(child)
+        return grouped
+
     def _build_html_table(self, columns, rows, totals=None, css_class="", wizard=None):
         """Build an HTML table string for report display.
 
@@ -1319,16 +1375,16 @@ class SgcFinancialReportEngine(models.AbstractModel):
         for row in rows:
             row_class = row.pop("css_class", "")
             analytic_values = row.pop("_analytic_values", None)
-            # Drill-down wiring: every account row gets a data-account-id
-            # attribute so the OWL client-action JS can fetch and render
-            # /sgc/dfr/drilldown/<wid>/<aid> move lines inline when the
-            # row is clicked. Rows without account_id (e.g. partner
-            # aggregations or <tfoot> section totals) get no attribute,
-            # so they stay non-clickable.
+            sgc_gid = row.pop("sgc_group_id", None)
             row_attrs = []
             _acct_id = row.get("account_id")
             if _acct_id:
                 row_attrs.append("data-account-id=\"" + str(int(_acct_id)) + "\"")
+            if sgc_gid is not None:
+                if "sgc-group-row" in row_class:
+                    row_attrs.append('data-sgc-ggroup="' + str(sgc_gid) + '"')
+                elif "sgc-group-child" in row_class:
+                    row_attrs.append('data-sgc-gparent="' + str(sgc_gid) + '"')
             attrs_str = (" " + " ".join(row_attrs)) if row_attrs else ""
             if row_class:
                 html_parts.append("<tr class=\"" + row_class + "\"" + attrs_str + ">")
@@ -1564,6 +1620,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
                     wizard,
                 ))
 
+            display_rows = self._group_display_rows_by_type(section_rows, display_rows, wizard, include_comp=has_comparison, budget_active=budget_active)
             section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
             html += self._wrap_collapsible(section_label, section_table_html)
 
@@ -1688,6 +1745,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
                     wizard,
                 ))
 
+            display_rows = self._group_display_rows_by_type(section_rows, display_rows, wizard, include_comp=has_comparison, budget_active=budget_active)
             section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
             html += self._wrap_collapsible(section_label, section_table_html)
 
@@ -1824,6 +1882,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 "Description": "",
                 "Amount": self._fmt(activity_totals[activity_name], wizard),
             }
+            display_rows = self._group_display_rows_by_type(section_rows, display_rows, wizard, include_comp=has_comparison, budget_active=budget_active)
             section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
             html += self._wrap_collapsible(activity_name, section_table_html)
 
@@ -1914,6 +1973,7 @@ class SgcFinancialReportEngine(models.AbstractModel):
                 wizard,
             ))
 
+            display_rows = self._group_display_rows_by_type(section_rows, display_rows, wizard, include_comp=has_comparison, budget_active=budget_active)
         section_table_html = self._build_html_table(columns, display_rows, totals, wizard=wizard)
         html += self._wrap_collapsible("Account Balances", section_table_html)
 

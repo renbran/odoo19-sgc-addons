@@ -97,6 +97,21 @@ export function attachDrilldownHandler(containerEl, wizardId) {
     }
     containerEl.dataset.sgcDrilldownAttached = "1";
     containerEl.addEventListener("click", async (ev) => {
+        // Parent account groups: collapse/expand child accounts without
+        // firing the drill-down fetch.
+        const groupRow = ev.target.closest("tr.sgc-group-row");
+        if (groupRow) {
+            const gid = groupRow.dataset.sgcGgroup;
+            const collapsed = groupRow.classList.toggle("sgc-group-collapsed");
+            const tbody = groupRow.closest("tbody");
+            if (tbody) {
+                tbody.querySelectorAll(`tr[data-sgc-gparent="${gid}"]`).forEach((r) => {
+                    r.style.display = collapsed ? "none" : "";
+                });
+            }
+            return;
+        }
+
         const row = ev.target.closest("tr[data-account-id]");
         if (!row) return;
         // Ignore clicks that land inside an already-expanded drill row.

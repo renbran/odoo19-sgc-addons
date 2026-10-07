@@ -13,6 +13,10 @@
     border: 1px solid #e2e6ec;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(15, 44, 76, 0.08);
+    // Enterprise-style report pane: scrolls within the card
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    overflow-x: hidden;
 
     .sgc-report {
         font-size: 12px;
@@ -268,6 +272,34 @@
     }
 }
 
+// ── Parent Account Groups (expand/collapse) ──────────────────────
+// Group rows behave like Odoo Enterprise report group headers: bold,
+// tinted, with a chevron; their child accounts toggle visibility.
+.o_sgc_report_container {
+    tr.sgc-group-row {
+        background-color: rgba(15, 44, 76, 0.04);
+        font-weight: 600;
+        cursor: pointer;
+
+        > td:first-child::before {
+            content: "▾";
+            display: inline-block;
+            margin-right: 0.4rem;
+            color: #0f2c4c;
+            opacity: 0.8;
+            font-size: 11px;
+        }
+
+        &.sgc-group-collapsed {
+            > td:first-child::before { content: "▸"; }
+        }
+    }
+
+    tr.sgc-group-child > td.sgc-col-text:first-child {
+        padding-left: 1.5rem;
+    }
+}
+
 // ── Analytic Breakdown Columns ───────────────────────────────────
 // Engine emits a "Analytic Breakdown" colspan header row + per-line
 // analytic amount cells with the .analytic-cell class.
@@ -449,7 +481,7 @@ tfoot .analytic-total {
     border-radius: 8px;
     background: #ffffff;
     box-shadow: 0 1px 2px rgba(15, 44, 76, 0.04);
-    overflow: hidden;
+    overflow-x: auto;
 
     > summary.sgc_section_title {
         cursor: pointer;
