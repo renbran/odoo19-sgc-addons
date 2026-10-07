@@ -10,8 +10,8 @@
     padding: 0 16px;
 
     .sgc-report {
-        font-size: 13px;
-        line-height: 1.5;
+        font-size: 12px;
+        line-height: 1.3;
     }
 }
 
@@ -31,7 +31,7 @@
 
     th,
     td {
-        padding: 0.5rem 0.75rem;
+        padding: 0.28rem 0.55rem;
         border: 1px solid #dee2e6;
         text-align: right;
         white-space: nowrap;
@@ -307,7 +307,7 @@ tfoot .analytic-total {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
+    padding: 0.28rem 0.55rem;
     background-color: #e2f3fc;
     border-radius: 4px;
     font-size: 12px;
@@ -413,7 +413,7 @@ tfoot .analytic-total {
 // the "Expand All / Collapse All" bar operates on these via plain
 // onclick handlers built in _build_collapse_toggle_bar().
 .sgc_collapse_toggle_bar {
-    margin: 0.75rem 0 1rem;
+    margin: 0.4rem 0 0.6rem;
     display: inline-flex;
     gap: 0;
     border-radius: 6px;
@@ -439,7 +439,7 @@ tfoot .analytic-total {
 }
 
 .sgc_collapsible_section {
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.5rem;
     border: 1px solid #e2e6ec;
     border-radius: 8px;
     background: #ffffff;
@@ -451,7 +451,7 @@ tfoot .analytic-total {
         font-weight: 700;
         font-size: 0.95rem;
         color: #0f2c4c;
-        padding: 0.7rem 1rem;
+        padding: 0.4rem 0.75rem;
         background: linear-gradient(180deg, #fbfcfe, #f2f5fa);
         list-style: none;
         display: flex;
@@ -468,7 +468,7 @@ tfoot .analytic-total {
             content: "▸";
             display: inline-block;
             color: #c9a227;
-            font-size: 13px;
+            font-size: 12px;
             transition: transform 200ms ease;
         }
 
@@ -578,7 +578,7 @@ tr.sgc-drilldown-row {
 
     .sgc_section_title {
         color: #0f2c4c;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -646,7 +646,7 @@ tr.sgc-drilldown-row {
             background-color: #0f2c4c !important;
             color: #ffffff !important;
             border-top: 2px solid #c9a227;
-            font-size: 13px;
+            font-size: 12px;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
