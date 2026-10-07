@@ -6,8 +6,13 @@
 
 // ── Report Container ────────────────────────────────────────────────
 .o_sgc_report_container {
-    margin: 0 -16px;
-    padding: 0 16px;
+    max-width: 1080px;
+    margin: 0.75rem auto;
+    padding: 1.25rem 1.5rem;
+    background: #ffffff;
+    border: 1px solid #e2e6ec;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(15, 44, 76, 0.08);
 
     .sgc-report {
         font-size: 12px;
