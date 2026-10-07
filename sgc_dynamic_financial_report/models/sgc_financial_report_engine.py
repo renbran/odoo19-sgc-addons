@@ -1222,11 +1222,13 @@ class SgcFinancialReportEngine(models.AbstractModel):
             return ""
         return (
             '<div class="sgc_collapse_toggle_bar">'
-            '<button type="button" class="btn btn-sm btn-outline-secondary sgc_expand_all_btn" '
-            'onclick="document.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
+            '<button type="button" class="btn btn-sm sgc_expand_all_btn" '
+            'onclick="(this.closest(&quot;.o_sgc_report_container&quot;)||document)'
+            '.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
             '.forEach(function(d){d.open=true;})">Expand All</button> '
-            '<button type="button" class="btn btn-sm btn-outline-secondary sgc_collapse_all_btn" '
-            'onclick="document.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
+            '<button type="button" class="btn btn-sm sgc_collapse_all_btn" '
+            'onclick="(this.closest(&quot;.o_sgc_report_container&quot;)||document)'
+            '.querySelectorAll(&quot;.sgc_collapsible_section&quot;)'
             '.forEach(function(d){d.open=false;})">Collapse All</button>'
             '</div>'
         )

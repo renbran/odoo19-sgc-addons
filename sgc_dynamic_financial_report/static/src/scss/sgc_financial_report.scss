@@ -46,6 +46,17 @@
         position: sticky;
         top: 0;
         z-index: 1;
+        box-shadow: 0 2px 0 #c9a227;
+    }
+
+    // Tabular numerals for financial columns
+    td {
+        font-variant-numeric: tabular-nums;
+    }
+
+    // Zebra striping (skip special rows)
+    tbody tr:nth-child(even):not(.section-header):not(.total-row):not(.grand-total) {
+        background-color: #f7f9fc;
     }
 
     // First column (Code / Date / Partner ref, etc.): short, fixed-length
@@ -402,30 +413,89 @@ tfoot .analytic-total {
 // the "Expand All / Collapse All" bar operates on these via plain
 // onclick handlers built in _build_collapse_toggle_bar().
 .sgc_collapse_toggle_bar {
-    margin: 0.5rem 0;
-    display: flex;
-    gap: 0.5rem;
+    margin: 0.75rem 0 1rem;
+    display: inline-flex;
+    gap: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #c9cdd3;
+
+    .sgc_expand_all_btn,
+    .sgc_collapse_all_btn {
+        background: #ffffff;
+        color: #0f2c4c;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 0.35rem 0.9rem;
+        border: none;
+        border-right: 1px solid #c9cdd3;
+        transition: background 150ms ease, color 150ms ease;
+
+        &:last-child { border-right: none; }
+        &:hover { background: #0f2c4c; color: #fff; }
+    }
 }
 
 .sgc_collapsible_section {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    border: 1px solid #e2e6ec;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 44, 76, 0.04);
+    overflow: hidden;
 
     > summary.sgc_section_title {
         cursor: pointer;
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 0.35rem 0;
-        list-style-position: outside;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0f2c4c;
+        padding: 0.7rem 1rem;
+        background: linear-gradient(180deg, #fbfcfe, #f2f5fa);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        user-select: none;
+        transition: background 150ms ease;
 
-        &:hover {
-            color: #0f2c4c;
+        &::-webkit-details-marker { display: none; }
+        &::marker { content: ""; }
+
+        // chevron
+        &::before {
+            content: "▸";
+            display: inline-block;
+            color: #c9a227;
+            font-size: 13px;
+            transition: transform 200ms ease;
         }
+
+        &:hover { background: #eef2f8; }
     }
 
-    // First table right after the summary shouldn't add extra top gap.
-    > summary.sgc_section_title + * {
-        margin-top: 0.25rem;
+    &[open] > summary.sgc_section_title::before {
+        transform: rotate(90deg);
     }
+
+    // Content fade/slide when a section opens
+    &[open] > summary.sgc_section_title ~ * {
+        animation: sgcSectionIn 220ms ease both;
+    }
+
+    > summary.sgc_section_title + * { margin-top: 0.5rem; }
+    > :not(summary) { padding: 0 0.75rem 0.75rem; }
+}
+
+@keyframes sgcSectionIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+// Drill-down row enter animation
+tr.sgc-drilldown-row {
+    animation: sgcSectionIn 220ms ease both;
 }
 
 // ── Print Styles ────────────────────────────────────────────────────
