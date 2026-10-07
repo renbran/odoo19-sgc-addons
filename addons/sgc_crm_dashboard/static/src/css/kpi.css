@@ -1,0 +1,168 @@
+/* KPI Metric Cards — Premium Executive (Dark + Gold/Amber/Emerald) */
+/* ===================================== */
+
+/* Metric card container */
+.kpi-grid .metric-card {
+    background: #0E1B2E;
+    border: 1px solid rgba(199, 162, 58, 0.25);
+    border-radius: var(--radius-md, 10px);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.kpi-grid .metric-card:hover {
+    border-color: #C7A23A;
+    box-shadow: 0 4px 20px rgba(199, 162, 58, 0.10);
+}
+
+/* Per-metric-type accents */
+/* Total Leads — White value, Gold border accent */
+.metric-card.metric-total-leads {
+    border-left: 3px solid #C7A23A;
+}
+.metric-card.metric-total-leads .metric-value {
+    color: #F5F7FA;
+}
+
+/* For Follow Up — Amber value, Amber accent border */
+.metric-card.metric-follow-up {
+    border-left: 3px solid #F4B740;
+}
+.metric-card.metric-follow-up .metric-value {
+    color: #F4B740;
+}
+
+/* Total Booked — Emerald value, Emerald accent border */
+.metric-card.metric-booked {
+    border-left: 3px solid #00B67A;
+}
+.metric-card.metric-booked .metric-value {
+    color: #00B67A;
+}
+
+/* Total Won — Emerald value, Emerald accent border */
+.metric-card.metric-won {
+    border-left: 3px solid #00B67A;
+}
+.metric-card.metric-won .metric-value {
+    color: #00B67A;
+}
+
+/* Estimated Revenue — Gold value, Gold accent border, premium glow */
+.metric-card.metric-revenue {
+    border-left: 3px solid #C7A23A;
+    box-shadow: 0 0 20px rgba(199, 162, 58, 0.08), inset 0 1px 0 rgba(199, 162, 58, 0.15);
+}
+.metric-card.metric-revenue .metric-value {
+    color: #C7A23A;
+    font-size: 1.8rem;
+    text-shadow: 0 0 12px rgba(199, 162, 58, 0.25);
+}
+.metric-card.metric-revenue .metric-label {
+    color: #C7A23A;
+    opacity: 0.8;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Real Estate KPI Card Accents
+   ═══════════════════════════════════════════════════════ */
+
+/* Lead-to-Close Rate — Slate purple */
+.metric-card.metric-conversion-rate {
+    border-left: 3px solid #7D7EAF;
+}
+.metric-card.metric-conversion-rate .metric-value {
+    color: #7D7EAF;
+}
+
+/* Avg Days on Market — Emerald */
+.metric-card.metric-avg-dom {
+    border-left: 3px solid #1EC198;
+}
+.metric-card.metric-avg-dom .metric-value {
+    color: #1EC198;
+}
+
+/* Avg Sale Price — Blue info */
+.metric-card.metric-avg-sale-price {
+    border-left: 3px solid #4DA3FF;
+}
+.metric-card.metric-avg-sale-price .metric-value {
+    color: #4DA3FF;
+}
+
+/* Active Listings — Amber/gold */
+.metric-card.metric-active-listings {
+    border-left: 3px solid #FFCA71;
+}
+.metric-card.metric-active-listings .metric-value {
+    color: #FFCA71;
+}
+
+/* Stalled Deal Rate — Coral/red */
+.metric-card.metric-stalled-rate {
+    border-left: 3px solid #FF5A5F;
+}
+.metric-card.metric-stalled-rate .metric-value {
+    color: #FF5A5F;
+}
+
+/* Response Time — Mauve/purple */
+.metric-card.metric-response-time {
+    border-left: 3px solid #BD85BA;
+}
+.metric-card.metric-response-time .metric-value {
+    color: #BD85BA;
+}
+
+/* Quota Attainment — Gold */
+.metric-card.metric-quota {
+    border-left: 3px solid #C7A23A;
+}
+.metric-card.metric-quota .metric-value {
+    color: #C7A23A;
+}
+
+/* Source Conversion — Teal */
+.metric-card.metric-source-conv {
+    border-left: 3px solid #0dcaf0;
+}
+.metric-card.metric-source-conv .metric-value {
+    color: #0dcaf0;
+}
+
+/* Shared metric-card typography tokens */
+.metric-card .metric-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: #708090;
+    margin-bottom: 6px;
+}
+
+.metric-card .metric-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.metric-card .metric-sub {
+    font-size: 0.75rem;
+    color: #708090;
+    margin-top: 4px;
+}
+
+/* Glow dot (optional indicator) */
+.metric-card .metric-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+.metric-card .metric-dot.dot-gold  { background: #C7A23A; }
+.metric-card .metric-dot.dot-amber { background: #F4B740; }
+.metric-card .metric-dot.dot-emerald { background: #00B67A; }
