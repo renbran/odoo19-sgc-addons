@@ -64,7 +64,7 @@
     }
 
     // Zebra striping (skip special rows)
-    tbody tr:nth-child(even):not(.section-header):not(.total-row):not(.grand-total) {
+    tbody tr:nth-child(even):not(.section-header):not(.total-row):not(.grand-total):not(.sgc-group-row):not(.sgc-group-child) {
         background-color: #f7f9fc;
     }
 
@@ -298,8 +298,15 @@
         }
     }
 
-    tr.sgc-group-child > td.sgc-col-text:first-child {
-        padding-left: 1.5rem;
+    tr.sgc-group-child {
+        background-color: rgba(15, 44, 76, 0.015);
+
+        &:nth-child(even) { background-color: rgba(15, 44, 76, 0.03); }
+        &:hover { background-color: rgba(15, 44, 76, 0.06); }
+
+        > td.sgc-col-text:first-child {
+            padding-left: 1.5rem;
+        }
     }
 }
 
