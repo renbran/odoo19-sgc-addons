@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mail_activity_type_intake_review" model="mail.activity.type">
+        <field name="name">Accounting Intake Review</field>
+        <field name="summary">Review an uploaded accounting document</field>
+        <field name="delay_count">0</field>
+        <field name="delay_unit">days</field>
+    </record>
+</odoo>

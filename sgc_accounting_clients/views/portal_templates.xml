@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_accounting_home_card" name="Accounting Portal Home Card" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-set="accounting_is_internal" t-value="request.env.user.has_group('sgc_accounting_clients.group_sgc_accounting_user')"/>
+            <t t-set="accounting_domain" t-value="[] if accounting_is_internal else [('partner_id.commercial_partner_id', '=', request.env.user.partner_id.commercial_partner_id.id)]"/>
+            <t t-set="accounting_count" t-value="request.env['sgc.accounting.client'].sudo().search_count(accounting_domain)"/>
+            <div t-if="accounting_count" class="o_portal_category row g-2 mt-3">
+                <t t-call="portal.portal_docs_entry">
+                    <t t-set="title">Accounting</t>
+                    <t t-set="text">Workspaces, companies and document intake</t>
+                    <t t-set="url" t-value="'/my/accounting'"/>
+                    <t t-set="count" t-value="accounting_count"/>
+                    <t t-set="show_count" t-value="True"/>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="portal_accounting_home" name="Accounting Workspaces">
+        <t t-call="portal.portal_layout">
+            <t t-set="no_breadcrumbs" t-value="1"/>
+            <t t-set="additional_title">Accounting</t>
+            <div class="o_portal_my_home">
+                <div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
+                    <div>
+                        <h1 class="mb-1">Accounting</h1>
+                        <p class="text-muted mb-0">Your accounting workspaces, companies and document intake.</p>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-4" t-foreach="clients" t-as="client">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title mb-0"><t t-esc="client.name"/></h5>
+                                    <span t-attf-class="badge #{'text-bg-success' if client.status == 'active' else 'text-bg-secondary'}"><t t-esc="client.status_label"/></span>
+                                </div>
+                                <p class="text-muted small mb-3"><t t-esc="client.client_code"/></p>
+                                <dl class="row small mb-3">
+                                    <dt class="col-6">Companies</dt>
+                                    <dd class="col-6 text-end"><t t-esc="client.company_count"/></dd>
+                                    <dt class="col-6">Documents</dt>
+                                    <dd class="col-6 text-end"><t t-esc="client.upload_count"/></dd>
+                                    <dt class="col-6">Pending</dt>
+                                    <dd class="col-6 text-end"><t t-esc="client.pending_upload_count"/></dd>
+                                </dl>
+                                <a t-attf-href="/my/accounting/#{client.client_code}" class="btn btn-primary btn-sm mt-auto">Open workspace</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12" t-if="not clients">
+                        <div class="alert alert-info mb-0" role="alert">
+                            No accounting workspace is linked to your account yet. Please contact your account manager.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_accounting_client" name="Accounting Workspace">
+        <t t-call="portal.portal_layout">
+            <t t-set="no_breadcrumbs" t-value="1"/>
+            <t t-set="additional_title">Accounting Workspace</t>
+            <div class="o_portal_my_home">
+                <div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
+                    <div>
+                        <a href="/my/accounting" class="small text-muted text-decoration-none">&#8592; All accounting workspaces</a>
+                        <h1 class="mt-2 mb-1"><t t-esc="client.name"/></h1>
+                        <p class="text-muted mb-0">
+                            <t t-esc="client.client_code"/>
+                            <span t-if="client.workspace_url"> · <a t-att-href="client.workspace_url" target="_blank" rel="noopener"><t t-esc="client.workspace_url"/></a></span>
+                            <span t-if="not client.workspace_url"> · Workspace pending</span>
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <span t-attf-class="badge #{'text-bg-success' if client.status == 'active' else 'text-bg-secondary'}"><t t-esc="client.status_label"/></span>
+                    </div>
+                </div>
+
+                <div t-if="message" class="alert alert-info" role="alert"><t t-esc="message"/></div>
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-transparent">
+                                <h5 class="mb-0">Companies</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Company</th>
+                                            <th>TRN</th>
+                                            <th>Currency</th>
+                                            <th>Default</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="companies" t-as="company">
+                                            <td><t t-esc="company.name"/></td>
+                                            <td><t t-esc="company.trn or '—'"/></td>
+                                            <td><t t-esc="company.currency_id.name or '—'"/></td>
+                                            <td><span t-if="company.is_default" class="badge text-bg-primary">Default</span></td>
+                                        </tr>
+                                        <tr t-if="not companies">
+                                            <td colspan="4" class="text-muted">No companies have been synchronized yet.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-transparent">
+                                <h5 class="mb-0">Recent documents</h5>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Received</th>
+                                            <th>Document</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Size</th>
+                                            <th/>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="uploads" t-as="upload">
+                                            <td class="text-nowrap"><t t-esc="upload.create_date"/></td>
+                                            <td><t t-esc="upload.filename"/></td>
+                                            <td><t t-esc="upload.doc_type_label"/></td>
+                                            <td><span class="badge text-bg-light"><t t-esc="upload.state_label"/></span></td>
+                                            <td class="text-end text-nowrap"><t t-esc="upload.file_size_human"/></td>
+                                            <td class="text-end">
+                                                <a t-attf-href="/my/accounting/upload/#{upload.id}/download" class="btn btn-sm btn-outline-secondary">Download</a>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="not uploads">
+                                            <td colspan="6" class="text-muted">No documents uploaded yet.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-5">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-transparent">
+                                <h5 class="mb-0">Upload a document</h5>
+                            </div>
+                            <div class="card-body">
+                                <form t-attf-action="/my/accounting/#{client.client_code}/upload" method="post" enctype="multipart/form-data" class="mb-0">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="doc_type">Document type</label>
+                                        <select class="form-select" id="doc_type" name="doc_type" required="required">
+                                            <option value="">Select a type</option>
+                                            <option t-foreach="doc_types" t-as="doc_type" t-att-value="doc_type[0]"><t t-esc="doc_type[1]"/></option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="company_id">Company</label>
+                                        <select class="form-select" id="company_id" name="company_id">
+                                            <option value="">Use the default company</option>
+                                            <option t-foreach="companies" t-as="company" t-att-value="company.id"><t t-esc="company.name"/></option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="file">File</label>
+                                        <input class="form-control" id="file" name="file" type="file" required="required" accept=".pdf,.csv,.xlsx,.xls,.png,.jpg,.jpeg"/>
+                                        <div class="form-text">PDF, CSV, XLSX, JPG or PNG. Maximum 25 MB.</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary w-100">Upload document</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

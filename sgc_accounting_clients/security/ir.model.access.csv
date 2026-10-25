@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sgc_accounting_client_system,access.sgc.accounting.client.system,model_sgc_accounting_client,base.group_system,1,1,1,1
+access_sgc_accounting_client_user,access.sgc.accounting.client.user,model_sgc_accounting_client,sgc_accounting_clients.group_sgc_accounting_user,1,1,1,1
+access_sgc_accounting_client_portal,access.sgc.accounting.client.portal,model_sgc_accounting_client,base.group_portal,1,0,0,0
+access_sgc_accounting_company_system,access.sgc.accounting.company.system,model_sgc_accounting_company,base.group_system,1,1,1,1
+access_sgc_accounting_company_user,access.sgc.accounting.company.user,model_sgc_accounting_company,sgc_accounting_clients.group_sgc_accounting_user,1,1,1,1
+access_sgc_accounting_company_portal,access.sgc.accounting.company.portal,model_sgc_accounting_company,base.group_portal,1,0,0,0
+access_sgc_accounting_upload_system,access.sgc.accounting.upload.system,model_sgc_accounting_upload,base.group_system,1,1,1,1
+access_sgc_accounting_upload_user,access.sgc.accounting.upload.user,model_sgc_accounting_upload,sgc_accounting_clients.group_sgc_accounting_user,1,1,1,1
+access_sgc_accounting_upload_portal,access.sgc.accounting.upload.portal,model_sgc_accounting_upload,base.group_portal,1,0,1,0
+access_sgc_accounting_provision_system,access.sgc.accounting.provision.event.system,model_sgc_accounting_provision_event,base.group_system,1,1,1,1
+access_sgc_accounting_provision_manager,access.sgc.accounting.provision.event.manager,model_sgc_accounting_provision_event,sgc_accounting_clients.group_sgc_accounting_manager,1,1,1,1

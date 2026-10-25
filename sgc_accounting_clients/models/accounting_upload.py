@@ -1,0 +1,164 @@
+# -*- coding: utf-8 -*-
+import base64
+import hashlib
+
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+
+DOC_TYPES = [
+    ("customer_invoices", "Customer invoices"),
+    ("vendor_bills", "Vendor bills"),
+    ("bank_statements", "Bank statements"),
+    ("payroll_journals", "Payroll journals"),
+    ("master_data", "Master data"),
+]
+
+STATE_SELECTION = [
+    ("received", "Received"),
+    ("validated", "Validated"),
+    ("processing", "Processing"),
+    ("processed", "Processed"),
+    ("quarantined", "Quarantined"),
+    ("failed", "Failed"),
+]
+
+
+class SgcAccountingUpload(models.Model):
+    _name = "sgc.accounting.upload"
+    _description = "Accounting Document Upload"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _order = "create_date desc, id desc"
+    _rec_name = "name"
+
+    name = fields.Char(compute="_compute_name", store=True)
+    client_id = fields.Many2one(
+        "sgc.accounting.client",
+        string="Accounting Client",
+        required=True,
+        ondelete="cascade",
+        index=True,
+    )
+    company_id = fields.Many2one(
+        "sgc.accounting.company",
+        string="Company",
+        domain="[('client_id', '=', client_id)]",
+        ondelete="set null",
+    )
+    doc_type = fields.Selection(
+        DOC_TYPES, string="Document Type", required=True, tracking=True
+    )
+    filename = fields.Char(required=True)
+    mimetype = fields.Char(string="MIME Type")
+    file = fields.Binary(required=True, attachment=True)
+    file_size = fields.Integer(compute="_compute_file_meta", store=True)
+    file_size_human = fields.Char(compute="_compute_file_meta", store=True)
+    sha256 = fields.Char(compute="_compute_file_meta", store=True, index=True)
+    storage_path = fields.Char(compute="_compute_storage_path", store=True)
+    state = fields.Selection(
+        STATE_SELECTION,
+        default="received",
+        required=True,
+        tracking=True,
+        index=True,
+    )
+    doc_type_label = fields.Char(compute="_compute_labels")
+    state_label = fields.Char(compute="_compute_labels")
+    validation_errors = fields.Text()
+    agent_run_id = fields.Char(string="Agent Run ID")
+    odoo_move_ids = fields.Text(string="Odoo Move IDs")
+    uploaded_by_id = fields.Many2one(
+        "res.partner",
+        string="Uploaded By",
+        default=lambda self: self.env.user.partner_id,
+        ondelete="set null",
+    )
+    processed_at = fields.Datetime()
+    notes = fields.Text()
+
+    @api.depends("doc_type", "filename")
+    def _compute_name(self):
+        labels = dict(DOC_TYPES)
+        for upload in self:
+            upload.name = "%s - %s" % (
+                labels.get(upload.doc_type, _("Document")),
+                upload.filename or _("Untitled"),
+            )
+
+    @api.depends("file")
+    def _compute_file_meta(self):
+        for upload in self:
+            raw = base64.b64decode(upload.file) if upload.file else b""
+            upload.file_size = len(raw)
+            upload.file_size_human = self._human_size(len(raw))
+            upload.sha256 = hashlib.sha256(raw).hexdigest() if raw else False
+
+    @api.depends(
+        "client_id.client_code",
+        "client_id.storage_root",
+        "doc_type",
+        "filename",
+        "sha256",
+    )
+    def _compute_storage_path(self):
+        for upload in self:
+            if not upload.client_id or not upload.sha256:
+                upload.storage_path = False
+                continue
+            root = (
+                upload.client_id.storage_root
+                or "/srv/sgc/accounting/clients"
+            ).rstrip("/")
+            code = upload.client_id.client_code or "client"
+            doc_type = upload.doc_type or "other"
+            stamp = fields.Datetime.now().strftime("%Y/%m")
+            upload.storage_path = "%s/%s/inbox/%s/%s/%s_%s" % (
+                root,
+                code,
+                doc_type,
+                stamp,
+                upload.sha256[:12],
+                upload.filename or "document",
+            )
+
+    @api.depends("doc_type", "state")
+    def _compute_labels(self):
+        doc_labels = dict(DOC_TYPES)
+        state_labels = dict(STATE_SELECTION)
+        for upload in self:
+            upload.doc_type_label = doc_labels.get(upload.doc_type, "")
+            upload.state_label = state_labels.get(upload.state, "")
+
+    @staticmethod
+    def _human_size(size):
+        value = float(size or 0)
+        for unit in ("B", "KB", "MB", "GB"):
+            if value < 1024.0 or unit == "GB":
+                return "%.1f %s" % (value, unit)
+            value /= 1024.0
+        return "%d B" % (size or 0)
+
+    @api.constrains("client_id", "company_id")
+    def _check_company_client(self):
+        for upload in self:
+            if upload.company_id and upload.company_id.client_id != upload.client_id:
+                raise ValidationError(
+                    _("The selected company does not belong to this client.")
+                )
+
+    @api.constrains("file_size")
+    def _check_file_size(self):
+        limit = 50 * 1024 * 1024
+        for upload in self:
+            if upload.file_size and upload.file_size > limit:
+                raise ValidationError(
+                    _("The uploaded file is larger than the 50 MB limit.")
+                )
+
+    def action_mark_validated(self):
+        self.write({"state": "validated", "validation_errors": False})
+
+    def action_quarantine(self):
+        self.write({"state": "quarantined"})
+
+    def action_reset(self):
+        self.write({"state": "received"})

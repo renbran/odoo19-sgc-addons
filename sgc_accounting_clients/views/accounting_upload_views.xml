@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_accounting_upload_list" model="ir.ui.view">
+        <field name="name">sgc.accounting.upload.list</field>
+        <field name="model">sgc.accounting.upload</field>
+        <field name="arch" type="xml">
+            <list string="Accounting Documents" decoration-danger="state == 'failed'" decoration-warning="state == 'quarantined'">
+                <field name="create_date"/>
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="company_id" optional="show"/>
+                <field name="doc_type_label" optional="show"/>
+                <field name="state" widget="badge"/>
+                <field name="file_size_human" optional="show"/>
+                <field name="uploaded_by_id" optional="hide"/>
+                <field name="sha256" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_accounting_upload_form" model="ir.ui.view">
+        <field name="name">sgc.accounting.upload.form</field>
+        <field name="model">sgc.accounting.upload</field>
+        <field name="arch" type="xml">
+            <form string="Accounting Document">
+                <header>
+                    <button name="action_mark_validated" type="object" string="Mark Validated" class="btn-primary" invisible="state != 'received'"/>
+                    <button name="action_quarantine" type="object" string="Quarantine" invisible="state in ('processed', 'quarantined')"/>
+                    <button name="action_reset" type="object" string="Reset" invisible="state == 'received'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="received,validated,processing,processed,quarantined,failed"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="client_id"/>
+                            <field name="company_id"/>
+                            <field name="doc_type"/>
+                            <field name="filename"/>
+                            <field name="file" filename="filename"/>
+                        </group>
+                        <group>
+                            <field name="file_size_human"/>
+                            <field name="mimetype"/>
+                            <field name="sha256"/>
+                            <field name="storage_path"/>
+                            <field name="uploaded_by_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Processing" name="processing">
+                            <group>
+                                <group>
+                                    <field name="create_date"/>
+                                    <field name="processed_at"/>
+                                    <field name="agent_run_id"/>
+                                </group>
+                                <group>
+                                    <field name="odoo_move_ids"/>
+                                </group>
+                            </group>
+                            <field name="validation_errors" invisible="not validation_errors"/>
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sgc_accounting_upload_search" model="ir.ui.view">
+        <field name="name">sgc.accounting.upload.search</field>
+        <field name="model">sgc.accounting.upload</field>
+        <field name="arch" type="xml">
+            <search string="Accounting Documents">
+                <field name="filename"/>
+                <field name="client_id"/>
+                <field name="sha256"/>
+                <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
+                <filter name="processing" string="Processing" domain="[('state', 'in', ('validated', 'processing'))]"/>
+                <filter name="processed" string="Processed" domain="[('state', '=', 'processed')]"/>
+                <filter name="quarantined" string="Quarantined" domain="[('state', '=', 'quarantined')]"/>
+                <separator/>
+                <filter name="customer_invoices" string="Customer invoices" domain="[('doc_type', '=', 'customer_invoices')]"/>
+                <filter name="vendor_bills" string="Vendor bills" domain="[('doc_type', '=', 'vendor_bills')]"/>
+                <filter name="bank_statements" string="Bank statements" domain="[('doc_type', '=', 'bank_statements')]"/>
+                <filter name="payroll_journals" string="Payroll journals" domain="[('doc_type', '=', 'payroll_journals')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_client" string="Client" context="{'group_by': 'client_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_doc_type" string="Document Type" context="{'group_by': 'doc_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sgc_accounting_upload" model="ir.actions.act_window">
+        <field name="name">Documents</field>
+        <field name="res_model">sgc.accounting.upload</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No accounting documents yet</p>
+            <p>Documents arrive from the client portal, are hashed and then queued for the accounting agent.</p>
+        </field>
+    </record>
+</odoo>

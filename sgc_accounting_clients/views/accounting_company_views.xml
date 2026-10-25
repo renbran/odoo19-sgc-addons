@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sgc_accounting_company_list" model="ir.ui.view">
+        <field name="name">sgc.accounting.company.list</field>
+        <field name="model">sgc.accounting.company</field>
+        <field name="arch" type="xml">
+            <list string="Companies" decoration-muted="not active">
+                <field name="client_id"/>
+                <field name="odoo_company_id"/>
+                <field name="name"/>
+                <field name="trn"/>
+                <field name="currency_id"/>
+                <field name="is_default"/>
+                <field name="active"/>
+                <field name="last_sync_at"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_sgc_accounting_company_form" model="ir.ui.view">
+        <field name="name">sgc.accounting.company.form</field>
+        <field name="model">sgc.accounting.company</field>
+        <field name="arch" type="xml">
+            <form string="Company">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="client_id"/>
+                            <field name="odoo_company_id"/>
+                            <field name="name"/>
+                            <field name="trn"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="is_default"/>
+                            <field name="active"/>
+                            <field name="last_sync_at"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sgc_accounting_company_search" model="ir.ui.view">
+        <field name="name">sgc.accounting.company.search</field>
+        <field name="model">sgc.accounting.company</field>
+        <field name="arch" type="xml">
+            <search string="Companies">
+                <field name="name"/>
+                <field name="client_id"/>
+                <field name="trn"/>
+                <filter name="active" string="Active" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_client" string="Client" context="{'group_by': 'client_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sgc_accounting_company" model="ir.actions.act_window">
+        <field name="name">Companies</field>
+        <field name="res_model">sgc.accounting.company</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
