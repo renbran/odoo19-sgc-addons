@@ -66,7 +66,7 @@
                 <separator/>
                 <filter name="provision" string="Provision" domain="[('event_type', '=', 'provision')]"/>
                 <filter name="sync_companies" string="Sync companies" domain="[('event_type', '=', 'sync_companies')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_type" string="Event Type" context="{'group_by': 'event_type'}"/>
                 </group>

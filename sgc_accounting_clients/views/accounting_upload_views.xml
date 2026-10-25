@@ -88,7 +88,7 @@
                 <filter name="vendor_bills" string="Vendor bills" domain="[('doc_type', '=', 'vendor_bills')]"/>
                 <filter name="bank_statements" string="Bank statements" domain="[('doc_type', '=', 'bank_statements')]"/>
                 <filter name="payroll_journals" string="Payroll journals" domain="[('doc_type', '=', 'payroll_journals')]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_client" string="Client" context="{'group_by': 'client_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                     <filter name="group_doc_type" string="Document Type" context="{'group_by': 'doc_type'}"/>

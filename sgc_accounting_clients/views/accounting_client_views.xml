@@ -180,7 +180,7 @@
                 <filter name="status_failed" string="Failed" domain="[('status', '=', 'failed')]"/>
                 <separator/>
                 <filter name="status_queued" string="Queued or provisioning" domain="[('status', 'in', ('queued', 'provisioning'))]"/>
-                <group expand="0" string="Group By">
+                <group>
                     <filter name="group_status" string="Status" context="{'group_by': 'status'}"/>
                     <filter name="group_manager" string="Account Manager" context="{'group_by': 'account_manager_id'}"/>
                 </group>
