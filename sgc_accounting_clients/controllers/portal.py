@@ -180,7 +180,7 @@ class SgcAccountingPortal(CustomerPortal):
                 .create(
                     {
                         "client_id": client.id,
-                        "company_id": company.id if company else False,
+                        "accounting_company_id": company.id if company else False,
                         "doc_type": doc_type,
                         "filename": filename,
                         "mimetype": mimetype,

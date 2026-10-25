@@ -108,7 +108,7 @@
                                     <field name="create_date"/>
                                     <field name="doc_type_label"/>
                                     <field name="filename"/>
-                                    <field name="company_id"/>
+                                    <field name="accounting_company_id"/>
                                     <field name="state_label"/>
                                     <field name="file_size_human"/>
                                 </list>

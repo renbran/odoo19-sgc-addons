@@ -69,7 +69,7 @@ class TestSgcAccountingClients(TransactionCase):
         upload = self.env["sgc.accounting.upload"].create(
             {
                 "client_id": self.client.id,
-                "company_id": self.company.id,
+                "accounting_company_id": self.company.id,
                 "doc_type": "customer_invoices",
                 "filename": "invoice.pdf",
                 "file": base64.b64encode(payload),

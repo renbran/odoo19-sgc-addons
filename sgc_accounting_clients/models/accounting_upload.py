@@ -38,7 +38,7 @@ class SgcAccountingUpload(models.Model):
         ondelete="cascade",
         index=True,
     )
-    company_id = fields.Many2one(
+    accounting_company_id = fields.Many2one(
         "sgc.accounting.company",
         string="Company",
         domain="[('client_id', '=', client_id)]",
@@ -137,10 +137,10 @@ class SgcAccountingUpload(models.Model):
             value /= 1024.0
         return "%d B" % (size or 0)
 
-    @api.constrains("client_id", "company_id")
+    @api.constrains("client_id", "accounting_company_id")
     def _check_company_client(self):
         for upload in self:
-            if upload.company_id and upload.company_id.client_id != upload.client_id:
+            if upload.accounting_company_id and upload.accounting_company_id.client_id != upload.client_id:
                 raise ValidationError(
                     _("The selected company does not belong to this client.")
                 )
