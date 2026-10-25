@@ -19,7 +19,7 @@ ALLOWED_EXTENSIONS = {".pdf", ".csv", ".xlsx", ".xls", ".png", ".jpg", ".jpeg"}
 
 MESSAGES = {
     "uploaded": "Thank you. The document was received, hashed and queued for accounting.",
-    "bad_file": "Please upload a PDF, CSV, XLSX, JPG or PNG file.",
+    "bad_file": "Please upload a PDF, CSV, XLSX, XLS, JPG, JPEG or PNG file.",
     "too_large": "The file is larger than the 25 MB limit.",
     "empty": "The uploaded file is empty.",
     "bad_type": "Select a valid document type.",
