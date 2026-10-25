@@ -5,5 +5,6 @@
     <menuitem id="menu_sgc_accounting_clients" name="Clients" parent="menu_sgc_accounting_root" action="action_sgc_accounting_client" sequence="10"/>
     <menuitem id="menu_sgc_accounting_companies" name="Companies" parent="menu_sgc_accounting_root" action="action_sgc_accounting_company" sequence="20"/>
     <menuitem id="menu_sgc_accounting_documents" name="Documents" parent="menu_sgc_accounting_root" action="action_sgc_accounting_upload" sequence="30"/>
+    <menuitem id="menu_sgc_accounting_agent_runs" name="Agent Runs" parent="menu_sgc_accounting_root" action="action_sgc_accounting_agent_run" sequence="35"/>
     <menuitem id="menu_sgc_accounting_provisioning" name="Provisioning" parent="menu_sgc_accounting_root" action="action_sgc_accounting_provision" sequence="40"/>
 </odoo>

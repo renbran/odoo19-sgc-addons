@@ -118,6 +118,7 @@
                             <group>
                                 <group string="Agent">
                                     <field name="assigned_agent"/>
+                                    <field name="agent_endpoint" widget="url" placeholder="https://agent.internal/api/v1/process-document"/>
                                     <field name="hitl_reviewer_email" widget="email"/>
                                 </group>
                                 <group string="Thresholds">

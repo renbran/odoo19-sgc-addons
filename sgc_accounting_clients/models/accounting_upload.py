@@ -5,13 +5,7 @@ import hashlib
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
-DOC_TYPES = [
-    ("customer_invoices", "Customer invoices"),
-    ("vendor_bills", "Vendor bills"),
-    ("bank_statements", "Bank statements"),
-    ("payroll_journals", "Payroll journals"),
-    ("master_data", "Master data"),
-]
+from .accounting_bucket import DOC_TYPES
 
 STATE_SELECTION = [
     ("received", "Received"),
@@ -64,7 +58,31 @@ class SgcAccountingUpload(models.Model):
     doc_type_label = fields.Char(compute="_compute_labels")
     state_label = fields.Char(compute="_compute_labels")
     validation_errors = fields.Text()
-    agent_run_id = fields.Char(string="Agent Run ID")
+    agent_run_id = fields.Char(
+        string="Agent Run ID", help="UUID of the latest queued agent run."
+    )
+    agent_run_ids = fields.One2many(
+        "sgc.accounting.agent.run",
+        "upload_id",
+        string="Agent Runs",
+        readonly=True,
+    )
+    agent_state = fields.Selection(
+        [
+            ("queued", "Queued"),
+            ("dispatched", "Dispatched"),
+            ("running", "Running"),
+            ("completed", "Completed"),
+            ("failed", "Failed"),
+            ("cancelled", "Cancelled"),
+        ],
+        string="Agent Status",
+        compute="_compute_agent_state",
+        store=True,
+    )
+    agent_state_label = fields.Char(compute="_compute_agent_state", store=True)
+    row_count = fields.Integer(string="Data Rows", readonly=True)
+    format_headers = fields.Text(string="Detected Headers", readonly=True)
     odoo_move_ids = fields.Text(string="Odoo Move IDs")
     uploaded_by_id = fields.Many2one(
         "res.partner",
@@ -128,6 +146,17 @@ class SgcAccountingUpload(models.Model):
             upload.doc_type_label = doc_labels.get(upload.doc_type, "")
             upload.state_label = state_labels.get(upload.state, "")
 
+    @api.depends("agent_run_ids.state", "agent_run_ids.create_date")
+    def _compute_agent_state(self):
+        labels = dict(self._fields["agent_state"].selection)
+        for upload in self:
+            run = upload.agent_run_ids.sorted(
+                key=lambda item: (item.create_date or fields.Datetime.now(), item.id),
+                reverse=True,
+            )[:1]
+            upload.agent_state = run.state if run else False
+            upload.agent_state_label = labels.get(run.state, "") if run else _("Not queued")
+
     @staticmethod
     def _human_size(size):
         value = float(size or 0)
@@ -162,3 +191,25 @@ class SgcAccountingUpload(models.Model):
 
     def action_reset(self):
         self.write({"state": "received"})
+
+    def action_queue_agent(self):
+        """Mark an accepted upload as validated and create one agent run.
+
+        The agent is an external service.  This method only creates the durable
+        outbox record; the cron dispatcher performs the HTTP call.  This keeps
+        the customer upload fast and prevents a failed agent from losing the
+        document.
+        """
+        runs = self.env["sgc.accounting.agent.run"]
+        for upload in self:
+            if upload.state not in ("received", "validated"):
+                continue
+            existing = upload.agent_run_ids.filtered(
+                lambda run: run.state in ("queued", "dispatched", "running", "completed")
+            )
+            if existing:
+                continue
+            upload.write({"state": "validated"})
+            run = runs.create({"upload_id": upload.id})
+            upload.write({"agent_run_id": run.run_id})
+        return True

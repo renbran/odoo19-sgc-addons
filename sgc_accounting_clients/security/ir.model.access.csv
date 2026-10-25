@@ -10,3 +10,6 @@ access_sgc_accounting_upload_user,access.sgc.accounting.upload.user,model_sgc_ac
 access_sgc_accounting_upload_portal,access.sgc.accounting.upload.portal,model_sgc_accounting_upload,base.group_portal,1,0,1,0
 access_sgc_accounting_provision_system,access.sgc.accounting.provision.event.system,model_sgc_accounting_provision_event,base.group_system,1,1,1,1
 access_sgc_accounting_provision_manager,access.sgc.accounting.provision.event.manager,model_sgc_accounting_provision_event,sgc_accounting_clients.group_sgc_accounting_manager,1,1,1,1
+access_sgc_accounting_agent_run_system,access.sgc.accounting.agent.run.system,model_sgc_accounting_agent_run,base.group_system,1,1,1,1
+access_sgc_accounting_agent_run_user,access.sgc.accounting.agent.run.user,model_sgc_accounting_agent_run,sgc_accounting_clients.group_sgc_accounting_user,1,1,1,0
+access_sgc_accounting_agent_run_manager,access.sgc.accounting.agent.run.manager,model_sgc_accounting_agent_run,sgc_accounting_clients.group_sgc_accounting_manager,1,1,1,1

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Accounting Clients",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Accounting/Accounting",
     "summary": "Multi-company accounting client registry, document intake and portal",
     "description": """
@@ -11,9 +11,9 @@ SGC Accounting Clients
 Registry and client portal for the SGC accounting agency on app.sgctech.ai.
 
 * One accounting workspace per client, with one or more companies per workspace.
-* Client portal at /my/accounting: workspace list, company list, document intake
-  tabs (customer invoices, vendor bills, bank statements, payroll journals and
-  master data), upload history and download.
+* Client portal at /my/accounting: workspace list, company list, nine document
+  intake buckets with downloadable CSV format guides, upload history and
+  download.
 * Deterministic intake metadata: SHA-256, document type, target company, uploader,
   storage path and validation state.
 * Provisioning outbox for the future accounting tenant receiver. This module does
@@ -32,12 +32,15 @@ Registry and client portal for the SGC accounting agency on app.sgctech.ai.
         "views/accounting_client_views.xml",
         "views/accounting_company_views.xml",
         "views/accounting_upload_views.xml",
+        "views/accounting_agent_views.xml",
         "views/accounting_provision_views.xml",
         "views/res_partner_views.xml",
         "views/portal_templates.xml",
         "views/menus.xml",
+        "data/accounting_agent_cron.xml",
     ],
     "installable": True,
     "application": True,
     "auto_install": False,
 }
+

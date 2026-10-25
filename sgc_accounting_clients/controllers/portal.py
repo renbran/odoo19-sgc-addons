@@ -2,15 +2,23 @@
 import base64
 import hashlib
 import html
+import json
 import logging
 import os
+import urllib.parse
 
 from odoo import _, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from werkzeug.exceptions import NotFound
 
-from ..models.accounting_upload import DOC_TYPES
+from ..models.accounting_bucket import (
+    BUCKETS,
+    DOC_TYPES,
+    bucket,
+    sample_csv,
+    validate_upload_format,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -18,12 +26,13 @@ MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".pdf", ".csv", ".xlsx", ".xls", ".png", ".jpg", ".jpeg"}
 
 MESSAGES = {
-    "uploaded": "Thank you. The document was received, hashed and queued for accounting.",
+    "uploaded": "Thank you. The document was validated and queued for the accounting agent.",
     "bad_file": "Please upload a PDF, CSV, XLSX, XLS, JPG, JPEG or PNG file.",
     "too_large": "The file is larger than the 25 MB limit.",
     "empty": "The uploaded file is empty.",
-    "bad_type": "Select a valid document type.",
+    "bad_type": "Select a valid upload bucket.",
     "bad_company": "Select a company that belongs to this workspace.",
+    "bad_format": "The file format does not match this bucket. Download the sample format guide and use the required columns.",
     "error": "The upload could not be saved. Please try again.",
 }
 
@@ -119,7 +128,9 @@ class SgcAccountingPortal(CustomerPortal):
         auth="user",
         website=True,
     )
-    def accounting_client(self, client_code, message=None, **kwargs):
+    def accounting_client(
+        self, client_code, message=None, bucket=None, missing=None, detail=None, **kwargs
+    ):
         client = self._client_or_404(client_code)
         uploads = (
             request.env["sgc.accounting.upload"]
@@ -130,6 +141,10 @@ class SgcAccountingPortal(CustomerPortal):
                 limit=50,
             )
         )
+        selected_bucket = bucket if bucket in {item["code"] for item in BUCKETS} else None
+        missing_columns = [
+            value.strip() for value in (missing or "").split(",") if value.strip()
+        ]
         return request.render(
             "sgc_accounting_clients.portal_accounting_client",
             {
@@ -137,6 +152,10 @@ class SgcAccountingPortal(CustomerPortal):
                 "companies": client.company_ids.filtered("active"),
                 "uploads": uploads,
                 "doc_types": DOC_TYPES,
+                "bucket_guides": BUCKETS,
+                "selected_bucket": selected_bucket,
+                "missing_columns": missing_columns,
+                "format_detail": detail,
                 "message": _(MESSAGES[message]) if message in MESSAGES else None,
                 "page_name": "accounting",
                 "no_breadcrumbs": True,
@@ -167,6 +186,20 @@ class SgcAccountingPortal(CustomerPortal):
                 "/my/accounting/%s?message=%s" % (client.client_code, error)
             )
 
+        format_result = validate_upload_format(doc_type, filename, data)
+        if format_result.get("error"):
+            query = urllib.parse.urlencode(
+                {
+                    "message": "bad_format",
+                    "bucket": doc_type,
+                    "missing": ",".join(format_result.get("missing") or []),
+                    "detail": format_result.get("error") or "",
+                }
+            )
+            return request.redirect(
+                "/my/accounting/%s?%s" % (client.client_code, query)
+            )
+
         company = self._resolve_company(client, post.get("company_id"))
         if post.get("company_id") and not company:
             return request.redirect(
@@ -186,9 +219,20 @@ class SgcAccountingPortal(CustomerPortal):
                         "mimetype": mimetype,
                         "file": base64.b64encode(data),
                         "uploaded_by_id": request.env.user.partner_id.id,
+                        "row_count": format_result.get("row_count") or 0,
+                        "format_headers": "\n".join(
+                            format_result.get("headers") or []
+                        ),
                     }
                 )
             )
+            try:
+                with request.env.cr.savepoint():
+                    upload.action_queue_agent()
+            except Exception:
+                _logger.exception(
+                    "Accounting agent queue failed for upload %s", upload.id
+                )
             digest = hashlib.sha256(data).hexdigest()
             upload.message_post(
                 body=(
@@ -232,6 +276,110 @@ class SgcAccountingPortal(CustomerPortal):
 
         return request.redirect(
             "/my/accounting/%s?message=uploaded" % client.client_code
+        )
+
+    @http.route(
+        "/my/accounting/<string:client_code>/bucket/<string:bucket_code>/sample",
+        type="http",
+        auth="user",
+        website=True,
+    )
+    def accounting_bucket_sample(self, client_code, bucket_code, **kwargs):
+        self._client_or_404(client_code)
+        if not bucket(bucket_code):
+            raise NotFound()
+        data = sample_csv(bucket_code)
+        if not data:
+            raise NotFound()
+        filename = "%s_sample.csv" % bucket_code
+        return request.make_response(
+            data,
+            headers=[
+                ("Content-Type", "text/csv; charset=utf-8"),
+                (
+                    "Content-Disposition",
+                    'attachment; filename="%s"' % filename,
+                ),
+                ("Cache-Control", "no-store"),
+            ],
+        )
+
+    @http.route(
+        "/sgc/accounting/agent/document/<int:upload_id>",
+        type="http",
+        auth="public",
+        methods=["GET"],
+        csrf=False,
+    )
+    def accounting_agent_document(self, upload_id, expires=None, token=None, **kwargs):
+        runs = request.env["sgc.accounting.agent.run"].sudo()
+        if not runs._verify_download_token(upload_id, expires, token):
+            raise NotFound()
+        upload = request.env["sgc.accounting.upload"].sudo().browse(upload_id).exists()
+        if not upload:
+            raise NotFound()
+        raw = base64.b64decode(upload.file or b"")
+        filename = (upload.filename or "document").replace('"', "").replace(
+            "\r", ""
+        ).replace("\n", "")
+        return request.make_response(
+            raw,
+            headers=[
+                ("Content-Type", upload.mimetype or "application/octet-stream"),
+                (
+                    "Content-Disposition",
+                    'attachment; filename="%s"' % filename,
+                ),
+                ("Content-Length", str(len(raw))),
+                ("Cache-Control", "no-store"),
+            ],
+        )
+
+    @http.route(
+        "/sgc/accounting/agent/callback",
+        type="http",
+        auth="public",
+        methods=["POST"],
+        csrf=False,
+    )
+    def accounting_agent_callback(self, **kwargs):
+        body = request.httprequest.get_data(cache=False)
+        signature = request.httprequest.headers.get("X-SGC-Signature")
+        timestamp = request.httprequest.headers.get("X-SGC-Timestamp")
+        runs = request.env["sgc.accounting.agent.run"].sudo()
+        if not runs._verify_callback(body, signature, timestamp):
+            return request.make_response(
+                json.dumps({"ok": False, "error": "invalid signature"}),
+                status=403,
+                headers=[("Content-Type", "application/json")],
+            )
+        try:
+            payload = json.loads(body.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            return request.make_response(
+                json.dumps({"ok": False, "error": "invalid json"}),
+                status=400,
+                headers=[("Content-Type", "application/json")],
+            )
+        run = runs.search([("run_id", "=", payload.get("run_id"))], limit=1)
+        if not run:
+            return request.make_response(
+                json.dumps({"ok": False, "error": "run not found"}),
+                status=404,
+                headers=[("Content-Type", "application/json")],
+            )
+        try:
+            run.action_apply_callback(payload)
+        except Exception as exc:
+            _logger.exception("Accounting agent callback failed for %s", run.run_id)
+            return request.make_response(
+                json.dumps({"ok": False, "error": str(exc)}),
+                status=400,
+                headers=[("Content-Type", "application/json")],
+            )
+        return request.make_response(
+            json.dumps({"ok": True, "run_id": run.run_id, "state": run.state}),
+            headers=[("Content-Type", "application/json")],
         )
 
     @http.route(

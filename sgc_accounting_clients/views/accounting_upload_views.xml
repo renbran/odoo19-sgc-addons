@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="view_sgc_accounting_upload_list" model="ir.ui.view">
         <field name="name">sgc.accounting.upload.list</field>
@@ -11,6 +11,7 @@
                 <field name="accounting_company_id" optional="show"/>
                 <field name="doc_type_label" optional="show"/>
                 <field name="state" widget="badge"/>
+                <field name="agent_state_label" optional="show"/>
                 <field name="file_size_human" optional="show"/>
                 <field name="uploaded_by_id" optional="hide"/>
                 <field name="sha256" optional="hide"/>
@@ -25,6 +26,7 @@
             <form string="Accounting Document">
                 <header>
                     <button name="action_mark_validated" type="object" string="Mark Validated" class="btn-primary" invisible="state != 'received'"/>
+                    <button name="action_queue_agent" type="object" string="Queue Agent" class="btn-primary" invisible="state not in ('received', 'validated') or agent_state in ('queued', 'dispatched', 'running', 'completed')"/>
                     <button name="action_quarantine" type="object" string="Quarantine" invisible="state in ('processed', 'quarantined')"/>
                     <button name="action_reset" type="object" string="Reset" invisible="state == 'received'"/>
                     <field name="state" widget="statusbar" statusbar_visible="received,validated,processing,processed,quarantined,failed"/>
@@ -56,13 +58,27 @@
                                     <field name="create_date"/>
                                     <field name="processed_at"/>
                                     <field name="agent_run_id"/>
+                                    <field name="agent_state" widget="badge"/>
+                                    <field name="agent_state_label"/>
                                 </group>
                                 <group>
+                                    <field name="row_count"/>
                                     <field name="odoo_move_ids"/>
                                 </group>
                             </group>
+                            <field name="format_headers" invisible="not format_headers"/>
                             <field name="validation_errors" invisible="not validation_errors"/>
                             <field name="notes"/>
+                            <field name="agent_run_ids" readonly="1">
+                                <list create="false" edit="false">
+                                    <field name="create_date"/>
+                                    <field name="run_id"/>
+                                    <field name="state" widget="badge"/>
+                                    <field name="attempts"/>
+                                    <field name="response_code"/>
+                                    <field name="last_error"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -84,10 +100,18 @@
                 <filter name="processed" string="Processed" domain="[('state', '=', 'processed')]"/>
                 <filter name="quarantined" string="Quarantined" domain="[('state', '=', 'quarantined')]"/>
                 <separator/>
-                <filter name="customer_invoices" string="Customer invoices" domain="[('doc_type', '=', 'customer_invoices')]"/>
-                <filter name="vendor_bills" string="Vendor bills" domain="[('doc_type', '=', 'vendor_bills')]"/>
+                <filter name="agent_queued" string="Agent queued" domain="[('agent_state', '=', 'queued')]"/>
+                <filter name="agent_failed" string="Agent failed" domain="[('agent_state', '=', 'failed')]"/>
+                <separator/>
+                <filter name="customer_invoices" string="Sales invoices" domain="[('doc_type', '=', 'customer_invoices')]"/>
+                <filter name="vendor_bills" string="Purchase bills" domain="[('doc_type', '=', 'vendor_bills')]"/>
+                <filter name="payments" string="Payments" domain="[('doc_type', '=', 'payments')]"/>
                 <filter name="bank_statements" string="Bank statements" domain="[('doc_type', '=', 'bank_statements')]"/>
-                <filter name="payroll_journals" string="Payroll journals" domain="[('doc_type', '=', 'payroll_journals')]"/>
+                <filter name="payroll_journals" string="Payroll" domain="[('doc_type', '=', 'payroll_journals')]"/>
+                <filter name="credit_notes" string="Credit notes" domain="[('doc_type', '=', 'credit_notes')]"/>
+                <filter name="expense_receipts" string="Expense receipts" domain="[('doc_type', '=', 'expense_receipts')]"/>
+                <filter name="master_data" string="Master data" domain="[('doc_type', '=', 'master_data')]"/>
+                <filter name="other" string="Other documents" domain="[('doc_type', '=', 'other')]"/>
                 <group>
                     <filter name="group_client" string="Client" context="{'group_by': 'client_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
@@ -107,3 +131,4 @@
         </field>
     </record>
 </odoo>
+

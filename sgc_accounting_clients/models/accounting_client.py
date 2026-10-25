@@ -103,6 +103,10 @@ class SgcAccountingClient(models.Model):
     archive_path = fields.Char()
 
     assigned_agent = fields.Char(default="agent-00")
+    agent_endpoint = fields.Char(
+        help="Document-intake webhook for this client. Leave blank to use the "
+        "global sgc_accounting_clients.agent_endpoint system parameter."
+    )
     account_manager_id = fields.Many2one(
         "res.users",
         string="Account Manager",
