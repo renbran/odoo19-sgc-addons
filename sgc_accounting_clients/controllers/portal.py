@@ -2,6 +2,7 @@
 import base64
 import hashlib
 import html
+import logging
 import os
 
 from odoo import _, http
@@ -10,6 +11,8 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from werkzeug.exceptions import NotFound
 
 from ..models.accounting_upload import DOC_TYPES
+
+_logger = logging.getLogger(__name__)
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".pdf", ".csv", ".xlsx", ".xls", ".png", ".jpg", ".jpeg"}
@@ -218,6 +221,10 @@ class SgcAccountingPortal(CustomerPortal):
                     ),
                 )
         except Exception:
+            _logger.exception(
+                "Accounting portal upload failed for client %s",
+                client.client_code,
+            )
             request.env.cr.rollback()
             return request.redirect(
                 "/my/accounting/%s?message=error" % client.client_code
