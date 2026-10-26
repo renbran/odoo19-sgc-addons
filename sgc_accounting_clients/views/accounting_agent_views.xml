@@ -53,6 +53,9 @@
                         <field name="endpoint" readonly="1"/>
                         <field name="transport" readonly="1"/>
                         <field name="review_required" readonly="1"/>
+                        <field name="duration_seconds" readonly="1"/>
+                        <field name="workspace_move_id" readonly="1"/>
+                        <field name="workspace_error" readonly="1" invisible="not workspace_error"/>
                         <field name="last_error" readonly="1" invisible="not last_error"/>
                     </group>
                     <notebook>

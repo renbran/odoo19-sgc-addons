@@ -95,6 +95,16 @@ class SgcAccountingAgentRun(models.Model):
         readonly=True,
         help="Set when an accountant must confirm the agent result.",
     )
+    workspace_move_id = fields.Char(
+        readonly=True,
+        help="Draft entry created in the customer workspace by this run.",
+    )
+    workspace_error = fields.Text(readonly=True)
+    duration_seconds = fields.Integer(
+        compute="_compute_duration_seconds",
+        store=True,
+        help="Seconds between the dispatch and the end of the run.",
+    )
     response_code = fields.Integer()
     response_body = fields.Text()
     attempts = fields.Integer(default=0)
@@ -116,6 +126,16 @@ class SgcAccountingAgentRun(models.Model):
             run.name = "%s - %s" % (filename, (run.run_id or "")[:8])
 
     @api.depends("upload_id.doc_type")
+    @api.depends("dispatched_at", "completed_at")
+    def _compute_duration_seconds(self):
+        for run in self:
+            if run.dispatched_at and run.completed_at:
+                run.duration_seconds = int(
+                    (run.completed_at - run.dispatched_at).total_seconds()
+                )
+            else:
+                run.duration_seconds = 0
+
     def _compute_bucket_label(self):
         for run in self:
             definition = bucket(run.upload_id.doc_type)
@@ -169,6 +189,266 @@ class SgcAccountingAgentRun(models.Model):
                 )
         admin = self.env.ref("base.user_admin", raise_if_not_found=False)
         return admin.id if admin else 1
+
+    def _workspace_settings(self):
+        """Settings of the customer workspace the agent books into."""
+        params = self.env["ir.config_parameter"].sudo()
+        enabled = str(
+            params.get_param("sgc_accounting_clients.agent_workspace_enabled", "False")
+        ).strip().lower() in ("true", "1", "yes")
+        return {
+            "enabled": enabled,
+            "url": (
+                params.get_param("sgc_accounting_clients.agent_workspace_url") or ""
+            ).strip().rstrip("/"),
+            "db": (
+                params.get_param("sgc_accounting_clients.agent_workspace_db") or ""
+            ).strip(),
+            "uid": (
+                params.get_param("sgc_accounting_clients.agent_workspace_user_id") or ""
+            ).strip(),
+            "key_file": (
+                params.get_param("sgc_accounting_clients.agent_workspace_key_file") or ""
+            ).strip(),
+        }
+
+    def _workspace_credentials(self):
+        """Return the workspace settings and the intake agent API key."""
+        settings = self._workspace_settings()
+        key = ""
+        if settings["key_file"]:
+            try:
+                with open(settings["key_file"], encoding="utf-8") as handle:
+                    for line in handle:
+                        if line.startswith("SGC_AGENT_API_KEY="):
+                            key = line.split("=", 1)[1].strip()
+            except OSError as exc:
+                _logger.warning("Workspace key file unreadable: %s", exc)
+        return settings, key
+
+    def _workspace_call(self, settings, key, model, method, args=None, kwargs=None):
+        """Call the customer workspace over XML-RPC with the intake agent key."""
+        import xmlrpc.client
+
+        server = xmlrpc.client.ServerProxy(
+            "%s/xmlrpc/2/object" % settings["url"], allow_none=True
+        )
+        return server.execute_kw(
+            settings["db"],
+            int(settings["uid"]),
+            key,
+            model,
+            method,
+            args or [],
+            kwargs or {},
+        )
+
+    def _workspace_find(self, settings, key, model, domain, fields=None, limit=1):
+        records = self._workspace_call(
+            settings,
+            key,
+            model,
+            "search_read",
+            [domain],
+            {"fields": fields or ["id"], "limit": limit},
+        )
+        return records or []
+
+    def _book_workspace_entry(self):
+        """Create the draft entry in the customer workspace.
+
+        The intake agent may create drafts, never post, so the entry lands in
+        the workspace as a draft for the accountant to review.  The run records
+        the created entry, or the reason why nothing was booked.
+        """
+        self.ensure_one()
+        settings, key = self._workspace_credentials()
+        if not settings["enabled"]:
+            return False
+        if not (settings["url"] and settings["db"] and settings["uid"] and key):
+            self.write(
+                {
+                    "workspace_error": _(
+                        "The workspace booking is enabled but not configured."
+                    )
+                }
+            )
+            return False
+        upload = self.upload_id
+        bucket_code = upload.doc_type
+        if bucket_code not in ("customer_invoices", "vendor_bills"):
+            self.write(
+                {
+                    "workspace_error": _(
+                        "Bucket %(bucket)s is not booked automatically."
+                    )
+                    % {"bucket": bucket_code}
+                }
+            )
+            return False
+        source = self._source_rows()
+        if not source or not source["rows"]:
+            self.write(
+                {"workspace_error": _("There are no source rows to book.")}
+            )
+            return False
+        row = source["rows"][0]
+        headers = source["headers"]
+
+        def value(*labels):
+            for label in labels:
+                column = find_column(headers, label)
+                if column:
+                    raw = (row.get(column) or "").strip()
+                    if raw:
+                        return raw
+            return ""
+
+        def number(raw, default=0.0):
+            try:
+                return float(str(raw).replace(",", ""))
+            except (TypeError, ValueError):
+                return default
+
+        reference = value("Invoice Number", "Bill Number", "Reference", "Document Number")
+        invoice_date = value("Invoice Date", "Bill Date", "Date")
+        due_date = value("Due Date", "Payment Due Date")
+        partner_name = value(
+            "Customer Name", "Vendor Name", "Supplier Name", "Partner Name"
+        )
+        currency_name = value("Currency")
+        description = value("Description", "Particulars", "Narration")
+        quantity = number(value("Quantity", "Qty"), 1.0)
+        unit_price = number(value("Unit Price", "Price", "Rate"))
+        tax_amount = number(value("Tax Amount", "VAT Amount"))
+        tax_rate = number(value("Tax Rate", "VAT Rate"), 0.0)
+        total = number(value("Total", "Total Amount", "Amount"))
+        if not unit_price and total and quantity:
+            unit_price = round(total / quantity, 2)
+
+        try:
+            partner_id = False
+            if partner_name:
+                found = self._workspace_find(
+                    settings,
+                    key,
+                    "res.partner",
+                    [("name", "=ilike", partner_name)],
+                    ["id"],
+                )
+                if found:
+                    partner_id = found[0]["id"]
+                else:
+                    partner_id = self._workspace_call(
+                        settings,
+                        key,
+                        "res.partner",
+                        "create",
+                        [{"name": partner_name, "company_type": "company"}],
+                    )
+            currency_id = False
+            if currency_name:
+                found = self._workspace_find(
+                    settings,
+                    key,
+                    "res.currency",
+                    [("name", "=ilike", currency_name)],
+                    ["id"],
+                )
+                currency_id = found[0]["id"] if found else False
+            journal_type = "sale" if bucket_code == "customer_invoices" else "purchase"
+            journals = self._workspace_find(
+                settings,
+                key,
+                "account.journal",
+                [("type", "=", journal_type)],
+                ["id"],
+            )
+            if not journals:
+                self.write(
+                    {
+                        "workspace_error": _(
+                            "The workspace has no %(type)s journal."
+                        )
+                        % {"type": journal_type}
+                    }
+                )
+                return False
+            tax_id = False
+            if tax_rate:
+                taxes = self._workspace_find(
+                    settings,
+                    key,
+                    "account.tax",
+                    [("amount", "=", tax_rate)],
+                    ["id"],
+                )
+                tax_id = taxes[0]["id"] if taxes else False
+            lines = [
+                {
+                    "name": description or reference or "Document",
+                    "quantity": quantity,
+                    "price_unit": unit_price,
+                }
+            ]
+            if tax_id:
+                lines[0]["tax_ids"] = [(6, 0, [tax_id])]
+            elif tax_amount:
+                lines.append(
+                    {
+                        "name": _("Tax %(rate)s%%")
+                        % {"rate": tax_rate or 0},
+                        "quantity": 1.0,
+                        "price_unit": tax_amount,
+                    }
+                )
+            values = {
+                "move_type": (
+                    "out_invoice"
+                    if bucket_code == "customer_invoices"
+                    else "in_invoice"
+                ),
+                "journal_id": journals[0]["id"],
+                "invoice_line_ids": [(0, 0, line) for line in lines],
+                "narration": _(
+                    "Booked from the client portal by %(run)s. Source: %(name)s "
+                    "(SHA-256 %(sha)s)."
+                )
+                % {
+                    "run": self.name,
+                    "name": upload.filename or "",
+                    "sha": upload.sha256 or "",
+                },
+            }
+            if partner_id:
+                values["partner_id"] = partner_id
+            if currency_id:
+                values["currency_id"] = currency_id
+            if reference:
+                values["ref"] = reference
+            if invoice_date:
+                values["invoice_date"] = invoice_date
+            if due_date:
+                values["invoice_date_due"] = due_date
+            move_id = self._workspace_call(
+                settings, key, "account.move", "create", [values]
+            )
+        except Exception as exc:
+            self.write({"workspace_error": str(exc)[:2000]})
+            _logger.exception("Workspace booking failed for run %s", self.run_id)
+            return False
+        self.write({"workspace_move_id": str(move_id), "workspace_error": False})
+        upload.write(
+            {
+                "odoo_move_ids": "%s|%s" % (settings["url"], move_id),
+                "notes": _(
+                    "Draft entry %(move)s created in the workspace by agent run "
+                    "%(run)s. It is not posted: an accountant reviews it first."
+                )
+                % {"move": move_id, "run": self.name},
+            }
+        )
+        return True
 
     def _mint_chat_token(self, secret, user_id, ttl=300):
         """Mint a short-lived HS256 token for the chat agent."""
@@ -780,6 +1060,7 @@ class SgcAccountingAgentRun(models.Model):
         )
         if state == "completed":
             self.upload_id._assign_agent_review(review_required)
+            self._book_workspace_entry()
         return True
 
     def action_dispatch(self):

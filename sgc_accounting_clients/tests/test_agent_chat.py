@@ -3,6 +3,8 @@ import base64
 import hashlib
 import hmac
 import json
+import os
+import tempfile
 from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase, tagged
@@ -289,3 +291,54 @@ class TestSgcAccountingAgentChat(TransactionCase):
         broken = run._authoritative_totals(headers, rows)
         self.assertTrue(broken["errors"])
         self.assertIsNone(broken["total"])
+
+    def test_workspace_booking_creates_a_draft_entry(self):
+        params = self.env["ir.config_parameter"].sudo()
+        params.set_param("sgc_accounting_clients.agent_workspace_enabled", "True")
+        params.set_param(
+            "sgc_accounting_clients.agent_workspace_url", "https://workspace.test"
+        )
+        params.set_param("sgc_accounting_clients.agent_workspace_db", "workspace")
+        params.set_param("sgc_accounting_clients.agent_workspace_user_id", "72")
+        handle, key_file = tempfile.mkstemp(prefix="sgc-agent-key-", suffix=".env")
+        os.write(handle, b"SGC_AGENT_API_KEY=test-key\n")
+        os.close(handle)
+        self.addCleanup(os.unlink, key_file)
+        params.set_param("sgc_accounting_clients.agent_workspace_key_file", key_file)
+
+        created = {}
+
+        class FakeServer:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def execute_kw(self, db, uid, key, model, method, args=None, kwargs=None):
+                if model == "res.partner" and method == "search_read":
+                    return []
+                if model == "res.partner" and method == "create":
+                    return 55
+                if model == "res.currency" and method == "search_read":
+                    return [{"id": 1}]
+                if model == "account.journal" and method == "search_read":
+                    return [{"id": 9}]
+                if model == "account.tax" and method == "search_read":
+                    return [{"id": 4}]
+                if model == "account.move" and method == "create":
+                    created["values"] = args[0]
+                    return 777
+                raise AssertionError("unexpected call %s.%s" % (model, method))
+
+        with patch("xmlrpc.client.ServerProxy", FakeServer):
+            run = self._run()
+            run._book_workspace_entry()
+        run.invalidate_recordset()
+        self.assertEqual(run.workspace_move_id, "777")
+        values = created["values"]
+        self.assertEqual(values["move_type"], "out_invoice")
+        self.assertEqual(values["journal_id"], 9)
+        self.assertEqual(values["partner_id"], 55)
+        self.assertEqual(values["ref"], "INV-2026-0042")
+        self.assertEqual(values["invoice_line_ids"][0][2]["price_unit"], 1500.0)
+        self.assertEqual(values["invoice_line_ids"][0][2]["tax_ids"], [(6, 0, [4])])
+        upload = run.upload_id
+        self.assertIn("777", upload.odoo_move_ids)
