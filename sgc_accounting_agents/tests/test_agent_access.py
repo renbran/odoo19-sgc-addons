@@ -86,8 +86,11 @@ class TestSgcAgentAccess(TransactionCase):
             self.env["account.move"].with_user(intake).create(self._entry_values())
         )
         self.assertEqual(move.state, "draft")
-        with self.assertRaises(AccessError):
+        try:
             move.with_user(intake).action_post()
+            self.fail("The intake agent must not be able to post.")
+        except AccessError:
+            pass
         refused = self.env["sgc.agent.audit"].search(
             [("agent_user_id", "=", intake.id), ("result", "=", "refused")]
         )

@@ -198,6 +198,67 @@ class SgcAgentAudit(models.Model):
             }
         )
 
+    @api.model
+    def log_durable(
+        self,
+        task,
+        model_name,
+        res_ids=None,
+        result="allowed",
+        details=None,
+    ):
+        """Record an agent action in its own transaction.
+
+        A refusal ends with an exception, and the exception rolls the calling
+        transaction back.  The audit trail has to survive that, so the row is
+        written on a separate connection.
+        """
+        user = self.env.user
+        role = user.sgc_agent_role_id
+        if not role:
+            return None
+        payload = ",".join(str(value) for value in (res_ids or [])) or None
+        cursor = self.env.registry.cursor()
+        try:
+            cursor.execute(
+                """
+                INSERT INTO sgc_agent_audit
+                    (agent_user_id, role_id, task, model_name, res_ids, result,
+                     details, create_uid, create_date, write_uid, write_date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s::jsonb, %s,
+                        NOW() AT TIME ZONE 'UTC', %s, NOW() AT TIME ZONE 'UTC')
+                """,
+                (
+                    user.id,
+                    role.id,
+                    task,
+                    model_name,
+                    payload,
+                    result,
+                    json.dumps(details or {}),
+                    user.id,
+                    user.id,
+                ),
+            )
+            cursor.commit()
+            return True
+        except Exception:
+            # The agent user may not be committed yet, for example while a
+            # test builds it. Fall back to the current transaction.
+            try:
+                cursor.rollback()
+            except Exception:
+                pass
+            return self.log(
+                task,
+                model_name,
+                res_ids=res_ids,
+                result=result,
+                details=details,
+            )
+        finally:
+            cursor.close()
+
 
 class SgcAgentReport(models.Model):
     """Report produced by the reporting agent."""

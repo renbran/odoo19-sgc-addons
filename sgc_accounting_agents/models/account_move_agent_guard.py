@@ -25,7 +25,7 @@ class AccountMoveAgentGuard(models.Model):
     def _refuse(self, message, task):
         """Refuse an operation and record it in the audit trail."""
         role = self._agent_role()
-        self.env["sgc.agent.audit"].sudo().log(
+        self.env["sgc.agent.audit"].sudo().log_durable(
             task,
             self._name,
             self.ids,
@@ -39,7 +39,7 @@ class AccountMoveAgentGuard(models.Model):
         role = self.env.user.sgc_agent_role_id
         if role:
             if not role.allows(TASK_CREATE_MOVE):
-                self.env["sgc.agent.audit"].sudo().log(
+                self.env["sgc.agent.audit"].sudo().log_durable(
                     TASK_CREATE_MOVE,
                     self._name,
                     result="refused",
@@ -72,7 +72,7 @@ class AccountMoveAgentGuard(models.Model):
                     )
         moves = super().create(vals_list)
         if role:
-            self.env["sgc.agent.audit"].sudo().log(
+            self.env["sgc.agent.audit"].sudo().log_durable(
                 TASK_CREATE_MOVE,
                 self._name,
                 moves.ids,
@@ -143,7 +143,7 @@ class AccountMoveAgentGuard(models.Model):
             AccountMoveAgentGuard, self.with_context(sgc_agent_posting=True)
         ).action_post()
         if role:
-            self.env["sgc.agent.audit"].sudo().log(
+            self.env["sgc.agent.audit"].sudo().log_durable(
                 TASK_POST_MOVE,
                 self._name,
                 self.ids,
