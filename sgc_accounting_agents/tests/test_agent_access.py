@@ -49,7 +49,7 @@ class TestSgcAgentAccess(TransactionCase):
                 }
             )
         cls.accounts = cls.env["account.account"].search(
-            [("company_id", "=", cls.company.id)], limit=2
+            [("company_ids", "in", cls.company.id)], limit=2
         )
         if len(cls.accounts) < 2:
             cls.accounts = cls.env["account.account"].create(
@@ -58,13 +58,13 @@ class TestSgcAgentAccess(TransactionCase):
                         "name": "Agent Account One",
                         "code": "AGENT1",
                         "account_type": "asset_current",
-                        "company_id": cls.company.id,
+                        "company_ids": [(6, 0, [cls.company.id])],
                     },
                     {
                         "name": "Agent Account Two",
                         "code": "AGENT2",
                         "account_type": "income",
-                        "company_id": cls.company.id,
+                        "company_ids": [(6, 0, [cls.company.id])],
                     },
                 ]
             )
@@ -158,5 +158,10 @@ class TestSgcAgentAccess(TransactionCase):
         move = (
             self.env["account.move"].with_user(intake).create(self._entry_values())
         )
+        posted = self.env["account.move"].create(self._entry_values())
+        posted.action_post()
         with self.assertRaises(AccessError):
-            move.with_user(intake).unlink()
+            posted.with_user(intake).unlink()
+        with self.assertRaises(AccessError):
+            posted.with_user(intake).button_cancel()
+        self.assertEqual(move.state, "draft")

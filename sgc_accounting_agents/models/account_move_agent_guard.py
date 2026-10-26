@@ -83,7 +83,8 @@ class AccountMoveAgentGuard(models.Model):
     def write(self, vals):
         role = self._agent_role()
         if role:
-            if "state" in vals and vals["state"] != "draft":
+            internal = self.env.context.get("sgc_agent_posting")
+            if "state" in vals and not internal and vals["state"] != "draft":
                 self._refuse(
                     _(
                         "An agent cannot change the state of a journal entry "
@@ -101,10 +102,15 @@ class AccountMoveAgentGuard(models.Model):
     def unlink(self):
         role = self._agent_role()
         if role:
-            self._refuse(
-                _("An agent cannot delete a journal entry."),
-                TASK_CREATE_MOVE,
+            protected = self.filtered(
+                lambda move: move.state == "posted"
+                or (move.name and move.name not in ("/",))
             )
+            if protected:
+                self._refuse(
+                    _("An agent cannot delete a posted journal entry."),
+                    TASK_POST_MOVE,
+                )
         return super().unlink()
 
     def action_post(self):
@@ -133,7 +139,9 @@ class AccountMoveAgentGuard(models.Model):
                     % {"moves": ", ".join(missing.mapped("display_name"))},
                     TASK_POST_MOVE,
                 )
-        moves = super().action_post()
+        moves = super(
+            AccountMoveAgentGuard, self.with_context(sgc_agent_posting=True)
+        ).action_post()
         if role:
             self.env["sgc.agent.audit"].sudo().log(
                 TASK_POST_MOVE,
@@ -145,7 +153,7 @@ class AccountMoveAgentGuard(models.Model):
 
     def button_draft(self):
         role = self._agent_role()
-        if role:
+        if role and any(move.state == "posted" for move in self):
             self._refuse(
                 _("An agent cannot reset a posted entry to draft."),
                 TASK_POST_MOVE,
@@ -154,9 +162,9 @@ class AccountMoveAgentGuard(models.Model):
 
     def button_cancel(self):
         role = self._agent_role()
-        if role:
+        if role and any(move.state == "posted" for move in self):
             self._refuse(
-                _("An agent cannot cancel a journal entry."),
+                _("An agent cannot cancel a posted journal entry."),
                 TASK_POST_MOVE,
             )
         return super().button_cancel()
