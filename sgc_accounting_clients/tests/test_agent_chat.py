@@ -67,7 +67,7 @@ class TestSgcAccountingAgentChat(TransactionCase):
                 "accounting_company_id": self.company.id,
                 "doc_type": "customer_invoices",
                 "filename": "invoice.csv",
-                "file": CSV_INVOICE.encode("utf-8"),
+                "file": base64.b64encode(CSV_INVOICE.encode("utf-8")),
                 "state": "validated",
             }
         )
