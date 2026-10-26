@@ -571,3 +571,105 @@ def sample_csv(bucket_code):
     writer.writerow(definition["required"])
     writer.writerow(definition["example"])
     return ("\ufeff" + output.getvalue()).encode("utf-8")
+
+
+def find_column(headers, label):
+    """Return the header that matches ``label``, or ``None``.
+
+    Matching is case-insensitive and ignores punctuation, so ``Total`` finds
+    ``Total Amount`` only when the labels normalise to the same value.
+    """
+    target = _normalise_header(label)
+    for header in headers or ():
+        if _normalise_header(header) == target:
+            return header
+    return None
+
+
+def _cell_value(value):
+    if value is None:
+        return ""
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value).strip()
+
+
+def _rows_from_pairs(headers, rows, limit):
+    collected = []
+    for row in rows[:limit]:
+        record = {}
+        for index, header in enumerate(headers):
+            value = row[index] if index < len(row) else ""
+            record[header] = _cell_value(value)
+        collected.append(record)
+    return {
+        "headers": list(headers),
+        "rows": collected,
+        "truncated": len(rows) > limit,
+    }
+
+
+def read_rows(bucket_code, filename, data, limit=50):
+    """Return the parsed source rows of a tabular upload.
+
+    PDF and image uploads have no tabular structure and return ``None``.
+    CSV, XLSX and XLS uploads return a dict with ``headers``, ``rows`` and
+    ``truncated`` keys. The rows are the authoritative source values used by
+    the deterministic checksum gate, so they are never taken from an agent
+    reply.
+    """
+    extension = os.path.splitext(filename or "")[1].lower()
+    if extension == ".csv":
+        try:
+            text = data.decode("utf-8-sig")
+        except (UnicodeDecodeError, AttributeError):
+            return None
+        try:
+            reader = csv.reader(io.StringIO(text))
+            rows = [row for row in reader if any((cell or "").strip() for cell in row)]
+        except csv.Error:
+            return None
+        if not rows:
+            return None
+        return _rows_from_pairs(canonical_headers(rows[0], bucket_code), rows[1:], limit)
+    if extension == ".xlsx":
+        try:
+            import openpyxl
+        except ImportError:
+            return None
+        try:
+            workbook = openpyxl.load_workbook(
+                io.BytesIO(data), read_only=True, data_only=True
+            )
+            sheet = workbook.active
+            values = sheet.iter_rows(values_only=True)
+            first = next(values, None)
+            if not first:
+                workbook.close()
+                return None
+            headers = canonical_headers(first, bucket_code)
+            collected = [
+                list(row)
+                for row in values
+                if any(str(cell).strip() for cell in row if cell is not None)
+            ]
+            workbook.close()
+            return _rows_from_pairs(headers, collected, limit)
+        except Exception:
+            return None
+    if extension == ".xls":
+        try:
+            import xlrd
+        except ImportError:
+            return None
+        try:
+            workbook = xlrd.open_workbook(file_contents=data)
+            sheet = workbook.sheet_by_index(0)
+            if sheet.nrows == 0:
+                return None
+            headers = canonical_headers(sheet.row_values(0), bucket_code)
+            collected = [sheet.row_values(index) for index in range(1, sheet.nrows)]
+            return _rows_from_pairs(headers, collected, limit)
+        except Exception:
+            return None
+    return None

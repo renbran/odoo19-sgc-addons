@@ -213,3 +213,41 @@ class SgcAccountingUpload(models.Model):
             run = runs.create({"upload_id": upload.id})
             upload.write({"agent_run_id": run.run_id})
         return True
+
+    def _assign_agent_review(self, required):
+        """Ask the account manager to confirm an agent result.
+
+        The agent never posts to the ledger.  When the deterministic gate could
+        not verify the document, or when the agent proposed no confident
+        match, an accountant has to confirm the result by hand.
+        """
+        for upload in self:
+            if not required:
+                continue
+            reviewer = upload.client_id.account_manager_id
+            if not reviewer or reviewer.share:
+                continue
+            activity_type = self.env.ref(
+                "sgc_accounting_clients.mail_activity_type_intake_review",
+                raise_if_not_found=False,
+            )
+            if not activity_type:
+                continue
+            if upload.activity_ids.filtered(
+                lambda activity: activity.activity_type_id.id == activity_type.id
+                and not activity.date_deadline
+            ):
+                continue
+            upload.activity_schedule(
+                "sgc_accounting_clients.mail_activity_type_intake_review",
+                user_id=reviewer.id,
+                summary=_(
+                    "Confirm agent result for: %(name)s", name=upload.filename or ""
+                ),
+                note=_(
+                    "The agent produced a result that could not be verified "
+                    "automatically. Check the extracted values and the proposed "
+                    "matches before anything is booked."
+                ),
+            )
+        return True
