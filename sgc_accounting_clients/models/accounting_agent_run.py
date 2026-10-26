@@ -101,8 +101,7 @@ class SgcAccountingAgentRun(models.Model):
     )
     workspace_error = fields.Text(readonly=True)
     duration_seconds = fields.Integer(
-        compute="_compute_duration_seconds",
-        store=True,
+        readonly=True,
         help="Seconds between the dispatch and the end of the run.",
     )
     response_code = fields.Integer()
@@ -126,16 +125,6 @@ class SgcAccountingAgentRun(models.Model):
             run.name = "%s - %s" % (filename, (run.run_id or "")[:8])
 
     @api.depends("upload_id.doc_type")
-    @api.depends("dispatched_at", "completed_at")
-    def _compute_duration_seconds(self):
-        for run in self:
-            if run.dispatched_at and run.completed_at:
-                run.duration_seconds = int(
-                    (run.completed_at - run.dispatched_at).total_seconds()
-                )
-            else:
-                run.duration_seconds = 0
-
     def _compute_bucket_label(self):
         for run in self:
             definition = bucket(run.upload_id.doc_type)
@@ -827,6 +816,13 @@ class SgcAccountingAgentRun(models.Model):
             },
         }
 
+    def _run_duration(self):
+        """Seconds between the dispatch and the end of this run."""
+        self.ensure_one()
+        if not (self.dispatched_at and self.completed_at):
+            return 0
+        return int((self.completed_at - self.dispatched_at).total_seconds())
+
     def _record_failure(self, exc):
         self.ensure_one()
         attempts = (self.attempts or 0) + 1
@@ -1055,6 +1051,7 @@ class SgcAccountingAgentRun(models.Model):
                 "completed_at": fields.Datetime.now()
                 if state in ("completed", "failed")
                 else False,
+                "duration_seconds": self._run_duration(),
             }
         )
         if state == "completed":
