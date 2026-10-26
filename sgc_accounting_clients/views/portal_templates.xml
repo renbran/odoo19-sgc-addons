@@ -7,6 +7,7 @@
             <t t-set="accounting_count" t-value="request.env['sgc.accounting.client'].sudo().search_count(accounting_domain)"/>
             <div t-if="accounting_count" class="o_portal_category row g-2 mt-3">
                 <t t-call="portal.portal_docs_entry">
+                    <t t-set="config_card" t-value="True"/>
                     <t t-set="title">Accounting</t>
                     <t t-set="text">Workspaces, companies and document intake</t>
                     <t t-set="url" t-value="'/my/accounting'"/>
@@ -21,7 +22,7 @@
         <t t-call="portal.portal_layout">
             <t t-set="no_breadcrumbs" t-value="1"/>
             <t t-set="additional_title">Accounting</t>
-            <div class="o_portal_my_home">
+            <div class="o_portal_accounting">
                 <div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
                     <div>
                         <h1 class="mb-1">Accounting</h1>
@@ -63,7 +64,7 @@
         <t t-call="portal.portal_layout">
             <t t-set="no_breadcrumbs" t-value="1"/>
             <t t-set="additional_title">Accounting Workspace</t>
-            <div class="o_portal_my_home">
+            <div class="o_portal_accounting">
                 <div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
                     <div>
                         <a href="/my/accounting" class="small text-muted text-decoration-none">&#8592; All accounting workspaces</a>

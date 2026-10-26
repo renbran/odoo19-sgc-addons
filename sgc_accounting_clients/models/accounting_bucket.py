@@ -430,12 +430,14 @@ def _check_headers(bucket_code, headers):
     definition = bucket(bucket_code)
     if not definition:
         return ["Unknown bucket"]
-    required = {_normalise_header(value) for value in definition["required"]}
     present = set(headers)
+    # Compare through the same alias chain used for uploaded files, so a
+    # required label such as "Party" (payments) canonicalises exactly like the
+    # header row of the downloadable sample does.
     return [
         label
         for label in definition["required"]
-        if _normalise_header(label) not in present
+        if canonical_headers([label], bucket_code)[0] not in present
     ]
 
 
