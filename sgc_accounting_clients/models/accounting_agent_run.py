@@ -328,6 +328,7 @@ class SgcAccountingAgentRun(models.Model):
 
         try:
             partner_id = False
+            counterparty_note = ""
             if partner_name:
                 found = self._workspace_find(
                     settings,
@@ -339,13 +340,10 @@ class SgcAccountingAgentRun(models.Model):
                 if found:
                     partner_id = found[0]["id"]
                 else:
-                    partner_id = self._workspace_call(
-                        settings,
-                        key,
-                        "res.partner",
-                        "create",
-                        [{"name": partner_name, "company_type": "company"}],
-                    )
+                    counterparty_note = _(
+                        " The counterparty %(name)s is not in the workspace yet, "
+                        "so the accountant must set it on the draft."
+                    ) % {"name": partner_name}
             currency_id = False
             if currency_name:
                 found = self._workspace_find(
@@ -412,12 +410,13 @@ class SgcAccountingAgentRun(models.Model):
                 "invoice_line_ids": [(0, 0, line) for line in lines],
                 "narration": _(
                     "Booked from the client portal by %(run)s. Source: %(name)s "
-                    "(SHA-256 %(sha)s)."
+                    "(SHA-256 %(sha)s).%(note)s"
                 )
                 % {
                     "run": self.name,
                     "name": upload.filename or "",
                     "sha": upload.sha256 or "",
+                    "note": counterparty_note,
                 },
             }
             if partner_id:
