@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Read-only group for the agent runtime that drives the portal from the
+        outside.  It may read the queue and the documents, and it may not
+        change a client, a document or a run.
+    -->
+    <record id="group_sgc_agent_runtime" model="res.groups">
+        <field name="name">SGC Agent Runtime</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="api_key_duration">30</field>
+        <field name="comment">Read-only access to the agent queue for the external agent runtime.</field>
+    </record>
+</odoo>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Accounting Clients",
-    "version": "19.0.1.2.0",
+    "version": "19.0.1.3.0",
     "category": "Accounting/Accounting",
     "summary": "Multi-company accounting client registry, document intake and portal",
     "description": """
@@ -27,6 +27,7 @@ Registry and client portal for the SGC accounting agency on app.sgctech.ai.
     "depends": ["base", "mail", "portal", "account"],
     "data": [
         "security/accounting_security.xml",
+        "security/accounting_runtime_group.xml",
         "security/ir.model.access.csv",
         "data/accounting_data.xml",
         "views/accounting_client_views.xml",
