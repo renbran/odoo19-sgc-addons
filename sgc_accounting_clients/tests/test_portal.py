@@ -138,7 +138,7 @@ class TestSgcAccountingPortal(HttpCase):
             doc_type="master_data",
         )
         self.assertEqual(response.status_code, 303)
-        self.assertIn("message=bad_format", response.location)
+        self.assertIn("message=bad_format", response.headers.get("Location", ""))
         upload = self.env["sgc.accounting.upload"].search(
             [("client_id", "=", self.client.id), ("filename", "=", "master.pdf")]
         )
@@ -151,8 +151,8 @@ class TestSgcAccountingPortal(HttpCase):
             "text/csv",
         )
         self.assertEqual(response.status_code, 303)
-        self.assertIn("message=bad_format", response.location)
-        self.assertIn("missing=Invoice+Date", response.location)
+        self.assertIn("message=bad_format", response.headers.get("Location", ""))
+        self.assertIn("missing=Invoice+Date", response.headers.get("Location", ""))
 
     def test_portal_agent_callback(self):
         upload = self.env["sgc.accounting.upload"].create(
