@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="role_sgc_agent_gatekeeper" model="sgc.agent.role">
+        <field name="name">Agent 00 - Gatekeeper and Router</field>
+        <field name="code">agent-00-gatekeeper</field>
+        <field name="sequence">10</field>
+        <field name="group_id" ref="group_sgc_agent_gatekeeper"/>
+        <field name="job_description">Reads an accepted document, checks the extracted values against the deterministic totals, decides which agent owns the work and asks for a posting approval when the totals agree. Never writes to the ledger.</field>
+        <field name="allowed_tasks">["document.read", "document.validate", "approval.request"]</field>
+        <field name="denied_tasks">["move.create_draft", "move.post", "gl.map", "reconcile.write", "report.build"]</field>
+        <field name="can_post" eval="False"/>
+    </record>
+
+    <record id="role_sgc_agent_intake" model="sgc.agent.role">
+        <field name="name">Agent 01 - Document Intake</field>
+        <field name="code">agent-01-intake</field>
+        <field name="sequence">20</field>
+        <field name="group_id" ref="group_sgc_agent_intake"/>
+        <field name="job_description">Turns an extracted document into a draft invoice or bill with its source file, SHA-256 and extraction payload, then hands the draft to the posting agent. It never posts and never changes a posted entry.</field>
+        <field name="allowed_tasks">["document.read", "move.create_draft", "approval.request"]</field>
+        <field name="denied_tasks">["move.post", "gl.map", "reconcile.write", "report.build"]</field>
+        <field name="can_post" eval="False"/>
+    </record>
+
+    <record id="role_sgc_agent_posting" model="sgc.agent.role">
+        <field name="name">Agent 02 - GL Mapping and Odoo Posting</field>
+        <field name="code">agent-02-posting</field>
+        <field name="sequence">30</field>
+        <field name="group_id" ref="group_sgc_agent_posting"/>
+        <field name="job_description">Maps accounts and taxes for a drafted document and posts it, but only when an accountant approved the posting request for that entry. It never creates entries and never approves its own work.</field>
+        <field name="allowed_tasks">["document.read", "gl.map", "move.post"]</field>
+        <field name="denied_tasks">["move.create_draft", "reconcile.write", "report.build"]</field>
+        <field name="can_post" eval="True"/>
+        <field name="max_auto_post_aed" eval="10000.0"/>
+    </record>
+
+    <record id="role_sgc_agent_reconciliation" model="sgc.agent.role">
+        <field name="name">Agent 03 - Bank Reconciliation</field>
+        <field name="code">agent-03-reconciliation</field>
+        <field name="sequence">40</field>
+        <field name="group_id" ref="group_sgc_agent_reconciliation"/>
+        <field name="job_description">Matches bank statement lines with open bills and invoices and records the reconciliation. It never creates or posts an accounting entry.</field>
+        <field name="allowed_tasks">["document.read", "reconcile.write"]</field>
+        <field name="denied_tasks">["move.create_draft", "move.post", "gl.map", "report.build"]</field>
+        <field name="can_post" eval="False"/>
+    </record>
+
+    <record id="role_sgc_agent_tax_audit" model="sgc.agent.role">
+        <field name="name">Agent 04 - UAE VAT and Corporate Tax Audit</field>
+        <field name="code">agent-04-tax-audit</field>
+        <field name="sequence">50</field>
+        <field name="group_id" ref="group_sgc_agent_tax_audit"/>
+        <field name="job_description">Audits VAT grids, corporate tax provisions and filing readiness and records the findings. It reads the ledger and never writes to it.</field>
+        <field name="allowed_tasks">["document.read", "audit.read", "audit.write"]</field>
+        <field name="denied_tasks">["move.create_draft", "move.post", "gl.map", "reconcile.write", "report.build"]</field>
+        <field name="can_post" eval="False"/>
+    </record>
+
+    <record id="role_sgc_agent_reporting" model="sgc.agent.role">
+        <field name="name">Agent 05 - CFO Reporting</field>
+        <field name="code">agent-05-reporting</field>
+        <field name="sequence">60</field>
+        <field name="group_id" ref="group_sgc_agent_reporting"/>
+        <field name="job_description">Builds the monthly and daily management packs from the ledger. It reads the ledger and writes only its own reports.</field>
+        <field name="allowed_tasks">["document.read", "audit.read", "report.build"]</field>
+        <field name="denied_tasks">["move.create_draft", "move.post", "gl.map", "reconcile.write"]</field>
+        <field name="can_post" eval="False"/>
+    </record>
+
+    <record id="role_sgc_agency_manager" model="sgc.agent.role">
+        <field name="name">Agency Manager</field>
+        <field name="code">agency-manager</field>
+        <field name="sequence">70</field>
+        <field name="group_id" ref="group_sgc_agency_manager"/>
+        <field name="job_description">Human reviewer. Approves posting requests, manages agent roles, client assignments and API credentials.</field>
+        <field name="allowed_tasks">["document.read", "document.validate", "move.create_draft", "move.post", "gl.map", "reconcile.write", "audit.read", "audit.write", "report.build", "approval.request", "approval.grant"]</field>
+        <field name="denied_tasks">[]</field>
+        <field name="can_post" eval="True"/>
+    </record>
+</odoo>

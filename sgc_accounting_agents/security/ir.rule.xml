@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Intake may only touch draft entries of its own companies. -->
+    <record id="rule_sgc_agent_intake_move_draft" model="ir.rule">
+        <field name="name">SGC agent intake: draft entries only</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('state', 'in', ('draft', 'sent'))]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_intake'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sgc_agent_intake_move_line_draft" model="ir.rule">
+        <field name="name">SGC agent intake: draft lines only</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('parent_state', 'in', ('draft', 'sent'))]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_intake'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Posting may only change draft entries of its own companies. -->
+    <record id="rule_sgc_agent_posting_move_draft" model="ir.rule">
+        <field name="name">SGC agent posting: draft entries only</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('state', '=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_posting'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sgc_agent_posting_move_line_draft" model="ir.rule">
+        <field name="name">SGC agent posting: draft lines only</field>
+        <field name="model_id" ref="account.model_account_move_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('parent_state', '=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_posting'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Reconciliation stays inside its own companies. -->
+    <record id="rule_sgc_agent_recon_statement" model="ir.rule">
+        <field name="name">SGC agent reconciliation: own companies</field>
+        <field name="model_id" ref="account.model_account_bank_statement_line"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_reconciliation'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sgc_agent_recon_partial" model="ir.rule">
+        <field name="name">SGC agent reconciliation: own companies</field>
+        <field name="model_id" ref="account.model_account_partial_reconcile"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_reconciliation'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>
