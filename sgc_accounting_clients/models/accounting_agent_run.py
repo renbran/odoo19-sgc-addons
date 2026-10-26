@@ -1037,6 +1037,10 @@ class SgcAccountingAgentRun(models.Model):
 
         review_required = self._review_required(validated, authoritative)
         state = validated["state"]
+        finished_at = fields.Datetime.now()
+        duration = 0
+        if self.dispatched_at:
+            duration = int((finished_at - self.dispatched_at).total_seconds())
         self.write(
             {
                 "attempts": attempts,
@@ -1048,10 +1052,10 @@ class SgcAccountingAgentRun(models.Model):
                 "review_required": review_required,
                 "last_error": validated["error"] or False,
                 "next_attempt_at": False,
-                "completed_at": fields.Datetime.now()
+                "completed_at": finished_at
                 if state in ("completed", "failed")
                 else False,
-                "duration_seconds": self._run_duration(),
+                "duration_seconds": duration,
             }
         )
         if state == "completed":
