@@ -204,7 +204,11 @@ class SgcAccountingAgentRun(models.Model):
             return None
         if not data:
             return None
-        return read_rows(upload.doc_type, upload.filename, data)
+        try:
+            raw = base64.b64decode(data)
+        except Exception:
+            raw = data if isinstance(data, bytes) else b""
+        return read_rows(upload.doc_type, upload.filename, raw)
 
     def _authoritative_totals(self, headers, rows):
         """Compute the totals the agent must agree with.

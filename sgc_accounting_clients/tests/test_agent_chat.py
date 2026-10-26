@@ -172,8 +172,9 @@ class TestSgcAccountingAgentChat(TransactionCase):
         }
         with patch("requests.post", return_value=FakeResponse(reply)):
             run = self._run()
-            run.action_dispatch()
+            sent = run._send("http://orchestrator:8088/chat")
         run.invalidate_recordset()
+        self.assertFalse(sent)
         self.assertEqual(run.state, "failed")
         self.assertIn("Checksum mismatch", run.last_error)
         self.assertFalse(run.matches)
@@ -195,10 +196,19 @@ class TestSgcAccountingAgentChat(TransactionCase):
         reply = {"reply": json.dumps({"state": "posted", "matches": []})}
         with patch("requests.post", return_value=FakeResponse(reply)):
             run = self._run()
-            run.action_dispatch()
+            sent = run._send("http://orchestrator:8088/chat")
         run.invalidate_recordset()
+        self.assertFalse(sent)
         self.assertEqual(run.state, "failed")
         self.assertIn("unsupported state", run.last_error)
+
+    def test_dispatch_button_reports_the_agent_error(self):
+        self._enable_chat()
+        reply = {"reply": json.dumps({"state": "posted", "matches": []})}
+        with patch("requests.post", return_value=FakeResponse(reply)):
+            run = self._run()
+            with self.assertRaises(Exception):
+                run.action_dispatch()
 
     def test_chat_transport_requires_secret(self):
         self._enable_chat()
