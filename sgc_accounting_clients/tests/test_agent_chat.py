@@ -315,8 +315,6 @@ class TestSgcAccountingAgentChat(TransactionCase):
             def execute_kw(self, db, uid, key, model, method, args=None, kwargs=None):
                 if model == "res.partner" and method == "search_read":
                     return []
-                if model == "res.partner" and method == "create":
-                    return 55
                 if model == "res.currency" and method == "search_read":
                     return [{"id": 1}]
                 if model == "account.journal" and method == "search_read":
@@ -336,7 +334,8 @@ class TestSgcAccountingAgentChat(TransactionCase):
         values = created["values"]
         self.assertEqual(values["move_type"], "out_invoice")
         self.assertEqual(values["journal_id"], 9)
-        self.assertEqual(values["partner_id"], 55)
+        self.assertNotIn("partner_id", values)
+        self.assertIn("Example Customer LLC", values["narration"])
         self.assertEqual(values["ref"], "INV-2026-0042")
         self.assertEqual(values["invoice_line_ids"][0][2]["price_unit"], 1500.0)
         self.assertEqual(values["invoice_line_ids"][0][2]["tax_ids"], [(6, 0, [4])])
