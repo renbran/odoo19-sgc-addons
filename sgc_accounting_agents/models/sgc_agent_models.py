@@ -1,6 +1,25 @@
 # -*- coding: utf-8 -*-
+import json
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+
+def normalize_tasks(value):
+    """Return a list of task codes from a list or a JSON string."""
+    if value is None or value is False:
+        return []
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return []
+        try:
+            value = json.loads(text)
+        except ValueError:
+            value = [part.strip() for part in text.split(",") if part.strip()]
+    if not isinstance(value, (list, tuple)):
+        return []
+    return [str(item) for item in value]
 
 
 class SgcAgentRole(models.Model):
@@ -53,12 +72,34 @@ class SgcAgentRole(models.Model):
 
     _code_uniq = models.Constraint("unique(code)", "This agent role already exists.")
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            vals["allowed_tasks"] = normalize_tasks(vals.get("allowed_tasks"))
+            vals["denied_tasks"] = normalize_tasks(vals.get("denied_tasks"))
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if "allowed_tasks" in vals:
+            vals["allowed_tasks"] = normalize_tasks(vals["allowed_tasks"])
+        if "denied_tasks" in vals:
+            vals["denied_tasks"] = normalize_tasks(vals["denied_tasks"])
+        return super().write(vals)
+
+    def allowed_task_list(self):
+        self.ensure_one()
+        return normalize_tasks(self.allowed_tasks)
+
+    def denied_task_list(self):
+        self.ensure_one()
+        return normalize_tasks(self.denied_tasks)
+
     def allows(self, task):
         """Return True when the role may perform ``task``."""
         self.ensure_one()
-        if task in (self.denied_tasks or []):
+        if task in self.denied_task_list():
             return False
-        return task in (self.allowed_tasks or [])
+        return task in self.allowed_task_list()
 
 
 class SgcAgentCredential(models.Model):
