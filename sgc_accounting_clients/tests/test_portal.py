@@ -194,3 +194,77 @@ class TestSgcAccountingPortal(HttpCase):
         run.invalidate_recordset()
         self.assertEqual(run.state, "completed")
         self.assertEqual(response.json()["state"], "completed")
+
+    def test_portal_agent_callback_rejects_bad_signature(self):
+        upload = self.env["sgc.accounting.upload"].create(
+            {
+                "client_id": self.client.id,
+                "accounting_company_id": self.company.id,
+                "doc_type": "customer_invoices",
+                "filename": "callback-bad-signature.pdf",
+                "file": b"JVBERi0xLjQ=",
+                "state": "validated",
+            }
+        )
+        upload.action_queue_agent()
+        run = upload.agent_run_ids
+        self.env["ir.config_parameter"].sudo().set_param(
+            "sgc_accounting_clients.agent_callback_secret",
+            "callback-test-secret",
+        )
+        body = json.dumps(
+            {"run_id": run.run_id, "state": "completed", "matches": []}
+        ).encode("utf-8")
+        response = self.url_open(
+            "/sgc/accounting/agent/callback",
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "X-SGC-Signature": "not-a-valid-signature",
+                "X-SGC-Timestamp": str(int(time.time())),
+            },
+            method="POST",
+        )
+        self.assertEqual(response.status_code, 403)
+        run.invalidate_recordset()
+        self.assertEqual(run.state, "queued")
+
+    def test_portal_agent_callback_rejects_expired_timestamp(self):
+        upload = self.env["sgc.accounting.upload"].create(
+            {
+                "client_id": self.client.id,
+                "accounting_company_id": self.company.id,
+                "doc_type": "customer_invoices",
+                "filename": "callback-expired.pdf",
+                "file": b"JVBERi0xLjQ=",
+                "state": "validated",
+            }
+        )
+        upload.action_queue_agent()
+        run = upload.agent_run_ids
+        secret = "callback-test-secret"
+        self.env["ir.config_parameter"].sudo().set_param(
+            "sgc_accounting_clients.agent_callback_secret", secret
+        )
+        body = json.dumps(
+            {"run_id": run.run_id, "state": "completed", "matches": []}
+        ).encode("utf-8")
+        timestamp = str(int(time.time()) - 3600)
+        signature = hmac.new(
+            secret.encode("utf-8"),
+            timestamp.encode("utf-8") + b"." + body,
+            hashlib.sha256,
+        ).hexdigest()
+        response = self.url_open(
+            "/sgc/accounting/agent/callback",
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "X-SGC-Signature": signature,
+                "X-SGC-Timestamp": timestamp,
+            },
+            method="POST",
+        )
+        self.assertEqual(response.status_code, 403)
+        run.invalidate_recordset()
+        self.assertEqual(run.state, "queued")
