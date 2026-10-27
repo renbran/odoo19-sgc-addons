@@ -414,6 +414,11 @@ FORMAT_EXTENSIONS = {
     "png": ".png",
 }
 
+# The intake agent reads and books at most this many data rows per upload;
+# larger files must be split. Keep in sync with the portal texts that state
+# the limit so customers are never surprised by a rejection.
+MAX_UPLOAD_ROWS = 50
+
 
 def canonical_headers(values, bucket_code=None):
     headers = []
@@ -556,6 +561,16 @@ def validate_upload_format(bucket_code, filename, data):
         }
     if not row_count:
         return {"error": _("Add at least one data row below the header."), "missing": []}
+    if row_count > MAX_UPLOAD_ROWS:
+        return {
+            "error": _(
+                "The file has %(rows)s data rows but the maximum per upload is "
+                "%(limit)s. Please split the file into smaller batches of up to "
+                "%(limit)s rows and upload each one."
+            )
+            % {"rows": row_count, "limit": MAX_UPLOAD_ROWS},
+            "missing": [],
+        }
     return {
         "error": None,
         "missing": [],
