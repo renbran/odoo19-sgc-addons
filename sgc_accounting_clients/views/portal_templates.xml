@@ -107,7 +107,7 @@
                                                 <span class="badge text-bg-light"><t t-esc="len(item['required'])"/> columns</span>
                                             </div>
                                             <p class="text-muted small mb-2"><t t-esc="item['short']"/></p>
-                                            <p class="small mb-2"><strong>Formats:</strong> <t t-esc="item['formats']"/> &#183; <strong>Limit:</strong> max 50 data rows per file</p>
+                                            <p class="small mb-2"><strong>Formats:</strong> <t t-esc="item['formats']"/> &#183; <strong>Limit:</strong> max 200 data rows per file</p>
                                             <details class="small text-muted mb-2">
                                                 <summary>Required columns and notes</summary>
                                                 <ul class="mb-1 ps-3">
@@ -188,7 +188,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="file">File</label>
                                         <input class="form-control" id="file" name="file" type="file" required="required" accept=".pdf,.csv,.xlsx,.xls,.png,.jpg,.jpeg"/>
-                                        <div class="form-text">PDF, CSV, XLSX, XLS, JPG, JPEG or PNG. Maximum 25 MB per file and maximum 50 data rows per file; split larger files and upload each part.</div>
+                                        <div class="form-text">PDF, CSV, XLSX, XLS, JPG, JPEG or PNG. Maximum 25 MB per file and maximum 200 data rows per file; split larger files and upload each part.</div>
                                     </div>
                                     <div class="sgc-upload-progress d-none mt-3" aria-live="polite">
                                         <div class="progress" style="height: 20px;">
@@ -210,7 +210,7 @@
                             </div>
                             <div class="card-body small text-muted">
                                 <p class="mb-2"><strong>1.</strong> Download the sample CSV for your bucket and keep the exact header names.</p>
-                                <p class="mb-2"><strong>2.</strong> Upload the file for the correct company. Tabular files may hold at most 50 data rows; split larger files into parts of 50 rows or fewer.</p>
+                                <p class="mb-2"><strong>2.</strong> Upload the file for the correct company. Tabular files may hold at most 200 data rows; split larger files into parts of 200 rows or fewer.</p>
                                 <p class="mb-2"><strong>3.</strong> The portal validates the headers, hashes the file and queues an agent run.</p>
                                 <p class="mb-0"><strong>4.</strong> The agent reads the document and matches it against the client workspace (<t t-esc="client.workspace_url or 'target pending'"/>).</p>
                             </div>

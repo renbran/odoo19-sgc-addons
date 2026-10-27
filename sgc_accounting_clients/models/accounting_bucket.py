@@ -415,9 +415,11 @@ FORMAT_EXTENSIONS = {
 }
 
 # The intake agent reads and books at most this many data rows per upload;
-# larger files must be split. Keep in sync with the portal texts that state
-# the limit so customers are never surprised by a rejection.
-MAX_UPLOAD_ROWS = 50
+# larger files must be split. Rows are processed in batches of CHAT_BATCH_ROWS
+# (see accounting_agent_run.py), so this limit is the aggregate capacity per
+# upload. Keep in sync with the portal texts that state the limit so customers
+# are never surprised by a rejection.
+MAX_UPLOAD_ROWS = 200
 
 
 def canonical_headers(values, bucket_code=None):

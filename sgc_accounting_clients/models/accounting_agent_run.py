@@ -13,12 +13,16 @@ from datetime import timedelta
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from .accounting_bucket import bucket, find_column, read_rows
+from .accounting_bucket import MAX_UPLOAD_ROWS, bucket, find_column, read_rows
 
 _logger = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 5
 CHAT_TIMEOUT = 120
+# Rows per chat call. Each agent reply must stay inside the response budget
+# (~8k characters); 25 rows keeps it comfortably within that even for verbose
+# replies, while an upload may hold up to MAX_UPLOAD_ROWS rows in total.
+CHAT_BATCH_ROWS = 25
 
 
 class AgentResultError(Exception):
@@ -476,7 +480,9 @@ class SgcAccountingAgentRun(models.Model):
             raw = base64.b64decode(data)
         except Exception:
             raw = data if isinstance(data, bytes) else b""
-        return read_rows(upload.doc_type, upload.filename, raw)
+        return read_rows(
+            upload.doc_type, upload.filename, raw, limit=MAX_UPLOAD_ROWS
+        )
 
     def _authoritative_totals(self, headers, rows):
         """Compute the totals the agent must agree with.
@@ -536,16 +542,12 @@ class SgcAccountingAgentRun(models.Model):
             "errors": [],
         }
 
-    def _build_chat_prompt(self):
-        """Build the prompt sent to a chat-style agent."""
+    def _build_chat_prompt(self, headers, rows, authoritative, batch_note=None):
+        """Build the prompt sent to a chat-style agent for one batch."""
         upload = self.upload_id
         client = upload.client_id
         definition = bucket(upload.doc_type) or {}
         payload = self._build_payload()
-        source = self._source_rows()
-        authoritative = {"total": None, "tax": None, "net": None, "lines": 0, "errors": []}
-        if source:
-            authoritative = self._authoritative_totals(source["headers"], source["rows"])
         context = {
             "client": {"code": client.client_code, "name": client.name},
             "bucket": {
@@ -565,9 +567,11 @@ class SgcAccountingAgentRun(models.Model):
             "policy": payload["policy"],
             "authoritative_totals": authoritative,
         }
-        if source:
-            context["source_headers"] = source["headers"]
-            context["source_rows"] = source["rows"]
+        if rows:
+            context["source_headers"] = headers
+            context["source_rows"] = rows
+            if batch_note:
+                context["batch_note"] = batch_note
         return "\n".join(
             [
                 "You are the intake agent of an accounting firm that books client "
@@ -909,10 +913,14 @@ class SgcAccountingAgentRun(models.Model):
     def _send_chat(self, endpoint):
         """Send the run to a chat-style agent and apply the result.
 
-        The agent only extracts values and proposes matches. Every amount it
-        reports is checked against the amounts parsed from the uploaded file,
-        so a hallucinated total fails the run instead of reaching an
-        accountant or a ledger.
+        The source rows are processed in batches of ``CHAT_BATCH_ROWS``: one
+        chat call per batch, each checked against the authoritative totals of
+        its own slice. This keeps every agent reply well inside the response
+        budget, so large documents no longer depend on the agent echoing an
+        oversized JSON blob. The agent only extracts values and proposes
+        matches; every amount it reports is checked against the amounts parsed
+        from the uploaded file, so a hallucinated total fails the run instead
+        of reaching an accountant or a ledger.
         """
         self.ensure_one()
         secret = self._chat_secret()
@@ -929,20 +937,26 @@ class SgcAccountingAgentRun(models.Model):
             raise UserError(_("The requests library is not available.")) from exc
 
         payload = self._build_payload()
-        prompt = self._build_chat_prompt()
         source = self._source_rows()
-        authoritative = {"total": None, "tax": None, "net": None, "lines": 0, "errors": []}
         if source:
-            authoritative = self._authoritative_totals(source["headers"], source["rows"])
+            headers = source["headers"]
+            all_rows = list(source["rows"])
+        else:
+            headers = None
+            all_rows = []
+        batches = [
+            all_rows[index : index + CHAT_BATCH_ROWS]
+            for index in range(0, len(all_rows), CHAT_BATCH_ROWS)
+        ] or [[]]
+        total_batches = len(batches)
         token = self._mint_chat_token(secret, self._chat_user_id())
-        headers = {
+        request_headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "X-SGC-Event": "accounting.document.accepted",
             "X-SGC-Run-Id": self.run_id,
             "Authorization": "Bearer %s" % token,
         }
-        body = {"prompt": prompt, "thread_id": self.id}
         self.write(
             {
                 "payload": payload,
@@ -953,90 +967,151 @@ class SgcAccountingAgentRun(models.Model):
                 "dispatched_at": fields.Datetime.now(),
             }
         )
-        try:
-            response = requests.post(
-                endpoint,
-                json=body,
-                headers=headers,
-                timeout=CHAT_TIMEOUT,
-            )
-        except Exception as exc:
-            self._record_failure(exc)
-            raise
         attempts = (self.attempts or 0) + 1
-        raw_body = (response.text or "")[:8000]
-        if response.status_code < 200 or response.status_code >= 300:
-            self.write(
-                {
-                    "attempts": attempts,
-                    "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
-                    "response_code": response.status_code,
-                    "response_body": raw_body,
-                    "last_error": "HTTP %s from agent endpoint"
-                    % response.status_code,
-                    "next_attempt_at": fields.Datetime.now()
-                    + timedelta(minutes=min(2**attempts, 30)),
-                }
+        matches = []
+        extraction = {}
+        last_reply = ""
+        merged_total = 0.0
+        merged_tax = 0.0
+        merged_net = 0.0
+        has_total = has_tax = has_net = False
+        merged_lines = 0
+
+        for index, batch_rows in enumerate(batches, start=1):
+            if source:
+                authoritative = self._authoritative_totals(headers, batch_rows)
+                if authoritative.get("errors"):
+                    self.write(
+                        {
+                            "attempts": attempts,
+                            "state": "failed",
+                            "last_error": "Source checksum mismatch in batch "
+                            "%s/%s: %s"
+                            % (index, total_batches, "; ".join(authoritative["errors"])),
+                            "next_attempt_at": False,
+                            "completed_at": fields.Datetime.now(),
+                        }
+                    )
+                    return False
+            else:
+                authoritative = {"total": None, "tax": None, "net": None, "lines": 0, "errors": []}
+            batch_note = None
+            if total_batches > 1:
+                batch_note = (
+                    "This document is processed in %s batches and this is batch "
+                    "%s of %s. Only the rows in source_rows belong to this "
+                    "batch." % (total_batches, index, total_batches)
+                )
+            prompt = self._build_chat_prompt(headers, batch_rows, authoritative, batch_note)
+            thread_id = (
+                "%s.%s" % (self.run_id, index) if total_batches > 1 else self.id
             )
-            return False
+            body = {"prompt": prompt, "thread_id": thread_id}
+            try:
+                response = requests.post(
+                    endpoint,
+                    json=body,
+                    headers=request_headers,
+                    timeout=CHAT_TIMEOUT,
+                )
+            except Exception as exc:
+                self.write(
+                    {
+                        "attempts": attempts,
+                        "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
+                        "last_error": "batch %s/%s: %s"
+                        % (index, total_batches, str(exc)[:1000]),
+                        "next_attempt_at": fields.Datetime.now()
+                        + timedelta(minutes=min(2**attempts, 30)),
+                    }
+                )
+                return False
+            raw_body = (response.text or "")[:8000]
+            if response.status_code < 200 or response.status_code >= 300:
+                self.write(
+                    {
+                        "attempts": attempts,
+                        "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
+                        "response_code": response.status_code,
+                        "response_body": raw_body,
+                        "last_error": "batch %s/%s: HTTP %s from agent endpoint"
+                        % (index, total_batches, response.status_code),
+                        "next_attempt_at": fields.Datetime.now()
+                        + timedelta(minutes=min(2**attempts, 30)),
+                    }
+                )
+                return False
 
-        reply = raw_body
-        try:
-            data = response.json()
-        except ValueError:
-            data = {}
-        if isinstance(data, dict) and data.get("reply"):
-            reply = str(data["reply"])[:8000]
+            reply = raw_body
+            try:
+                data = response.json()
+            except ValueError:
+                data = {}
+            if isinstance(data, dict) and data.get("reply"):
+                reply = str(data["reply"])[:8000]
+            last_reply = reply
 
-        try:
-            result = self._parse_agent_reply(reply)
-        except ValueError as exc:
-            self.write(
-                {
-                    "attempts": attempts,
-                    "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
-                    "response_code": response.status_code,
-                    "response_body": reply,
-                    "last_error": str(exc),
-                    "next_attempt_at": fields.Datetime.now()
-                    + timedelta(minutes=min(2**attempts, 30)),
-                }
-            )
-            return False
+            try:
+                result = self._parse_agent_reply(reply)
+            except ValueError as exc:
+                self.write(
+                    {
+                        "attempts": attempts,
+                        "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
+                        "response_code": response.status_code,
+                        "response_body": reply,
+                        "last_error": "batch %s/%s: %s"
+                        % (index, total_batches, exc),
+                        "next_attempt_at": fields.Datetime.now()
+                        + timedelta(minutes=min(2**attempts, 30)),
+                    }
+                )
+                return False
 
-        if authoritative.get("errors"):
-            self.write(
-                {
-                    "attempts": attempts,
-                    "state": "failed",
-                    "response_code": response.status_code,
-                    "response_body": reply,
-                    "last_error": "Source checksum mismatch: %s"
-                    % "; ".join(authoritative["errors"]),
-                    "next_attempt_at": False,
-                    "completed_at": fields.Datetime.now(),
-                }
-            )
-            return False
+            try:
+                validated = self._validate_agent_result(result, authoritative)
+            except AgentResultError as exc:
+                self.write(
+                    {
+                        "attempts": attempts,
+                        "state": "failed",
+                        "response_code": response.status_code,
+                        "response_body": reply,
+                        "last_error": "batch %s/%s: %s"
+                        % (index, total_batches, exc),
+                        "next_attempt_at": False,
+                        "completed_at": fields.Datetime.now(),
+                    }
+                )
+                return False
 
-        try:
-            validated = self._validate_agent_result(result, authoritative)
-        except AgentResultError as exc:
-            self.write(
-                {
-                    "attempts": attempts,
-                    "state": "failed",
-                    "response_code": response.status_code,
-                    "response_body": reply,
-                    "last_error": str(exc),
-                    "next_attempt_at": False,
-                    "completed_at": fields.Datetime.now(),
-                }
-            )
-            return False
+            matches.extend(validated["matches"])
+            extraction.update(validated["extraction"] or {})
+            if authoritative.get("total") is not None:
+                has_total = True
+                merged_total += authoritative["total"]
+            if authoritative.get("tax") is not None:
+                has_tax = True
+                merged_tax += authoritative["tax"]
+            if authoritative.get("net") is not None:
+                has_net = True
+                merged_net += authoritative["net"]
+            merged_lines += authoritative.get("lines") or 0
 
-        review_required = self._review_required(validated, authoritative)
-        state = validated["state"]
+        merged = {
+            "total": round(merged_total, 2) if has_total else None,
+            "tax": round(merged_tax, 2) if has_tax else None,
+            "net": round(merged_net, 2) if has_net else None,
+            "lines": merged_lines,
+            "errors": [],
+        }
+        state = result.get("state") or "completed"
+        state = str(state).strip().lower()
+        if state not in ("completed", "failed"):
+            state = "failed"
+        review_required = self._review_required(
+            {"matches": matches}, merged
+        )
         finished_at = fields.Datetime.now()
         duration = 0
         if self.dispatched_at:
@@ -1046,11 +1121,11 @@ class SgcAccountingAgentRun(models.Model):
                 "attempts": attempts,
                 "state": state,
                 "response_code": response.status_code,
-                "response_body": reply,
-                "matches": validated["matches"],
-                "extraction": validated["extraction"],
+                "response_body": last_reply,
+                "matches": matches,
+                "extraction": extraction,
                 "review_required": review_required,
-                "last_error": validated["error"] or False,
+                "last_error": False,
                 "next_attempt_at": False,
                 "completed_at": finished_at
                 if state in ("completed", "failed")
