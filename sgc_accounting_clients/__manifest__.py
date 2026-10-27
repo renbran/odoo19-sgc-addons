@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Accounting Clients",
-    "version": "19.0.1.11.0",
+    "version": "19.0.1.12.0",
     "category": "Accounting/Accounting",
     "summary": "Multi-company accounting client registry, document intake and portal",
     "description": """

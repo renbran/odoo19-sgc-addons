@@ -589,7 +589,13 @@ class SgcAccountingAgentRun(models.Model):
                 "authoritative_totals.total within 0.01.",
                 "3. matches are candidate records found in source_rows, each with "
                 "reference, counterparty, total, currency and a confidence between "
-                "0 and 1. Use an empty list when there is no candidate.",
+                "0 and 1. Use an empty list when there is no candidate. For a "
+                "tabular batch, return one match per record you intend to book: "
+                "reference is the row's invoice/bill/payment reference, "
+                "counterparty is the row's party and total is that row's total. "
+                "When there is more than one match, the sum of all match totals "
+                "must equal authoritative_totals.total within 0.01; when there is "
+                "exactly one match, its total must equal it.",
                 "4. If source_rows is missing or unreadable, return state \"failed\" "
                 "and explain why in error.",
                 "5. Never post or create accounting entries. You only extract values "
@@ -653,15 +659,6 @@ class SgcAccountingAgentRun(models.Model):
                 total = float(match.get("total"))
             except (TypeError, ValueError):
                 total = None
-            if (
-                total is not None
-                and expected_total is not None
-                and abs(total - expected_total) > 0.01
-            ):
-                raise AgentResultError(
-                    "Checksum mismatch: the agent proposed a total of %s but the "
-                    "source totals %s." % (total, expected_total)
-                )
             matches.append(
                 {
                     "reference": str(match.get("reference") or "").strip(),
@@ -672,6 +669,25 @@ class SgcAccountingAgentRun(models.Model):
                     "trn": str(match.get("trn") or "").strip(),
                 }
             )
+        if state == "completed" and expected_total is not None:
+            # One aggregate match must equal the batch total; several
+            # row-level matches must sum to it. Any other combination is a
+            # hallucinated amount and fails the gate.
+            totals = [
+                match["total"] for match in matches
+                if match["total"] is not None
+            ]
+            if totals and len(totals) == 1 and len(matches) == 1:
+                if abs(totals[0] - expected_total) > 0.01:
+                    raise AgentResultError(
+                        "Checksum mismatch: the agent proposed a total of %s but the "
+                        "source totals %s." % (totals[0], expected_total)
+                    )
+            elif totals and abs(sum(totals) - expected_total) > 0.01:
+                raise AgentResultError(
+                    "Checksum mismatch: the agent matched records totalling %s but "
+                    "the source totals %s." % (round(sum(totals), 2), expected_total)
+                )
         if state == "completed" and expected_total is not None:
             reported = extraction.get("total")
             if reported is not None:
@@ -1071,16 +1087,23 @@ class SgcAccountingAgentRun(models.Model):
             try:
                 validated = self._validate_agent_result(result, authoritative)
             except AgentResultError as exc:
+                # A mismatch is an agent behaviour problem, not a source
+                # problem: the amounts come from the uploaded file. Retry the
+                # batch until MAX_ATTEMPTS; booking only happens on a fully
+                # validated run, so a retry cannot double-book.
                 self.write(
                     {
                         "attempts": attempts,
-                        "state": "failed",
+                        "state": "failed" if attempts >= MAX_ATTEMPTS else "queued",
                         "response_code": response.status_code,
                         "response_body": reply,
                         "last_error": "batch %s/%s: %s"
                         % (index, total_batches, exc),
-                        "next_attempt_at": False,
-                        "completed_at": fields.Datetime.now(),
+                        "next_attempt_at": fields.Datetime.now()
+                        + timedelta(minutes=min(2**attempts, 30)),
+                        "completed_at": fields.Datetime.now()
+                        if attempts >= MAX_ATTEMPTS
+                        else False,
                     }
                 )
                 return False
