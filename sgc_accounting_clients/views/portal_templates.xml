@@ -80,7 +80,18 @@
                     </div>
                 </div>
 
-                <div t-if="message" class="alert alert-info" role="alert"><t t-esc="message"/></div>
+                <div t-if="message" class="alert alert-info" role="alert"><t t-esc="message"/>
+                    <t t-if="duplicate_upload">
+                        <div class="small mt-1">
+                            First uploaded
+                            <t t-esc="duplicate_upload.create_date"/>
+                            as <t t-esc="duplicate_upload.doc_type_label or duplicate_upload.doc_type"/>
+                            &#8226; SHA-256 <code t-esc="duplicate_upload.sha256[:12]"/>&#8230;
+                            &#8226; Status: <t t-esc="duplicate_upload.state_label or duplicate_upload.state"/>.
+                            If the content really changed, save the file with a new name and upload it again.
+                        </div>
+                    </t>
+                </div>
                 <div t-if="missing_columns" class="alert alert-warning" role="alert">
                     <strong>The file is missing these columns:</strong>
                     <span t-esc="', '.join(missing_columns)"/>.

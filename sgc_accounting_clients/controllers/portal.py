@@ -33,6 +33,7 @@ MESSAGES = {
     "bad_type": "Select a valid upload bucket.",
     "bad_company": "Select a company that belongs to this workspace.",
     "bad_format": "The file format does not match this bucket. Download the sample format guide and use the required columns.",
+    "duplicate": "This exact file was already uploaded to this workspace. Identical files are not processed twice.",
     "error": "The upload could not be saved. Please try again.",
 }
 
@@ -129,7 +130,7 @@ class SgcAccountingPortal(CustomerPortal):
         website=True,
     )
     def accounting_client(
-        self, client_code, message=None, bucket=None, missing=None, detail=None, **kwargs
+        self, client_code, message=None, bucket=None, missing=None, detail=None, duplicate_of=None, **kwargs
     ):
         client = self._client_or_404(client_code)
         uploads = (
@@ -145,6 +146,18 @@ class SgcAccountingPortal(CustomerPortal):
         missing_columns = [
             value.strip() for value in (missing or "").split(",") if value.strip()
         ]
+        duplicate_upload = None
+        if message == "duplicate" and duplicate_of:
+            try:
+                candidate = (
+                    request.env["sgc.accounting.upload"]
+                    .sudo()
+                    .browse(int(duplicate_of))
+                )
+            except (TypeError, ValueError):
+                candidate = None
+            if candidate and candidate.exists() and candidate.client_id == client:
+                duplicate_upload = candidate
         return request.render(
             "sgc_accounting_clients.portal_accounting_client",
             {
@@ -156,6 +169,7 @@ class SgcAccountingPortal(CustomerPortal):
                 "selected_bucket": selected_bucket,
                 "missing_columns": missing_columns,
                 "format_detail": detail,
+                "duplicate_upload": duplicate_upload,
                 "message": _(MESSAGES[message]) if message in MESSAGES else None,
                 "page_name": "accounting",
                 "no_breadcrumbs": True,
@@ -200,6 +214,29 @@ class SgcAccountingPortal(CustomerPortal):
                 "/my/accounting/%s?%s" % (client.client_code, query)
             )
 
+        digest = hashlib.sha256(data).hexdigest()
+        duplicate = (
+            request.env["sgc.accounting.upload"]
+            .sudo()
+            .search(
+                [("client_id", "=", client.id), ("sha256", "=", digest)],
+                order="create_date desc, id desc",
+                limit=1,
+            )
+        )
+        if duplicate:
+            _logger.info(
+                "Accounting duplicate upload blocked for client %s: upload %s "
+                "matches upload %s",
+                client.client_code,
+                duplicate.id,
+                duplicate.id,
+            )
+            return request.redirect(
+                "/my/accounting/%s?message=duplicate&duplicate_of=%s"
+                % (client.client_code, duplicate.id)
+            )
+
         company = self._resolve_company(client, post.get("company_id"))
         if post.get("company_id") and not company:
             return request.redirect(
@@ -234,8 +271,7 @@ class SgcAccountingPortal(CustomerPortal):
                     "Accounting agent queue failed for upload %s", upload.id
                 )
             digest = hashlib.sha256(data).hexdigest()
-            upload.message_post(
-                body=(
+            upload.message_post(                body=(
                     "<p><strong>Accounting document received</strong></p>"
                     "<ul>"
                     "<li>File: %s</li>"
