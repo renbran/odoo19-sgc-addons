@@ -417,6 +417,44 @@ class SgcAccountingAgentRun(models.Model):
             if currency_id:
                 values["currency_id"] = currency_id
             if reference:
+                existing = self._workspace_find(
+                    settings,
+                    key,
+                    "account.move",
+                    [("ref", "=", reference)],
+                    ["id", "name", "invoice_date", "amount_total", "state"],
+                )
+                if existing:
+                    prior = existing[0]
+                    detail = _(
+                        "move %(name)s (%(state)s, total %(total)s, dated "
+                        "%(date)s)"
+                    ) % {
+                        "name": prior.get("name") or ("#%s" % prior.get("id")),
+                        "state": prior.get("state") or "draft",
+                        "total": prior.get("amount_total") or 0.0,
+                        "date": prior.get("invoice_date") or "-",
+                    }
+                    message = _(
+                        "Duplicate booking blocked: reference %(ref)s already "
+                        "exists in the workspace as %(detail)s. Nothing was "
+                        "created."
+                    ) % {"ref": reference, "detail": detail}
+                    self.write({"workspace_error": message})
+                    upload.write(
+                        {
+                            "notes": _(
+                                "Agent run %(run)s detected an existing booking "
+                                "for reference %(ref)s; no draft was created."
+                            )
+                            % {"run": self.name, "ref": reference},
+                        }
+                    )
+                    _logger.info(
+                        "Accounting duplicate booking blocked for run %s "
+                        "(reference %s)", self.run_id, reference,
+                    )
+                    return False
                 values["ref"] = reference
             if invoice_date:
                 values["invoice_date"] = invoice_date
