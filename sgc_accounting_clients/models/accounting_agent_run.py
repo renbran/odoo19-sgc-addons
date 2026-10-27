@@ -1004,7 +1004,7 @@ class SgcAccountingAgentRun(models.Model):
                 )
             prompt = self._build_chat_prompt(headers, batch_rows, authoritative, batch_note)
             thread_id = (
-                "%s.%s" % (self.run_id, index) if total_batches > 1 else self.id
+                self.id * 1000 + index if total_batches > 1 else self.id
             )
             body = {"prompt": prompt, "thread_id": thread_id}
             try:
