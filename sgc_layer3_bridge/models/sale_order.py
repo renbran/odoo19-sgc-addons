@@ -358,6 +358,11 @@ class SaleOrder(models.Model):
             try:
                 trial_template.send_mail(order.id)
                 order.l3_trial_reminder_sent = True
+                # Share the Order Form (quotation) itself here — it must reach the
+                # customer before the subscription starts (the day-14 card charge),
+                # never during the trial window (2026-10-27 policy change).
+                if order.state != "sent":
+                    order.action_quotation_sent()
             except Exception:
                 _logger.exception("Layer 3: could not email trial T-3 reminder for %s", order.name)
 

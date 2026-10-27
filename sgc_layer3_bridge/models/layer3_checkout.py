@@ -382,7 +382,17 @@ class Layer3Checkout(models.TransientModel):
         # Sign & Pay / payment_stripe card-capture form. Trial orders are sent too (the
         # Order Form link is the same), but their card never passes through Odoo: it is
         # collected by Stripe Elements on our own page while the order sits in 'trial'.
-        order.action_quotation_sent()
+        # Trial orders: the Order Form (quotation) is emailed at T-3 days before the
+        # trial ends (see _l3_process_trial_ends), NOT at signup — a quotation landing
+        # during the free trial reads as a pay-now demand. Paid flow sends immediately:
+        # its portal page needs state='sent' to expose the card-capture form.
+        if order.l3_state != "trial":
+            order.action_quotation_sent()
+        else:
+            order.message_post(body=_(
+                "Order Form ready. It will be emailed 3 days before your trial ends, "
+                "before the saved card is charged. Nothing is due during the trial."
+            ))
         return order
 
     @api.model
