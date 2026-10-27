@@ -169,7 +169,7 @@
                                 <h5 class="mb-0">Upload a document</h5>
                             </div>
                             <div class="card-body">
-                                <form t-attf-action="/my/accounting/#{client.client_code}/upload" method="post" enctype="multipart/form-data" class="mb-0">
+                                <form t-attf-action="/my/accounting/#{client.client_code}/upload" method="post" enctype="multipart/form-data" class="sgc-upload-form mb-0">
                                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                     <div class="mb-3">
                                         <label class="form-label" for="doc_type">Upload bucket</label>
@@ -189,6 +189,15 @@
                                         <label class="form-label" for="file">File</label>
                                         <input class="form-control" id="file" name="file" type="file" required="required" accept=".pdf,.csv,.xlsx,.xls,.png,.jpg,.jpeg"/>
                                         <div class="form-text">PDF, CSV, XLSX, XLS, JPG, JPEG or PNG. Maximum 25 MB.</div>
+                                    </div>
+                                    <div class="sgc-upload-progress d-none mt-3" aria-live="polite">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" aria-label="Upload progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width: 0%"/>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-1">
+                                            <span class="small text-muted sgc-upload-status">Uploading&#8230; 0%</span>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary sgc-upload-cancel">Cancel</button>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary w-100">Upload and queue agent</button>
                                 </form>

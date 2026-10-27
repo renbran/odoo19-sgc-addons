@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Accounting Clients",
-    "version": "19.0.1.6.0",
+    "version": "19.0.1.7.0",
     "category": "Accounting/Accounting",
     "summary": "Multi-company accounting client registry, document intake and portal",
     "description": """
@@ -43,5 +43,10 @@ Registry and client portal for the SGC accounting agency on app.sgctech.ai.
     "installable": True,
     "application": True,
     "auto_install": False,
+    "assets": {
+        "web.assets_frontend": [
+            "sgc_accounting_clients/static/src/interactions/accounting_upload_progress.js",
+        ],
+    },
 }
 
