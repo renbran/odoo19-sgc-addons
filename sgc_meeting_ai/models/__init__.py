@@ -7,6 +7,7 @@ from . import google_calendar_meet_scope
 from . import calendar_event
 from . import resource_booking
 from . import calendar_attendee
+from . import mail_message
 from . import res_users
 from . import resource_calendar
 # Must be imported or the model is never registered, and both

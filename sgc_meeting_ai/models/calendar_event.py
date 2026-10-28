@@ -1074,7 +1074,58 @@ class CalendarEvent(models.Model):
         events._sgc_push_to_google()
         return events
 
+    def _sgc_write_without_attendee_notification(self, vals):
+        """True when ``vals`` re-states the same time and the same attendees.
+
+        ``resource.booking._sync_meeting`` rewrites the meeting with the full
+        ``_prepare_meeting_vals`` payload on every confirm/compute cycle. Core
+        ``calendar.event.write`` notifies ALL attendees whenever ``start`` or
+        ``partner_ids`` merely appear in the payload, so one website booking
+        produced a stack of identical "Date updated" mails and duplicate
+        invitations. When nothing actually changes, suppress those.
+        """
+        if {"start", "stop"} & set(vals):
+            if "start" in vals and fields.Datetime.to_datetime(vals["start"]) != self.start:
+                return False
+            if "stop" in vals and fields.Datetime.to_datetime(vals["stop"]) != self.stop:
+                return False
+        if "partner_ids" in vals:
+            target = set(self.partner_ids.ids)
+            for command in vals["partner_ids"] or []:
+                op = command[0]
+                if op == 4:
+                    target.add(command[1])
+                elif op == 3:
+                    target.discard(command[1])
+                elif op == 6:
+                    target = set(command[2])
+                else:
+                    return False
+            if target != set(self.partner_ids.ids):
+                return False
+        return True
+
     def write(self, vals):
+        # Never let a stale write blank a real Google Meet link. The booking
+        # sync rewrites ``videocall_location`` from a computed field that can
+        # hold a pre-sync (empty) value, which wiped the freshly created Meet
+        # room from confirmed bookings -- leaving attendees without a join URL
+        # and re-triggering invitation resends later. Explicit clears still
+        # work under the ``sgc_allow_link_clear`` context.
+        if "videocall_location" in vals and not self.env.context.get(
+            "sgc_allow_link_clear"
+        ):
+            new_loc = (vals.get("videocall_location") or "").strip()
+            if not new_loc and any(
+                "meet.google.com" in (event.videocall_location or "") for event in self
+            ):
+                _logger.info(
+                    "Keeping existing Google Meet link on event(s) %s: ignoring "
+                    "write that would blank videocall_location.",
+                    self.ids,
+                )
+                vals = dict(vals)
+                vals.pop("videocall_location")
         # Detect when google_calendar sync populates a real Google Meet URL
         # AFTER the initial invitation was already sent (with empty/Discuss
         # videocall_location). Re-send the invitation so attendees get the
@@ -1090,8 +1141,15 @@ class CalendarEvent(models.Model):
                     old_loc = event._origin.videocall_location or ""
                     if "meet.google.com" not in old_loc:
                         resend_events |= event
+        if (
+            {"start", "stop", "partner_ids"} & set(vals)
+            and self
+            and not self.env.context.get("skip_attendee_notification")
+            and all(event._sgc_write_without_attendee_notification(vals) for event in self)
+        ):
+            self = self.with_context(skip_attendee_notification=True)
         res = super().write(vals)
-        if resend_events:
+        if resend_events and not self.env.context.get("sgc_suppress_invite_resend"):
             try:
                 resend_events.attendee_ids._send_invitation_emails()
             except Exception:

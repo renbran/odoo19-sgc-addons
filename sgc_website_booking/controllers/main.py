@@ -166,8 +166,13 @@ class SGCWebsiteBooking(http.Controller):
         if notes:
             description.append('Notes: %s' % notes)
         description.append('Requested slot: %s' % when)
+        # Include the company (partner) name so the lead is findable by the
+        # account name too, not only by the person who filled the form.
+        lead_title = 'Online Session: %s' % name
+        if partner.name and partner.name != name:
+            lead_title = 'Online Session: %s - %s' % (partner.name, name)
         lead = env['crm.lead'].sudo().create({
-            'name': 'Online Session: %s' % name,
+            'name': lead_title,
             'contact_name': name,
             'partner_id': partner.id,
             'email_from': email,
@@ -178,11 +183,26 @@ class SGCWebsiteBooking(http.Controller):
 
         # 3) Resource booking (reuses the slot engine for validation)
         Booking = env['resource.booking'].sudo().with_context(using_portal=True, tz=tz)
-        booking = Booking.create({
+        # Route the meeting through the shared Meet organizer up front: the
+        # invitation sender then renders as the CRM identity instead of the
+        # anonymous website user (which used to emit invites with an empty
+        # From:), and the organizer no longer has to be reassigned after the
+        # fact -- one less write that re-notified every attendee.
+        organizer_login = env['ir.config_parameter'].sudo().get_param(
+            'sgc_meeting_ai.meet_organizer_login')
+        organizer = env['res.users'].sudo().search(
+            [('login', '=', organizer_login)], limit=1) if organizer_login else False
+        booking_vals = {
             'type_id': booking_type.id,
             'partner_ids': [(6, 0, [partner.id])],
             'sgc_web_booking': True,
-        })
+            # Explicit name so bookings are searchable in the backend lists
+            # ("I S P R ...", "Boshra", ...) instead of a blank row.
+            'name': '%s - %s' % (partner.name or name, booking_type.name),
+        }
+        if organizer:
+            booking_vals['user_id'] = organizer.id
+        booking = Booking.create(booking_vals)
 
         # 4) Apply chosen slot + confirm. The pre-check above handles the common
         # case; this guard is the backstop for a rare race (two requests for the

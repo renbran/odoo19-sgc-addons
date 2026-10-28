@@ -28,3 +28,27 @@ class CalendarAttendee(models.Model):
             self._notify_attendees(sgc_template, force_send=True)
             return
         return super()._send_invitation_emails()
+
+    def _notify_attendees(self, mail_template, notify_author=False, force_send=False):
+        """Keep ONE invitation style, even for attendees added after creation.
+
+        Core ``calendar.event.write`` notifies newly added attendees with the
+        plain ``calendar.calendar_template_meeting_invitation`` directly, which
+        bypasses the ``_send_invitation_emails`` override above: a single
+        booking then produces both "Invitation · ..." (branded) and
+        "Invitation to ..." (plain) mails. Swap the plain invitation for the
+        SGC one here so every attendee only ever sees the branded invite.
+        """
+        sgc_template = self.env.ref(
+            "sgc_meeting_ai.mail_template_meeting_invitation_sgc",
+            raise_if_not_found=False,
+        )
+        plain_invite = self.env.ref(
+            "calendar.calendar_template_meeting_invitation",
+            raise_if_not_found=False,
+        )
+        if sgc_template and mail_template == plain_invite:
+            mail_template = sgc_template
+        return super()._notify_attendees(
+            mail_template, notify_author=notify_author, force_send=force_send
+        )
