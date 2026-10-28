@@ -88,7 +88,10 @@ class SaleAgreement(models.Model):
     @api.depends('sale_order_id.amount_total')
     def _compute_monthly_subscription_amount(self):
         for rec in self:
-            rec.monthly_subscription_amount = rec.sale_order_id.amount_total or 0.0
+            order = rec.sale_order_id
+            total = order.amount_total or 0.0
+            months = order._billing_period_months() if order else 1.0
+            rec.monthly_subscription_amount = total / months if months else total
 
     @api.model_create_multi
     def create(self, vals_list):

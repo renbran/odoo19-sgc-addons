@@ -61,7 +61,7 @@ class SaleOrder(models.Model):
         compute='_compute_monthly_subscription_amount',
         store=True,
         currency_field='currency_id',
-        help="Current monthly commercial amount fetched from the sales order total.",
+        help="Monthly equivalent of the sales order total over one billing period.",
     )
 
     # -------------------------------------------------------------------------
@@ -109,7 +109,29 @@ Enterprise-grade architecture
     @api.depends('amount_total')
     def _compute_monthly_subscription_amount(self):
         for order in self:
-            order.monthly_subscription_amount = order.amount_total or 0.0
+            months = order._billing_period_months()
+            total = order.amount_total or 0.0
+            order.monthly_subscription_amount = total / months if months else total
+
+    def _billing_period_months(self):
+        """Number of months billed in one cycle (1.0 for monthly or unknown)."""
+        self.ensure_one()
+        period = self.recurrance_id if 'recurrance_id' in self._fields else False
+        if not period:
+            return 1.0
+        duration = period.duration or 1
+        unit = period.unit
+        if unit == 'month':
+            return float(duration)
+        if unit == 'year':
+            return float(duration) * 12.0
+        if unit == 'weeks':
+            return float(duration) * 12.0 / 52.0
+        if unit == 'days':
+            return float(duration) / 30.0
+        if unit == 'semi_monthly':
+            return 0.5
+        return 1.0
 
     # -------------------------------------------------------------------------
     # Onchange Methods
