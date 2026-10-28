@@ -105,6 +105,7 @@ class Layer3Event(models.Model):
                 provision=provision,
                 admin_email=order.l3_admin_email,
                 admin_name=order.l3_admin_name,
+                tenant_type=order.l3_tenant_type or contract.DEFAULT_TENANT_TYPE,
             )
         except contract.ContractError as exc:
             _logger.error("Layer 3 event %s not queued: %s", event_id, exc)

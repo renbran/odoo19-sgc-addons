@@ -43,6 +43,13 @@ class SaleOrder(models.Model):
     l3_request_id = fields.Char("Layer 3 Request ID", index=True, copy=False)
     l3_tenant_slug = fields.Char("Tenant subdomain", index=True, copy=False)
     l3_cycle = fields.Selection(CYCLES, string="Billing cycle", copy=False)
+    # The provisioning path, decided at registration and carried into every event.
+    l3_tenant_type = fields.Selection(
+        [("brokerage", "Brokerage"), ("developer", "Developer")],
+        string="Tenant type", copy=False, tracking=True,
+        help="Brokerage tenants are provisioned from the brokerage template "
+             "(brokerage module); developer tenants from the developer template.",
+    )
     l3_users = fields.Integer("Licensed users", copy=False)
     l3_founding = fields.Boolean("Founding cohort", copy=False)
     l3_admin_name = fields.Char("Tenant admin name", copy=False)

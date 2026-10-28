@@ -26,6 +26,15 @@ STATES = ("active", "grace", "read_only", "archive", "deleted", "trial", "locked
 REASONS = ("paid", "overdue", "cancelled", "retention_expired", "trial_started", "trial_charged", "trial_locked")
 DOCS_STATUSES = ("pending", "submitted", "rejected", "approved", "expiring")
 
+# The two provisioning paths. The flavour is decided at REGISTRATION and carried in
+# every event, so the receiver never has to guess which tenant a snapshot is about:
+#   brokerage -> the brokerage template (brokerage module, no developer-line suite)
+#   developer -> the developer template (developer-line suite)
+# The same vocabulary is used by the website form, the catalogue
+# (sgc.brokerage.tenant.tenant_type) and the receiver's template map.
+TENANT_TYPES = ("brokerage", "developer")
+DEFAULT_TENANT_TYPE = "developer"
+
 SLUG_RE = re.compile(r"^[a-z][a-z0-9-]{1,28}[a-z0-9]$")
 EVENT_ID_RE = re.compile(r"^[A-Za-z0-9_.:-]{8,128}$")
 REF_RE = re.compile(r"^[A-Za-z0-9_.:/-]{1,64}$")
@@ -63,6 +72,7 @@ def build_payload(
     provision=False,
     admin_email=None,
     admin_name=None,
+    tenant_type=None,
 ):
     """Validate and return the event dict. Raises ContractError when invalid."""
     if not EVENT_ID_RE.match(event_id or ""):
@@ -85,6 +95,10 @@ def build_payload(
         raise ContractError("invalid company_name")
     if billing_url is not None and not billing_url.startswith("https://"):
         raise ContractError("billing_url must be https")
+    if tenant_type is None:
+        tenant_type = DEFAULT_TENANT_TYPE
+    if tenant_type not in TENANT_TYPES:
+        raise ContractError("invalid tenant_type")
     if provision:
         if not EMAIL_RE.match(admin_email or ""):
             raise ContractError("provisioning needs a valid admin_email")
@@ -107,6 +121,7 @@ def build_payload(
         "company_name": company_name,
         "billing_url": billing_url,
         "provision": bool(provision),
+        "tenant_type": tenant_type,
         "admin_email": admin_email if provision else None,
         "admin_name": admin_name if provision else None,
     }

@@ -1,0 +1,614 @@
+import logging
+import re
+from datetime import datetime, timedelta, timezone
+
+from markupsafe import Markup
+
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
+
+from ..lib.contract import SLUG_RE
+from .sale_order import CYCLE_MONTHS, INCLUDED_USERS, PARAM_PREFIX, QUOTATION_VALID_DAYS
+
+_logger = logging.getLogger(__name__)
+
+_REQUEST_ID = re.compile(r"^[A-Za-z0-9_\-:.]{8,128}$")
+_EMAIL = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,190}\.[A-Za-z]{2,}$")
+_PHONE = re.compile(r"^[0-9 +()-]{6,24}$")
+_COUNTRY = re.compile(r"^[A-Za-z]{2}$")
+
+REQUIRED_KEYS = {"request_id", "slug", "company_name", "contact_name", "email", "cycle", "users"}
+OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url", "trial"}
+# UAE emirate codes (res.country.state). The UAE VAT fiscal positions are keyed by emirate, so a
+# UAE customer without one falls through to the export (0%) position. SGC is in Dubai.
+EMIRATES = ("DU", "AZ", "SH", "AJ", "UQ", "RK", "FU")
+DEFAULT_EMIRATE = "DU"
+ALLOWED_KEYS = REQUIRED_KEYS | OPTIONAL_KEYS
+MAX_USERS = 100
+DEFAULT_RESERVED = (
+    "app,www,mail,admin,api,demo,stage,staging,n8n,test,dev,billing,status,support,help,"
+    "docs,portal,checkout,pay,secure,login,auth,sso,static,cdn,assets,blog,shop,osus,"
+    "l3hooks,template,archive,backup,root,system,mailer,smtp,ftp,vpn"
+)
+
+
+class Layer3Checkout(models.TransientModel):
+    """Business methods the sgctech.ai signup pages call over JSON-2 (server-side key).
+
+    Validates the request, finds-or-creates the customer by tenant subdomain, creates the
+    Order Form quotation (idempotent on request_id) and returns the hosted Sign & Pay link.
+    Never creates invoices or payments itself.
+    """
+
+    _name = "layer3.checkout"
+    _description = "Layer 3 signup checkout"
+
+    @api.model
+    def _param(self, key, default=None):
+        return self.env["ir.config_parameter"].sudo().get_param(PARAM_PREFIX + key, default)
+
+    @api.model
+    def _flag(self, key):
+        return str(self._param(key, "False")).strip().lower() in ("true", "1", "yes")
+
+    @api.model
+    def _company(self):
+        raw = self._param("company_id")
+        if raw:
+            try:
+                company = self.env["res.company"].sudo().browse(int(raw)).exists()
+            except (TypeError, ValueError):
+                company = None
+            if company:
+                return company
+        return self.env.ref("base.main_company")
+
+    # ------------------------------------------------------------- subdomains
+
+    @api.model
+    def _reserved(self):
+        raw = self._param("reserved_slugs") or DEFAULT_RESERVED
+        return {s.strip().lower() for s in raw.split(",") if s.strip()}
+
+    @api.model
+    def _slug_problem(self, slug, email=None):
+        """None when the subdomain can be used by `email`, else a machine-readable reason."""
+        if not SLUG_RE.match(slug or ""):
+            return "invalid"
+        if "--" in slug or slug in self._reserved():
+            return "reserved"
+        partner = self.env["res.partner"].sudo().search([("l3_tenant_slug", "=", slug)], limit=1)
+        if partner and (not email or (partner.email or "").lower() != email.lower()):
+            return "taken"
+        live = self.env["sale.order"].sudo().search_count(
+            [("l3_tenant_slug", "=", slug), ("state", "=", "sale")]
+        )
+        if live:
+            return "taken"
+        return None
+
+    @api.model
+    def slug_status(self, slug=None):
+        slug = (slug or "").strip().lower()
+        problem = self._slug_problem(slug)
+        return {"slug": slug, "available": problem is None, "reason": problem or ""}
+
+    # --------------------------------------------------------------- capacity
+
+    @api.model
+    def _capacity(self):
+        """Seats count paid tenants plus open, unexpired signup quotations: a quotation carries
+        the founding terms it was issued with, so each one holds a seat until it expires."""
+        SO = self.env["sale.order"].sudo()
+        cap = int(self._param("max_active_tenants", 10) or 10)
+        cohort = int(self._param("founding_cohort_size", 10) or 10)
+        activated = SO.search_count(
+            [("l3_activated_on", "!=", False), ("l3_state", "not in", ("archive", "deleted"))]
+        )
+        ever = SO.search_count([("l3_activated_on", "!=", False)])
+        pending = SO.search_count(
+            [
+                ("l3_request_id", "!=", False),
+                ("l3_activated_on", "=", False),
+                ("state", "in", ("draft", "sent")),
+                "|", ("validity_date", "=", False),
+                ("validity_date", ">=", fields.Date.context_today(self)),
+            ]
+        )
+        is_open = activated + pending < cap
+        founding = ever + pending < cohort
+        return {"open": is_open, "founding": founding, "self_serve": is_open and founding}
+
+    # -------------------------------------------------------------- validation
+
+    @api.model
+    def _validate(self, payload):
+        if not isinstance(payload, dict):
+            raise ValidationError(_("The request body must be a JSON object."))
+        unknown = sorted(set(payload) - ALLOWED_KEYS)
+        if unknown:
+            raise ValidationError(_("Unsupported request keys: %s") % ", ".join(unknown))
+        missing = sorted(
+            k for k in REQUIRED_KEYS if payload.get(k) is None or str(payload.get(k)).strip() == ""
+        )
+        if missing:
+            raise ValidationError(_("Missing required request keys: %s") % ", ".join(missing))
+
+        data = {}
+        data["request_id"] = str(payload["request_id"]).strip()
+        if not _REQUEST_ID.match(data["request_id"]):
+            raise ValidationError(_("request_id has an invalid format."))
+        data["slug"] = str(payload["slug"]).strip().lower()
+        data["company_name"] = str(payload["company_name"]).strip()
+        if not 2 <= len(data["company_name"]) <= 120:
+            raise ValidationError(_("company_name must be 2 to 120 characters."))
+        data["contact_name"] = str(payload["contact_name"]).strip()
+        if not 2 <= len(data["contact_name"]) <= 80:
+            raise ValidationError(_("contact_name must be 2 to 80 characters."))
+        data["email"] = str(payload["email"]).strip().lower()
+        if not _EMAIL.match(data["email"]):
+            raise ValidationError(_("email has an invalid format."))
+        data["cycle"] = str(payload["cycle"]).strip().lower()
+        if data["cycle"] not in CYCLE_MONTHS:
+            raise ValidationError(_("cycle must be one of monthly, quarterly, half_yearly, annual."))
+        try:
+            data["users"] = int(str(payload["users"]).strip())
+        except (TypeError, ValueError):
+            raise ValidationError(_("users must be a whole number."))
+        if not INCLUDED_USERS <= data["users"] <= MAX_USERS:
+            raise ValidationError(_("users must be between %(a)s and %(b)s.") % {"a": INCLUDED_USERS, "b": MAX_USERS})
+        data["mobile"] = str(payload.get("mobile") or "").strip()
+        if data["mobile"] and not _PHONE.match(data["mobile"]):
+            raise ValidationError(_("mobile has an invalid format."))
+        data["trade_licence_no"] = str(payload.get("trade_licence_no") or "").strip()[:64]
+        data["country_code"] = str(payload.get("country_code") or "AE").strip().upper()
+        if not _COUNTRY.match(data["country_code"]):
+            raise ValidationError(_("country_code must be a 2-letter ISO code."))
+        data["emirate"] = False
+        if data["country_code"] == "AE":
+            data["emirate"] = str(payload.get("emirate") or DEFAULT_EMIRATE).strip().upper()
+            if data["emirate"] not in EMIRATES:
+                raise ValidationError(_("emirate must be one of %s.") % ", ".join(EMIRATES))
+        data["trial"] = str(payload.get("trial") or "").strip().lower() in ("true", "1", "yes")
+        return data
+
+    # ------------------------------------------------------------------ public
+
+    @api.model
+    def create_or_get_checkout(self, payload=None, **kwargs):
+        """Atomic, idempotent entry point. Returns a JSON-serialisable dict."""
+        raw = dict(payload or {})
+        raw.update({k: v for k, v in kwargs.items() if k not in raw})
+        data = self._validate(raw)
+        if not self._flag("checkout_enabled"):
+            raise UserError(_("layer3_checkout_disabled"))
+
+        company = self._company()
+        self = self.with_company(company)
+        Order = self.env["sale.order"].sudo()
+        existing = Order.search([("l3_request_id", "=", data["request_id"])], limit=1)
+        if existing:
+            return self._result(existing, deduplicated=True)
+
+        problem = self._slug_problem(data["slug"], data["email"])
+        if problem:
+            raise UserError(_("layer3_slug_%s") % problem)
+        # The same person retrying with a new request id resumes their open quotation.
+        resumable = Order.search(
+            [
+                ("l3_tenant_slug", "=", data["slug"]),
+                ("state", "in", ("draft", "sent")),
+                ("partner_id.email", "=ilike", data["email"]),
+            ],
+            limit=1,
+        )
+        if resumable:
+            return self._result(resumable, deduplicated=True)
+
+        capacity = self._capacity()
+        if not capacity["open"]:
+            raise UserError(_("layer3_waitlist"))
+        if not capacity["founding"]:
+            # The onboarding fee (OIC item 3) is one-time and sttl_sale_subscription cannot
+            # mix one-time and recurring lines on one order: after the founding cohort,
+            # signups are sales-assisted until that is solved.
+            raise UserError(_("layer3_sales_assisted"))
+
+        partner = self._find_or_create_partner(data, company)
+        order = self._create_order(data, partner, company, founding=True, trial=data["trial"])
+        return self._result(order, deduplicated=False)
+
+    @api.model
+    def pricing(self):
+        """Prices for the public pricing page, computed exactly as the order lines are, so the
+        page and the invoice can never disagree. Amounts exclude VAT."""
+        company = self._company()
+        SO = self.env["sale.order"].sudo()
+        capacity = self._capacity()
+        base_monthly = SO._l3_float("base_monthly", 875)
+        user_key = "user_monthly_founding" if capacity["founding"] else "user_monthly_standard"
+        user_monthly = SO._l3_float(user_key, 50 if capacity["founding"] else 75)
+        base_product = SO._l3_products()["base"]
+        tax = base_product.sudo().taxes_id.filtered(lambda t: t.company_id == company)[:1]
+        cycles = []
+        for cycle, months in CYCLE_MONTHS.items():
+            cycles.append(
+                {
+                    "cycle": cycle,
+                    "months": months,
+                    "rebate_percent": SO._l3_float("rebate_%s" % cycle, 0),
+                    "base_price": SO._l3_cycle_price(cycle, base_monthly),
+                    "extra_user_price": SO._l3_cycle_price(cycle, user_monthly),
+                }
+            )
+        setup_unit = SO._l3_float("setup_unit_price", 1500)
+        return {
+            "currency": company.currency_id.name,
+            "vat_percent": tax.amount if tax else 5.0,
+            "base_monthly": base_monthly,
+            "user_monthly": user_monthly,
+            "included_users": INCLUDED_USERS,
+            "max_users": MAX_USERS,
+            "founding": capacity["founding"],
+            "open": capacity["open"],
+            # False once the founding cohort or the tenant cap is used up: signup is then
+            # sales-assisted and the site should offer contact instead of the checkout.
+            "self_serve": capacity["self_serve"],
+            "checkout_enabled": self._flag("checkout_enabled"),
+            "cycles": cycles,
+            "setup": {
+                "name": _("Implementation, migration and go-live support"),
+                "unit_price": setup_unit,
+                # Waived for the founding cohort (OIC item 3). The number of seats left is not
+                # published: it would reveal how many clients have signed up.
+                "waived": capacity["founding"],
+                "currency": company.currency_id.name,
+            },
+        }
+
+    @api.model
+    def order_status(self, request_id=None):
+        """For the thank-you page: where is this signup now?"""
+        order = self.env["sale.order"].sudo().search([("l3_request_id", "=", request_id or "")], limit=1)
+        if not order:
+            return {"found": False}
+        return {
+            "found": True,
+            "order_state": order.state,
+            "account_state": order.l3_state or "awaiting_payment",
+            "paid": bool(order.l3_activated_on),
+            "tenant_url": order.l3_tenant_url,
+            "docs_status": order.l3_docs_status,
+        }
+
+    # --------------------------------------------------------------- internals
+
+    @api.model
+    def _find_or_create_partner(self, data, company):
+        Partner = self.env["res.partner"].sudo()
+        country = self.env["res.country"].sudo().search([("code", "=", data["country_code"])], limit=1)
+        state = self.env["res.country.state"]
+        if data.get("emirate") and country:
+            state = state.sudo().search([("country_id", "=", country.id), ("code", "=", data["emirate"])], limit=1)
+        partner = Partner.search([("l3_tenant_slug", "=", data["slug"])], limit=1)
+        if partner:
+            if state and not partner.state_id and partner.country_id == country:
+                partner.state_id = state
+            return partner
+        partner = Partner.create(
+            {
+                "name": data["company_name"],
+                "is_company": True,
+                "company_type": "company",
+                "email": data["email"],
+                "phone": data["mobile"] or False,
+                "country_id": country.id or False,
+                "state_id": state.id or False,
+                "l3_tenant_slug": data["slug"],
+            }
+        )
+        Partner.create(
+            {
+                "name": data["contact_name"],
+                "parent_id": partner.id,
+                "type": "contact",
+                "email": data["email"],
+                "phone": data["mobile"] or False,
+            }
+        )
+        return partner
+
+    @api.model
+    def _create_order(self, data, partner, company, founding, trial=False):
+        Order = self.env["sale.order"]
+        products = Order._l3_products()
+        period = Order._l3_period(data["cycle"])
+        cycle_label = dict(self.env["sale.order"]._fields["l3_cycle"].selection)[data["cycle"]]
+        lines = [
+            (0, 0, {
+                "product_id": products["base"].id,
+                "product_uom_qty": 1,
+                "name": _("SGC Real Estate Operating System - Layer 3 subscription, %(n)s users included (%(c)s billing)")
+                % {"n": INCLUDED_USERS, "c": cycle_label},
+            })
+        ]
+        extra = data["users"] - INCLUDED_USERS
+        if extra:
+            product = products["user_founding"] if founding else products["user_standard"]
+            lines.append((0, 0, {
+                "product_id": product.id,
+                "product_uom_qty": extra,
+                "name": _("Additional user above %(n)s (%(c)s billing)") % {"n": INCLUDED_USERS, "c": cycle_label},
+            }))
+        # No one-time implementation-fee line: sttl_sale_subscription rejects orders that mix
+        # one-time and recurring products, and a zero-priced line would trip the price check
+        # below. Self-serve orders are founding-only (see create_or_get_checkout), so the fee
+        # is waived and the waiver is recorded in the Order Form terms (_order_form_terms).
+        today = fields.Date.context_today(self)
+        # Trial signups never pass through Odoo's payment step: the card is collected by
+        # Stripe Elements on our own /subscribe page (create_trial_setup_intent and
+        # complete_trial), and Stripe holds it for the day-14 auto-charge
+        # (trial_period_days). require_payment=False therefore keeps the portal from
+        # asking for money Odoo cannot charge, and require_signature=False because the
+        # MSA agreement is accepted on our own form, not the Odoo portal.
+        order_vals = {
+            "partner_id": partner.id,
+            "company_id": company.id,
+            "recurrance_id": period.id,
+            "require_signature": not trial,
+            "require_payment": not trial,
+            "prepayment_percent": 0.0 if trial else 1.0,
+            "validity_date": today + timedelta(days=(14 + 30) if trial else QUOTATION_VALID_DAYS),
+            "client_order_ref": "Layer 3 %s" % data["slug"],
+            "l3_request_id": data["request_id"],
+            "l3_tenant_slug": data["slug"],
+            "l3_cycle": data["cycle"],
+            "l3_users": data["users"],
+            "l3_founding": founding,
+            "l3_admin_name": data["contact_name"],
+            "l3_admin_email": data["email"],
+            "l3_mobile": data["mobile"] or False,
+            "l3_trade_licence_no": data["trade_licence_no"] or False,
+            "l3_state": "trial" if trial else "awaiting_payment",
+            "l3_trial_ends_at": today + timedelta(days=14) if trial else False,
+            "l3_docs_status": "pending",
+            "note": self._order_form_terms(founding, trial=trial),
+            "order_line": lines,
+        }
+        order = Order.sudo().create(order_vals)
+        if any(line.price_unit <= 0 for line in order.order_line):
+            raise UserError(_("layer3_price_missing"))
+        # Paid orders need state='sent' for the customer's portal page to expose Odoo's
+        # Sign & Pay / payment_stripe card-capture form. Trial orders are sent too (the
+        # Order Form link is the same), but their card never passes through Odoo: it is
+        # collected by Stripe Elements on our own page while the order sits in 'trial'.
+        # Trial orders: the Order Form (quotation) is emailed at T-3 days before the
+        # trial ends (see _l3_process_trial_ends), NOT at signup — a quotation landing
+        # during the free trial reads as a pay-now demand. Paid flow sends immediately:
+        # its portal page needs state='sent' to expose the card-capture form.
+        if order.l3_state != "trial":
+            order.action_quotation_sent()
+        else:
+            order.message_post(body=_(
+                "Order Form ready. It will be emailed 3 days before your trial ends, "
+                "before the saved card is charged. Nothing is due during the trial."
+            ))
+        return order
+
+    @api.model
+    def _order_form_terms(self, founding, trial=False):
+        """Order Form SGC-OF-2026-01 section B defaults (SGC-MEMO-2026-OIC-01)."""
+        terms_url = (self._param("terms_url") or "https://sgctech.ai/legal/subscription").strip()
+        SO = self.env["sale.order"].sudo()
+
+        def aed(key, default):  # same parameters as pricing() and the order lines
+            value = SO._l3_float(key, default)
+            return "{:,.0f}".format(value) if value == int(value) else "{:,.2f}".format(value)
+
+        setup = aed("setup_unit_price", 1500)
+        rows = []
+        if trial:
+            rows.append(_("Trial: 14 days free with card-required auto-renew. If the day-14 charge fails the workspace is immediately locked (no grace period)."))
+        rows += [
+            _("Order Form SGC-OF-2026-01, issued under SGC-MEMO-2026-PR-03 (Rent - Subscription Layer)."),
+            _("This order incorporates the Master Services Agreement SGC-MSA-2026-02, the Service Level Agreement SGC-SLA-2026-02 and the Data Processing Agreement SGC-DPA-2026-01, available at %s.") % terms_url,
+            _("Subscription: no fixed end date; continues until cancelled with 60 days' notice, effective at the end of a billing cycle."),
+            _("Billing cycle discount: monthly and quarterly at the list price, half-yearly %(h)s%% off, annual %(a)s%% off.")
+            % {"h": "{:g}".format(SO._l3_float("rebate_half_yearly", 2.5)), "a": "{:g}".format(SO._l3_float("rebate_annual", 5))},
+            _("Additional users: AED %(f)s per user per month (founding rate), AED %(s)s (standard rate).")
+            % {"f": aed("user_monthly_founding", 50), "s": aed("user_monthly_standard", 75)},
+            (_("One-time onboarding fee: AED %s - waived (founding cohort).") if founding
+             else _("One-time onboarding fee: AED %s.")) % setup,
+            _("Data migration: up to 1,000 records included."),
+            _("Included usage: 500 AML screening queries per month, 5 GB document storage, 10,000 API calls per month; overage is agreed with the client, never billed silently."),
+            _("Service levels: Standard tier (99.5% monthly uptime, support Monday to Friday 09:00-18:00 GST, excluding weekends and UAE public holidays)."),
+            _("Account states: Active; Grace (days 1-7 after an unpaid due date); Read-only (days 8-29); Archive (day 30 onwards)."),
+            _("E-invoicing activation: not included."),
+            _("All amounts are in AED and exclusive of 5% VAT."),
+        ]
+        return Markup("<p>%s</p>") % Markup("</p><p>").join(rows)
+
+    @api.model
+    def _base_url(self):
+        base = (self._param("public_base_url") or "").strip().rstrip("/")
+        return base or self.env["ir.config_parameter"].sudo().get_param("web.base.url", "").rstrip("/")
+
+    def _result(self, order, deduplicated):
+        return {
+            "ok": True,
+            "deduplicated": bool(deduplicated),
+            "checkout_url": self._base_url() + order.get_portal_url(),
+            "amount_untaxed": order.amount_untaxed,
+            "amount_tax": order.amount_tax,
+            "amount_total": order.amount_total,
+            "currency": order.currency_id.name,
+            "cycle": order.l3_cycle,
+            "users": order.l3_users,
+            "founding": order.l3_founding,
+            "tenant_slug": order.l3_tenant_slug,
+            "sale_order_name": order.name,
+            "sale_order_state": order.state,
+        }
+
+    # --------------------------------------------------------- trial card (Stripe)
+
+    @api.model
+    def _stripe_provider(self):
+        return self.env["payment.provider"].sudo().search(
+            [("code", "=", "stripe"), ("state", "!=", "disabled")], order="id", limit=1
+        )
+
+    @api.model
+    def _stripe_secret(self):
+        """API key for the direct Stripe calls: the bridge param wins, otherwise the
+        enabled payment provider's key (the same account Odoo's Sign & Pay charges on)."""
+        key = (self._param("stripe_secret_key") or "").strip()
+        if key:
+            return key
+        provider = self._stripe_provider()
+        if provider and provider.stripe_secret_key:
+            return provider.stripe_secret_key
+        raise UserError(_("layer3_stripe_not_configured"))
+
+    @api.model
+    def _stripe_publishable(self):
+        key = (self._param("stripe_publishable_key") or "").strip()
+        if key:
+            return key
+        provider = self._stripe_provider()
+        return (provider and provider.stripe_publishable_key) or ""
+
+    @api.model
+    def _trial_order(self, request_id):
+        """The trial order this request is about, or a refusal the page can show."""
+        rid = str(request_id or "").strip()
+        if not _REQUEST_ID.match(rid):
+            raise UserError(_("layer3_trial_not_found"))
+        order = self.env["sale.order"].sudo().search([("l3_request_id", "=", rid)], limit=1)
+        if not order or order.l3_state != "trial" or not order.l3_trial_ends_at:
+            raise UserError(_("layer3_trial_not_found"))
+        return order
+
+    @api.model
+    def create_trial_setup_intent(self, request_id=None, **kwargs):
+        """Card step of the trial: a SetupIntent for the trial order's Stripe customer.
+
+        The customer is created once and reused; a fresh SetupIntent is issued per call
+        so a declined card can be retried without a dead client_secret.
+        """
+        order = self._trial_order(request_id)
+        if order.l3_stripe_subscription_id:
+            raise UserError(_("layer3_trial_already_active"))
+        from ..lib import stripe_client
+        api_key = self._stripe_secret()
+        try:
+            customer_id = order.l3_stripe_customer_id
+            if not customer_id:
+                customer_id = stripe_client.create_customer(
+                    api_key,
+                    order.l3_admin_email or order.partner_id.email or "",
+                    order.l3_admin_name or order.partner_id.name or "",
+                    metadata={
+                        "l3_request_id": order.l3_request_id,
+                        "l3_tenant_slug": order.l3_tenant_slug,
+                    },
+                )
+                order.l3_stripe_customer_id = customer_id
+            setup = stripe_client.create_setup_intent(api_key, customer_id)
+        except Exception:
+            _logger.exception("Layer 3: SetupIntent creation failed for %s", order.name)
+            raise UserError(_("layer3_stripe_error"))
+        return {
+            "ok": True,
+            "request_id": order.l3_request_id,
+            "client_secret": setup["client_secret"],
+            "publishable_key": self._stripe_publishable(),
+            "amount_total": order.amount_total,
+            "currency": order.currency_id.name,
+        }
+
+    @api.model
+    def _trial_price_id(self, order, api_key):
+        """Recurring Stripe Price for this order's total, cached once it exists."""
+        amount_minor = int(round(order.amount_total * (10 ** order.currency_id.decimal_places)))
+        currency = order.currency_id.name.lower()
+        cache_key = "stripe_price_%s_%s" % (amount_minor, currency)
+        cached = self._param(cache_key)
+        if cached:
+            return cached
+        from ..lib import stripe_client
+        price_id = stripe_client.ensure_trial_price(
+            api_key,
+            amount_minor,
+            currency,
+            interval="month",
+            lookup_key="l3_%s_%s" % (amount_minor, currency),
+        )
+        self.env["ir.config_parameter"].sudo().set_param(PARAM_PREFIX + cache_key, price_id)
+        return price_id
+
+    @api.model
+    def complete_trial(self, request_id=None, setup_intent_id=None, **kwargs):
+        """Attach the collected card, start the 14-day subscription, hand over the tenant.
+
+        The SetupIntent is re-read from Stripe before anything is trusted, so the client
+        can only report an intent this account already collected. Idempotent: a second
+        call for a subscription that exists returns the existing result.
+        """
+        order = self._trial_order(request_id)
+        if order.l3_stripe_subscription_id:
+            return self._trial_result(order, deduplicated=True)
+        intent_id = str(setup_intent_id or "").strip()
+        if not intent_id:
+            raise UserError(_("layer3_card_incomplete"))
+        from ..lib import stripe_client
+        api_key = self._stripe_secret()
+        try:
+            intent = stripe_client.retrieve_setup_intent(api_key, intent_id)
+            if intent.get("status") != "succeeded" or not intent.get("payment_method"):
+                raise UserError(_("layer3_card_incomplete"))
+            customer_id = intent.get("customer") or order.l3_stripe_customer_id
+            if not customer_id:
+                raise UserError(_("layer3_card_incomplete"))
+            price_id = self._trial_price_id(order, api_key)
+            subscription = stripe_client.create_trial_subscription(
+                api_key,
+                customer_id,
+                price_id,
+                intent["payment_method"],
+                metadata={
+                    "l3_request_id": order.l3_request_id,
+                    "l3_tenant_slug": order.l3_tenant_slug,
+                },
+            )
+        except UserError:
+            raise
+        except Exception:
+            _logger.exception("Layer 3: trial subscription failed for %s", order.name)
+            raise UserError(_("layer3_stripe_error"))
+        vals = {
+            "l3_stripe_customer_id": customer_id,
+            "l3_stripe_subscription_id": subscription["id"],
+            # Stripe is this order's billing engine from here on: the quotation no longer
+            # needs a validity window (the expiry cron would otherwise free the subdomain
+            # on day 44 while the customer is still paying Stripe every month).
+            "validity_date": False,
+        }
+        if subscription.get("trial_end"):
+            vals["l3_trial_ends_at"] = datetime.fromtimestamp(
+                subscription["trial_end"], tz=timezone.utc
+            ).date()
+        order.write(vals)
+        order._l3_sync(provision=True)
+        return self._trial_result(order, deduplicated=False)
+
+    def _trial_result(self, order, deduplicated):
+        return {
+            "ok": True,
+            "deduplicated": bool(deduplicated),
+            "request_id": order.l3_request_id,
+            "sale_order_name": order.name,
+            "tenant_slug": order.l3_tenant_slug,
+            "trial_ends_at": order.l3_trial_ends_at.isoformat() if order.l3_trial_ends_at else "",
+            "checkout_url": self._base_url() + order.get_portal_url(),
+        }

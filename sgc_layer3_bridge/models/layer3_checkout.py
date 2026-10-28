@@ -8,6 +8,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from ..lib.contract import SLUG_RE
+from ..lib.contract import DEFAULT_TENANT_TYPE, TENANT_TYPES
 from .sale_order import CYCLE_MONTHS, INCLUDED_USERS, PARAM_PREFIX, QUOTATION_VALID_DAYS
 
 _logger = logging.getLogger(__name__)
@@ -18,7 +19,8 @@ _PHONE = re.compile(r"^[0-9 +()-]{6,24}$")
 _COUNTRY = re.compile(r"^[A-Za-z]{2}$")
 
 REQUIRED_KEYS = {"request_id", "slug", "company_name", "contact_name", "email", "cycle", "users"}
-OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url", "trial"}
+OPTIONAL_KEYS = {"mobile", "trade_licence_no", "country_code", "emirate", "return_url", "trial",
+                 "tenant_type"}
 # UAE emirate codes (res.country.state). The UAE VAT fiscal positions are keyed by emirate, so a
 # UAE customer without one falls through to the export (0%) position. SGC is in Dubai.
 EMIRATES = ("DU", "AZ", "SH", "AJ", "UQ", "RK", "FU")
@@ -170,6 +172,13 @@ class Layer3Checkout(models.TransientModel):
             if data["emirate"] not in EMIRATES:
                 raise ValidationError(_("emirate must be one of %s.") % ", ".join(EMIRATES))
         data["trial"] = str(payload.get("trial") or "").strip().lower() in ("true", "1", "yes")
+        # The provisioning path is decided HERE, at registration: brokerage tenants are
+        # provisioned from the brokerage template, developer tenants from the developer one.
+        # An unknown value is refused instead of being guessed.
+        tenant_type = str(payload.get("tenant_type") or DEFAULT_TENANT_TYPE).strip().lower()
+        if tenant_type not in TENANT_TYPES:
+            raise ValidationError(_("tenant_type must be one of: %s.") % ", ".join(TENANT_TYPES))
+        data["tenant_type"] = tenant_type
         return data
 
     # ------------------------------------------------------------------ public
@@ -363,6 +372,7 @@ class Layer3Checkout(models.TransientModel):
             "l3_request_id": data["request_id"],
             "l3_tenant_slug": data["slug"],
             "l3_cycle": data["cycle"],
+            "l3_tenant_type": data["tenant_type"],
             "l3_users": data["users"],
             "l3_founding": founding,
             "l3_admin_name": data["contact_name"],
