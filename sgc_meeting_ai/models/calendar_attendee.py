@@ -52,3 +52,21 @@ class CalendarAttendee(models.Model):
         return super()._notify_attendees(
             mail_template, notify_author=notify_author, force_send=force_send
         )
+
+    def _compute_mail_tz(self):
+        """Render invitation times in the meeting's operating timezone.
+
+        Core only uses the attendee partner's own timezone, so a customer
+        contact without one gets the time rendered in UTC while the internal
+        copies show Dubai time -- the same meeting then arrived labelled
+        "11:30" in one inbox and "15:30" in another. Fall back to the
+        organizer's timezone so every copy agrees.
+        """
+        super()._compute_mail_tz()
+        for attendee in self:
+            if not attendee.mail_tz:
+                attendee.mail_tz = (
+                    attendee.event_id.user_id.tz
+                    or self.env.context.get("tz")
+                    or self.env.user.tz
+                )
