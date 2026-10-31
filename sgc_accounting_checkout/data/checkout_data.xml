@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Prices from Vol 2 "Commercial Packages" (v3.1, 22 Oct 2026), excl. 5% VAT.
+         noupdate: change a price in Odoo and the website copy together; an upgrade never resets it. -->
+    <data noupdate="1">
+        <record id="product_acc_onboarding" model="product.product">
+            <field name="name">Accounting onboarding and system setup (one-time)</field>
+            <field name="default_code">ACC-ONBOARD</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">500</field>
+        </record>
+        <record id="product_acc_start" model="product.product">
+            <field name="name">Accounting package START (monthly)</field>
+            <field name="default_code">ACC-START</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">399</field>
+        </record>
+        <record id="product_acc_essential" model="product.product">
+            <field name="name">Accounting package ESSENTIAL (monthly)</field>
+            <field name="default_code">ACC-ESSENTIAL</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">599</field>
+        </record>
+        <record id="product_acc_compliance" model="product.product">
+            <field name="name">Accounting package COMPLIANCE (monthly)</field>
+            <field name="default_code">ACC-COMPLIANCE</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">799</field>
+        </record>
+        <record id="product_acc_business" model="product.product">
+            <field name="name">Accounting package BUSINESS (monthly)</field>
+            <field name="default_code">ACC-BUSINESS</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">1299</field>
+        </record>
+        <record id="product_acc_growth_cfo" model="product.product">
+            <field name="name">Accounting package GROWTH CFO (monthly)</field>
+            <field name="default_code">ACC-GROWTH-CFO</field>
+            <field name="type">service</field>
+            <field name="invoice_policy">order</field>
+            <field name="purchase_ok" eval="False"/>
+            <field name="list_price">1999</field>
+        </record>
+    </data>
+
+    <record id="cron_accounting_checkout_activate" model="ir.cron">
+        <field name="name">Accounting signup: open portals for paid orders</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">model._acc_cron_activate()</field>
+        <field name="interval_number">10</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_accounting_checkout_integration,sgc.accounting.checkout integration,model_sgc_accounting_checkout,group_accounting_checkout_integration,1,1,1,0
+access_accounting_checkout_system,sgc.accounting.checkout system,model_sgc_accounting_checkout,base.group_system,1,1,1,0

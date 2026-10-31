@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_accounting_checkout_integration" model="res.groups">
+        <field name="name">Accounting Signup Integration</field>
+        <field name="comment">Allows calling sgc.accounting.checkout. Grant only to the machine-to-machine user of the sgctech.ai website.</field>
+    </record>
+</odoo>
