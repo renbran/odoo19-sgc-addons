@@ -3,6 +3,7 @@ import logging
 import re
 from datetime import timedelta
 
+from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
 
 from odoo import Command, _, api, fields, models
@@ -36,6 +37,7 @@ REQUEST_ID_RE = re.compile(r"^[A-Za-z0-9_\-:.]{8,128}$")
 VAT_RATE = 0.05
 INTEGRATION_GROUP = "sgc_accounting_checkout.group_accounting_checkout_integration"
 QUOTATION_VALID_DAYS = 30
+MAX_CATCH_UP_PERIODS = 12  # ponytail: a client unbilled for over a year needs a human, not a loop
 PARAM_ACCOUNT_MANAGER = "sgc_accounting_checkout.account_manager_login"
 
 
@@ -252,6 +254,18 @@ class SaleOrder(models.Model):
     acc_emirate = fields.Char("Accounting client emirate", copy=False)
     acc_client_id = fields.Many2one("sgc.accounting.client", "Accounting workspace", copy=False, readonly=True, index=True)
     acc_activation_error = fields.Text("Accounting portal error", copy=False, readonly=True)
+    acc_paid_until = fields.Date(
+        "Accounting invoiced until", copy=False,
+        help="End of the last invoiced period. The next renewal invoice is issued on this date.",
+    )
+    acc_billing_day = fields.Integer(
+        "Accounting billing day", copy=False,
+        help="Day of month the periods start on (clamped to short months), so 31st stays 31st.",
+    )
+    acc_renewal_active = fields.Boolean(
+        "Accounting renewals", copy=False,
+        help="Untick when the client has given notice: no further renewal invoices are issued.",
+    )
 
     _acc_request_id_uniq = models.Constraint(
         "unique(acc_request_id)", "An order already exists for this accounting signup."
@@ -321,7 +335,16 @@ class SaleOrder(models.Model):
             "currency_id": self.currency_id.id,
             "account_manager_id": self._acc_account_manager().id,
         })
-        self.write({"acc_client_id": client.id, "acc_activation_error": False})
+        months, _charged = CYCLES[self.acc_cycle]
+        today = fields.Date.context_today(self)
+        self.write({
+            "acc_client_id": client.id,
+            "acc_activation_error": False,
+            # The checkout paid the first period; renewals start when it ends.
+            "acc_billing_day": today.day,
+            "acc_paid_until": today + relativedelta(months=months),
+            "acc_renewal_active": True,
+        })
         client.action_queue_provision()  # status 'queued' + event for the accounting receiver
         client.message_post(body=_(
             "Opened from paid order %(order)s: package %(package)s, %(cycle)s billing.",
@@ -331,6 +354,70 @@ class SaleOrder(models.Model):
         ))
         self.message_post(body=_("Accounting portal opened: workspace %s.", client.client_code))
         self._acc_grant_portal(client)  # last: it sends the invitation email immediately
+
+    @api.model
+    def _acc_cron_renew(self, today=None):
+        """Daily: invoice every period that has started and is not yet invoiced (catches up
+        missed days), post it and queue the standard invoice email, which carries the pay link."""
+        today = today or fields.Date.context_today(self)
+        template = self.env.ref("account.email_template_edi_invoice", raise_if_not_found=False)
+        orders = self.sudo().search([
+            ("acc_client_id", "!=", False),
+            ("acc_renewal_active", "=", True),
+            ("acc_paid_until", "<=", today),
+        ])
+        for order in orders:
+            client = order.acc_client_id
+            if not client.active or client.status in ("suspended", "archived"):
+                continue
+            try:
+                with self.env.cr.savepoint():
+                    invoices = order._acc_issue_renewals(today)
+            except Exception:  # one order must not stop the others; retried tomorrow
+                _logger.exception("Accounting renewal for %s failed", order.name)
+                continue
+            for invoice in invoices:  # queued, not sent inline: a bad address never undoes an invoice
+                try:
+                    if template:
+                        template.send_mail(invoice.id)
+                        invoice.is_move_sent = True
+                except Exception:
+                    _logger.exception("Accounting renewal invoice %s not emailed", invoice.name)
+
+    def _acc_issue_renewals(self, today):
+        self.ensure_one()
+        months, charged = CYCLES[self.acc_cycle]
+        label, xmlid = PACKAGES[self.acc_package]
+        product = self.env.ref("sgc_accounting_checkout.%s" % xmlid)
+        Move = self.env["account.move"].with_company(self.company_id)
+        invoices = Move
+        for _i in range(MAX_CATCH_UP_PERIODS):
+            start = self.acc_paid_until
+            if start > today:
+                break
+            end = start + relativedelta(months=months, day=self.acc_billing_day or start.day)
+            invoices |= Move.create({
+                "move_type": "out_invoice",
+                "partner_id": self.partner_invoice_id.id,
+                "company_id": self.company_id.id,
+                "currency_id": self.currency_id.id,
+                "fiscal_position_id": self.fiscal_position_id.id,
+                "invoice_payment_term_id": self.payment_term_id.id,
+                "invoice_origin": self.name,
+                "invoice_date": today,
+                "invoice_line_ids": [Command.create({
+                    "product_id": product.id,
+                    "quantity": charged,
+                    "price_unit": product.lst_price,
+                    "name": _("Accounting package %(p)s, %(start)s to %(end)s", p=label, start=start,
+                              end=end - relativedelta(days=1)),
+                })],
+            })
+            self.acc_paid_until = end
+        invoices.action_post()
+        if invoices:
+            self.message_post(body=_("Renewal invoices issued: %s.", ", ".join(invoices.mapped("name"))))
+        return invoices
 
     def _acc_public_url(self):
         # Same public host as the Layer 3 Sign & Pay links (web.base.url can be internal).

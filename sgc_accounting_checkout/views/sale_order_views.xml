@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_accounting_signup" model="ir.ui.view">
+        <field name="name">sale.order.form.accounting.signup</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='other_information']" position="after">
+                <page string="Accounting signup" name="accounting_signup" invisible="not acc_package">
+                    <group>
+                        <group string="Package">
+                            <field name="acc_package"/>
+                            <field name="acc_cycle"/>
+                            <field name="acc_client_id"/>
+                            <field name="acc_request_id"/>
+                        </group>
+                        <group string="Renewals">
+                            <field name="acc_renewal_active"/>
+                            <field name="acc_paid_until"/>
+                            <field name="acc_billing_day"/>
+                        </group>
+                        <group string="Client details from the website">
+                            <field name="acc_company_name"/>
+                            <field name="acc_trn"/>
+                            <field name="acc_trade_licence_no"/>
+                            <field name="acc_emirate"/>
+                        </group>
+                    </group>
+                    <field name="acc_activation_error" invisible="not acc_activation_error"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

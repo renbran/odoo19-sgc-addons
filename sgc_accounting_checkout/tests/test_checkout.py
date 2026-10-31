@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from unittest.mock import patch
 
+from dateutil.relativedelta import relativedelta
+
+from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.tests.common import TransactionCase, tagged
 
 from ..models.checkout import PACKAGES, SaleOrder
@@ -215,3 +219,75 @@ class TestAccountingCheckout(TransactionCase):
         partner = self.env["res.partner"].create({"name": "Taken"})
         self.env["sgc.accounting.client"].create({"name": "Taken", "client_code": "taken-co", "partner_id": partner.id})
         self.assertEqual(Order._acc_client_code("Taken Co"), "taken-co-2")
+
+
+@tagged("post_install", "-at_install")
+class TestAccountingRenewals(AccountTestInvoicingCommon):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        tax = cls.env["account.tax"].create({
+            "name": "VAT 5% (renewal test)",
+            "amount": 5,
+            "amount_type": "percent",
+            "type_tax_use": "sale",
+            "company_id": cls.env.company.id,
+        })
+        for xmlid in ["product_acc_onboarding"] + [x for _label, x in PACKAGES.values()]:
+            cls.env.ref("sgc_accounting_checkout.%s" % xmlid).taxes_id = [(6, 0, tax.ids)]
+
+    def _active_order(self, request_id, cycle="monthly", package="start"):
+        # The invoicing test base runs as an accountant, not superuser; the website caller is checked elsewhere.
+        result = self.env["sgc.accounting.checkout"].sudo().create_checkout(dict(
+            PAYLOAD, request_id=request_id, cycle=cycle, package=package, email="%s@renewal.test" % request_id,
+        ))
+        order = self.env["sale.order"].search([("name", "=", result["sale_order_name"])])
+        with patch.object(SaleOrder, "_acc_is_paid", return_value=True):
+            order.action_confirm()
+        self.assertTrue(order.acc_client_id)
+        return order
+
+    def _renewals(self, order):
+        return self.env["account.move"].search([("invoice_origin", "=", order.name), ("move_type", "=", "out_invoice")])
+
+    def test_monthly_renewal_is_invoiced_when_the_paid_month_ends(self):
+        order = self._active_order("renew-0001")
+        today = fields.Date.context_today(order)
+        self.assertEqual(order.acc_paid_until, today + relativedelta(months=1))
+        Order = self.env["sale.order"]
+        Order._acc_cron_renew(today=order.acc_paid_until - relativedelta(days=1))
+        self.assertFalse(self._renewals(order))
+
+        Order._acc_cron_renew(today=order.acc_paid_until)
+        invoice = self._renewals(order)
+        self.assertEqual(len(invoice), 1)
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(invoice.partner_id, order.partner_invoice_id)
+        self.assertAlmostEqual(invoice.amount_untaxed, 399)
+        self.assertAlmostEqual(invoice.amount_tax, 19.95)
+        self.assertTrue(invoice.is_move_sent)
+        self.assertEqual(order.acc_paid_until, today + relativedelta(months=2))
+
+        Order._acc_cron_renew(today=today + relativedelta(months=1))  # same day again
+        self.assertEqual(len(self._renewals(order)), 1)
+
+    def test_annual_renewal_is_twelve_for_eleven_and_catches_up(self):
+        order = self._active_order("renew-0002", cycle="annual", package="growth_cfo")
+        start = order.acc_paid_until
+        self.assertEqual(start, fields.Date.context_today(order) + relativedelta(months=12))
+        self.env["sale.order"]._acc_cron_renew(today=start + relativedelta(months=12))  # a whole year missed
+        invoices = self._renewals(order)
+        self.assertEqual(len(invoices), 2)
+        self.assertEqual(invoices.mapped("amount_untaxed"), [1999 * 11] * 2)
+        self.assertEqual(order.acc_paid_until, start + relativedelta(months=24))
+
+    def test_no_renewal_after_notice_or_suspension(self):
+        order = self._active_order("renew-0003")
+        Order = self.env["sale.order"]
+        order.acc_renewal_active = False
+        Order._acc_cron_renew(today=order.acc_paid_until)
+        self.assertFalse(self._renewals(order))
+        order.acc_renewal_active = True
+        order.acc_client_id.status = "suspended"
+        Order._acc_cron_renew(today=order.acc_paid_until)
+        self.assertFalse(self._renewals(order))
