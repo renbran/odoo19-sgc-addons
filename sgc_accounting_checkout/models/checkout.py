@@ -144,12 +144,18 @@ class SgcAccountingCheckout(models.TransientModel):
         """A fresh company + contact; the contact will own the portal login (login = email)."""
         Partner = self.env["res.partner"].sudo()
         country = self.env.ref("base.ae", raise_if_not_found=False)
+        # UAE VAT is applied by per-emirate fiscal positions matched on the state; a partner
+        # without one falls through to the "Non-UAE" position (0%).
+        state = country and self.env["res.country.state"].search(
+            [("country_id", "=", country.id), ("code", "=", data["emirate"])], limit=1
+        )
         company = Partner.create({
             "name": data["company_name"],
             "is_company": True,
             "email": data["email"],
             "phone": data["mobile"] or False,
             "country_id": country.id if country else False,
+            "state_id": state.id if state else False,
         })
         return Partner.create({
             "name": data["contact_name"],
