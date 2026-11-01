@@ -11,6 +11,12 @@
         <field name="implied_ids" eval="[(4, ref('sgc_accounting_clients.group_sgc_accounting_user'))]"/>
     </record>
 
+    <!-- The database administrator is the agency owner: full agency rights and
+         the reviewer to-dos, with no separate staff grant needed. -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('sgc_accounting_clients.group_sgc_accounting_manager'))]"/>
+    </record>
+
     <record id="rule_sgc_accounting_client_internal" model="ir.rule">
         <field name="name">Accounting clients: internal users</field>
         <field name="model_id" ref="model_sgc_accounting_client"/>

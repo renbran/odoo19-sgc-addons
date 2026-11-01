@@ -96,6 +96,8 @@ class TestSgcAccountingClients(TransactionCase):
         self.assertIn("test-client/inbox/customer_invoices", upload.storage_path)
 
     def test_bucket_catalog_and_samples(self):
+        admin = self.env.ref("base.user_admin")
+        self.assertTrue(admin.has_group("sgc_accounting_clients.group_sgc_accounting_manager"))
         self.assertEqual(len(BUCKETS), 10)
         self.assertIn("payments", {item["code"] for item in BUCKETS})
         coa = sample_csv("chart_of_accounts")
