@@ -6,7 +6,7 @@ import xmlrpc.client
 from datetime import timedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
 
@@ -215,7 +215,21 @@ class SgcAccountingClient(models.Model):
         "An accounting workspace already uses this client code.",
     )
 
+    def _check_owner_write(self, vals):
+        # Only the link script (superuser), after checking the owner inside
+        # the client database, may set the verified owner; readonly in the
+        # form is not enough, since staff can write over RPC.
+        if vals.get("link_owner_login") and not self.env.su:
+            raise AccessError(_("Only scripts/link_accounting_client.sh may set the verified owner."))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            self._check_owner_write(vals)
+        return super().create(vals_list)
+
     def write(self, vals):
+        self._check_owner_write(vals)
         # A link changed by hand is not verified: only the link script, which
         # checks the owner in the client database, writes the owner with it.
         if "link_owner_login" not in vals and {"base_url", "db_name", "api_user_id"} & set(vals):
@@ -223,13 +237,21 @@ class SgcAccountingClient(models.Model):
         return super().write(vals)
 
     def _owner_logins(self):
-        """Lowercased logins of the client's portal users (the users of its
-        commercial partner): the people whose database this client books into."""
+        """Lowercased logins of the client's portal users (portal users of its
+        commercial partner, never staff): whose database this client books into."""
         self.ensure_one()
         users = self.env["res.users"].sudo().search(
-            [("partner_id.commercial_partner_id", "=", self.partner_id.commercial_partner_id.id)]
+            [
+                ("partner_id.commercial_partner_id", "=", self.partner_id.commercial_partner_id.id),
+                ("share", "=", True),
+            ]
         )
         return {login.lower() for login in users.mapped("login") if login}
+
+    def _link_verified(self):
+        """Is the linked database verified as this client's own?"""
+        self.ensure_one()
+        return bool(self.link_owner_login) and self.link_owner_login in self._owner_logins()
 
     @api.depends("base_url")
     def _compute_workspace_url(self):
@@ -371,7 +393,7 @@ class SgcAccountingClient(models.Model):
         if not self.workspace_url.startswith("https://"):
             return None, _("The workspace URL must use https.")
         # Never book into a database that was not verified as this client's own.
-        if not self.link_owner_login or self.link_owner_login not in self._owner_logins():
+        if not self._link_verified():
             return None, _(
                 "The client database was not verified as this client's own (its "
                 "portal user must be a user there); link it with "

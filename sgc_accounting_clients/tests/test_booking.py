@@ -5,6 +5,8 @@ import os
 import tempfile
 from unittest.mock import patch
 
+from odoo import Command
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.sgc_accounting_clients.models import accounting_client
@@ -48,13 +50,14 @@ class FakeDatabase:
         self.role = "agent-01-intake"
         self.create_error = None
         self.read_error = None
+        self.partners = {}  # name -> contacts search_read returns for it
 
     def execute_kw(self, db, uid, key, model, method, args, kwargs):
         self.calls.append((db, uid, key, model, method, args, kwargs))
         if method == "create":
             if self.create_error:
                 raise self.create_error
-            return 100 + len(self.created())
+            return 100 + len([call for call in self.calls if call[4] == "create"])
         if method == "read" and model == "res.users":
             if self.read_error:
                 raise self.read_error
@@ -65,8 +68,18 @@ class FakeDatabase:
             raise AssertionError("unexpected call %s.%s" % (model, method))
         domain = args[0]
         if model == "res.partner":
-            known = ("name", "=ilike", "Known Customer") in domain
-            return [{"id": 7}] if known else []
+            for name, records in self.partners.items():
+                if ("name", "=ilike", name) in domain:
+                    return records
+            if ("name", "=ilike", "Known Customer") in domain:
+                return [{"id": 7}]
+            # A contact created earlier (ids as create returns them) is found.
+            creates = [call for call in self.calls if call[4] == "create"]
+            return [
+                {"id": 100 + n}
+                for n, call in enumerate(creates, 1)
+                if call[3] == "res.partner" and ("name", "=ilike", call[5][0]["name"]) in domain
+            ][:1]
         if model == "res.currency":
             return [{"id": 130}] if ("name", "=ilike", "AED") in domain else []
         if model == "res.company":
@@ -89,8 +102,12 @@ class FakeDatabase:
             ]
         return self.existing.get(model, [])
 
-    def created(self):
-        return [call for call in self.calls if call[4] == "create"]
+    def created(self, model=None):
+        """Created records of ``model``; by default the drafts (not contacts)."""
+        return [
+            call for call in self.calls
+            if call[4] == "create" and (call[3] == model if model else call[3] != "res.partner")
+        ]
 
 
 OWNER = "owner@client.test"
@@ -114,7 +131,12 @@ class TestSgcAccountingBooking(TransactionCase):
         )
         # The client's portal user, verified in client_db by the link script.
         cls.owner = cls.env["res.users"].create(
-            {"name": "Booking Owner", "login": OWNER, "partner_id": partner.id}
+            {
+                "name": "Booking Owner",
+                "login": OWNER,
+                "partner_id": partner.id,
+                "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
+            }
         )
         cls.client.link_owner_login = OWNER
         cls.company = cls.env["sgc.accounting.company"].create(
@@ -209,8 +231,14 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertEqual((line["quantity"], line["price_unit"]), (2.0, 1500.0))
         self.assertEqual(line["tax_ids"], [(6, 0, [9])])
         self.assertEqual(second["ref"], "INV-2")
-        self.assertNotIn("partner_id", second)
-        self.assertIn("New Customer", second["narration"])
+        # A new customer is created once, in the target company, as a customer.
+        (partner,) = (call[5][0] for call in self.db.created("res.partner"))
+        self.assertEqual(
+            (partner["name"], partner["company_id"], partner["customer_rank"]),
+            ("New Customer", 3, 1),
+        )
+        self.assertEqual(second["partner_id"], 102)
+        self.assertIn("New Customer was new", second["narration"])
         self.assertIn("[SGC-DOC %s-1]" % upload.id, first["narration"])
         self.assertIn("[SGC-DOC %s-2]" % upload.id, second["narration"])
         self.assertEqual(self._events(upload), ["uploaded", "booked", "booked"])
@@ -317,13 +345,15 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertEqual(len(created), 2)
         self.assertEqual([values["ref"] for values in created], ["1001", "1001"])
         self.assertEqual(created[0]["partner_id"], 7)
-        self.assertNotIn("partner_id", created[1])
+        (vendor,) = (call[5][0] for call in self.db.created("res.partner"))
+        self.assertEqual((vendor["name"], vendor["supplier_rank"]), ("Other Vendor", 1))
+        self.assertEqual(created[1]["partner_id"], 102)
         duplicate_search = [
             call[5][0] for call in self.db.calls
             if call[3] == "account.move" and call[4] == "search_read"
         ]
         self.assertIn(("partner_id", "=", 7), duplicate_search[0])
-        self.assertIn(("partner_id", "=", False), duplicate_search[1])
+        self.assertIn(("partner_id", "=", 102), duplicate_search[1])
         # Own drafts are found by marker; other uploads by vendor and number.
         self.assertIn(
             ("narration", "ilike", "[SGC-DOC %s-2]" % upload.id), duplicate_search[1]
@@ -604,3 +634,81 @@ class TestSgcAccountingBooking(TransactionCase):
             self.assertEqual(upload.booking_state, "failed")
             self.assertIn(words, upload.log_ids.sorted("id")[-1].message)
         self.assertFalse(self.db.created())
+
+    def test_staff_of_the_client_partner_is_not_an_owner(self):
+        staff = self.env["res.users"].create(
+            {"name": "Staff", "login": "staff@firm.test", "partner_id": self.client.partner_id.id}
+        )
+        self.assertFalse(staff.share)
+        self.assertEqual(self.client._owner_logins(), {OWNER})
+
+    def test_only_the_link_script_sets_the_owner(self):
+        manager = self.env["res.users"].create(
+            {
+                "name": "Accounting User",
+                "login": "acc-user@firm.test",
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.env.ref("sgc_accounting_clients.group_sgc_accounting_user").id),
+                ],
+            }
+        )
+        with self.assertRaises(AccessError):
+            self.client.with_user(manager).write({"link_owner_login": OWNER})
+        with self.assertRaises(AccessError):
+            self.env["sgc.accounting.client"].with_user(manager).create(
+                {"name": "X", "client_code": "x-client", "partner_id": self.client.partner_id.id,
+                 "link_owner_login": OWNER}
+            )
+
+    def test_a_typo_does_not_set_the_date_order(self):
+        upload = self._upload(
+            "vendor_bills",
+            VENDOR_BILLS.replace("2026-10-20", "3/4/2026").replace("2026-11-19", "41/3/2026"),
+        )
+        self._book()
+        self.assertFalse(self.db.created())
+        self.assertIn("can be read as day/month", upload.log_ids.sorted("id")[-1].message)
+
+    def test_new_vendor_is_created_once_per_file(self):
+        bills = VENDOR_BILLS.replace("Known Customer", "Other Vendor").replace(",USD,", ",AED,")
+        self._upload("vendor_bills", bills)
+        self._book()
+        (vendor,) = self.db.created("res.partner")
+        vendor_id = 100 + [c for c in self.db.calls if c[4] == "create"].index(vendor) + 1
+        self.assertEqual({call[5][0]["partner_id"] for call in self.db.created()}, {vendor_id})
+        self.assertEqual(len(self.db.created()), 2)
+
+    def test_partner_names_match_exactly(self):
+        self._upload("vendor_bills", VENDOR_BILLS.replace("Other Vendor", "50%_Off Co"))
+        self._book()
+        searches = [
+            call[5][0] for call in self.db.calls
+            if call[3] == "res.partner" and call[4] == "search_read"
+        ]
+        self.assertIn(("name", "=ilike", r"50\%\_Off Co"), searches[-1])
+
+    def test_contact_choice_never_guesses(self):
+        bill = VENDOR_BILLS.replace("Other Vendor", "Known Customer").replace(",USD,", ",AED,")
+        # The company's own contact wins over a shared one with that name.
+        self.db.partners["Known Customer"] = [
+            {"id": 21, "company_id": False, "active": True},
+            {"id": 22, "company_id": [3, "Target Co"], "active": True},
+        ]
+        self._upload("vendor_bills", bill)
+        self._book()
+        self.assertEqual({c[5][0]["partner_id"] for c in self.db.created()}, {22})
+        search = next(c[5][0] for c in self.db.calls if c[3] == "res.partner")
+        self.assertIn(("parent_id", "=", False), search)  # never a contact person
+        self.assertIn(("active", "in", [True, False]), search)
+        # Two at the same level, or an archived one: that document fails.
+        for records, words in (
+            ([{"id": 23, "company_id": False}, {"id": 24, "company_id": False}], "2 contacts are named"),
+            ([{"id": 25, "company_id": [3, "Target Co"], "active": False}], "archived"),
+        ):
+            self.db = FakeDatabase()
+            self.db.partners["Known Customer"] = records
+            upload = self._upload("vendor_bills", bill.replace("100", "101"))
+            self._book()
+            self.assertFalse(self.db.created())
+            self.assertIn(words, upload.log_ids.sorted("id")[-1].message)

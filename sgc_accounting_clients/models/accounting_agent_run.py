@@ -551,8 +551,10 @@ class SgcAccountingAgentRun(models.Model):
             },
             "match_target": {
                 "engine": "odoo",
-                "url": client.workspace_url or "",
-                "db_name": client.db_name or "",
+                # Never point the agent at a database not verified as the
+                # client's own (it reads there to match the documents).
+                "url": (client.workspace_url or "") if client._link_verified() else "",
+                "db_name": (client.db_name or "") if client._link_verified() else "",
                 "company_ids": [
                     company.odoo_company_id
                     for company in client.company_ids

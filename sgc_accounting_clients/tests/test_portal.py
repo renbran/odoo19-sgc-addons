@@ -45,6 +45,7 @@ class TestSgcAccountingPortal(HttpCase):
                 "status": "active",
             }
         )
+        cls.client.link_owner_login = "sgc-portal-test"
         cls.company = cls.env["sgc.accounting.company"].create(
             {
                 "client_id": cls.client.id,

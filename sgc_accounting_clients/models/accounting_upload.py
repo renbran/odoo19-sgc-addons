@@ -634,12 +634,16 @@ class SgcAccountingUpload(models.Model):
         def call(model, method, *args, **kwargs):
             return rpc(conn, model, method, *args, context=context, **kwargs)
 
-        def find(model, domain, field_names=("id",), limit=1):
+        def find(model, domain, field_names=("id",), limit=1, create=None):
+            """search_read, cached for this file; with ``create``, a record
+            not found is created once and the next document reuses it."""
             key = (model, repr(domain), field_names, limit)
             if key not in cache:
                 cache[key] = call(
                     model, "search_read", domain, fields=list(field_names), limit=limit
                 )
+            if not cache[key] and create:
+                cache[key] = [dict(create, id=call(model, "create", create))]
             return cache[key]
 
         headers = source["headers"]
@@ -801,8 +805,16 @@ class SgcAccountingUpload(models.Model):
                     found.append((row, column, match))
         if not found:
             return
-        day_first = [m[0] for _r, _c, m in found if int(m[1]) > 12]
-        month_first = [m[0] for _r, _c, m in found if int(m[2]) > 12]
+        def real(year, month, day):
+            try:
+                return bool(datetime.date(int(year), int(month), int(day)))
+            except ValueError:
+                return False
+
+        # Only a real date proves the order: a typo like 41/3/2026 must not
+        # flip every other date of the file.
+        day_first = [m[0] for _r, _c, m in found if int(m[1]) > 12 and real(m[3], m[2], m[1])]
+        month_first = [m[0] for _r, _c, m in found if int(m[2]) > 12 and real(m[3], m[1], m[2])]
         if day_first and month_first:
             raise ValueError(_(
                 "This file mixes day-first dates (%(day)s) and month-first dates "
@@ -1069,28 +1081,8 @@ class SgcAccountingUpload(models.Model):
         return "account.payment", duplicate_domain, values, summary
 
     def _set_party(self, values, headers, row, partner_label, company_id, find, notes):
-        """Add the counterparty and currency found in the client database."""
-        partner_name = _cell(headers, row, partner_label)
-        if partner_name:
-            found = find(
-                "res.partner",
-                [
-                    "|",
-                    ("company_id", "=", False),
-                    ("company_id", "parent_of", company_id),
-                    ("name", "=ilike", partner_name),
-                ],
-            )
-            if found:
-                values["partner_id"] = found[0]["id"]
-            else:
-                notes.append(
-                    _(
-                        "Counterparty %(name)s is not in the database yet; set it "
-                        "on the draft.",
-                        name=partner_name,
-                    )
-                )
+        """Add the currency and the counterparty of the client database,
+        creating the counterparty in the target company when it is new."""
         currency = _cell(headers, row, "Currency")
         if currency:
             found = find("res.currency", [("name", "=ilike", currency)])
@@ -1103,3 +1095,72 @@ class SgcAccountingUpload(models.Model):
                     )
                 )
             values["currency_id"] = found[0]["id"]
+        partner_name = " ".join(_cell(headers, row, partner_label).split())
+        if not partner_name:
+            return
+        supplier = values.get("move_type") in ("in_invoice", "in_refund") or (
+            values.get("partner_type") == "supplier"
+        )
+        # =ilike is case-insensitive but treats % and _ as wildcards: escape them.
+        exact = partner_name.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        # Companies and individuals only, never a contact person under another
+        # company (the bill would go to that company); archived ones too, so
+        # an archived vendor is reported rather than created a second time.
+        domain = [
+            "|",
+            ("company_id", "=", False),
+            ("company_id", "parent_of", company_id),
+            ("name", "=ilike", exact),
+            ("parent_id", "=", False),
+            ("active", "in", [True, False]),
+        ]
+        lookup = ("res.partner", domain, ("id", "company_id", "active"), 5)
+        if not find(*lookup):
+            notes.append(
+                _(
+                    "%(kind)s %(name)s was new and has been created; check its details.",
+                    kind=_("Vendor") if supplier else _("Customer"),
+                    name=partner_name,
+                )
+            )
+        # Created once, in the target company; later documents reuse it.
+        known = find(
+            *lookup,
+            create={
+                "name": partner_name,
+                "company_id": company_id,
+                "supplier_rank" if supplier else "customer_rank": 1,
+                "comment": _(
+                    "Created from the client portal: %(file)s (upload %(id)s).",
+                    file=self.filename or "",
+                    id=self.id,
+                ),
+            },
+        )
+
+        # The target company's own contact first, then a parent's, then a
+        # shared one; two at the same level is a guess we do not make.
+        def level(record):
+            company = record.get("company_id") or False  # [id, name] when read
+            company = company[0] if isinstance(company, list) else company
+            return 0 if company == company_id else 2 if not company else 1
+
+        best = [record for record in known if level(record) == min(map(level, known))]
+        if len(best) > 1:
+            raise ValueError(
+                _(
+                    "%(count)s contacts are named %(name)s in the client database; "
+                    "book this document by hand with the right one",
+                    count=len(best),
+                    name=partner_name,
+                )
+            )
+        if not best[0].get("active", True):
+            raise ValueError(
+                _(
+                    "contact %(name)s is archived in the client database; restore "
+                    "it or book this document by hand",
+                    name=partner_name,
+                )
+            )
+        values["partner_id"] = best[0]["id"]

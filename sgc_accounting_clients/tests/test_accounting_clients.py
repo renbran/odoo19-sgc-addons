@@ -2,6 +2,7 @@
 import base64
 import hashlib
 
+from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
@@ -31,6 +32,15 @@ class TestSgcAccountingClients(TransactionCase):
                 "db_name": "demo_presentation",
             }
         )
+        cls.env["res.users"].create(
+            {
+                "name": "Client Owner",
+                "login": "owner@test-client.test",
+                "partner_id": cls.partner.id,
+                "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
+            }
+        )
+        cls.client.link_owner_login = "owner@test-client.test"
         cls.company = cls.env["sgc.accounting.company"].create(
             {
                 "client_id": cls.client.id,
@@ -132,6 +142,12 @@ class TestSgcAccountingClients(TransactionCase):
         self.assertEqual(run.state, "queued")
         self.assertEqual(run.payload["bucket"]["code"], "customer_invoices")
         self.assertEqual(run.payload["match_target"]["url"], "https://demo.sgctech.ai")
+        # An unverified link never points the agent at that database.
+        self.client.db_name = "demo_presentation"
+        other = upload.copy({"filename": "queue-2.pdf", "file": base64.b64encode(b"%PDF-1.4 two")})
+        other.action_queue_agent()
+        self.assertEqual(other.agent_run_ids.payload["match_target"]["db_name"], "")
+        self.assertEqual(other.agent_run_ids.payload["match_target"]["url"], "")
         self.assertIn("timestamp_header", run.payload["callback"])
 
     def test_partner_accounting_context(self):
