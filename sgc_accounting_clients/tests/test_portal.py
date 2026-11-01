@@ -58,10 +58,10 @@ class TestSgcAccountingPortal(HttpCase):
     def test_portal_pages(self):
         self.authenticate("sgc-portal-test", "sgc-portal-test")
 
-        response = self.url_open("/my/accounting")
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("SGC Portal Client", response.text)
-        self.assertIn("Open workspace", response.text)
+        # One workspace: the card's target goes straight to the upload page.
+        response = self.url_open("/my/accounting", allow_redirects=False)
+        self.assertEqual(response.status_code, 303)
+        self.assertTrue(response.headers["Location"].endswith("/my/accounting/portal-client"))
 
         response = self.url_open("/my/accounting/portal-client")
         self.assertEqual(response.status_code, 200)
@@ -70,10 +70,29 @@ class TestSgcAccountingPortal(HttpCase):
         self.assertIn("Purchase Bills", response.text)
         self.assertIn("Download sample CSV", response.text)
         self.assertIn("Upload a document", response.text)
+        self.assertIn('href="/my/home"', response.text)
+        self.assertNotIn("All accounting workspaces", response.text)
 
-        response = self.url_open("/my")
+        response = self.url_open("/my/home")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Accounting", response.text)
+        self.assertIn('href="/my/accounting"', response.text)
+        self.assertIn("Upload your accounting entries and documents", response.text)
+
+        # Several workspaces: the list is shown, with a way back to it.
+        self.env["sgc.accounting.client"].create(
+            {
+                "name": "SGC Portal Client Two",
+                "client_code": "portal-client-two",
+                "partner_id": self.portal_partner.id,
+                "status": "active",
+            }
+        )
+        response = self.url_open("/my/accounting")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("SGC Portal Client Two", response.text)
+        self.assertIn("Open workspace", response.text)
+        response = self.url_open("/my/accounting/portal-client")
+        self.assertIn("All accounting workspaces", response.text)
 
     def _post_upload(self, filename, payload, mimetype, doc_type="customer_invoices"):
         self.authenticate("sgc-portal-test", "sgc-portal-test")

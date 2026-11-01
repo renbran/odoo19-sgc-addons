@@ -9,7 +9,7 @@
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="config_card" t-value="True"/>
                     <t t-set="title">Accounting</t>
-                    <t t-set="text">Workspaces, companies and document intake</t>
+                    <t t-set="text">Upload your accounting entries and documents</t>
                     <t t-set="url" t-value="'/my/accounting'"/>
                     <t t-set="count" t-value="accounting_count"/>
                     <t t-set="show_count" t-value="True"/>
@@ -67,7 +67,8 @@
             <div class="o_portal_accounting">
                 <div class="d-flex flex-wrap justify-content-between align-items-start mb-4">
                     <div>
-                        <a href="/my/accounting" class="small text-muted text-decoration-none">&#8592; All accounting workspaces</a>
+                        <a t-if="client_count &gt; 1" href="/my/accounting" class="small text-muted text-decoration-none">&#8592; All accounting workspaces</a>
+                        <a t-else="" href="/my/home" class="small text-muted text-decoration-none">&#8592; My account</a>
                         <h1 class="mt-2 mb-1"><t t-esc="client.name"/></h1>
                         <p class="text-muted mb-0">
                             <t t-esc="client.client_code"/>

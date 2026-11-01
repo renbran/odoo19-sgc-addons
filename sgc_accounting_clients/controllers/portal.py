@@ -114,10 +114,14 @@ class SgcAccountingPortal(CustomerPortal):
 
     @http.route("/my/accounting", type="http", auth="user", website=True)
     def accounting_home(self, **kwargs):
+        clients = self._clients()
+        # One workspace (the normal customer): skip the list, go straight to uploads.
+        if len(clients) == 1:
+            return request.redirect("/my/accounting/%s" % clients.client_code)
         return request.render(
             "sgc_accounting_clients.portal_accounting_home",
             {
-                "clients": self._clients(),
+                "clients": clients,
                 "page_name": "accounting",
                 "no_breadcrumbs": True,
             },
@@ -162,6 +166,7 @@ class SgcAccountingPortal(CustomerPortal):
             "sgc_accounting_clients.portal_accounting_client",
             {
                 "client": client,
+                "client_count": len(self._clients()),
                 "companies": client.company_ids.filtered("active"),
                 "uploads": uploads,
                 "doc_types": DOC_TYPES,
