@@ -26,6 +26,7 @@
                     <button name="action_queue_provision" type="object" string="Queue Provisioning" class="btn-primary" invisible="status in ('provisioning', 'active')"/>
                     <button name="action_sync_companies" type="object" string="Sync Companies" invisible="not db_name"/>
                     <button name="action_open_workspace" type="object" string="Open Workspace" invisible="not workspace_url"/>
+                    <button name="action_test_connection" type="object" string="Test Connection" invisible="not db_name"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,ready,queued,provisioning,active,suspended"/>
                 </header>
                 <sheet>
@@ -79,6 +80,7 @@
                                 </group>
                                 <group string="Database">
                                     <field name="db_name"/>
+                                    <field name="api_user_id"/>
                                     <field name="db_host"/>
                                     <field name="db_port"/>
                                     <field name="db_user"/>

@@ -10,5 +10,17 @@
             <field name="interval_type">minutes</field>
             <field name="active" eval="True"/>
         </record>
+
+        <!-- Triggered on every upload (runs within seconds); the interval only
+             retries uploads still waiting for their client database. -->
+        <record id="ir_cron_sgc_accounting_book_pending" model="ir.cron">
+            <field name="name">SGC Accounting: book upload drafts in client databases</field>
+            <field name="model_id" ref="model_sgc_accounting_upload"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_book_pending()</field>
+            <field name="interval_number">10</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

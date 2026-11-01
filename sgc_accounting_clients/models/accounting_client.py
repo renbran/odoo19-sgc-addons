@@ -1,8 +1,38 @@
 # -*- coding: utf-8 -*-
+import os
 import re
+import xmlrpc.client
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+# Key files of the client databases live here, one per client
+# (acc-<client_code>.env, line SGC_AGENT_API_KEY=...). Never in the DB or git.
+SECRETS_DIR = "/mnt/extra-addons/.secrets"
+RPC_TIMEOUT = 30
+
+
+class _Transport(xmlrpc.client.SafeTransport):
+    def make_connection(self, host):
+        connection = super().make_connection(host)
+        connection.timeout = RPC_TIMEOUT
+        return connection
+
+
+def rpc(conn, model, method, *args, **kwargs):
+    """Call the client database over XML-RPC (https only) with its API key."""
+    proxy = xmlrpc.client.ServerProxy(
+        "%s/xmlrpc/2/object" % conn["url"], transport=_Transport(), allow_none=True
+    )
+    return proxy.execute_kw(
+        conn["db"], conn["uid"], conn["key"], model, method, list(args), kwargs
+    )
+
+
+def rpc_error(exc):
+    """Last line of a remote fault (the traceback above it is noise)."""
+    text = (getattr(exc, "faultString", None) or str(exc) or repr(exc)).strip()
+    return text.splitlines()[-1][:500] if text else repr(exc)
 
 RESERVED_CODES = {
     "www",
@@ -80,6 +110,12 @@ class SgcAccountingClient(models.Model):
     db_secret_ref = fields.Char(
         string="Database Secret Reference",
         help="Reference to the password in the receiver secret store, never the password itself.",
+    )
+    api_user_id = fields.Integer(
+        string="API User ID",
+        help="res.users id of the intake API user inside the client database. "
+        "Its API key goes in /mnt/extra-addons/.secrets/acc-<client code>.env "
+        "as the line SGC_AGENT_API_KEY=<key>, never in the database.",
     )
     base_url = fields.Char(
         string="Workspace URL",
@@ -264,6 +300,82 @@ class SgcAccountingClient(models.Model):
                 "message": _("Event %(event)s is ready for the accounting receiver.", event=event.event_id),
                 "type": "success",
                 "sticky": False,
+            },
+        }
+
+    def _booking_connection(self):
+        """Return ``(connection, error)`` for the client database.
+
+        ``error`` says what staff still have to link; drafts wait until then.
+        """
+        self.ensure_one()
+        missing = [
+            label
+            for label, value in (
+                (_("Workspace URL"), self.workspace_url),
+                (_("Database"), self.db_name),
+                (_("API User ID"), self.api_user_id),
+            )
+            if not value
+        ]
+        if missing:
+            return None, _(
+                "The client database is not linked yet (missing: %(fields)s).",
+                fields=", ".join(missing),
+            )
+        if not self.workspace_url.startswith("https://"):
+            return None, _("The workspace URL must use https.")
+        # The key file is bound to the client code (validated: [a-z0-9-]), so
+        # one client's settings can never send another client's key.
+        path = os.path.join(SECRETS_DIR, "acc-%s.env" % self.client_code)
+        key = ""
+        try:
+            with open(path, encoding="utf-8") as handle:
+                for line in handle:
+                    if line.startswith("SGC_AGENT_API_KEY="):
+                        key = line.split("=", 1)[1].strip()
+        except OSError as exc:
+            return None, _(
+                "The API key file cannot be read: %(error)s",
+                error=exc.strerror or exc,
+            )
+        if not key:
+            return None, _("The API key file has no SGC_AGENT_API_KEY line.")
+        return {
+            "url": self.workspace_url,
+            "db": self.db_name,
+            "uid": self.api_user_id,
+            "key": key,
+        }, None
+
+    def action_test_connection(self):
+        self.ensure_one()
+        conn, error = self._booking_connection()
+        if error:
+            raise UserError(error)
+        try:
+            companies = rpc(
+                conn, "res.company", "search_read", [], fields=["id", "name"]
+            )
+        except Exception as exc:
+            raise UserError(
+                _("Connection to %(db)s failed: %(error)s", db=conn["db"], error=rpc_error(exc))
+            ) from exc
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("Connected to %(db)s", db=conn["db"]),
+                "message": _(
+                    "Companies (id name): %(list)s",
+                    list=", ".join(
+                        "%s %s" % (company["id"], company["name"])
+                        for company in companies
+                    )
+                    or _("none visible to the API user"),
+                ),
+                "type": "success",
+                "sticky": True,
             },
         }
 
