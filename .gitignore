@@ -5,3 +5,6 @@ __pycache__/
 .ruff_cache/
 *.bak
 token-optimizer/sessions/
+
+# Secrets: never commit (key leaked to a public remote, rotated 2026-11-01)
+.secrets/
