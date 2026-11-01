@@ -32,7 +32,7 @@ class TestSgcAccountingClients(TransactionCase):
                 "db_name": "demo_presentation",
             }
         )
-        cls.env["res.users"].create(
+        owner = cls.env["res.users"].create(
             {
                 "name": "Client Owner",
                 "login": "owner@test-client.test",
@@ -40,6 +40,7 @@ class TestSgcAccountingClients(TransactionCase):
                 "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
             }
         )
+        cls.client.owner_user_id = owner
         cls.client.link_owner_login = "owner@test-client.test"
         cls.company = cls.env["sgc.accounting.company"].create(
             {
@@ -97,7 +98,7 @@ class TestSgcAccountingClients(TransactionCase):
 
     def test_bucket_catalog_and_samples(self):
         admin = self.env.ref("base.user_admin")
-        self.assertTrue(admin.has_group("sgc_accounting_clients.group_sgc_accounting_manager"))
+        self.assertFalse(admin.has_group("sgc_accounting_clients.group_sgc_accounting_manager"))
         self.assertEqual(len(BUCKETS), 10)
         self.assertIn("payments", {item["code"] for item in BUCKETS})
         coa = sample_csv("chart_of_accounts")
@@ -148,6 +149,7 @@ class TestSgcAccountingClients(TransactionCase):
         self.assertEqual(run.payload["bucket"]["code"], "customer_invoices")
         self.assertEqual(run.payload["match_target"]["url"], "https://demo.sgctech.ai")
         # An unverified link never points the agent at that database.
+        self.client.db_name = "demo_presentation_typo"
         self.client.db_name = "demo_presentation"
         other = upload.copy({"filename": "queue-2.pdf", "file": base64.b64encode(b"%PDF-1.4 two")})
         other.action_queue_agent()

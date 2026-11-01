@@ -40,7 +40,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="client_id"/>
+                            <field name="client_id" readonly="id"/>
                             <field name="accounting_company_id"/>
                             <field name="doc_type"/>
                             <field name="filename"/>

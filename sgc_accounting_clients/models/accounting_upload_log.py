@@ -9,6 +9,9 @@ LOG_EVENTS = [
     ("skipped", "Not booked"),
     ("failed", "Failed"),
     ("agent_result", "Agent result"),
+    ("approval", "Waiting for approval"),
+    ("approved", "Approved by owner"),
+    ("applied", "Applied"),
 ]
 
 

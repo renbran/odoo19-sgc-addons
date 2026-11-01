@@ -15,10 +15,16 @@ from werkzeug.exceptions import NotFound
 from ..models.accounting_bucket import (
     BUCKETS,
     DOC_TYPES,
+    MAX_UPLOAD_ROWS,
     bucket,
+    read_rows,
     sample_csv,
     validate_upload_format,
 )
+from ..models.accounting_upload import BOOKING_STATES
+
+# Log entries that point at a record in the owner's own database.
+RECORD_EVENTS = ("booked", "duplicate", "applied")
 
 _logger = logging.getLogger(__name__)
 
@@ -35,6 +41,8 @@ MESSAGES = {
     "bad_format": "The file format does not match this bucket. Download the sample format guide and use the required columns.",
     "duplicate": "This exact file was already uploaded to this workspace. Identical files are not processed twice.",
     "error": "The upload could not be saved. Please try again.",
+    "approved": "Approved. The changes are being applied to your database; this page shows the result in a minute.",
+    "not_approved": "This document is not waiting for your approval.",
 }
 
 
@@ -55,24 +63,11 @@ def _validate_upload(file_storage):
 
 
 class SgcAccountingPortal(CustomerPortal):
-    def _is_internal(self, user=None):
-        user = user or request.env.user
-        return (
-            user.has_group("base.group_system")
-            or user.has_group("sgc_accounting_clients.group_sgc_accounting_user")
-        )
-
     def _clients(self, client_code=None):
-        user = request.env.user
-        domain = []
-        if not self._is_internal(user):
-            domain.append(
-                (
-                    "partner_id.commercial_partner_id",
-                    "=",
-                    user.partner_id.commercial_partner_id.id,
-                )
-            )
+        # A subscription has exactly one portal access: the login it was
+        # registered with. Nobody else (other logins of the same company,
+        # SGC staff) opens it here; staff work in the back office.
+        domain = [("owner_user_id", "=", request.env.user.id)]
         if client_code:
             domain.append(("client_code", "=", client_code))
         return (
@@ -88,12 +83,7 @@ class SgcAccountingPortal(CustomerPortal):
         return client
 
     def _can_access(self, client):
-        if self._is_internal():
-            return True
-        return (
-            client.partner_id.commercial_partner_id
-            == request.env.user.partner_id.commercial_partner_id
-        )
+        return bool(client.owner_user_id) and client.owner_user_id == request.env.user
 
     def _resolve_company(self, client, company_id):
         if not company_id:
@@ -317,6 +307,100 @@ class SgcAccountingPortal(CustomerPortal):
 
         return request.redirect(
             "/my/accounting/%s?message=uploaded" % client.client_code
+        )
+
+    def _upload_or_404(self, client, upload_id):
+        upload = request.env["sgc.accounting.upload"].sudo().browse(upload_id).exists()
+        if not upload or upload.client_id != client:
+            raise NotFound()
+        return upload
+
+    @staticmethod
+    def _text(value):
+        if isinstance(value, bool):
+            return _("Yes") if value else _("No")
+        if value is None:
+            return ""
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False, default=str)
+        return str(value)
+
+    def _agent_sections(self, extraction):
+        """The agent's extraction as tables (lists of rows) and plain values."""
+        sections = []
+        for key, value in (extraction or {}).items():
+            title = str(key).replace("_", " ").capitalize()
+            if isinstance(value, list) and value and all(isinstance(item, dict) for item in value):
+                keys = list(dict.fromkeys(name for item in value for name in item))
+                sections.append({
+                    "title": title,
+                    "headers": [str(name).replace("_", " ").capitalize() for name in keys],
+                    "rows": [[self._text(item.get(name)) for name in keys] for item in value],
+                })
+            else:
+                sections.append({"title": title, "text": self._text(value)})
+        return sections
+
+    @http.route(
+        "/my/accounting/<string:client_code>/document/<int:upload_id>",
+        type="http",
+        auth="user",
+        website=True,
+    )
+    def accounting_document(self, client_code, upload_id, message=None, **kwargs):
+        client = self._client_or_404(client_code)
+        upload = self._upload_or_404(client, upload_id)
+        base = (upload.target_base_url or "").rstrip("/")
+        logs = [
+            {
+                "at": log.create_date,
+                "event": dict(log._fields["event"].selection).get(log.event, log.event),
+                "kind": log.event,
+                "reference": log.reference or "",
+                "message": log.message or "",
+                "url": "%s/odoo/%s/%s" % (base, log.record_model, log.record_id)
+                if base and log.event in RECORD_EVENTS and log.record_model and log.record_id
+                else None,
+            }
+            for log in upload.log_ids.sorted("id")
+        ]
+        run = upload.agent_run_ids.sorted("id")[-1:]
+        preview = None
+        if upload.booking_state == "approval" and upload.file:
+            preview = read_rows(
+                upload.doc_type, upload.filename, base64.b64decode(upload.file), limit=MAX_UPLOAD_ROWS
+            )
+        return request.render(
+            "sgc_accounting_clients.portal_accounting_document",
+            {
+                "client": client,
+                "upload": upload,
+                "booking_label": dict(BOOKING_STATES).get(upload.booking_state, ""),
+                "logs": logs,
+                "run": run,
+                "agent_sections": self._agent_sections(run.extraction) if run else [],
+                "preview": preview,
+                "message": _(MESSAGES[message]) if message in MESSAGES else None,
+                "page_name": "accounting",
+                "no_breadcrumbs": True,
+            },
+        )
+
+    @http.route(
+        "/my/accounting/<string:client_code>/document/<int:upload_id>/approve",
+        type="http",
+        auth="user",
+        methods=["POST"],
+        website=True,
+        csrf=True,
+    )
+    def accounting_document_approve(self, client_code, upload_id, **post):
+        client = self._client_or_404(client_code)
+        upload = self._upload_or_404(client, upload_id)
+        approved = upload._owner_approve(request.env.user, post.get("sha256"))
+        return request.redirect(
+            "/my/accounting/%s/document/%s?message=%s"
+            % (client.client_code, upload.id, "approved" if approved else "not_approved")
         )
 
     @http.route(

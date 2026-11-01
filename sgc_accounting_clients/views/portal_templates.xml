@@ -2,9 +2,7 @@
 <odoo>
     <template id="portal_accounting_home_card" name="Accounting Portal Home Card" inherit_id="portal.portal_my_home">
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t t-set="accounting_is_internal" t-value="request.env.user.has_group('sgc_accounting_clients.group_sgc_accounting_user')"/>
-            <t t-set="accounting_domain" t-value="[] if accounting_is_internal else [('partner_id.commercial_partner_id', '=', request.env.user.partner_id.commercial_partner_id.id)]"/>
-            <t t-set="accounting_count" t-value="request.env['sgc.accounting.client'].sudo().search_count(accounting_domain)"/>
+            <t t-set="accounting_count" t-value="request.env['sgc.accounting.client'].sudo().search_count([('owner_user_id', '=', request.env.user.id)])"/>
             <div t-if="accounting_count" class="o_portal_category row g-2 mt-3">
                 <t t-call="portal.portal_docs_entry">
                     <t t-set="config_card" t-value="True"/>
@@ -162,7 +160,8 @@
                                             <td><span class="badge text-bg-light"><t t-esc="upload.state_label"/></span></td>
                                             <td><span t-attf-class="badge #{'text-bg-success' if upload.agent_state == 'completed' else ('text-bg-danger' if upload.agent_state == 'failed' else 'text-bg-light')}"><t t-esc="upload.agent_state_label or 'Not queued'"/></span></td>
                                             <td class="text-end text-nowrap"><t t-esc="upload.file_size_human"/></td>
-                                            <td class="text-end">
+                                            <td class="text-end text-nowrap">
+                                                <a t-attf-href="/my/accounting/#{client.client_code}/document/#{upload.id}" t-attf-class="btn btn-sm #{'btn-primary' if upload.booking_state == 'approval' else 'btn-outline-primary'}"><t t-if="upload.booking_state == 'approval'">Approve</t><t t-else="">Review</t></a>
                                                 <a t-attf-href="/my/accounting/upload/#{upload.id}/download" class="btn btn-sm btn-outline-secondary">Download</a>
                                             </td>
                                         </tr>
@@ -227,6 +226,91 @@
                                 <p class="mb-0"><strong>4.</strong> The agent reads the document and matches it against the client workspace (<t t-esc="client.workspace_url or 'target pending'"/>).</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_accounting_document" name="Accounting Document Review">
+        <t t-call="portal.portal_layout">
+            <t t-set="no_breadcrumbs" t-value="1"/>
+            <t t-set="additional_title" t-value="upload.filename"/>
+            <div class="o_portal_accounting">
+                <a t-attf-href="/my/accounting/#{client.client_code}" class="small">&#8592; All documents</a>
+                <h1 class="h3 mt-2 mb-1"><t t-esc="upload.filename"/></h1>
+                <p class="text-muted mb-3">
+                    <t t-esc="upload.doc_type_label"/> &#183; received <t t-esc="upload.create_date"/>
+                    <t t-if="upload.target_db"> &#183; for <t t-esc="upload.target_db"/>, company <t t-esc="upload.target_company_name"/></t>
+                    <t t-if="booking_label"> &#183; <span class="badge text-bg-light"><t t-esc="booking_label"/></span></t>
+                </p>
+                <div t-if="message" class="alert alert-info"><t t-esc="message"/></div>
+
+                <div t-if="preview" class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">Changes waiting for your approval</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th t-foreach="preview['headers']" t-as="head"><t t-esc="head.title()"/></th></tr></thead>
+                            <tbody>
+                                <tr t-foreach="preview['rows']" t-as="row">
+                                    <td t-foreach="preview['headers']" t-as="head"><t t-esc="row.get(head, '')"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-body">
+                        <form t-attf-action="/my/accounting/#{client.client_code}/document/#{upload.id}/approve" method="post" class="mb-2">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="sha256" t-att-value="upload.sha256"/>
+                            <button type="submit" class="btn btn-primary">Approve and apply to my database</button>
+                        </form>
+                        <p class="small text-muted mb-0">The accounts are created, updated or archived in <t t-esc="upload.target_db or client.db_name or 'your database'"/>, company <t t-esc="upload.target_company_name or '-'"/>. Accounts are never deleted. If a row is wrong, or an account is shared with another company, nothing is changed and this page says which. If your database refuses a change, the rows before it stay applied and this page shows which one failed.</p>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">What happened</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th>When</th><th>Step</th><th>Reference</th><th>Details</th><th/></tr></thead>
+                            <tbody>
+                                <tr t-foreach="logs" t-as="log">
+                                    <td class="text-nowrap"><t t-esc="log['at']"/></td>
+                                    <td><span t-attf-class="badge #{'text-bg-danger' if log['kind'] == 'failed' else ('text-bg-success' if log['kind'] in ('booked', 'applied') else 'text-bg-light')}"><t t-esc="log['event']"/></span></td>
+                                    <td><t t-esc="log['reference']"/></td>
+                                    <td><t t-esc="log['message']"/></td>
+                                    <td class="text-end"><a t-if="log['url']" t-att-href="log['url']" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">Open in my Odoo</a></td>
+                                </tr>
+                                <tr t-if="not logs"><td colspan="5" class="text-muted">Nothing has happened yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">What the agent read</h5>
+                    </div>
+                    <div class="card-body">
+                        <p t-if="not run" class="text-muted mb-0">The agent has not read this document yet.</p>
+                        <t t-if="run">
+                            <p class="small text-muted"><t t-esc="run.state"/><t t-if="run.review_required"> &#183; needs your review</t><t t-if="run.last_error"> &#183; <t t-esc="run.last_error"/></t></p>
+                            <p t-if="not agent_sections" class="text-muted mb-0">The agent returned no details.</p>
+                            <t t-foreach="agent_sections" t-as="section">
+                                <h6 class="mt-3"><t t-esc="section['title']"/></h6>
+                                <div t-if="section.get('headers')" class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead><tr><th t-foreach="section['headers']" t-as="head"><t t-esc="head"/></th></tr></thead>
+                                        <tbody><tr t-foreach="section['rows']" t-as="cells"><td t-foreach="cells" t-as="cell"><t t-esc="cell"/></td></tr></tbody>
+                                    </table>
+                                </div>
+                                <p t-else="" class="mb-0"><t t-esc="section['text']"/></p>
+                            </t>
+                        </t>
                     </div>
                 </div>
             </div>

@@ -45,6 +45,7 @@ class TestSgcAccountingPortal(HttpCase):
                 "status": "active",
             }
         )
+        cls.client.owner_user_id = cls.portal_user
         cls.client.link_owner_login = "sgc-portal-test"
         cls.company = cls.env["sgc.accounting.company"].create(
             {
@@ -79,18 +80,29 @@ class TestSgcAccountingPortal(HttpCase):
         self.assertIn('href="/my/accounting"', response.text)
         self.assertIn("Upload your accounting entries and documents", response.text)
 
-        # Several workspaces: the list is shown, with a way back to it.
+        # Several workspaces owned by this login: the list is shown, with a way
+        # back to it. One of the same company without this owner stays hidden.
         self.env["sgc.accounting.client"].create(
-            {
-                "name": "SGC Portal Client Two",
-                "client_code": "portal-client-two",
-                "partner_id": self.portal_partner.id,
-                "status": "active",
-            }
+            [
+                {
+                    "name": "SGC Portal Client Two",
+                    "client_code": "portal-client-two",
+                    "partner_id": self.portal_partner.id,
+                    "owner_user_id": self.portal_user.id,
+                    "status": "active",
+                },
+                {
+                    "name": "SGC Portal Client Three",
+                    "client_code": "portal-client-three",
+                    "partner_id": self.portal_partner.id,
+                    "status": "active",
+                },
+            ]
         )
         response = self.url_open("/my/accounting")
         self.assertEqual(response.status_code, 200)
         self.assertIn("SGC Portal Client Two", response.text)
+        self.assertNotIn("SGC Portal Client Three", response.text)
         self.assertIn("Open workspace", response.text)
         response = self.url_open("/my/accounting/portal-client")
         self.assertIn("All accounting workspaces", response.text)
@@ -107,6 +119,125 @@ class TestSgcAccountingPortal(HttpCase):
             files={"file": (filename, payload, mimetype)},
             allow_redirects=False,
         )
+
+    def test_only_the_owner_opens_the_workspace(self):
+        colleague = self.env["res.partner"].create(
+            {"name": "Colleague", "parent_id": self.portal_partner.id}
+        )
+        self.env["res.users"].create(
+            {
+                "name": "Colleague",
+                "login": "sgc-portal-colleague",
+                "password": "sgc-portal-colleague",
+                "partner_id": colleague.id,
+                "group_ids": [Command.set([self.env.ref("base.group_portal").id])],
+            }
+        )
+        self.env["res.users"].create(
+            {
+                "name": "Agency Staff",
+                "login": "sgc-agency-staff",
+                "password": "sgc-agency-staff",
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.env.ref("sgc_accounting_clients.group_sgc_accounting_manager").id),
+                ],
+            }
+        )
+        upload = self.env["sgc.accounting.upload"].create(
+            {
+                "client_id": self.client.id,
+                "accounting_company_id": self.company.id,
+                "doc_type": "other",
+                "filename": "note.pdf",
+                "file": "JVBERi0xLjQ=",
+            }
+        )
+        for login in ("sgc-portal-colleague", "sgc-agency-staff"):
+            self.authenticate(login, login)
+            for url in (
+                "/my/accounting/portal-client",
+                "/my/accounting/portal-client/document/%s" % upload.id,
+                "/my/accounting/upload/%s/download" % upload.id,
+            ):
+                self.assertEqual(self.url_open(url).status_code, 404, (login, url))
+        self.authenticate("sgc-portal-test", "sgc-portal-test")
+        self.assertEqual(
+            self.url_open("/my/accounting/portal-client/document/%s" % upload.id).status_code, 200
+        )
+        # Another subscription's document, even through this owner's workspace.
+        other_partner = self.env["res.partner"].create({"name": "Other Subscriber"})
+        other_owner = self.env["res.users"].create(
+            {
+                "name": "Other Subscriber",
+                "login": "sgc-portal-other",
+                "partner_id": other_partner.id,
+                "group_ids": [Command.set([self.env.ref("base.group_portal").id])],
+            }
+        )
+        other = self.env["sgc.accounting.client"].create(
+            {"name": "Other Subscriber", "client_code": "portal-other", "partner_id": other_partner.id,
+             "owner_user_id": other_owner.id}
+        )
+        theirs = self.env["sgc.accounting.upload"].create(
+            {"client_id": other.id, "doc_type": "chart_of_accounts", "filename": "coa.csv", "file": "QQ=="}
+        )
+        for url in (
+            "/my/accounting/portal-other",
+            "/my/accounting/portal-client/document/%s" % theirs.id,
+            "/my/accounting/upload/%s/download" % theirs.id,
+        ):
+            self.assertEqual(self.url_open(url).status_code, 404, url)
+        for url in (
+            "/my/accounting/portal-client/document/%s/approve" % theirs.id,
+            "/my/accounting/portal-other/document/%s/approve" % theirs.id,
+        ):
+            response = self.url_open(url, data={"csrf_token": Request.csrf_token(self)}, allow_redirects=False)
+            self.assertEqual(response.status_code, 404, url)
+        self.assertEqual(theirs.booking_state, "approval")
+
+    def test_owner_reviews_and_approves_chart_of_accounts(self):
+        from odoo.addons.sgc_accounting_clients.models.accounting_bucket import sample_csv
+
+        response = self._post_upload(
+            "coa.csv", sample_csv("chart_of_accounts"), "text/csv", doc_type="chart_of_accounts"
+        )
+        self.assertEqual(response.status_code, 303)
+        upload = self.env["sgc.accounting.upload"].search(
+            [("client_id", "=", self.client.id), ("doc_type", "=", "chart_of_accounts")], limit=1
+        )
+        self.assertEqual(upload.booking_state, "approval")
+        page = self.url_open("/my/accounting/portal-client/document/%s" % upload.id)
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("Approve and apply to my database", page.text)
+        self.assertIn(upload.sha256, page.text)
+        # A file other than the one shown is not approved.
+        response = self.url_open(
+            "/my/accounting/portal-client/document/%s/approve" % upload.id,
+            data={"csrf_token": Request.csrf_token(self), "sha256": "0" * 64},
+            allow_redirects=False,
+        )
+        self.assertIn("message=not_approved", response.headers["Location"])
+        self.assertIn("611010", page.text)
+        listing = self.url_open("/my/accounting/portal-client")
+        self.assertIn("/my/accounting/portal-client/document/%s" % upload.id, listing.text)
+        response = self.url_open(
+            "/my/accounting/portal-client/document/%s/approve" % upload.id,
+            data={"csrf_token": Request.csrf_token(self), "sha256": upload.sha256},
+            allow_redirects=False,
+        )
+        self.assertEqual(response.status_code, 303)
+        self.assertIn("message=approved", response.headers["Location"])
+        upload.invalidate_recordset()
+        self.assertEqual(upload.booking_state, "pending")
+        self.assertIn("approved", upload.log_ids.mapped("event"))
+        # Approving twice does nothing.
+        response = self.url_open(
+            "/my/accounting/portal-client/document/%s/approve" % upload.id,
+            data={"csrf_token": Request.csrf_token(self), "sha256": upload.sha256},
+            allow_redirects=False,
+        )
+        self.assertIn("message=not_approved", response.headers["Location"])
 
     def test_bucket_sample_download(self):
         self.authenticate("sgc-portal-test", "sgc-portal-test")

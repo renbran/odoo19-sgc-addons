@@ -6,7 +6,7 @@ import tempfile
 from unittest.mock import patch
 
 from odoo import Command
-from odoo.exceptions import AccessError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.sgc_accounting_clients.models import accounting_client
@@ -51,6 +51,7 @@ class FakeDatabase:
         self.create_error = None
         self.read_error = None
         self.partners = {}  # name -> contacts search_read returns for it
+        self.accounts = []  # account.account search_read returns these
 
     def execute_kw(self, db, uid, key, model, method, args, kwargs):
         self.calls.append((db, uid, key, model, method, args, kwargs))
@@ -64,8 +65,16 @@ class FakeDatabase:
             return [{"id": uid, "company_ids": [1, 3], "sgc_agent_role_id": [5, "R"]}]
         if method == "read" and model == "sgc.agent.role":
             return [{"id": 5, "code": self.role, "company_ids": [3]}]
+        if method == "fields_get" and model == "account.account":
+            return {"account_type": {"selection": [
+                ["asset_current", "Current Assets"], ["income", "Income"], ["expense", "Expenses"],
+            ]}}
+        if method == "write" and model == "account.account":
+            return True
         if method != "search_read":
             raise AssertionError("unexpected call %s.%s" % (model, method))
+        if model == "account.account":
+            return self.accounts
         domain = args[0]
         if model == "res.partner":
             for name, records in self.partners.items():
@@ -112,6 +121,14 @@ class FakeDatabase:
 
 OWNER = "owner@client.test"
 
+CHART = (
+    "Action,Account Code,Account Name,Account Type,Allow Reconciliation\n"
+    "Create,5096,Transportation,Expense,No\n"
+    "Create,5097,Existing Fees,Expenses,No\n"
+    "Update,1100,,Current Assets,Yes\n"
+    "Archive,5000,,,\n"
+)
+
 
 @tagged("post_install", "-at_install")
 class TestSgcAccountingBooking(TransactionCase):
@@ -138,6 +155,7 @@ class TestSgcAccountingBooking(TransactionCase):
                 "group_ids": [Command.set([cls.env.ref("base.group_portal").id])],
             }
         )
+        cls.client.owner_user_id = cls.owner
         cls.client.link_owner_login = OWNER
         cls.company = cls.env["sgc.accounting.company"].create(
             {
@@ -587,7 +605,9 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertEqual(upload.activity_ids.user_id, manager)
 
     def test_link_changed_by_hand_is_not_verified(self):
-        # Retyping the database clears the verified owner: nothing is sent.
+        # Editing the database by hand clears the verified owner, even when
+        # it is set back: nothing is sent until the link script verifies it.
+        self.client.db_name = "client_db_typo"
         self.client.db_name = "client_db"
         self.assertFalse(self.client.link_owner_login)
         upload = self._upload("customer_invoices", INVOICES)
@@ -641,6 +661,137 @@ class TestSgcAccountingBooking(TransactionCase):
         )
         self.assertFalse(staff.share)
         self.assertEqual(self.client._owner_logins(), {OWNER})
+
+    def test_only_the_registered_login_is_the_owner(self):
+        colleague = self.env["res.partner"].create(
+            {"name": "Colleague", "parent_id": self.client.partner_id.id}
+        )
+        self.env["res.users"].create(
+            {
+                "name": "Colleague",
+                "login": "colleague@client.test",
+                "partner_id": colleague.id,
+                "group_ids": [Command.set([self.env.ref("base.group_portal").id])],
+            }
+        )
+        self.assertEqual(self.client._owner_logins(), {OWNER})
+        staff = self.env["res.users"].create({"name": "Staff", "login": "staff2@firm.test"})
+        with self.assertRaises(ValidationError):
+            self.client.owner_user_id = staff
+        stranger = self.env["res.users"].create(
+            {
+                "name": "Stranger",
+                "login": "stranger@else.test",
+                "group_ids": [Command.set([self.env.ref("base.group_portal").id])],
+            }
+        )
+        with self.assertRaises(ValidationError):
+            self.client.owner_user_id = stranger
+
+    def test_chart_of_accounts_waits_for_the_owner_then_applies(self):
+        self.db.accounts = [
+            {"id": 41, "code": "5097", "name": "Existing Fees", "active": True, "company_ids": [3]},
+            {"id": 42, "code": "1100", "name": "Debtors", "active": True, "company_ids": [3]},
+            {"id": 43, "code": "5000", "name": "Old Account", "active": True, "company_ids": [3]},
+        ]
+        upload = self._upload("chart_of_accounts", CHART)
+        self.assertEqual(upload.booking_state, "approval")
+        self._book()
+        self.assertEqual(upload.booking_state, "approval")  # never without the owner
+        self.assertFalse([call for call in self.db.calls if call[3] == "account.account"])
+        colleague = self.env["res.users"].create(
+            {
+                "name": "Colleague",
+                "login": "colleague@client.test",
+                "partner_id": self.client.partner_id.id,
+                "group_ids": [Command.set([self.env.ref("base.group_portal").id])],
+            }
+        )
+        self.assertFalse(upload._owner_approve(colleague, upload.sha256))
+        # Only the file the owner was shown.
+        self.assertFalse(upload._owner_approve(self.owner, "0" * 64))
+        self.assertTrue(upload._owner_approve(self.owner, upload.sha256))
+        self._book()
+        self.assertEqual(upload.booking_state, "done")
+        created = self.db.created("account.account")
+        self.assertEqual(len(created), 1)
+        self.assertEqual(
+            created[0][5][0],
+            {"code": "5096", "name": "Transportation", "account_type": "expense",
+             "reconcile": False, "company_ids": [(6, 0, [3])]},
+        )
+        self.assertEqual(created[0][6]["context"], {"allowed_company_ids": [3]})
+        writes = [(call[5][0], call[5][1]) for call in self.db.calls if call[4] == "write"]
+        self.assertEqual(
+            writes, [([42], {"account_type": "asset_current", "reconcile": True}), ([43], {"active": False})]
+        )
+        self.assertEqual(
+            self._events(upload), ["uploaded", "approved", "applied", "duplicate", "applied", "applied"]
+        )
+        self.assertFalse(upload._owner_approve(self.owner, upload.sha256))  # only once
+
+    def _account_calls(self):
+        return [call for call in self.db.calls if call[3] == "account.account"]
+
+    def test_chart_of_accounts_needs_the_owners_approval_of_this_file(self):
+        upload = self._upload("chart_of_accounts", CHART)
+        # An old upload pushed by the staff button goes back to the owner.
+        upload.booking_state = False
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            upload.action_book_drafts()
+        self.assertEqual(upload.booking_state, "approval")
+        self.assertEqual(self._events(upload)[-1], "approval")
+        # Staff cannot approve for the owner, nor move the document.
+        staff = self.env["res.users"].create(
+            {
+                "name": "Agency User",
+                "login": "agency-user@firm.test",
+                "group_ids": [
+                    Command.link(self.env.ref("base.group_user").id),
+                    Command.link(self.env.ref("sgc_accounting_clients.group_sgc_accounting_manager").id),
+                ],
+            }
+        )
+        with self.assertRaises(AccessError):
+            upload.with_user(staff).write({"approved_by_id": self.owner.id, "approved_sha256": upload.sha256})
+        other = self.env["sgc.accounting.client"].create(
+            {"name": "Other", "client_code": "other-client", "partner_id": self.env["res.partner"].create({"name": "Other"}).id}
+        )
+        with self.assertRaises(UserError):
+            upload.write({"client_id": other.id})
+        # Approved, then the file changes: the new file needs a new approval.
+        self.assertTrue(upload._owner_approve(self.owner, upload.sha256))
+        upload.file = base64.b64encode(CHART.replace("Transportation", "Travel").encode())
+        self._book()
+        self.assertEqual(upload.booking_state, "approval")
+        self.assertFalse(self._account_calls())
+
+    def test_chart_of_accounts_never_touches_a_shared_account(self):
+        self.db.accounts = [{"id": 42, "code": "1100", "name": "Debtors", "active": True, "company_ids": [3, 9]}]
+        upload = self._upload("chart_of_accounts", CHART)
+        upload._owner_approve(self.owner, upload.sha256)
+        self._book()
+        self.assertEqual(upload.booking_state, "failed")
+        self.assertIn("1100 is shared", upload.log_ids.sorted("id")[-1].message)
+        self.assertFalse([call for call in self._account_calls() if call[4] in ("create", "write")])
+
+    def test_an_unchanged_link_keeps_its_verified_owner(self):
+        self.client.write({"base_url": self.client.base_url.upper() + "/", "db_name": self.client.db_name, "api_user_id": 12})
+        self.assertEqual(self.client.link_owner_login, OWNER)
+
+    def test_chart_of_accounts_with_a_bad_row_changes_nothing(self):
+        upload = self._upload(
+            "chart_of_accounts",
+            CHART.replace("Current Assets", "Planets").replace("Archive,5000", "Delete,5000"),
+        )
+        upload._owner_approve(self.owner, upload.sha256)
+        self._book()
+        self.assertEqual(upload.booking_state, "failed")
+        message = upload.log_ids.sorted("id")[-1].message
+        self.assertIn("Nothing was changed", message)
+        self.assertIn("row 4", message)
+        self.assertIn("row 5", message)
+        self.assertFalse([call for call in self.db.calls if call[4] in ("create", "write")])
 
     def test_only_the_link_script_sets_the_owner(self):
         manager = self.env["res.users"].create(

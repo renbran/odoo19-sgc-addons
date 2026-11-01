@@ -136,15 +136,26 @@ class SgcAccountingClient(models.Model):
         "Its API key goes in /mnt/extra-addons/.secrets/acc-<client code>.env "
         "as the line SGC_AGENT_API_KEY=<key>, never in the database.",
     )
+    owner_user_id = fields.Many2one(
+        "res.users",
+        string="Portal Owner",
+        copy=False,
+        index=True,
+        tracking=True,
+        domain=[("share", "=", True)],
+        help="The portal login this subscription was registered with: the only "
+        "login that can open this workspace in the portal, upload, review and "
+        "approve. Drafts are booked only into a database this login owns.",
+    )
     link_owner_login = fields.Char(
         string="Verified Owner",
         readonly=True,
         copy=False,
         tracking=True,
-        help="Portal login of this client that scripts/link_accounting_client.sh "
-        "found as an internal user of the client database, with access to the "
-        "linked companies. Drafts are booked only while it is still one of the "
-        "client's portal logins; changing the database link by hand clears it.",
+        help="Portal owner login that scripts/link_accounting_client.sh found as "
+        "an internal user of the client database, with access to the linked "
+        "companies. Drafts are booked only while it is still the portal owner; "
+        "changing the database link by hand clears it.",
     )
     base_url = fields.Char(
         string="Workspace URL",
@@ -232,21 +243,38 @@ class SgcAccountingClient(models.Model):
         self._check_owner_write(vals)
         # A link changed by hand is not verified: only the link script, which
         # checks the owner in the client database, writes the owner with it.
-        if "link_owner_login" not in vals and {"base_url", "db_name", "api_user_id"} & set(vals):
+        def same(name, a, b):
+            if name == "base_url":
+                a, b = ((v or "").strip().rstrip("/").lower() for v in (a, b))
+            return (a or False) == (b or False)
+
+        changed = {"base_url", "db_name", "api_user_id"} & set(vals)
+        if "link_owner_login" not in vals and any(
+            not same(name, client[name], vals[name]) for client in self for name in changed
+        ):
             vals = dict(vals, link_owner_login=False)
         return super().write(vals)
 
+    @api.constrains("owner_user_id", "partner_id")
+    def _check_owner_user(self):
+        for client in self:
+            owner = client.owner_user_id
+            if owner and (
+                not owner.share
+                or owner.partner_id.commercial_partner_id != client.partner_id.commercial_partner_id
+            ):
+                raise ValidationError(_(
+                    "The portal owner of %(client)s must be a portal login of %(partner)s.",
+                    client=client.display_name,
+                    partner=client.partner_id.commercial_partner_id.display_name,
+                ))
+
     def _owner_logins(self):
-        """Lowercased logins of the client's portal users (portal users of its
-        commercial partner, never staff): whose database this client books into."""
+        """The portal owner's lowercased login (the login the subscription was
+        registered with, never staff): whose database this client books into."""
         self.ensure_one()
-        users = self.env["res.users"].sudo().search(
-            [
-                ("partner_id.commercial_partner_id", "=", self.partner_id.commercial_partner_id.id),
-                ("share", "=", True),
-            ]
-        )
-        return {login.lower() for login in users.mapped("login") if login}
+        owner = self.sudo().owner_user_id
+        return {owner.login.lower()} if owner.active and owner.share and owner.login else set()
 
     def _link_verified(self):
         """Is the linked database verified as this client's own?"""

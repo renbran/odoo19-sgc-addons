@@ -9,7 +9,7 @@ import xmlrpc.client
 from psycopg2.errors import LockNotAvailable, SerializationFailure
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .accounting_bucket import DOC_TYPES, MAX_UPLOAD_ROWS, find_column, read_rows
 from .accounting_client import LINK_TODO, rpc, rpc_error
@@ -20,6 +20,10 @@ _logger = logging.getLogger(__name__)
 # and expense receipts follow in release 2; master data and other documents
 # are reviewed by hand and never become entries.
 BOOKED_TYPES = ("customer_invoices", "vendor_bills", "credit_notes", "payments")
+# Applied to the client database only after the portal owner approves them.
+APPROVAL_TYPES = ("chart_of_accounts",)
+ACCOUNT_ACTIONS = ("create", "update", "archive")
+YES_NO = {"yes": True, "y": True, "true": True, "1": True, "no": False, "n": False, "false": False, "0": False, "": None}
 # Network problems are retried on the next cron runs (10 min apart).
 BOOKING_RETRIES = 4
 # Plain constant: the to-do is found again by it to dedupe and close.
@@ -37,6 +41,7 @@ MOVE_LABELS = {
     "in_refund": "vendor credit note",
 }
 BOOKING_STATES = [
+    ("approval", "Awaiting your approval"),
     ("pending", "Pending"),
     ("waiting", "Waiting for database"),
     ("done", "Processed"),
@@ -163,6 +168,14 @@ class SgcAccountingUpload(models.Model):
     )
     processed_at = fields.Datetime()
     notes = fields.Text()
+    approved_by_id = fields.Many2one(
+        "res.users", string="Approved By", readonly=True, copy=False,
+        help="Portal owner who approved this file for their database.",
+    )
+    approved_sha256 = fields.Char(
+        readonly=True, copy=False,
+        help="Fingerprint of the file the owner approved; a changed file needs a new approval.",
+    )
     booking_state = fields.Selection(
         BOOKING_STATES,
         string="Draft Booking",
@@ -189,10 +202,26 @@ class SgcAccountingUpload(models.Model):
         "sgc.accounting.upload.log", "upload_id", string="Log", readonly=True
     )
 
+    def _check_approval_write(self, vals):
+        # Only _owner_approve (run as superuser from the owner's portal page)
+        # records an approval; staff cannot approve on the owner's behalf.
+        if {"approved_by_id", "approved_sha256"} & set(vals) and not self.env.su:
+            raise AccessError(_("Only the portal owner can approve a document."))
+
+    def write(self, vals):
+        self._check_approval_write(vals)
+        if "client_id" in vals and any(upload.client_id.id != vals["client_id"] for upload in self):
+            raise UserError(_("A document cannot be moved to another client."))
+        return super().write(vals)
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            vals.setdefault("booking_state", "pending")
+            self._check_approval_write(vals)
+            vals.setdefault(
+                "booking_state",
+                "approval" if vals.get("doc_type") in APPROVAL_TYPES else "pending",
+            )
         uploads = super().create(vals_list)
         uploads._snapshot_target()
         for upload in uploads:
@@ -570,7 +599,17 @@ class SgcAccountingUpload(models.Model):
 
     def _book_drafts(self):
         self.ensure_one()
-        if self.doc_type not in BOOKED_TYPES:
+        if self.doc_type in APPROVAL_TYPES and not (
+            self.approved_by_id
+            and self.approved_by_id == self.client_id.owner_user_id
+            and self.approved_sha256 == self.sha256
+        ):
+            # Nothing reaches the owner's database unapproved: not the staff
+            # button, a retry, an old upload, or a file changed after approval.
+            self.booking_state = "approval"
+            self._log("approval", _("Waiting for the portal owner to approve this exact file."))
+            return None
+        if self.doc_type not in BOOKED_TYPES + APPROVAL_TYPES:
             return self._finish(
                 "skipped",
                 _(
@@ -647,6 +686,8 @@ class SgcAccountingUpload(models.Model):
             return cache[key]
 
         headers = source["headers"]
+        if self.doc_type == "chart_of_accounts":
+            return self._apply_accounts(headers, source["rows"], call, company_id)
         try:
             self._iso_dates(headers, source["rows"])
         except ValueError as exc:
@@ -766,6 +807,170 @@ class SgcAccountingUpload(models.Model):
                 record_id=record_id,
                 reference=reference,
             )
+        self.booking_state = "failed" if failed else "done"
+        self.booking_attempts = 0
+        return None
+
+    def _owner_approve(self, user, sha256):
+        """The portal owner approved the file they were shown (``sha256``):
+        apply it to their database at the next booking run. Only the owner,
+        only that exact file, and only once."""
+        self.ensure_one()
+        if (
+            self.booking_state != "approval"
+            or not user
+            or self.client_id.owner_user_id != user
+            or not sha256
+            or sha256 != self.sha256
+        ):
+            return False
+        self.sudo().write({
+            "booking_state": "pending",
+            "booking_attempts": 0,
+            "approved_by_id": user.id,
+            "approved_sha256": self.sha256,
+        })
+        self._log("approved", _("Approved by %(who)s.", who=user.name))
+        cron = self.env.ref(
+            "sgc_accounting_clients.ir_cron_sgc_accounting_book_pending",
+            raise_if_not_found=False,
+        )
+        if cron:
+            cron._trigger()
+        return True
+
+    def _account_plan(self, headers, rows, types):
+        """(row number, action, code, values) per row, and the problems found;
+        any problem means nothing is applied."""
+        plan, problems, codes = [], [], set()
+        for line, row in enumerate(rows, 2):  # row 1 is the header
+            action = _cell(headers, row, "Action").lower()
+            code = _cell(headers, row, "Account Code")
+            name = _cell(headers, row, "Account Name")
+            kind = _cell(headers, row, "Account Type").lower()
+            reconcile = _cell(headers, row, "Allow Reconciliation").lower()
+            account_type = types.get(kind) or types.get(kind.rstrip("s"))
+            if action not in ACCOUNT_ACTIONS:
+                problem = _("Action must be Create, Update or Archive")
+            elif not code:
+                problem = _("Account Code is empty")
+            elif code in codes:
+                problem = _("account %s appears twice in the file", code)
+            elif action == "create" and not name:
+                problem = _("Account Name is empty")
+            elif (kind or action == "create") and not account_type:
+                problem = _("%r is not an Odoo account type", kind or "")
+            elif reconcile not in YES_NO:
+                problem = _("Allow Reconciliation must be Yes or No")
+            else:
+                problem = None
+            if problem:
+                problems.append(_("row %(n)s: %(problem)s", n=line, problem=problem))
+                continue
+            codes.add(code)
+            values = {}
+            if action != "archive":
+                if name:
+                    values["name"] = name
+                if account_type:
+                    values["account_type"] = account_type
+                if YES_NO[reconcile] is not None:
+                    values["reconcile"] = YES_NO[reconcile]
+                if action == "create":
+                    values.setdefault("reconcile", False)
+                elif not values:
+                    problems.append(_("row %(n)s: nothing to update for account %(code)s", n=line, code=code))
+                    continue
+            plan.append((line, action, code, values))
+        return plan, problems
+
+    def _apply_accounts(self, headers, rows, call, company_id):
+        """Chart of Accounts rows the portal owner approved: create, update or
+        archive accounts of the target company, never delete one. The file is
+        checked as a whole first (rows, and no account shared with another
+        company), so a bad file changes nothing; if the database then refuses
+        one change, the rows before it stay applied. A retry re-finds what an
+        earlier attempt already did."""
+        selection = call(
+            "account.account", "fields_get", ["account_type"], attributes=["selection"]
+        )["account_type"]["selection"]
+        types = {}
+        for key, label in selection:
+            for name in (key.lower(), (label or "").lower()):
+                types[name] = types[name.rstrip("s")] = key
+        plan, problems = self._account_plan(headers, rows, types)
+        where = _("%(db)s, company %(company)s", db=self.target_db, company=self.target_company_name or company_id)
+        existing = {
+            record["code"]: record
+            for record in call(
+                "account.account",
+                "search_read",
+                [
+                    ("code", "in", [code for _line, _action, code, _values in plan]),
+                    ("company_ids", "in", [company_id]),
+                    ("active", "in", [True, False]),
+                ],
+                fields=["id", "code", "name", "active", "company_ids"],
+            )
+        }
+        problems += [
+            _("account %s is shared with other companies; change it in Odoo", code)
+            for code, record in sorted(existing.items())
+            if set(record["company_ids"]) != {company_id}
+        ]
+        if problems:
+            return self._finish(
+                "failed",
+                _("Nothing was changed: %s.", "; ".join(problems[:10]) + ("; ..." if len(problems) > 10 else "")),
+            )
+        failed = False
+        for _line, action, code, values in plan:
+            found = existing.get(code)
+            log = {"record_model": "account.account", "reference": code}
+            if action == "create" and found:
+                self._log(
+                    "duplicate",
+                    _("Account %(code)s already exists in %(where)s as %(name)s; nothing was created.",
+                      code=code, where=where, name=found["name"]),
+                    record_id=found["id"], **log,
+                )
+                continue
+            if action != "create" and not found:
+                failed = True
+                self._log(
+                    "failed",
+                    _("Account %(code)s was not found in %(where)s; nothing was changed.", code=code, where=where),
+                    **log,
+                )
+                continue
+            if action == "archive" and not found["active"]:
+                self._log(
+                    "duplicate",
+                    _("Account %(code)s is already archived in %(where)s.", code=code, where=where),
+                    record_id=found["id"], **log,
+                )
+                continue
+            try:
+                if action == "create":
+                    record_id = call(
+                        "account.account", "create",
+                        dict(values, code=code, company_ids=[(6, 0, [company_id])]),
+                    )
+                    done = _("Account %(code)s %(name)s created in %(where)s.", code=code, name=values["name"], where=where)
+                elif action == "archive":
+                    record_id = found["id"]
+                    call("account.account", "write", [record_id], {"active": False})
+                    done = _("Account %(code)s %(name)s archived in %(where)s.", code=code, name=found["name"], where=where)
+                else:
+                    record_id = found["id"]
+                    call("account.account", "write", [record_id], values)
+                    done = _("Account %(code)s updated in %(where)s: %(changes)s.", code=code, where=where,
+                             changes=", ".join("%s=%s" % item for item in sorted(values.items())))
+            except Exception as exc:
+                # Rights, validation or connection: stop; a retry re-finds the
+                # accounts already done by code.
+                return self._stop(exc, "%s: " % code)
+            self._log("applied", done, record_id=record_id, **log)
         self.booking_state = "failed" if failed else "done"
         self.booking_attempts = 0
         return None
