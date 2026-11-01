@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC Accounting Checkout",
-    "version": "19.0.1.1.0",
+    "version": "19.0.1.2.0",
     "category": "Accounting/Accounting",
     "summary": "Paid website signup for the SGC accounting packages; portal opens once payment settles",
     "description": """

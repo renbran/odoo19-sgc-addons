@@ -106,6 +106,7 @@ class TestAccountingCheckout(TransactionCase):
         self.assertEqual(user.login, PAYLOAD["email"])
         self.assertTrue(user.has_group("base.group_portal"))
         self.assertFalse(user.has_group("base.group_user"))
+        self.assertEqual(client.owner_user_id, user)
 
         # Idempotent: a second run creates nothing new.
         with patch.object(SaleOrder, "_acc_is_paid", return_value=True):

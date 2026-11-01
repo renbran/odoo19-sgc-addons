@@ -443,6 +443,8 @@ class SaleOrder(models.Model):
             ),
         })
         wizard.user_ids.filtered(lambda w: w.partner_id == contact).action_grant_access()
+        # The login it was registered with is the subscription's only portal access.
+        client.owner_user_id = contact.user_ids[:1]
 
     @api.model
     def _acc_client_code(self, name):
