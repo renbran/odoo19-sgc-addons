@@ -849,7 +849,13 @@ class SgcAccountingUpload(models.Model):
             name = _cell(headers, row, "Account Name")
             kind = _cell(headers, row, "Account Type").lower()
             reconcile = _cell(headers, row, "Allow Reconciliation").lower()
-            account_type = types.get(kind) or types.get(kind.rstrip("s"))
+            # "Income (Contra)" is an Income account: Odoo has no contra types,
+            # a contra account is its base type with the opposite balance.
+            base = re.sub(r"\(.*?\)", " ", kind).strip()
+            account_type = next(
+                (types[name] for name in (kind, kind.rstrip("s"), base, base.rstrip("s")) if name in types),
+                None,
+            )
             if action not in ACCOUNT_ACTIONS:
                 problem = _("Action must be Create, Update or Archive")
             elif not code:
@@ -919,10 +925,14 @@ class SgcAccountingUpload(models.Model):
             if set(record["company_ids"]) != {company_id}
         ]
         if problems:
-            return self._finish(
-                "failed",
-                _("Nothing was changed: %s.", "; ".join(problems[:10]) + ("; ..." if len(problems) > 10 else "")),
-            )
+            text = "; ".join(problems[:10]) + ("; ..." if len(problems) > 10 else "")
+            if "is not an Odoo account type" in text:
+                text += _(". Account types: %s", ", ".join(label for _key, label in selection))
+            # Nothing was changed: back to the owner, who can upload a corrected
+            # file or approve again; their approval of this file is used up.
+            self.sudo().write({"booking_state": "approval", "approved_by_id": False, "approved_sha256": False})
+            self._log("failed", _("Nothing was changed: %s.", text))
+            return None
         failed = False
         for _line, action, code, values in plan:
             found = existing.get(code)

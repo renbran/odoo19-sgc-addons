@@ -123,7 +123,7 @@ OWNER = "owner@client.test"
 
 CHART = (
     "Action,Account Code,Account Name,Account Type,Allow Reconciliation\n"
-    "Create,5096,Transportation,Expense,No\n"
+    "Create,5096,Transportation,Expense (Contra),No\n"
     "Create,5097,Existing Fees,Expenses,No\n"
     "Update,1100,,Current Assets,Yes\n"
     "Archive,5000,,,\n"
@@ -771,7 +771,7 @@ class TestSgcAccountingBooking(TransactionCase):
         upload = self._upload("chart_of_accounts", CHART)
         upload._owner_approve(self.owner, upload.sha256)
         self._book()
-        self.assertEqual(upload.booking_state, "failed")
+        self.assertEqual(upload.booking_state, "approval")
         self.assertIn("1100 is shared", upload.log_ids.sorted("id")[-1].message)
         self.assertFalse([call for call in self._account_calls() if call[4] in ("create", "write")])
 
@@ -786,11 +786,14 @@ class TestSgcAccountingBooking(TransactionCase):
         )
         upload._owner_approve(self.owner, upload.sha256)
         self._book()
-        self.assertEqual(upload.booking_state, "failed")
+        # Back to the owner, with the reason and the valid types.
+        self.assertEqual(upload.booking_state, "approval")
+        self.assertFalse(upload.approved_by_id)
         message = upload.log_ids.sorted("id")[-1].message
         self.assertIn("Nothing was changed", message)
         self.assertIn("row 4", message)
         self.assertIn("row 5", message)
+        self.assertIn("Account types: Current Assets, Income, Expenses", message)
         self.assertFalse([call for call in self.db.calls if call[4] in ("create", "write")])
 
     def test_only_the_link_script_sets_the_owner(self):
