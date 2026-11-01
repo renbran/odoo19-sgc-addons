@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import base64
+import datetime
 import os
 import tempfile
 from unittest.mock import patch
 
-from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase, tagged
 
 from odoo.addons.sgc_accounting_clients.models import accounting_client
@@ -39,17 +39,28 @@ VENDOR_BILLS = (
 
 
 class FakeDatabase:
-    """The client database behind XML-RPC: only search_read and create exist,
-    so any attempt to post (action_post) fails the test."""
+    """The client database behind XML-RPC: only read, search_read and create
+    exist, so any attempt to post (action_post) fails the test."""
 
     def __init__(self):
         self.calls = []
         self.existing = {}
+        self.role = "agent-01-intake"
+        self.create_error = None
+        self.read_error = None
 
     def execute_kw(self, db, uid, key, model, method, args, kwargs):
         self.calls.append((db, uid, key, model, method, args, kwargs))
         if method == "create":
+            if self.create_error:
+                raise self.create_error
             return 100 + len(self.created())
+        if method == "read" and model == "res.users":
+            if self.read_error:
+                raise self.read_error
+            return [{"id": uid, "company_ids": [1, 3], "sgc_agent_role_id": [5, "R"]}]
+        if method == "read" and model == "sgc.agent.role":
+            return [{"id": 5, "code": self.role, "company_ids": [3]}]
         if method != "search_read":
             raise AssertionError("unexpected call %s.%s" % (model, method))
         domain = args[0]
@@ -111,13 +122,29 @@ class TestSgcAccountingBooking(TransactionCase):
         super().setUp()
         secrets = tempfile.mkdtemp()
         self.key_file = os.path.join(secrets, "acc-booking-client.env")
-        with open(self.key_file, "w", encoding="utf-8") as handle:
-            handle.write("# client db key\nSGC_AGENT_API_KEY=client-key\n")
+        self._write_key()
         self.addCleanup(os.unlink, self.key_file)
         patcher = patch.object(accounting_client, "SECRETS_DIR", secrets)
         patcher.start()
         self.addCleanup(patcher.stop)
         self.db = FakeDatabase()
+
+    def _write_key(self, days=60, **overrides):
+        """A key file as scripts/link_accounting_client.sh writes it."""
+        values = {
+            "SGC_AGENT_ROLE": "agent-01-intake",
+            "SGC_AGENT_LOGIN": "svc-agent-01-intake@sgctech.ai",
+            "SGC_AGENT_USER_ID": "12",
+            "SGC_AGENT_API_KEY": "client-key",
+            "SGC_AGENT_ODOO_URL": "https://client.test",
+            "SGC_AGENT_DB": "client_db",
+            "SGC_AGENT_KEY_EXPIRES": (
+                datetime.datetime.now() + datetime.timedelta(days=days)
+            ).isoformat(),
+        }
+        values.update(overrides)
+        with open(self.key_file, "w", encoding="utf-8") as handle:
+            handle.write("".join("%s=%s\n" % item for item in values.items()))
 
     def _upload(self, doc_type, content):
         return self.env["sgc.accounting.upload"].create(
@@ -153,9 +180,12 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertEqual(
             proxy.call_args.args[0], "https://client.test/xmlrpc/2/object"
         )
-        for db, uid, key, _model, _method, _args, kwargs in self.db.calls:
+        for db, uid, key, model, _method, _args, kwargs in self.db.calls:
             self.assertEqual((db, uid, key), ("client_db", 12, "client-key"))
-            self.assertEqual(kwargs["context"], {"allowed_company_ids": [3]})
+            if model not in ("res.users", "sgc.agent.role", "res.company"):
+                self.assertEqual(kwargs["context"], {"allowed_company_ids": [3]})
+        # The intake identity is checked before anything is created.
+        self.assertEqual(self.db.calls[0][3:5], ("res.users", "read"))
         created = self.db.created()
         self.assertEqual(len(created), 2)
         first, second = (call[5][0] for call in created)
@@ -210,7 +240,8 @@ class TestSgcAccountingBooking(TransactionCase):
         created = self.db.created()
         self.assertEqual(len(created), 2)
         self.assertEqual(created[0][3], "account.payment")
-        self.assertEqual(created[1][5][0]["memo"], "SGC-%s-3" % upload.id)
+        row_key = created[1][5][0]["memo"]
+        self.assertRegex(row_key, r"^SGC-[0-9a-f]{12}-1$")
         self.assertEqual(created[1][5][0]["payment_type"], "inbound")
         values = created[0][5][0]
         self.assertEqual(values["payment_type"], "outbound")
@@ -223,6 +254,18 @@ class TestSgcAccountingBooking(TransactionCase):
             self._events(upload), ["uploaded", "booked", "failed", "booked"]
         )
         self.assertEqual(upload.booking_state, "failed")
+        # The same file sent again keys that row the same way, so the
+        # duplicate check looks for the first draft, not a fresh key.
+        self._upload("payments", PAYMENTS)
+        self._book()
+        searched = [
+            call[5][0] for call in self.db.calls
+            if call[3] == "account.payment" and call[4] == "search_read"
+        ]
+        self.assertEqual(searched[-1][0], ("memo", "=", row_key))
+        # Two identical rows in one file stay two payments.
+        seen, row = {}, {"Amount": "20"}
+        self.assertNotEqual(upload._row_key(row, seen), upload._row_key(row, seen))
 
     def test_unlinked_client_waits_then_books(self):
         self.client.base_url = False
@@ -242,6 +285,7 @@ class TestSgcAccountingBooking(TransactionCase):
     def test_snapshot_does_not_follow_a_relinked_client(self):
         upload = self._upload("customer_invoices", INVOICES)
         self.client.db_name = "other_db"
+        self._write_key(SGC_AGENT_DB="other_db")
         upload._snapshot_target()
         self.assertEqual(upload.target_db, "client_db")
         self._book()
@@ -312,5 +356,194 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertIn("3 Target Co", action["params"]["message"])
         os.unlink(self.key_file)
         self.addCleanup(lambda: open(self.key_file, "w").close())
-        with self.assertRaises(UserError):
-            self.client.action_test_connection()
+        action = self.client.action_test_connection()
+        self.assertEqual(action["params"]["type"], "danger")
+        self.assertIn("cannot be read", self.client.last_error)
+
+    def _agency_manager(self):
+        return self.env["res.users"].create(
+            {
+                "name": "Agency Manager",
+                "login": "agency-manager-test",
+                "group_ids": [
+                    (4, self.env.ref("base.group_user").id),
+                    (4, self.env.ref("sgc_accounting_clients.group_sgc_accounting_manager").id),
+                ],
+            }
+        )
+
+    def test_non_intake_api_user_never_books(self):
+        # A posting agent's key could post: refuse it before creating anything.
+        manager = self._agency_manager()
+        self.db.role = "agent-02-posting"
+        upload = self._upload("customer_invoices", INVOICES)
+        self._book()
+        self.assertFalse(self.db.created())
+        self.assertEqual(upload.booking_state, "waiting")
+        self.assertIn("not the agent-01-intake agent", upload.log_ids.sorted("id")[-1].message)
+        # OdooBot is the account manager here: the to-do goes to an agency manager.
+        self.assertEqual(self.client.activity_ids.user_id, manager)
+        # Link repaired: the waiting upload is booked by the next run.
+        self.db.role = "agent-01-intake"
+        self._book()
+        self.assertEqual(upload.booking_state, "done")
+        self.assertTrue(self.db.created())
+
+    def test_key_file_must_match_the_link(self):
+        self._write_key(SGC_AGENT_DB="another_db")
+        conn, error = self.client._booking_connection()
+        self.assertIsNone(conn)
+        self.assertIn("database", error)
+        self._write_key(days=-1)
+        self.assertIn("expired", self.client._booking_connection()[1])
+        self._write_key(SGC_AGENT_ROLE="agent-02-posting")
+        self.assertIn("only agent-01-intake", self.client._booking_connection()[1])
+
+    def test_network_problems_are_retried_then_fail(self):
+        self._agency_manager()
+        self.db.create_error = ConnectionRefusedError("connection refused")
+        upload = self._upload("customer_invoices", INVOICES)
+        self._book()
+        self.assertEqual(upload.booking_state, "pending")
+        self.assertEqual(upload.booking_attempts, 1)
+        for _attempt in range(4):
+            self._book()
+        self.assertEqual(upload.booking_state, "failed")
+        self.assertEqual(upload.activity_ids.summary, "Draft booking failed")
+        self.db.create_error = None
+        tried = len(self.db.created())
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            upload.action_book_drafts()
+        self.assertEqual(upload.booking_state, "done")
+        self.assertEqual(upload.booking_attempts, 0)
+        self.assertEqual(len(self.db.created()) - tried, 2)
+        self.assertFalse(upload.activity_ids)
+        # A booked upload is not booked again by the button.
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            upload.action_book_drafts()
+        self.assertEqual(len(self.db.created()) - tried, 2)
+
+    def test_unlinked_client_cannot_starve_the_others(self):
+        partner = self.env["res.partner"].create({"name": "Abandoned Trial"})
+        trial = self.env["sgc.accounting.client"].create(
+            {"name": "Abandoned Trial", "client_code": "abandoned-trial", "partner_id": partner.id}
+        )
+        Upload = self.env["sgc.accounting.upload"]
+        stuck = Upload.browse()
+        for index in range(3):
+            stuck |= Upload.create({
+                "client_id": trial.id, "doc_type": "customer_invoices",
+                "filename": "old%s.csv" % index,
+                "file": base64.b64encode(INVOICES.encode("utf-8")),
+            })
+        upload = self._upload("customer_invoices", INVOICES)
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            Upload._cron_book_pending(limit=1)
+        # Parking the unlinked client's uploads costs nothing against the limit.
+        self.assertEqual(upload.booking_state, "done")
+        self.assertEqual(stuck.mapped("booking_state"), ["waiting"] * 3)
+
+    def test_unreachable_database_waits_without_spending_retries(self):
+        self.db.read_error = ConnectionRefusedError("connection refused")
+        first = self._upload("customer_invoices", INVOICES)
+        second = self._upload("vendor_bills", VENDOR_BILLS)
+        self._book()
+        self.assertEqual(first.booking_state, "waiting")
+        self.assertEqual(first.booking_attempts, 0)
+        # One probe per client per run: the second upload was not tried.
+        self.assertEqual(second.booking_state, "pending")
+        self.assertEqual(
+            len([c for c in self.db.calls if c[3] == "res.users"]), 1
+        )
+        self.db.read_error = None
+        self._book()
+        self.assertEqual(first.booking_state, "done")
+
+    def test_company_not_allowed_fails_only_that_upload(self):
+        other = self.env["sgc.accounting.company"].create(
+            {"client_id": self.client.id, "odoo_company_id": 1, "name": "Parent"}
+        )
+        dropped = self._upload("customer_invoices", INVOICES)
+        dropped.accounting_company_id = other
+        dropped.target_company_ref = 1
+        fine = self._upload("vendor_bills", VENDOR_BILLS)
+        self._book()
+        self.assertEqual(dropped.booking_state, "failed")
+        self.assertIn("may not book into company id 1", dropped.log_ids.sorted("id")[-1].message)
+        self.assertNotEqual(fine.booking_state, "waiting")
+        self.assertTrue(self.db.created())
+
+    def test_same_reference_for_another_document_is_flagged(self):
+        # Numbers restarted, or a customer PO in ref: not this invoice.
+        self.db.existing["account.move"] = [{
+            "id": 56, "name": "INV/2025/0001", "state": "posted",
+            "partner_id": [99, "Someone Else"], "invoice_date": "2025-01-05",
+        }]
+        upload = self._upload("customer_invoices", INVOICES)
+        self._book()
+        self.assertFalse(self.db.created())
+        self.assertEqual(upload.booking_state, "failed")
+        self.assertEqual(self._events(upload), ["uploaded", "failed", "failed"])
+        messages = " ".join(upload.log_ids.mapped("message"))
+        self.assertIn("is for another party", messages)
+        self.assertIn("is dated 2025-01-05", messages)
+
+    def test_own_draft_edited_by_an_accountant_stays_a_duplicate(self):
+        upload = self._upload("customer_invoices", INVOICES)
+        self.db.existing["account.move"] = [{
+            "id": 57, "name": "/", "state": "draft", "partner_id": [7, "Known"],
+            "invoice_date": "2026-01-01", "narration": "[SGC-DOC %s-1]" % upload.id,
+        }]
+        self._book()
+        self.assertFalse(self.db.created())
+        # INV-1 is our own (re-dated) draft; INV-2 only shares the reference.
+        self.assertEqual(self._events(upload), ["uploaded", "duplicate", "failed"])
+
+    def test_same_day_payment_with_another_amount_is_flagged(self):
+        self.db.existing["account.payment"] = [{
+            "id": 70, "name": "P1", "state": "draft", "partner_id": [7, "Known"],
+            "date": "2026-10-23", "amount": 500.0,
+        }]
+        upload = self._upload("payments", PAYMENTS)
+        self._book()
+        self.assertFalse(self.db.created())
+        self.assertIn("is for 500.0", " ".join(upload.log_ids.mapped("message")))
+
+    def test_unreadable_key_file_is_recorded(self):
+        with open(self.key_file, "wb") as handle:
+            handle.write(bytes([0xFF, 0xFE]) + b" not utf-8")
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            self.env["sgc.accounting.client"]._cron_check_connections()
+        self.assertIn("cannot be read", self.client.last_error)
+
+    def test_health_check_warns_before_the_key_expires(self):
+        manager = self._agency_manager()
+        self._write_key(days=5)
+        for _run in range(2):
+            with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+                self.env["sgc.accounting.client"]._cron_check_connections()
+        self.assertTrue(self.client.last_health_check)
+        self.assertFalse(self.client.last_error)
+        self.assertEqual(len(self.client.activity_ids), 1)
+        self.assertEqual(self.client.activity_ids.user_id, manager)
+        self.assertIn("expires", str(self.client.activity_ids.note))
+        # A new problem replaces the reason on the same to-do.
+        self.db.role = "agent-02-posting"
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            self.client._check_connection()
+        self.assertEqual(len(self.client.activity_ids), 1)
+        self.assertIn("not the agent-01-intake agent", str(self.client.activity_ids.note))
+        self.db.role = "agent-01-intake"
+        # Rotated: the next check closes the alarm.
+        self._write_key(days=90)
+        with patch("xmlrpc.client.ServerProxy", return_value=self.db):
+            self.client._check_connection()
+        self.assertFalse(self.client.activity_ids)
+
+    def test_agent_review_task_is_not_duplicated(self):
+        manager = self._agency_manager()
+        upload = self._upload("master_data", "Name\nX\n")
+        upload._assign_agent_review(True)
+        upload._assign_agent_review(True)
+        self.assertEqual(len(upload.activity_ids), 1)
+        self.assertEqual(upload.activity_ids.user_id, manager)

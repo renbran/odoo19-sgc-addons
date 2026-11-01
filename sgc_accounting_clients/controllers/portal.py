@@ -294,8 +294,8 @@ class SgcAccountingPortal(CustomerPortal):
                 author_id=request.env.user.partner_id.id,
                 subtype_xmlid="mail.mt_note",
             )
-            reviewer = client.account_manager_id
-            if reviewer and not reviewer.share:
+            reviewer = client._reviewer()
+            if reviewer:
                 upload.activity_schedule(
                     "sgc_accounting_clients.mail_activity_type_intake_review",
                     user_id=reviewer.id,

@@ -81,6 +81,8 @@
                                 <group string="Database">
                                     <field name="db_name"/>
                                     <field name="api_user_id"/>
+                                    <field name="last_health_check" readonly="1"/>
+                                    <field name="last_error" readonly="1" invisible="not last_error"/>
                                     <field name="db_host"/>
                                     <field name="db_port"/>
                                     <field name="db_user"/>

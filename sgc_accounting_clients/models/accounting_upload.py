@@ -3,12 +3,15 @@ import base64
 import datetime
 import hashlib
 import logging
+import xmlrpc.client
+
+from psycopg2.errors import LockNotAvailable, SerializationFailure
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
 from .accounting_bucket import DOC_TYPES, MAX_UPLOAD_ROWS, find_column, read_rows
-from .accounting_client import rpc, rpc_error
+from .accounting_client import LINK_TODO, rpc, rpc_error
 
 _logger = logging.getLogger(__name__)
 
@@ -16,6 +19,10 @@ _logger = logging.getLogger(__name__)
 # and expense receipts follow in release 2; master data and other documents
 # are reviewed by hand and never become entries.
 BOOKED_TYPES = ("customer_invoices", "vendor_bills", "credit_notes", "payments")
+# Network problems are retried on the next cron runs (10 min apart).
+BOOKING_RETRIES = 4
+# Plain constant: the to-do is found again by it to dedupe and close.
+BOOKING_TODO = "Draft booking failed"
 # bucket -> (document number, document date, counterparty) columns
 MOVE_COLUMNS = {
     "customer_invoices": ("Invoice Number", "Invoice Date", "Customer Name"),
@@ -160,6 +167,9 @@ class SgcAccountingUpload(models.Model):
         tracking=True,
         help="Draft booking into the client database. Empty for uploads made "
         "before per-customer booking existed.",
+    )
+    booking_attempts = fields.Integer(
+        string="Booking Retries", readonly=True, copy=False
     )
     # Target snapshot: where this file goes, fixed once known, never changed.
     target_base_url = fields.Char(string="Target URL", readonly=True, copy=False)
@@ -328,8 +338,8 @@ class SgcAccountingUpload(models.Model):
         for upload in self:
             if not required:
                 continue
-            reviewer = upload.client_id.account_manager_id
-            if not reviewer or reviewer.share:
+            reviewer = upload.client_id._reviewer()
+            if not reviewer:
                 continue
             activity_type = self.env.ref(
                 "sgc_accounting_clients.mail_activity_type_intake_review",
@@ -337,9 +347,9 @@ class SgcAccountingUpload(models.Model):
             )
             if not activity_type:
                 continue
+            # activity_ids holds open activities only: one review at a time.
             if upload.activity_ids.filtered(
-                lambda activity: activity.activity_type_id.id == activity_type.id
-                and not activity.date_deadline
+                lambda activity: activity.activity_type_id == activity_type
             ):
                 continue
             upload.activity_schedule(
@@ -440,14 +450,31 @@ class SgcAccountingUpload(models.Model):
     # ------------------------------------------------------------------
 
     @api.model
-    def _cron_book_pending(self):
+    def _cron_book_pending(self, limit=50):
         uploads = self.search(
             [("booking_state", "in", ("pending", "waiting"))],
             order="booking_state, id",
-            limit=50,
         )
+        unlinked, blocked, tried = {}, set(), 0
         for upload in uploads:
+            client = upload.client_id
+            if client.id not in unlinked:
+                unlinked[client.id] = bool(client._booking_connection()[1])
+            if unlinked[client.id]:
+                # No usable link here: a new upload is parked without calling
+                # out, and nothing counts against the limit.
+                if upload.booking_state == "waiting":
+                    continue
+            elif tried >= limit or client.id in blocked:
+                continue
+            else:
+                tried += 1
             upload._book_drafts_safe()
+            # Not finished means the client database is unreachable or its
+            # link is broken: one attempt per client per run, so it cannot
+            # hold up the other clients.
+            if upload.booking_state in ("pending", "waiting"):
+                blocked.add(client.id)
             # Drafts already exist remotely: keep their log even if a later
             # upload rolls this cron transaction back.
             if self.env.context.get("ir_cron_progress_id"):
@@ -455,23 +482,86 @@ class SgcAccountingUpload(models.Model):
         return True
 
     def action_book_drafts(self):
-        self.write({"booking_state": "pending"})
-        self._book_drafts_safe()
+        # Booked or skipped uploads stay as they are; the rest are retried.
+        retry = self.filtered(
+            lambda upload: upload.booking_state in (False, "failed", "waiting")
+        )
+        retry.write({"booking_state": "pending", "booking_attempts": 0})
+        retry._book_drafts_safe()
         return True
 
     def _book_drafts_safe(self):
         for upload in self:
             try:
                 with self.env.cr.savepoint():
+                    # One booking per upload at a time (cron vs. button).
+                    self.env.cr.execute(
+                        "SELECT booking_state FROM sgc_accounting_upload "
+                        "WHERE id = %s FOR UPDATE NOWAIT",
+                        [upload.id],
+                    )
+                    # The other side may have finished it while we waited.
+                    if self.env.cr.fetchone()[0] not in ("pending", "waiting"):
+                        upload.invalidate_recordset()
+                        continue
                     upload._book_drafts()
+            except (LockNotAvailable, SerializationFailure):
+                _logger.info("Upload %s is being booked elsewhere; skipped", upload.id)
+                continue
             except Exception as exc:
                 _logger.exception("Draft booking failed for upload %s", upload.id)
-                upload.booking_state = "failed"
-                upload._log("failed", rpc_error(exc))
+                upload._finish("failed", rpc_error(exc))
+            if upload.booking_state == "failed":
+                upload.client_id._todo(
+                    BOOKING_TODO,
+                    _(
+                        "%(file)s could not be booked into %(db)s. Its Log tab says "
+                        "why; fix it and press Book Drafts.",
+                        file=upload.filename,
+                        db=upload.target_db or "-",
+                    ),
+                    record=upload,
+                )
+            elif upload.booking_state == "done":
+                upload.activity_ids.filtered(
+                    lambda activity: activity.summary == BOOKING_TODO
+                ).action_feedback(feedback=_("Booked."))
 
     def _finish(self, state, message):
         self.booking_state = state
         self._log(state, message)
+
+    def _wait(self, message):
+        """Park the upload until the client link works (logged once)."""
+        if self.booking_state != "waiting":
+            self.booking_state = "waiting"
+            self._log("waiting", message)
+
+    def _stop(self, exc, prefix=""):
+        """End this attempt: retry a network problem later, fail anything else."""
+        message = prefix + rpc_error(exc)
+        transient = isinstance(exc, (OSError, xmlrpc.client.ProtocolError))
+        if transient and self.booking_attempts < BOOKING_RETRIES:
+            self.booking_attempts += 1
+            self.booking_state = "pending"
+            self._log(
+                "failed",
+                _(
+                    "%(error)s. Retrying at the next run (retry %(n)s of %(max)s).",
+                    error=message,
+                    n=self.booking_attempts,
+                    max=BOOKING_RETRIES,
+                ),
+            )
+            return None
+        return self._finish(
+            "failed",
+            _(
+                "%(error)s. Booking stopped; documents not booked yet were not "
+                "created.",
+                error=message,
+            ),
+        )
 
     def _book_drafts(self):
         self.ensure_one()
@@ -486,10 +576,7 @@ class SgcAccountingUpload(models.Model):
         self._snapshot_target()
         conn, error = self.client_id._booking_connection()
         if error:
-            if self.booking_state != "waiting":
-                self.booking_state = "waiting"
-                self._log("waiting", error)
-            return None
+            return self._wait(error)
         if (self.target_db, self.target_base_url) != (conn["db"], conn["url"]):
             return self._finish(
                 "failed",
@@ -504,6 +591,29 @@ class SgcAccountingUpload(models.Model):
         if not company_id:
             return self._finish(
                 "failed", _("No company was selected for this upload.")
+            )
+        try:
+            companies = self.client_id._verify_remote(conn, [])
+        except (OSError, xmlrpc.client.ProtocolError) as exc:
+            # Unreachable: nothing was created, so no retry is spent; the
+            # daily check raises the to-do if it stays down.
+            return self._wait(rpc_error(exc))
+        except Exception as exc:
+            # Revoked key or wrong role: the link needs fixing. Wait and tell
+            # the reviewer; the next healthy check closes the to-do.
+            self.client_id._todo(LINK_TODO, rpc_error(exc))
+            return self._wait(rpc_error(exc))
+        if company_id not in companies:
+            # This upload's company only; the client's other uploads go on.
+            return self._finish(
+                "failed",
+                _(
+                    "The intake agent of %(db)s may not book into company id %(id)s "
+                    "(%(name)s). Re-link with it, or book this file by hand.",
+                    db=conn["db"],
+                    id=company_id,
+                    name=self.target_company_name or "-",
+                ),
             )
         raw = base64.b64decode(self.file) if self.file else b""
         source = read_rows(self.doc_type, self.filename, raw, limit=MAX_UPLOAD_ROWS)
@@ -529,27 +639,24 @@ class SgcAccountingUpload(models.Model):
 
         headers = source["headers"]
         # Every document gets a reference so a retry never books it twice; a
-        # row without one gets SGC-<upload>-<row>.
+        # row without one gets a key from its content (see _row_key).
+        seen = {}
         if self.doc_type == "payments":
             documents = [
-                (
-                    _cell(headers, row, "Reference")
-                    or "SGC-%s-%s" % (self.id, index + 1),
-                    [row],
-                )
-                for index, row in enumerate(source["rows"])
+                (_cell(headers, row, "Reference") or self._row_key(row, seen), [row])
+                for row in source["rows"]
             ]
             build = self._payment_values
         else:
             # Vendor bill numbers are unique per vendor only: group by both.
             number_label, _date_label, partner_label = MOVE_COLUMNS[self.doc_type]
             grouped = {}
-            for index, row in enumerate(source["rows"]):
+            for row in source["rows"]:
                 number = _cell(headers, row, number_label)
                 key = (
                     (_cell(headers, row, partner_label).lower(), number)
                     if number
-                    else (None, "SGC-%s-%s" % (self.id, index + 1))
+                    else (None, self._row_key(row, seen))
                 )
                 grouped.setdefault(key, []).append(row)
             documents = [(key[1], rows) for key, rows in grouped.items()]
@@ -561,14 +668,49 @@ class SgcAccountingUpload(models.Model):
                 model, duplicate_domain, values, summary = build(
                     reference, rows, headers, company_id, find, number
                 )
+                is_move = model == "account.move"
+                date_field = "invoice_date" if is_move else "date"
                 existing = call(
                     model,
                     "search_read",
                     duplicate_domain,
-                    fields=["id", "name", "state"],
-                    limit=1,
+                    fields=["id", "name", "state", "partner_id", date_field]
+                    + (["narration"] if is_move else ["amount"]),
+                    limit=10,
                 )
-                if existing:
+                # A duplicate is this document's own draft (even after an
+                # accountant corrected its date or party), or any match for
+                # the same party, date and amount. Anything else conflicts.
+                marker = "[SGC-DOC %s-%s]" % (self.id, number)
+                match = next(
+                    (r for r in existing if is_move and marker in (r.get("narration") or "")),
+                    None,
+                ) or next(
+                    (r for r in existing if not self._conflict(r, values, date_field)), None
+                )
+                conflict = existing and not match and self._conflict(existing[0], values, date_field)
+                if conflict:
+                    # Same reference, different document (numbers restarted,
+                    # or a customer PO number in ref): never book over it,
+                    # never drop it silently.
+                    failed = True
+                    self._log(
+                        "failed",
+                        _(
+                            "%(ref)s: %(db)s already has %(name)s with this reference, "
+                            "but it %(what)s; nothing was created. If this is another "
+                            "document, book it by hand.",
+                            ref=reference,
+                            db=self.target_db,
+                            name=existing[0].get("name") or existing[0]["id"],
+                            what=conflict,
+                        ),
+                        record_model=model,
+                        record_id=existing[0]["id"],
+                        reference=reference,
+                    )
+                    continue
+                if match:
                     self._log(
                         "duplicate",
                         _(
@@ -576,11 +718,11 @@ class SgcAccountingUpload(models.Model):
                             "(%(state)s); nothing was created.",
                             ref=reference,
                             db=self.target_db,
-                            name=existing[0].get("name") or existing[0]["id"],
-                            state=existing[0].get("state") or "-",
+                            name=match.get("name") or match["id"],
+                            state=match.get("state") or "-",
                         ),
                         record_model=model,
-                        record_id=existing[0]["id"],
+                        record_id=match["id"],
                         reference=reference,
                     )
                     continue
@@ -596,19 +738,9 @@ class SgcAccountingUpload(models.Model):
                 continue
             except Exception as exc:
                 # Connection, rights or configuration: the next document
-                # would fail the same way, so stop here.
-                failed = True
-                self._log(
-                    "failed",
-                    _(
-                        "%(ref)s: %(error)s. Booking stopped; the remaining "
-                        "documents were not created.",
-                        ref=reference or _("Document"),
-                        error=rpc_error(exc),
-                    ),
-                    reference=reference,
-                )
-                break
+                # would fail the same way, so stop here (a retry skips the
+                # drafts already created, by reference and marker).
+                return self._stop(exc, "%s: " % (reference or _("Document")))
             self._log(
                 "booked",
                 _(
@@ -622,7 +754,34 @@ class SgcAccountingUpload(models.Model):
                 reference=reference,
             )
         self.booking_state = "failed" if failed else "done"
+        self.booking_attempts = 0
         return None
+
+    def _conflict(self, found, values, date_field):
+        """Why a record with the same reference is not this document, if it
+        isn't (a method so _() finds the language on self.env)."""
+        reasons = []
+        mine, theirs = values.get("partner_id"), (found.get("partner_id") or [False])[0]
+        if mine and theirs and mine != theirs:
+            reasons.append(_("is for another party"))
+        mine, theirs = values.get(date_field), found.get(date_field)
+        if mine and theirs and str(mine)[:10] != str(theirs)[:10]:
+            reasons.append(_("is dated %(date)s", date=str(theirs)[:10]))
+        # Two same-day partial payments may share a reference.
+        mine, theirs = values.get("amount"), found.get("amount")
+        if mine and theirs and round(float(mine), 2) != round(float(theirs), 2):
+            reasons.append(_("is for %(amount)s", amount=theirs))
+        return _(" and ").join(reasons)
+
+    def _row_key(self, row, seen):
+        """Reference for a row without one: the same row gets the same key in
+        every upload of this client, so a re-sent file is not booked twice.
+        Identical rows within one file stay apart by their occurrence."""
+        digest = hashlib.sha256(
+            repr((self.client_id.id, self.doc_type, sorted(row.items()))).encode("utf-8")
+        ).hexdigest()[:12]
+        seen[digest] = seen.get(digest, 0) + 1
+        return "SGC-%s-%s" % (digest, seen[digest])
 
     def _narration(self, notes):
         return " ".join(

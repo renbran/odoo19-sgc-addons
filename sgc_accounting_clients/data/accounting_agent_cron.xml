@@ -22,5 +22,16 @@
             <field name="interval_type">minutes</field>
             <field name="active" eval="True"/>
         </record>
+        <!-- Daily: re-verify every client database link (intake role, companies,
+             key expiry) and give the account manager a to-do when it fails. -->
+        <record id="ir_cron_sgc_accounting_check_connections" model="ir.cron">
+            <field name="name">SGC Accounting: check client database links</field>
+            <field name="model_id" ref="model_sgc_accounting_client"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_connections()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

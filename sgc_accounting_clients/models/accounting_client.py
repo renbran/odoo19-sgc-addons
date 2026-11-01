@@ -1,15 +1,34 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 import re
 import xmlrpc.client
+from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+_logger = logging.getLogger(__name__)
+
 # Key files of the client databases live here, one per client
-# (acc-<client_code>.env, line SGC_AGENT_API_KEY=...). Never in the DB or git.
+# (acc-<client_code>.env, written by scripts/link_accounting_client.sh).
+# Never in the DB or git.
 SECRETS_DIR = "/mnt/extra-addons/.secrets"
+KEY_FILE_FIELDS = (
+    "SGC_AGENT_API_KEY",
+    "SGC_AGENT_ROLE",
+    "SGC_AGENT_DB",
+    "SGC_AGENT_USER_ID",
+    "SGC_AGENT_ODOO_URL",
+    "SGC_AGENT_KEY_EXPIRES",
+)
+INTAKE_ROLE = "agent-01-intake"
+KEY_WARN_DAYS = 14
 RPC_TIMEOUT = 30
+
+
+# One summary for the link to-do, so it is found again to update or close.
+LINK_TODO = "Accounting link needs attention"
 
 
 class _Transport(xmlrpc.client.SafeTransport):
@@ -328,56 +347,254 @@ class SgcAccountingClient(models.Model):
         # The key file is bound to the client code (validated: [a-z0-9-]), so
         # one client's settings can never send another client's key.
         path = os.path.join(SECRETS_DIR, "acc-%s.env" % self.client_code)
-        key = ""
         try:
             with open(path, encoding="utf-8") as handle:
-                for line in handle:
-                    if line.startswith("SGC_AGENT_API_KEY="):
-                        key = line.split("=", 1)[1].strip()
-        except OSError as exc:
+                lines = dict(
+                    line.strip().split("=", 1) for line in handle if "=" in line
+                )
+        except (OSError, ValueError) as exc:  # ValueError: not UTF-8
             return None, _(
                 "The API key file cannot be read: %(error)s",
-                error=exc.strerror or exc,
+                error=getattr(exc, "strerror", None) or exc,
             )
-        if not key:
-            return None, _("The API key file has no SGC_AGENT_API_KEY line.")
+        # The link script writes who the key belongs to; a key of another
+        # database, user or role is refused before it is ever sent.
+        missing = [name for name in KEY_FILE_FIELDS if not lines.get(name)]
+        if missing:
+            return None, _(
+                "The API key file lacks %(fields)s; write it with "
+                "scripts/link_accounting_client.sh.",
+                fields=", ".join(missing),
+            )
+        if lines["SGC_AGENT_ROLE"] != INTAKE_ROLE:
+            return None, _(
+                "The API key belongs to role %(role)s; only %(intake)s may book.",
+                role=lines["SGC_AGENT_ROLE"],
+                intake=INTAKE_ROLE,
+            )
+        mismatch = [
+            label
+            for label, expected, found in (
+                (_("database"), self.db_name, lines["SGC_AGENT_DB"]),
+                (_("user"), str(self.api_user_id), lines["SGC_AGENT_USER_ID"]),
+                (_("URL"), self.workspace_url, lines["SGC_AGENT_ODOO_URL"].rstrip("/")),
+            )
+            if expected != found
+        ]
+        if mismatch:
+            return None, _(
+                "The API key file is for another %(what)s than the one linked "
+                "on this client.",
+                what=", ".join(mismatch),
+            )
+        try:
+            expires = fields.Datetime.to_datetime(
+                lines["SGC_AGENT_KEY_EXPIRES"][:19].replace("T", " ")
+            )
+        except ValueError:
+            return None, _("The API key file has an unreadable expiry date.")
+        if expires <= fields.Datetime.now():
+            return None, _(
+                "The API key expired on %(date)s; rotate it with "
+                "scripts/link_accounting_client.sh.",
+                date=expires.date(),
+            )
         return {
             "url": self.workspace_url,
             "db": self.db_name,
             "uid": self.api_user_id,
-            "key": key,
+            "key": lines["SGC_AGENT_API_KEY"],
+            "expires": expires,
         }, None
+
+    def _verify_remote(self, conn, company_ids):
+        """Refuse unless the API user is the draft-only intake agent of the
+        given companies, so a misconfigured key can never post.
+
+        Returns the companies the agent may book into, as ``{id: name}``.
+        """
+        try:
+            remote_user = rpc(
+                conn,
+                "res.users",
+                "read",
+                [conn["uid"]],
+                fields=["company_ids", "sgc_agent_role_id"],
+            )
+        except xmlrpc.client.Fault as exc:
+            if "sgc_agent_role_id" in (exc.faultString or ""):
+                raise UserError(
+                    _(
+                        "The module sgc_accounting_agents is not installed in "
+                        "%(db)s, so nothing stops the API user from posting.",
+                        db=conn["db"],
+                    )
+                ) from exc
+            raise
+        role_id = remote_user and remote_user[0]["sgc_agent_role_id"]
+        role = (
+            rpc(conn, "sgc.agent.role", "read", [role_id[0]], fields=["code", "company_ids"])
+            if role_id
+            else []
+        )
+        if not role or role[0]["code"] != INTAKE_ROLE:
+            raise UserError(
+                _(
+                    "API user %(uid)s in %(db)s is not the %(intake)s agent; "
+                    "it might be able to post.",
+                    uid=conn["uid"],
+                    db=conn["db"],
+                    intake=INTAKE_ROLE,
+                )
+            )
+        allowed = set(remote_user[0]["company_ids"])
+        if role[0]["company_ids"]:
+            allowed &= set(role[0]["company_ids"])
+        missing = sorted(set(company_ids) - allowed)
+        if missing:
+            raise UserError(
+                _(
+                    "The intake agent of %(db)s may not work on company id(s) "
+                    "%(ids)s; re-run scripts/link_accounting_client.sh with them.",
+                    db=conn["db"],
+                    ids=", ".join(map(str, missing)),
+                )
+            )
+        companies = rpc(
+            conn, "res.company", "search_read", [("id", "in", sorted(allowed))],
+            fields=["id", "name"],
+        )
+        return {company["id"]: company["name"] for company in companies}
+
+    def _check_connection(self):
+        """Verify the link end to end and record the outcome on the client.
+
+        Returns ``(companies, error)``; a failure or a key expiring within
+        KEY_WARN_DAYS also gives the account manager a to-do.
+        """
+        self.ensure_one()
+        conn, error = self._booking_connection()
+        companies = {}
+        if not error:
+            mapped = self.company_ids.filtered("active").mapped("odoo_company_id")
+            try:
+                companies = self._verify_remote(conn, mapped)
+            except Exception as exc:
+                error = _(
+                    "Connection to %(db)s failed: %(error)s",
+                    db=conn["db"],
+                    error=rpc_error(exc),
+                )
+        self.write({"last_health_check": fields.Datetime.now(), "last_error": error or False})
+        warning = error
+        if not error and conn["expires"] - fields.Datetime.now() < timedelta(
+            days=KEY_WARN_DAYS
+        ):
+            warning = _(
+                "The API key of %(db)s expires on %(date)s; rotate it with "
+                "scripts/link_accounting_client.sh.",
+                db=conn["db"],
+                date=conn["expires"].date(),
+            )
+        summary = LINK_TODO
+        if warning:
+            self._todo(summary, warning)
+        else:
+            # Healthy again: close the stale alarm so the next one is noticed.
+            self.activity_ids.filtered(
+                lambda activity: activity.summary == summary
+            ).action_feedback(feedback=_("The link is healthy again."))
+        return companies, error
+
+    @api.model
+    def _cron_check_connections(self):
+        # Least recently checked first, committed per client: a run cut short
+        # by unreachable databases keeps its results and the next one goes on.
+        for client in self.search(
+            [("db_name", "!=", False), ("api_user_id", "!=", 0)],
+            order="last_health_check asc nulls first, id",
+        ):
+            try:
+                with self.env.cr.savepoint():
+                    client._check_connection()
+            except Exception as exc:
+                # One broken client must not stop (or, never being marked
+                # checked, forever head) the run.
+                _logger.exception("Link check failed for client %s", client.id)
+                client.write({"last_health_check": fields.Datetime.now(), "last_error": str(exc)})
+            if self.env.context.get("ir_cron_progress_id"):
+                self.env["ir.cron"]._commit_progress(1)
+        return True
 
     def action_test_connection(self):
         self.ensure_one()
-        conn, error = self._booking_connection()
+        companies, error = self._check_connection()
         if error:
-            raise UserError(error)
-        try:
-            companies = rpc(
-                conn, "res.company", "search_read", [], fields=["id", "name"]
-            )
-        except Exception as exc:
-            raise UserError(
-                _("Connection to %(db)s failed: %(error)s", db=conn["db"], error=rpc_error(exc))
-            ) from exc
+            # A notification, not an exception: raising would roll back the
+            # recorded error and the to-do.
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": _("Connection to %(db)s failed", db=self.db_name),
+                    "message": error,
+                    "type": "danger",
+                    "sticky": True,
+                },
+            }
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
             "params": {
-                "title": _("Connected to %(db)s", db=conn["db"]),
+                "title": _("Connected to %(db)s", db=self.db_name),
                 "message": _(
-                    "Companies (id name): %(list)s",
+                    "The intake agent may book into (id name): %(list)s",
                     list=", ".join(
-                        "%s %s" % (company["id"], company["name"])
-                        for company in companies
-                    )
-                    or _("none visible to the API user"),
+                        "%s %s" % (company_id, name)
+                        for company_id, name in sorted(companies.items())
+                    ),
                 ),
                 "type": "success",
                 "sticky": True,
             },
         }
+
+    def _reviewer(self):
+        """The account manager, else the first agency manager.
+
+        A client created by the checkout gets OdooBot as account manager,
+        which no one reads.
+        """
+        self.ensure_one()
+
+        def usable(user):
+            return user.active and not user.share and not user._is_superuser()
+
+        if self.account_manager_id and usable(self.account_manager_id):
+            return self.account_manager_id
+        group = self.env.ref(
+            "sgc_accounting_clients.group_sgc_accounting_manager",
+            raise_if_not_found=False,
+        )
+        return (group.all_user_ids.filtered(usable) if group else self.env["res.users"])[:1]
+
+    def _todo(self, summary, note, record=None):
+        """One open to-do per record and summary for the reviewer."""
+        self.ensure_one()
+        record = record or self
+        reviewer = self._reviewer()
+        if not reviewer:
+            _logger.warning("No reviewer for %s: %s", record, note)
+            return
+        existing = record.activity_ids.filtered(
+            lambda activity: activity.summary == summary
+        )
+        if existing:
+            existing.note = note  # the current reason, not the first one
+            return
+        record.activity_schedule(
+            "mail.mail_activity_data_todo", user_id=reviewer.id, summary=summary, note=note
+        )
 
     def action_open_workspace(self):
         self.ensure_one()

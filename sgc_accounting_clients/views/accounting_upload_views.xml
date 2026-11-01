@@ -57,6 +57,7 @@
                     <group string="Booking Target" name="booking_target">
                         <group>
                             <field name="booking_state" widget="badge"/>
+                            <field name="booking_attempts" invisible="not booking_attempts"/>
                             <field name="target_db"/>
                             <field name="target_base_url" widget="url"/>
                         </group>

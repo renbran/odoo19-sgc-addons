@@ -7,6 +7,8 @@ from unittest.mock import patch
 
 from odoo.tests.common import TransactionCase, tagged
 
+from odoo.addons.sgc_accounting_clients.models.accounting_agent_run import MAX_ATTEMPTS
+
 CSV_INVOICE = (
     "Invoice Number,Invoice Date,Customer Name,Currency,Description,Quantity,"
     "Unit Price,Tax Rate,Tax Amount,Total,Due Date\n"
@@ -204,8 +206,13 @@ class TestSgcAccountingAgentChat(TransactionCase):
         with patch("requests.post", return_value=FakeResponse(reply)):
             run = self._run()
             sent = run._send("http://orchestrator:8088/chat")
+            # The agent, not the file, was wrong: retried, never accepted.
+            self.assertFalse(sent)
+            self.assertEqual(run.state, "queued")
+            self.assertIn("Checksum mismatch", run.last_error)
+            run.attempts = MAX_ATTEMPTS - 1
+            run._send("http://orchestrator:8088/chat")
         run.invalidate_recordset()
-        self.assertFalse(sent)
         self.assertEqual(run.state, "failed")
         self.assertIn("Checksum mismatch", run.last_error)
         self.assertFalse(run.matches)
@@ -228,8 +235,11 @@ class TestSgcAccountingAgentChat(TransactionCase):
         with patch("requests.post", return_value=FakeResponse(reply)):
             run = self._run()
             sent = run._send("http://orchestrator:8088/chat")
+            self.assertFalse(sent)
+            self.assertEqual(run.state, "queued")
+            run.attempts = MAX_ATTEMPTS - 1
+            run._send("http://orchestrator:8088/chat")
         run.invalidate_recordset()
-        self.assertFalse(sent)
         self.assertEqual(run.state, "failed")
         self.assertIn("unsupported state", run.last_error)
 
