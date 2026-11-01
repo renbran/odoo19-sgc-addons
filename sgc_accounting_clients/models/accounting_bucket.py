@@ -282,8 +282,8 @@ BUCKETS = (
         "name": "Master Data",
         "short": "Customers, suppliers and opening balances",
         "description": (
-            "Customer and supplier lists, chart-of-accounts mappings and "
-            "opening balances."
+            "Customer and supplier lists and opening balances. Use Chart of "
+            "Accounts Updates for new or changed accounts."
         ),
         "formats": "CSV, XLSX, XLS",
         "required": (
@@ -309,6 +309,35 @@ BUCKETS = (
         "notes": (
             "Record Type must be Customer, Supplier, Account or Opening Balance.",
             "TRN must be 15 digits when supplied.",
+        ),
+    },
+    {
+        "code": "chart_of_accounts",
+        "name": "Chart of Accounts Updates",
+        "short": "New, changed or retired ledger accounts",
+        "description": (
+            "Accounts to add to your chart of accounts, renames, type "
+            "changes and accounts to archive."
+        ),
+        "formats": "CSV, XLSX, XLS",
+        "required": (
+            "Action",
+            "Account Code",
+            "Account Name",
+            "Account Type",
+            "Allow Reconciliation",
+        ),
+        "example": (
+            "Create",
+            "611010",
+            "Office Rent",
+            "Expenses",
+            "No",
+        ),
+        "notes": (
+            "Action must be Create, Update or Archive; Update and Archive find the account by its Account Code.",
+            "Account Type uses the Odoo names, e.g. Receivable, Payable, Bank and Cash, Current Assets, Fixed Assets, Current Liabilities, Equity, Income, Cost of Revenue or Expenses.",
+            "Allow Reconciliation is Yes or No. A reviewer applies the changes; nothing is changed automatically.",
         ),
     },
     {

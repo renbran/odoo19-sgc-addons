@@ -138,6 +138,7 @@
                 <filter name="credit_notes" string="Credit notes" domain="[('doc_type', '=', 'credit_notes')]"/>
                 <filter name="expense_receipts" string="Expense receipts" domain="[('doc_type', '=', 'expense_receipts')]"/>
                 <filter name="master_data" string="Master data" domain="[('doc_type', '=', 'master_data')]"/>
+                <filter name="chart_of_accounts" string="Chart of accounts updates" domain="[('doc_type', '=', 'chart_of_accounts')]"/>
                 <filter name="other" string="Other documents" domain="[('doc_type', '=', 'other')]"/>
                 <group>
                     <filter name="group_client" string="Client" context="{'group_by': 'client_id'}"/>

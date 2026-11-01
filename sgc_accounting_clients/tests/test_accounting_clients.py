@@ -96,8 +96,11 @@ class TestSgcAccountingClients(TransactionCase):
         self.assertIn("test-client/inbox/customer_invoices", upload.storage_path)
 
     def test_bucket_catalog_and_samples(self):
-        self.assertEqual(len(BUCKETS), 9)
+        self.assertEqual(len(BUCKETS), 10)
         self.assertIn("payments", {item["code"] for item in BUCKETS})
+        coa = sample_csv("chart_of_accounts")
+        self.assertIn(b"Account Code", coa)
+        self.assertIsNone(validate_upload_format("chart_of_accounts", "coa.csv", coa)["error"])
         sample = sample_csv("vendor_bills")
         self.assertTrue(sample.startswith(b"\xef\xbb\xbf"))
         self.assertIn(b"Bill Number", sample)
