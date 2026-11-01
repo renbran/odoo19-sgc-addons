@@ -93,6 +93,9 @@ class FakeDatabase:
         return [call for call in self.calls if call[4] == "create"]
 
 
+OWNER = "owner@client.test"
+
+
 @tagged("post_install", "-at_install")
 class TestSgcAccountingBooking(TransactionCase):
     @classmethod
@@ -109,6 +112,11 @@ class TestSgcAccountingBooking(TransactionCase):
                 "api_user_id": 12,
             }
         )
+        # The client's portal user, verified in client_db by the link script.
+        cls.owner = cls.env["res.users"].create(
+            {"name": "Booking Owner", "login": OWNER, "partner_id": partner.id}
+        )
+        cls.client.link_owner_login = OWNER
         cls.company = cls.env["sgc.accounting.company"].create(
             {
                 "client_id": cls.client.id,
@@ -276,7 +284,7 @@ class TestSgcAccountingBooking(TransactionCase):
         self.assertEqual(upload.booking_state, "waiting")
         self.assertEqual(self._events(upload), ["uploaded", "waiting"])
         self.assertFalse(upload.target_base_url)
-        self.client.base_url = "https://client.test"
+        self.client.write({"base_url": "https://client.test", "link_owner_login": OWNER})
         self._book()
         self.assertEqual(upload.target_base_url, "https://client.test")
         self.assertEqual(upload.booking_state, "done")
@@ -284,7 +292,7 @@ class TestSgcAccountingBooking(TransactionCase):
 
     def test_snapshot_does_not_follow_a_relinked_client(self):
         upload = self._upload("customer_invoices", INVOICES)
-        self.client.db_name = "other_db"
+        self.client.write({"db_name": "other_db", "link_owner_login": OWNER})
         self._write_key(SGC_AGENT_DB="other_db")
         upload._snapshot_target()
         self.assertEqual(upload.target_db, "client_db")
@@ -296,7 +304,7 @@ class TestSgcAccountingBooking(TransactionCase):
     def test_connection_needs_https_and_its_own_key_file(self):
         self.client.base_url = "http://client.test"
         self.assertIn("https", self.client._booking_connection()[1])
-        self.client.base_url = "https://client.test"
+        self.client.write({"base_url": "https://client.test", "link_owner_login": OWNER})
         self.client.client_code = "other-client"
         conn, error = self.client._booking_connection()
         self.assertIsNone(conn)
@@ -547,3 +555,52 @@ class TestSgcAccountingBooking(TransactionCase):
         upload._assign_agent_review(True)
         self.assertEqual(len(upload.activity_ids), 1)
         self.assertEqual(upload.activity_ids.user_id, manager)
+
+    def test_link_changed_by_hand_is_not_verified(self):
+        # Retyping the database clears the verified owner: nothing is sent.
+        self.client.db_name = "client_db"
+        self.assertFalse(self.client.link_owner_login)
+        upload = self._upload("customer_invoices", INVOICES)
+        self._book()
+        self.assertFalse(self.db.calls)
+        self.assertEqual(upload.booking_state, "waiting")
+        self.assertIn("not verified", upload.log_ids.sorted("id")[-1].message)
+
+    def test_owner_who_left_the_client_stops_booking(self):
+        self.owner.login = "someone-else@client.test"
+        upload = self._upload("customer_invoices", INVOICES)
+        self._book()
+        self.assertFalse(self.db.calls)
+        self.assertEqual(upload.booking_state, "waiting")
+
+    def test_dates_follow_the_files_order(self):
+        month_first = VENDOR_BILLS.replace("2026-10-20", "4/2/2026").replace(
+            "2026-11-19", "4/21/2026"
+        )
+        self._upload("vendor_bills", month_first)
+        self._book()
+        created = [call[5][0] for call in self.db.created()]
+        self.assertEqual(
+            [(v["invoice_date"], v["invoice_date_due"]) for v in created],
+            [("2026-04-02", "2026-04-21")] * 2,
+        )
+
+    def test_day_first_dates(self):
+        self._upload("vendor_bills", VENDOR_BILLS.replace("2026-10-20", "21.04.2026"))
+        self._book()
+        created = [call[5][0] for call in self.db.created()]
+        self.assertEqual({v["invoice_date"] for v in created}, {"2026-04-21"})
+
+    def test_dates_that_fit_both_orders_are_refused(self):
+        for bill_date, due_date, words in (
+            ("4/2/2026", "4/3/2026", "can be read as day/month or month/day"),
+            ("4/21/2026", "21/4/2026", "mixes day-first"),
+        ):
+            upload = self._upload(
+                "vendor_bills",
+                VENDOR_BILLS.replace("2026-10-20", bill_date).replace("2026-11-19", due_date),
+            )
+            self._book()
+            self.assertEqual(upload.booking_state, "failed")
+            self.assertIn(words, upload.log_ids.sorted("id")[-1].message)
+        self.assertFalse(self.db.created())

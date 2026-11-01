@@ -136,6 +136,16 @@ class SgcAccountingClient(models.Model):
         "Its API key goes in /mnt/extra-addons/.secrets/acc-<client code>.env "
         "as the line SGC_AGENT_API_KEY=<key>, never in the database.",
     )
+    link_owner_login = fields.Char(
+        string="Verified Owner",
+        readonly=True,
+        copy=False,
+        tracking=True,
+        help="Portal login of this client that scripts/link_accounting_client.sh "
+        "found as an internal user of the client database, with access to the "
+        "linked companies. Drafts are booked only while it is still one of the "
+        "client's portal logins; changing the database link by hand clears it.",
+    )
     base_url = fields.Char(
         string="Workspace URL",
         help="Public URL of the client workspace, for example https://demo.sgctech.ai.",
@@ -204,6 +214,22 @@ class SgcAccountingClient(models.Model):
         "unique(client_code)",
         "An accounting workspace already uses this client code.",
     )
+
+    def write(self, vals):
+        # A link changed by hand is not verified: only the link script, which
+        # checks the owner in the client database, writes the owner with it.
+        if "link_owner_login" not in vals and {"base_url", "db_name", "api_user_id"} & set(vals):
+            vals = dict(vals, link_owner_login=False)
+        return super().write(vals)
+
+    def _owner_logins(self):
+        """Lowercased logins of the client's portal users (the users of its
+        commercial partner): the people whose database this client books into."""
+        self.ensure_one()
+        users = self.env["res.users"].sudo().search(
+            [("partner_id.commercial_partner_id", "=", self.partner_id.commercial_partner_id.id)]
+        )
+        return {login.lower() for login in users.mapped("login") if login}
 
     @api.depends("base_url")
     def _compute_workspace_url(self):
@@ -344,6 +370,13 @@ class SgcAccountingClient(models.Model):
             )
         if not self.workspace_url.startswith("https://"):
             return None, _("The workspace URL must use https.")
+        # Never book into a database that was not verified as this client's own.
+        if not self.link_owner_login or self.link_owner_login not in self._owner_logins():
+            return None, _(
+                "The client database was not verified as this client's own (its "
+                "portal user must be a user there); link it with "
+                "scripts/link_accounting_client.sh."
+            )
         # The key file is bound to the client code (validated: [a-z0-9-]), so
         # one client's settings can never send another client's key.
         path = os.path.join(SECRETS_DIR, "acc-%s.env" % self.client_code)

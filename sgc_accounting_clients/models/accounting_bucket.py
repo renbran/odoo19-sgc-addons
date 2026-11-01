@@ -52,7 +52,7 @@ BUCKETS = (
         ),
         "notes": (
             "Use one row per invoice line; repeat Invoice Number for multiple lines.",
-            "Dates must be YYYY-MM-DD; amounts use a dot decimal separator.",
+            "Dates as YYYY-MM-DD are safest; 21/04/2026 or 4/21/2026 also work when a day above 12 shows the order. Amounts use a dot decimal separator.",
         ),
     },
     {

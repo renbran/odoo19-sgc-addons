@@ -3,6 +3,7 @@ import base64
 import datetime
 import hashlib
 import logging
+import re
 import xmlrpc.client
 
 from psycopg2.errors import LockNotAvailable, SerializationFailure
@@ -56,6 +57,10 @@ def _number(raw, default=0.0):
         return float(raw.replace(",", ""))
     except ValueError:
         raise ValueError(_("%(value)r is not a number", value=raw)) from None
+
+
+DATE_LABELS = ("Invoice Date", "Bill Date", "Credit Note Date", "Due Date", "Payment Date")
+DMY_DATE = re.compile(r"^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$")
 
 
 def _date(raw):
@@ -638,6 +643,10 @@ class SgcAccountingUpload(models.Model):
             return cache[key]
 
         headers = source["headers"]
+        try:
+            self._iso_dates(headers, source["rows"])
+        except ValueError as exc:
+            return self._finish("failed", str(exc))
         # Every document gets a reference so a retry never books it twice; a
         # row without one gets a key from its content (see _row_key).
         seen = {}
@@ -772,6 +781,48 @@ class SgcAccountingUpload(models.Model):
         if mine and theirs and round(float(mine), 2) != round(float(theirs), 2):
             reasons.append(_("is for %(amount)s", amount=theirs))
         return _(" and ").join(reasons)
+
+    def _iso_dates(self, headers, rows):
+        """Rewrite day/month/year dates (4/21/2026, 21.04.2026) in the date
+        columns as YYYY-MM-DD, in place.
+
+        Spreadsheets write dates in the order of the computer's locale, so the
+        order is read from the file: a first part above 12 means day first, a
+        second part above 12 means month first. A file that fits both orders,
+        or neither, is refused rather than guessed: a wrong date in the books
+        is worse than none.
+        """
+        columns = {find_column(headers, label) for label in DATE_LABELS} - {None}
+        found = []
+        for row in rows:
+            for column in columns:
+                match = DMY_DATE.match((row.get(column) or "").strip())
+                if match:
+                    found.append((row, column, match))
+        if not found:
+            return
+        day_first = [m[0] for _r, _c, m in found if int(m[1]) > 12]
+        month_first = [m[0] for _r, _c, m in found if int(m[2]) > 12]
+        if day_first and month_first:
+            raise ValueError(_(
+                "This file mixes day-first dates (%(day)s) and month-first dates "
+                "(%(month)s); nothing was created. Write the dates as YYYY-MM-DD "
+                "and upload it again.",
+                day=day_first[0], month=month_first[0],
+            ))
+        if not (day_first or month_first):
+            raise ValueError(_(
+                "Dates such as %(date)s can be read as day/month or month/day, and "
+                "no date in this file settles it; nothing was created. Write the "
+                "dates as YYYY-MM-DD and upload it again.",
+                date=found[0][2][0],
+            ))
+        for row, column, match in found:
+            day, month = (match[1], match[2]) if day_first else (match[2], match[1])
+            try:
+                row[column] = datetime.date(int(match[3]), int(month), int(day)).isoformat()
+            except ValueError:
+                pass  # not a real date (2/30/2026): reported with the document
 
     def _row_key(self, row, seen):
         """Reference for a row without one: the same row gets the same key in
