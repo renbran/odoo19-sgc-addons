@@ -1166,6 +1166,15 @@ class SgcAccountingAgentRun(models.Model):
             "lines": merged_lines,
             "errors": [],
         }
+        if total_batches > 1:
+            # Each reply describes only its own batch, and the last one would win.
+            # Restate the file-level figures from the source file itself.
+            extraction.pop("batch_info", None)
+            extraction["row_count"] = merged_lines
+            if merged["total"] is not None:
+                extraction["total_amount"] = merged["total"]
+                if "total" in extraction:
+                    extraction["total"] = merged["total"]
         state = result.get("state") or "completed"
         state = str(state).strip().lower()
         if state not in ("completed", "failed"):

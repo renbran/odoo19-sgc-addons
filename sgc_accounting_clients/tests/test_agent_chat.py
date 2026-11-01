@@ -125,6 +125,36 @@ class TestSgcAccountingAgentChat(TransactionCase):
         self.assertIn("Example Customer LLC", request["json"]["prompt"])
         self.assertIn("3150.0", request["json"]["prompt"])
 
+    def test_multi_batch_summary_covers_the_whole_file(self):
+        """61 rows go out as 25 + 25 + 11; the stored summary must describe all 61."""
+        self._enable_chat()
+        header = CSV_INVOICE.splitlines()[0]
+        rows = [
+            "INV-%04d,2026-10-20,Example Customer LLC,AED,Service,1,100,5,5,105,2026-11-19" % n
+            for n in range(61)
+        ]
+        upload = self._upload()
+        upload.file = base64.b64encode(("\n".join([header] + rows) + "\n").encode("utf-8"))
+
+        # Every batch reply reports only its own 25 rows, like the live agent did.
+        reply = FakeResponse({"reply": json.dumps({
+            "state": "completed", "matches": [], "error": "",
+            "extraction": {"row_count": 25, "batch_info": "batch 2 of 3",
+                           "total_amount": 2625.0, "currency": "AED"},
+        })})
+
+        with patch("requests.post", return_value=reply) as post:
+            upload.action_queue_agent()
+            run = upload.agent_run_ids
+            run.action_dispatch()
+        run.invalidate_recordset()
+        self.assertEqual(post.call_count, 3)
+        self.assertEqual(run.state, "completed")
+        self.assertEqual(run.extraction["row_count"], 61)
+        self.assertEqual(run.extraction["total_amount"], 6405.0)  # 61 x 105, from the file
+        self.assertNotIn("batch_info", run.extraction)
+        self.assertEqual(run.extraction["currency"], "AED")
+
     def test_chat_transport_flags_review_when_trn_is_missing(self):
         self._enable_chat()
         reply = {
