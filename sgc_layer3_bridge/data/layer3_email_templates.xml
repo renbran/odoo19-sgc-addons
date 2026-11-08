@@ -7,18 +7,74 @@
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Your SGC trial ends in 3 days</field>
             <field name="email_from">hello@sgctech.ai</field>
-            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="email_to"><t t-out="object.l3_admin_email"/></field>
             <field name="body_html"><![CDATA[
-<div>
-    <p>Hello {{ object.l3_admin_name }},</p>
-    <p>Your 14-day trial of SGC Real Estate Operating System ends on
-       <strong>{{ object.l3_trial_ends_at }}</strong>. On that day, your saved card will be
-       charged the next billing period according to your Order Form.</p>
-    <p>If your card fails on the renewal day, your workspace will be
-       <strong>immediately locked</strong> (no grace period, per your Order Form). To avoid
-       this, please ensure your card details are up to date before the renewal date.</p>
-    <p>If you have questions, reply to this email.</p>
-    <p>— SGC TECH AI</p>
+<div style="margin:0; padding:0; background-color:#eef2f6; font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">Trial reminder</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f6; padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:640px; background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 4px 18px rgba(0,61,92,0.10);">
+          <tr>
+            <td style="background-color:#003D5C; padding:26px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="color:#ffffff; font-size:22px; font-weight:700; letter-spacing:2px;">SGC <span style="font-weight:400; letter-spacing:1px;">TECH AI</span></td>
+                  <td align="right" style="color:#ffffff; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.85;">Real Estate OS</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr><td style="height:4px; background-color:#C9A227; font-size:0; line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:36px 32px 28px 32px;">
+              <p style="margin:0 0 10px 0; color:#C9A227; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">Trial reminder</p>
+              <h1 style="margin:0 0 22px 0; color:#003D5C; font-size:26px; line-height:1.25; font-weight:700;">Your SGC trial ends in 3 days</h1>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Hello <strong><t t-out="object.l3_admin_name or object.partner_id.name"/></strong>,</p>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Your 14-day trial of <strong>SGC Real Estate Operating System</strong> is coming to an end. On the date below, your saved card will be charged for the next billing period according to your Order Form.</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0; background-color:#f8fafc; border:1px solid #e5e7eb; border-left:4px solid #C9A227; border-radius:4px;">
+                <tr><td style="padding:18px 20px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 10px 0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Trial ends</td>
+                      <td style="color:#003D5C; font-size:14px; font-weight:700; padding:3px 0;"><t t-out="object.l3_trial_ends_at"/></td>
+                    </tr>
+                  </table>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Workspace</td>
+                      <td style="color:#003D5C; font-size:14px; font-weight:700; padding:3px 0;"><t t-out="object.l3_tenant_url"/></td>
+                    </tr>
+                  </table>
+                </td></tr>
+              </table>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">If your card fails on the renewal day, your workspace will be <strong>immediately locked</strong> (no grace period, per your Order Form). Please ensure your card details are up to date before the renewal date.</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 8px 0;">
+                <tr><td style="background-color:#003D5C; border-radius:4px;">
+                  <a t-attf-href="/my/layer3/{{ object.id }}" style="display:inline-block; padding:13px 26px; color:#ffffff; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:0.4px;">Manage billing</a>
+                </td></tr>
+              </table>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">If you have any questions, simply reply to this email and our team will assist you.</p>
+              <p style="margin:30px 0 0 0; color:#1f2937; font-size:15px; line-height:1.6;">Regards,</p>
+              <p style="margin:4px 0 0 0; color:#003D5C; font-size:15px; line-height:1.6; font-weight:700;">SGC TECH AI</p>
+              <p style="margin:2px 0 0 0; color:#6b7280; font-size:13px;">hello@sgctech.ai</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 30px 32px;">
+              <div style="border-top:1px solid #e5e7eb; padding-top:18px; color:#6b7280; font-size:11px; line-height:1.6;">You are receiving this email because you have an active SGC Real Estate OS trial.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#003D5C; padding:18px 32px; color:#cbd5e1; font-size:10px; line-height:1.6; text-align:center;">
+              SGC Tech AI (Scholarix Global Consultant FZE) &middot; Dubai, United Arab Emirates<br/>
+              This email was sent to <t t-out="object.l3_admin_email"/>.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </div>
             ]]></field>
         </record>
@@ -29,15 +85,73 @@
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Welcome to SGC Real Estate OS</field>
             <field name="email_from">hello@sgctech.ai</field>
-            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="email_to"><t t-out="object.l3_admin_email"/></field>
             <field name="body_html"><![CDATA[
-<div>
-    <p>Hello {{ object.l3_admin_name }},</p>
-    <p>Your 14-day trial has converted to a paid subscription. Your workspace is fully
-       active.</p>
-    <p>Tenant URL: <a href="{{ object.l3_tenant_url }}">{{ object.l3_tenant_url }}</a></p>
-    <p>Manage billing: <a href="/my/layer3/{{ object.id }}">/my/layer3/{{ object.id }}</a></p>
-    <p>— SGC TECH AI</p>
+<div style="margin:0; padding:0; background-color:#eef2f6; font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">Subscription active</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f6; padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:640px; background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 4px 18px rgba(0,61,92,0.10);">
+          <tr>
+            <td style="background-color:#003D5C; padding:26px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="color:#ffffff; font-size:22px; font-weight:700; letter-spacing:2px;">SGC <span style="font-weight:400; letter-spacing:1px;">TECH AI</span></td>
+                  <td align="right" style="color:#ffffff; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.85;">Real Estate OS</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr><td style="height:4px; background-color:#C9A227; font-size:0; line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:36px 32px 28px 32px;">
+              <p style="margin:0 0 10px 0; color:#C9A227; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">Subscription active</p>
+              <h1 style="margin:0 0 22px 0; color:#003D5C; font-size:26px; line-height:1.25; font-weight:700;">Welcome to SGC Real Estate OS</h1>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Hello <strong><t t-out="object.l3_admin_name or object.partner_id.name"/></strong>,</p>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Your 14-day trial has successfully converted to a paid subscription. Your workspace is now fully active and ready to use.</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0; background-color:#f8fafc; border:1px solid #e5e7eb; border-left:4px solid #C9A227; border-radius:4px;">
+                <tr><td style="padding:18px 20px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 10px 0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Tenant URL</td>
+                      <td style="color:#003D5C; font-size:14px; font-weight:700; padding:3px 0;"><a t-att-href="object.l3_tenant_url" style="color:#003D5C; text-decoration:none;"><t t-out="object.l3_tenant_url"/></a></td>
+                    </tr>
+                  </table>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Billing</td>
+                      <td style="color:#003D5C; font-size:14px; font-weight:700; padding:3px 0;"><a t-attf-href="/my/layer3/{{ object.id }}" style="color:#003D5C; text-decoration:none;">View billing details</a></td>
+                    </tr>
+                  </table>
+                </td></tr>
+              </table>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Thank you for choosing SGC Tech AI. We are delighted to continue supporting your business.</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 8px 0;">
+                <tr><td style="background-color:#003D5C; border-radius:4px;">
+                  <a t-att-href="object.l3_tenant_url" style="display:inline-block; padding:13px 26px; color:#ffffff; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:0.4px;">Open your workspace</a>
+                </td></tr>
+              </table>
+              <p style="margin:30px 0 0 0; color:#1f2937; font-size:15px; line-height:1.6;">Regards,</p>
+              <p style="margin:4px 0 0 0; color:#003D5C; font-size:15px; line-height:1.6; font-weight:700;">SGC TECH AI</p>
+              <p style="margin:2px 0 0 0; color:#6b7280; font-size:13px;">hello@sgctech.ai</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 30px 32px;">
+              <div style="border-top:1px solid #e5e7eb; padding-top:18px; color:#6b7280; font-size:11px; line-height:1.6;">You are receiving this email because your SGC Real Estate OS trial converted to a paid subscription.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#003D5C; padding:18px 32px; color:#cbd5e1; font-size:10px; line-height:1.6; text-align:center;">
+              SGC Tech AI (Scholarix Global Consultant FZE) &middot; Dubai, United Arab Emirates<br/>
+              This email was sent to <t t-out="object.l3_admin_email"/>.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </div>
             ]]></field>
         </record>
@@ -49,16 +163,73 @@
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Your SGC trial has ended and your card was declined</field>
             <field name="email_from">hello@sgctech.ai</field>
-            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="email_to"><t t-out="object.l3_admin_email"/></field>
             <field name="body_html"><![CDATA[
-<div>
-    <p>Hello {{ object.l3_admin_name }},</p>
-    <p>Your 14-day trial ended today and the renewal charge to your saved card failed.
-       Your workspace has been <strong>immediately locked</strong> (no grace period for
-       trial renewals, per your Order Form).</p>
-    <p>To restore your workspace, please reply to this email. We will help you update
-       your payment method and reactivate your tenant.</p>
-    <p>— SGC TECH AI</p>
+<div style="margin:0; padding:0; background-color:#eef2f6; font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none; max-height:0; overflow:hidden; opacity:0; color:transparent;">Action required</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#eef2f6; padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:640px; background-color:#ffffff; border-radius:8px; overflow:hidden; box-shadow:0 4px 18px rgba(0,61,92,0.10);">
+          <tr>
+            <td style="background-color:#991b1b; padding:26px 32px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="color:#ffffff; font-size:22px; font-weight:700; letter-spacing:2px;">SGC <span style="font-weight:400; letter-spacing:1px;">TECH AI</span></td>
+                  <td align="right" style="color:#ffffff; font-size:11px; letter-spacing:1.5px; text-transform:uppercase; opacity:0.85;">Real Estate OS</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr><td style="height:4px; background-color:#C9A227; font-size:0; line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="padding:36px 32px 28px 32px;">
+              <p style="margin:0 0 10px 0; color:#C9A227; font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;">Action required</p>
+              <h1 style="margin:0 0 22px 0; color:#991b1b; font-size:26px; line-height:1.25; font-weight:700;">Your SGC trial has ended and your card was declined</h1>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Hello <strong><t t-out="object.l3_admin_name or object.partner_id.name"/></strong>,</p>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">Your 14-day trial ended today and the renewal charge to your saved card failed. As a result, your workspace has been <strong>immediately locked</strong> (no grace period for trial renewals, per your Order Form).</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0; background-color:#f8fafc; border:1px solid #e5e7eb; border-left:4px solid #C9A227; border-radius:4px;">
+                <tr><td style="padding:18px 20px;">
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 10px 0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Workspace status</td>
+                      <td style="color:#991b1b; font-size:14px; font-weight:700; padding:3px 0;">Locked</td>
+                    </tr>
+                  </table>
+                  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;">
+                    <tr>
+                      <td width="150" style="color:#6b7280; font-size:12px; text-transform:uppercase; letter-spacing:0.6px; padding:3px 0;">Reason</td>
+                      <td style="color:#003D5C; font-size:14px; font-weight:700; padding:3px 0;">Renewal payment declined</td>
+                    </tr>
+                  </table>
+                </td></tr>
+              </table>
+              <p style="margin:0 0 16px 0; color:#1f2937; font-size:15px; line-height:1.65;">To restore your workspace, please reply to this email. Our team will help you update your payment method and reactivate your tenant as quickly as possible.</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:26px 0 8px 0;">
+                <tr><td style="background-color:#991b1b; border-radius:4px;">
+                  <a href="mailto:hello@sgctech.ai?subject=Reactivate%20my%20SGC%20workspace" style="display:inline-block; padding:13px 26px; color:#ffffff; font-size:14px; font-weight:700; text-decoration:none; letter-spacing:0.4px;">Contact support</a>
+                </td></tr>
+              </table>
+              <p style="margin:30px 0 0 0; color:#1f2937; font-size:15px; line-height:1.6;">Regards,</p>
+              <p style="margin:4px 0 0 0; color:#003D5C; font-size:15px; line-height:1.6; font-weight:700;">SGC TECH AI</p>
+              <p style="margin:2px 0 0 0; color:#6b7280; font-size:13px;">hello@sgctech.ai</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px 30px 32px;">
+              <div style="border-top:1px solid #e5e7eb; padding-top:18px; color:#6b7280; font-size:11px; line-height:1.6;">You are receiving this email because the renewal payment for your SGC Real Estate OS workspace was declined.</div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color:#003D5C; padding:18px 32px; color:#cbd5e1; font-size:10px; line-height:1.6; text-align:center;">
+              SGC Tech AI (Scholarix Global Consultant FZE) &middot; Dubai, United Arab Emirates<br/>
+              This email was sent to <t t-out="object.l3_admin_email"/>.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </div>
             ]]></field>
         </record>
