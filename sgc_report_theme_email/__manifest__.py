@@ -1,6 +1,6 @@
 {
     "name": "SGC Report Theme - Customer Email Templates",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.1.0",
     "category": "Reporting",
     "summary": "Re-styles the customer-facing quotation/proforma/invoice/receipt "
                "emails onto the SGC TECH AI brand, matching the existing "

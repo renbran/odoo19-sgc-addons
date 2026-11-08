@@ -20,7 +20,7 @@ Odoo side of the SGC Layer 3 (Rent - Subscription Layer) signup and billing flow
   as one posted, paid Odoo customer invoice (``sgc.stripe.invoice`` is the idempotency
   key on the Stripe invoice id).
 """,
-    "version": "19.0.1.5.0",
+    "version": "19.0.1.6.0",
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",

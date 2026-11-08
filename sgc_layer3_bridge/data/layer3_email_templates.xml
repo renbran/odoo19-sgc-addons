@@ -6,7 +6,7 @@
             <field name="name">Layer 3: trial reminder (T-3 days)</field>
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Your SGC trial ends in 3 days</field>
-            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_from">SGC TECH AI &lt;hello@sgctech.ai&gt;</field>
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html" type="html">
 <t t-set="doc_subtitle" t-value="'Trial Reminder'"/>
@@ -29,7 +29,7 @@
             <field name="name">Layer 3: trial charged (welcome)</field>
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Welcome to SGC Real Estate OS</field>
-            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_from">SGC TECH AI &lt;hello@sgctech.ai&gt;</field>
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html" type="html">
 <t t-set="doc_subtitle" t-value="'Welcome'"/>
@@ -52,7 +52,7 @@
             <field name="name">Layer 3: trial locked (card declined)</field>
             <field name="model_id" ref="model_sale_order"/>
             <field name="subject">Your SGC trial has ended and your card was declined</field>
-            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_from">SGC TECH AI &lt;hello@sgctech.ai&gt;</field>
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html" type="html">
 <t t-set="doc_subtitle" t-value="'Action Required'"/>
