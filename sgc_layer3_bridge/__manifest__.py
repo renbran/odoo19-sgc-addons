@@ -31,6 +31,7 @@ Odoo side of the SGC Layer 3 (Rent - Subscription Layer) signup and billing flow
         "payment",
         "portal",
         "sttl_sale_subscription",
+        "sgc_report_theme_core",
     ],
     "data": [
         "security/layer3_security.xml",

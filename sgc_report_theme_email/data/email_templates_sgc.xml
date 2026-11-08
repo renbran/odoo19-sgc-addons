@@ -179,4 +179,90 @@
         </field>
     </record>
 
+    <record id="account.email_template_edi_credit_note" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Credit Note'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">Your credit note is ready</h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Dear <t t-if="object.partner_id.parent_id"><t t-if="object.partner_id.name"><t t-out="object.partner_id.name or ''"/> (<t t-out="object.partner_id.parent_id.name or ''"/>),</t><t t-else=""><t t-out="object.partner_id.parent_id.name or ''"/>,</t></t><t t-else=""><t t-out="object.partner_id.name or ''"/>,</t></p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Here is your credit note <strong t-out="object.name or ''"/><t t-if="object.invoice_origin"> (with reference: <t t-out="object.invoice_origin or ''"/>)</t> amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''"/> from <t t-out="object.company_id.name or ''"/>.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Credit note</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.name or ''"/></td></tr><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Reference</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.invoice_origin or '—'"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Amount</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="format_amount(object.amount_total, object.currency_id) or ''"/></td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 6px 0;"><tr><td align="center" style="padding:6px 0;"><a t-att-href="object.get_portal_url()" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">View credit note</a></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+<t t-if="not is_html_empty(object.invoice_user_id.signature)" data-o-mail-quote-container="1"><div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.invoice_user_id.signature or ''" data-o-mail-quote="1">SGC TECH AI</t></div></t>
+</t>
+        </field>
+    </record>
+    <record id="sale.mail_template_sale_confirmation" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Order Confirmation'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;"><t t-if="object.state == 'sale' or (tx_sudo and tx_sudo.state in ('done', 'authorized'))">Your order is confirmed</t><t t-elif="tx_sudo and tx_sudo.state == 'pending'">Your order is pending</t><t t-else="">Your order</t></h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Hello,</p>
+<t t-set="tx_sudo" t-value="object.get_portal_last_transaction()"/>
+<p style="margin:0 0 18px 0; color:#1C2430;">Your order <strong t-out="object.name or ''"/> amounting in <strong t-out="format_amount(object.amount_total, object.currency_id) or ''"/><t t-if="object.state == 'sale' or (tx_sudo and tx_sudo.state in ('done', 'authorized'))"> has been confirmed. Thank you for your trust!</t><t t-elif="tx_sudo and tx_sudo.state == 'pending'"> is pending. It will be confirmed when the payment is received.<t t-if="object.reference"> Your payment reference is <strong t-out="object.reference or ''"/>.</t></t></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Order</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.name or ''"/></td></tr><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Amount</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="format_amount(object.amount_total, object.currency_id) or ''"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Status</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-if="object.state == 'sale' or (tx_sudo and tx_sudo.state in ('done', 'authorized'))">Confirmed</t><t t-elif="tx_sudo and tx_sudo.state == 'pending'">Pending payment</t><t t-else="">Processing</t></td></tr></table>
+<t t-if="object.order_line">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0; border-collapse:collapse;">
+  <tr>
+    <td style="padding:8px 0; border-bottom:1px solid #ECE7DF; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Item</td>
+    <td align="center" style="padding:8px 0; border-bottom:1px solid #ECE7DF; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Qty</td>
+    <td align="right" style="padding:8px 0; border-bottom:1px solid #ECE7DF; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Amount</td>
+  </tr>
+  <t t-foreach="object.order_line" t-as="line">
+    <tr t-if="line.display_type in (False, 'product')">
+      <td style="padding:10px 0; border-bottom:1px solid #F0EBE3; color:#1C2430; font-size:13px;"><t t-out="line.name or ''"/></td>
+      <td align="center" style="padding:10px 0; border-bottom:1px solid #F0EBE3; color:#1C2430; font-size:13px;"><t t-out="line.product_uom_qty"/></td>
+      <td align="right" style="padding:10px 0; border-bottom:1px solid #F0EBE3; color:#1C2430; font-size:13px;"><t t-out="format_amount(line.price_total, object.currency_id) or ''"/></td>
+    </tr>
+  </t>
+</table>
+</t>
+<t t-set="documents" t-value="object._get_product_documents()"/>
+<t t-if="documents">
+<div style="font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B79554; margin:24px 0 10px 0;"><t t-if="len(documents) &gt; 1">Additional Documents</t><t t-else="">Additional Document</t></div>
+<ul style="margin:0 0 20px 0; padding-left:18px; color:#1C2430;"><t t-foreach="documents" t-as="document"><li style="font-size:13px; margin-bottom:4px;"><a t-out="document.ir_attachment_id.name" t-att-href="object.get_portal_url('/document/' + str(document.id))" t-att-target="target" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"/></li></t></ul>
+</t>
+<p style="margin:0 0 18px 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+<t t-if="not is_html_empty(object.user_id.signature)" data-o-mail-quote-container="1"><div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.user_id.signature or ''" data-o-mail-quote="1">SGC TECH AI</t></div></t>
+</t>
+        </field>
+    </record>
+    <record id="sale.mail_template_sale_payment_executed" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Payment Confirmation'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;"><t t-if="transaction_sudo and transaction_sudo.state == 'pending'">Payment pending</t><t t-else="">Payment received</t></h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Hello,</p>
+<t t-set="transaction_sudo" t-value="object.get_portal_last_transaction()"/>
+<p style="margin:0 0 18px 0; color:#1C2430;">A payment with reference <strong t-out="transaction_sudo.reference or ''"/> amounting <strong t-out="format_amount(transaction_sudo.amount, object.currency_id) or ''"/> for your order <strong t-out="object.name or ''"/><t t-if="transaction_sudo and transaction_sudo.state == 'pending'"> is pending.<t t-if="object.currency_id.compare_amounts(object.amount_paid + transaction_sudo.amount, object.amount_total) &gt;= 0 and object.state in ('draft', 'sent')"> Your order will be confirmed once the payment is confirmed.</t><t t-else=""> Once confirmed, <strong t-out="format_amount(object.amount_total - object.amount_paid - transaction_sudo.amount, object.currency_id) or ''"/> will remain to be paid.</t></t><t t-else=""> has been confirmed.<t t-if="object.currency_id.compare_amounts(object.amount_paid, object.amount_total) &lt; 0"> <strong t-out="format_amount(object.amount_total - object.amount_paid, object.currency_id) or ''"/> remains to be paid.</t></t></p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Order</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.name or ''"/></td></tr><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Payment reference</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="transaction_sudo.reference or ''"/></td></tr><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Amount</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="format_amount(transaction_sudo.amount, object.currency_id) or ''"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Status</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-if="transaction_sudo and transaction_sudo.state == 'pending'">Pending</t><t t-else="">Confirmed</t></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">Thank you for your trust!</p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Do not hesitate to contact us if you have any questions.</p>
+<t t-if="not is_html_empty(object.user_id.signature)" data-o-mail-quote-container="1"><div data-o-mail-quote="1" style="margin-top:16px; color:#5F6775;">--<br data-o-mail-quote="1"/><t t-out="object.user_id.signature or ''" data-o-mail-quote="1">SGC TECH AI</t></div></t>
+</t>
+        </field>
+    </record>
+    <record id="sttl_sale_subscription.sale_subscription_notification_template" model="mail.template">
+        <field name="email_layout_xmlid"></field>
+        <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Subscription Renewal'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">Your subscription renews soon</h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&#160;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Dear <strong t-out="object.partner_id.name or ''">Customer</strong>,</p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Your subscription for <strong><t t-foreach="object.order_line" t-as="line"><t t-out="line.product_id.name or ''"/><t t-if="not line_last">, </t></t></strong> is set to renew automatically <t t-if="object.next_invoice_date">on <strong t-out="object.next_invoice_date"/></t><t t-else="">on your next billing date</t>. A new invoice will be generated for the renewal.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Customer</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.partner_id.name or ''"/></td></tr><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Next renewal</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.next_invoice_date or 'To be scheduled'"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Reference</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.name or ''"/></td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 6px 0;"><tr><td align="center" style="padding:6px 0;"><a t-att-href="object.get_portal_url()" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">View subscription</a></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">If you have any questions or need assistance, please contact us at <a t-att-href="'mailto:%s' % (object.company_id.email or '')" t-out="object.company_id.email or ''" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"/>.</p>
+<p style="margin:22px 0 0 0; color:#1C2430;">Warm regards,<br/><strong style="color:#0F213D;">SGC TECH AI</strong></p>
+</t>
+        </field>
+    </record>
 </odoo>

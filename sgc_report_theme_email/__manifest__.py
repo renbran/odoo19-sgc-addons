@@ -9,15 +9,20 @@
 SGC Report Theme - Customer Email Templates
 ==============================================
 
-Re-points 4 stock mail.template records (re-declared here by their exact
+Re-points 8 stock mail.template records (re-declared here by their exact
 fully-qualified XML ID, a standard Odoo customization pattern - Odoo
 updates the existing record rather than creating a duplicate) onto the
 SGC TECH AI brand email design:
 
 - sale.email_template_edi_sale (Sales: Send Quotation)
 - sale.email_template_proforma (Sales: Send Proforma)
+- sale.mail_template_sale_confirmation (Sales: Order Confirmation)
+- sale.mail_template_sale_payment_executed (Sales: Payment Done)
 - account.email_template_edi_invoice (Invoice: Sending)
+- account.email_template_edi_credit_note (Credit Note: Sending)
 - account.mail_template_data_payment_receipt (Payment: Payment Receipt)
+- sttl_sale_subscription.sale_subscription_notification_template
+  (Sale Subscription Renewal Notification)
 
 Every t-if/t-out business-logic expression from each stock template's
 original body_html is preserved exactly (doc_name branching, origin
@@ -47,7 +52,7 @@ Uninstalling this module reverts all 4 templates to their stock body/layout.
     "author": "SGC TECH AI",
     "website": "https://sgctech.ai",
     "license": "LGPL-3",
-    "depends": ["sgc_report_theme_core", "sale", "account"],
+    "depends": ["sgc_report_theme_core", "sale", "account", "sttl_sale_subscription"],
     "data": [
         "data/email_templates_sgc.xml",
     ],

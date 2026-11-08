@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- T-3 reminder: trial ends in 3 days, card will be charged automatically. -->
+        <record id="mail_template_l3_trial_reminder_t3" model="mail.template">
+            <field name="name">Layer 3: trial reminder (T-3 days)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Your SGC trial ends in 3 days</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Trial Reminder'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">Your SGC trial ends in 3 days</h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&nbsp;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Dear <strong t-out="object.l3_admin_name or object.partner_id.name or ''">Customer</strong>,</p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Your 14-day trial of <strong>SGC Real Estate Operating System</strong> is coming to an end. On the date below, your saved card will be charged for the next billing period according to your Order Form.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Trial ends</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><t t-out="object.l3_trial_ends_at"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Workspace</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><a t-att-href="object.l3_tenant_url" t-out="object.l3_tenant_url" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"/></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">If your card fails on the renewal day, your workspace will be <strong>immediately locked</strong> (no grace period, per your Order Form). Please ensure your card details are up to date before the renewal date.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 6px 0;"><tr><td align="center" style="padding:6px 0;"><a t-attf-href="/my/layer3/{{ object.id }}" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">Manage billing</a></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">If you have any questions, simply reply to this email and our team will assist you.</p>
+<p style="margin:22px 0 0 0; color:#1C2430;">Warm regards,<br/><strong style="color:#0F213D;">SGC TECH AI</strong></p>
+</t>
+            </field>
+        </record>
+        <!-- T-0 charge success: trial converted to active paid subscription. Sent by the
+             Stripe webhook handler when invoice.payment_succeeded arrives. -->
+        <record id="mail_template_l3_trial_charged" model="mail.template">
+            <field name="name">Layer 3: trial charged (welcome)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Welcome to SGC Real Estate OS</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Welcome'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#0F213D;">Welcome to SGC Real Estate OS</h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&nbsp;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Dear <strong t-out="object.l3_admin_name or object.partner_id.name or ''">Customer</strong>,</p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Your 14-day trial has successfully converted to a paid subscription. Your workspace is now fully active and ready to use.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Tenant URL</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><a t-att-href="object.l3_tenant_url" t-out="object.l3_tenant_url" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;"/></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Billing</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><a t-attf-href="/my/layer3/{{ object.id }}" style="color:#B79554; text-decoration:none; border-bottom:1px solid #D9C08A;">View billing details</a></td></tr></table>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 6px 0;"><tr><td align="center" style="padding:6px 0;"><a t-att-href="object.l3_tenant_url" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">Open your workspace</a></td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">Thank you for choosing SGC Tech AI. We are delighted to continue supporting your business.</p>
+<p style="margin:22px 0 0 0; color:#1C2430;">Warm regards,<br/><strong style="color:#0F213D;">SGC TECH AI</strong></p>
+</t>
+            </field>
+        </record>
+        <!-- T-0 lockout: trial card declined on day-14. Sent by the Stripe webhook handler
+             when invoice.payment_failed arrives. Per the founder decision 2026-09-30, the
+             workspace is immediately locked with no grace period. -->
+        <record id="mail_template_l3_trial_locked" model="mail.template">
+            <field name="name">Layer 3: trial locked (card declined)</field>
+            <field name="model_id" ref="model_sale_order"/>
+            <field name="subject">Your SGC trial has ended and your card was declined</field>
+            <field name="email_from">hello@sgctech.ai</field>
+            <field name="email_to">{{ object.l3_admin_email }}</field>
+            <field name="body_html" type="html">
+<t t-set="doc_subtitle" t-value="'Action Required'"/>
+<t t-call="sgc_report_theme_core.email_shell_sgc">
+<h1 style="margin:0 0 6px 0; font-family:'IBM Plex Serif', Georgia, serif; font-size:26px; font-weight:700; letter-spacing:-0.5px; color:#8B1E1E;">Your SGC trial has ended and your card was declined</h1>
+<div style="width:48px; height:1px; background-color:#B79554; font-size:0; line-height:0; margin:0 0 20px 0;">&nbsp;</div>
+<p style="margin:0 0 18px 0; color:#1C2430;">Dear <strong t-out="object.l3_admin_name or object.partner_id.name or ''">Customer</strong>,</p>
+<p style="margin:0 0 18px 0; color:#1C2430;">Your 14-day trial ended today and the renewal charge to your saved card failed. As a result, your workspace has been <strong>immediately locked</strong> (no grace period for trial renewals, per your Order Form).</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0 22px 0; border-top:1px solid #ECE7DF; border-bottom:1px solid #ECE7DF;"><tr><td style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Workspace status</td><td align="right" style="padding:12px 0 4px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;"><span style="color:#8B1E1E; font-weight:700;">Locked</span></td></tr><tr><td style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#5F6775;">Reason</td><td align="right" style="padding:0 0 12px 0; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:13px; color:#0F213D;">Renewal payment declined</td></tr></table>
+<p style="margin:0 0 18px 0; color:#1C2430;">To restore your workspace, please reply to this email. Our team will help you update your payment method and reactivate your tenant as quickly as possible.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 6px 0;"><tr><td align="center" style="padding:6px 0;"><a href="mailto:hello@sgctech.ai?subject=Reactivate%20my%20SGC%20workspace" target="_blank" style="display:inline-block; padding:14px 34px; font-family:'IBM Plex Sans',Arial,sans-serif; font-size:12px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F7F4EE; text-decoration:none; background-color:#0F213D; border:1px solid #B79554;">Contact support</a></td></tr></table>
+<p style="margin:22px 0 0 0; color:#1C2430;">Warm regards,<br/><strong style="color:#0F213D;">SGC TECH AI</strong></p>
+</t>
+            </field>
+        </record>
+    </data>
+</odoo>
