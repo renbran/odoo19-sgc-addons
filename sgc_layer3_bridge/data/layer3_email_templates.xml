@@ -10,7 +10,7 @@
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html"><![CDATA[
 <div>
-    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Hello {{ object.l3_admin_name }},</p>
     <p>Your 14-day trial of SGC Real Estate Operating System ends on
        <strong>{{ object.l3_trial_ends_at }}</strong>. On that day, your saved card will be
        charged the next billing period according to your Order Form.</p>
@@ -32,7 +32,7 @@
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html"><![CDATA[
 <div>
-    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Hello {{ object.l3_admin_name }},</p>
     <p>Your 14-day trial has converted to a paid subscription. Your workspace is fully
        active.</p>
     <p>Tenant URL: <a href="{{ object.l3_tenant_url }}">{{ object.l3_tenant_url }}</a></p>
@@ -52,7 +52,7 @@
             <field name="email_to">{{ object.l3_admin_email }}</field>
             <field name="body_html"><![CDATA[
 <div>
-    <p>Hello {{ object.partner_id.name }},</p>
+    <p>Hello {{ object.l3_admin_name }},</p>
     <p>Your 14-day trial ended today and the renewal charge to your saved card failed.
        Your workspace has been <strong>immediately locked</strong> (no grace period for
        trial renewals, per your Order Form).</p>
