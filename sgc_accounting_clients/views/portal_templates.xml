@@ -223,7 +223,8 @@
                                 <p class="mb-2"><strong>1.</strong> Download the sample CSV for your bucket and keep the exact header names.</p>
                                 <p class="mb-2"><strong>2.</strong> Upload the file for the correct company. Tabular files may hold at most 200 data rows; split larger files into parts of 200 rows or fewer.</p>
                                 <p class="mb-2"><strong>3.</strong> The portal validates the headers, hashes the file and queues an agent run.</p>
-                                <p class="mb-0"><strong>4.</strong> The agent reads the document and matches it against the client workspace (<t t-esc="client.workspace_url or 'target pending'"/>).</p>
+                                <p class="mb-2"><strong>4.</strong> The agent reads the document, checks the totals, and drafts are created in your workspace (<t t-esc="client.workspace_url or 'target pending'"/>).</p>
+                                <p class="mb-0"><strong>5.</strong> An accountant reviews and posts the entries. Bank statements are queued for reconciliation.</p>
                             </div>
                         </div>
                     </div>

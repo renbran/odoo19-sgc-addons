@@ -16,10 +16,19 @@ from .accounting_client import LINK_TODO, rpc, rpc_error
 
 _logger = logging.getLogger(__name__)
 
-# Buckets booked as drafts into the client database. Bank statements, payroll
-# and expense receipts follow in release 2; master data and other documents
-# are reviewed by hand and never become entries.
-BOOKED_TYPES = ("customer_invoices", "vendor_bills", "credit_notes", "payments")
+# Buckets booked as drafts into the client database. Bank statements are
+# imported as statement lines, payroll as draft journal entries, and expense
+# receipts as draft vendor bills. Master data and other documents are reviewed
+# by hand and never become entries.
+BOOKED_TYPES = (
+    "customer_invoices",
+    "vendor_bills",
+    "credit_notes",
+    "payments",
+    "bank_statements",
+    "payroll_journals",
+    "expense_receipts",
+)
 # Applied to the client database only after the portal owner approves them.
 APPROVAL_TYPES = ("chart_of_accounts",)
 ACCOUNT_ACTIONS = ("create", "update", "archive")
@@ -33,6 +42,7 @@ MOVE_COLUMNS = {
     "customer_invoices": ("Invoice Number", "Invoice Date", "Customer Name"),
     "vendor_bills": ("Bill Number", "Bill Date", "Vendor Name"),
     "credit_notes": ("Credit Note Number", "Credit Note Date", "Party Name"),
+    "expense_receipts": ("Receipt Number", "Receipt Date", "Vendor Name"),
 }
 MOVE_LABELS = {
     "out_invoice": "customer invoice",
@@ -701,6 +711,25 @@ class SgcAccountingUpload(models.Model):
                 for row in source["rows"]
             ]
             build = self._payment_values
+        elif self.doc_type == "bank_statements":
+            # One statement per file: reference is the upload marker.
+            documents = [("SGC-BS-%s" % self.id, source["rows"])]
+            build = self._bank_statement_values
+        elif self.doc_type == "payroll_journals":
+            # One entry per payroll date.
+            grouped = {}
+            for row in source["rows"]:
+                pay_date = _cell(headers, row, "Payroll Date") or "SGC-PR-%s" % self.id
+                grouped.setdefault(pay_date, []).append(row)
+            documents = list(grouped.items())
+            build = self._payroll_values
+        elif self.doc_type == "expense_receipts":
+            # One bill per receipt number.
+            documents = [
+                (_cell(headers, row, "Receipt Number") or self._row_key(row, seen), [row])
+                for row in source["rows"]
+            ]
+            build = self._expense_receipt_values
         else:
             # Vendor bill numbers are unique per vendor only: group by both.
             number_label, _date_label, partner_label = MOVE_COLUMNS[self.doc_type]
@@ -1295,7 +1324,257 @@ class SgcAccountingUpload(models.Model):
         ]
         return "account.payment", duplicate_domain, values, summary
 
-    def _set_party(self, values, headers, row, partner_label, company_id, find, notes):
+    def _bank_statement_values(self, reference, rows, headers, company_id, find, _index):
+        """Import bank statement lines into the client database.
+
+        Creates one ``account.bank.statement`` with one line per row. The
+        statement stays in draft so the reconciliation agent can match lines
+        against open invoices and payments before it is confirmed.
+        """
+        first = rows[0]
+        statement_date = _cell(headers, first, "Statement Date") or fields.Date.today()
+        bank_account = _cell(headers, first, "Bank Account")
+        journals = find(
+            "account.journal",
+            [
+                ("type", "=", "bank"),
+                ("company_id", "parent_of", company_id),
+            ],
+            ("id", "name", "company_id"),
+            50,
+        )
+        journal = next(
+            (item for item in journals if bank_account and item["name"].lower() == bank_account.lower()),
+            None,
+        ) or _own(journals, company_id)
+        if not journal:
+            raise UserError(
+                _("Company %(company)s has no bank journal", company=company_id)
+            )
+        currency_code = _cell(headers, first, "Currency")
+        currency_id = None
+        if currency_code:
+            found = find("res.currency", [("name", "=ilike", currency_code)])
+            if not found:
+                raise ValueError(
+                    _("currency %(code)s is not active in the client database", code=currency_code)
+                )
+            currency_id = found[0]["id"]
+        line_values = []
+        running_balance = 0.0
+        for row in rows:
+            debit = _number(_cell(headers, row, "Debit"))
+            credit = _number(_cell(headers, row, "Credit"))
+            balance = _cell(headers, row, "Balance")
+            # In bank statements, a debit increases the balance, a credit
+            # decreases it; either side may be blank.
+            amount = credit - debit if credit else -debit
+            running_balance = _number(balance, running_balance + amount)
+            line_values.append((0, 0, {
+                "date": _date(_cell(headers, row, "Statement Date") or statement_date),
+                "payment_ref": _cell(headers, row, "Description") or _cell(headers, row, "Reference") or reference,
+                "partner_name": _cell(headers, row, "Reference"),
+                "amount": amount,
+            }))
+        values = {
+            "name": _("SGC-BS %(upload)s", upload=self.id),
+            "date": _date(statement_date) if isinstance(statement_date, str) else statement_date,
+            "journal_id": journal["id"],
+            "company_id": company_id,
+            "line_ids": line_values,
+        }
+        if currency_id:
+            values["currency_id"] = currency_id
+        # Duplicate detection: same journal, same date, same upload marker.
+        duplicate_domain = [
+            ("journal_id", "=", journal["id"]),
+            ("date", "=", values["date"]),
+            ("name", "=", values["name"]),
+        ]
+        summary = _(
+            "Draft bank statement: %(lines)s line(s), journal %(journal)s.",
+            lines=len(rows),
+            journal=journal["name"],
+        )
+        return "account.bank.statement", duplicate_domain, values, summary
+
+    def _payroll_values(self, reference, rows, headers, company_id, find, _index):
+        """Create a draft payroll journal entry.
+
+        One ``account.move`` per payroll period (grouped by Payroll Date),
+        with one line per employee: debit salary expense, credit net pay
+        payable. The entry stays in draft for an accountant to review the
+        GL mapping before posting.
+        """
+        first = rows[0]
+        payroll_date = _cell(headers, first, "Payroll Date")
+        journals = find(
+            "account.journal",
+            [
+                ("type", "=", "general"),
+                ("company_id", "parent_of", company_id),
+            ],
+            ("id", "name", "company_id"),
+            20,
+        )
+        journal = _own(journals, company_id)
+        if not journal:
+            raise UserError(
+                _("Company %(company)s has no general journal", company=company_id)
+            )
+        currency_code = _cell(headers, first, "Currency")
+        currency_id = None
+        if currency_code:
+            found = find("res.currency", [("name", "=ilike", currency_code)])
+            if not found:
+                raise ValueError(
+                    _("currency %(code)s is not active in the client database", code=currency_code)
+                )
+            currency_id = found[0]["id"]
+        lines = []
+        total_basic = total_allowances = total_deductions = total_net = 0.0
+        for row in rows:
+            basic = _number(_cell(headers, row, "Basic Salary"))
+            allowances = _number(_cell(headers, row, "Allowances"))
+            deductions = _number(_cell(headers, row, "Deductions"))
+            net = _number(_cell(headers, row, "Net Pay"))
+            employee = _cell(headers, row, "Employee Name") or _cell(headers, row, "Employee Code")
+            total_basic += basic
+            total_allowances += allowances
+            total_deductions += deductions
+            total_net += net
+            gross = basic + allowances
+            # Debit: salary expense (gross)
+            lines.append((0, 0, {
+                "name": _("Salary - %(employee)s", employee=employee),
+                "debit": gross,
+                "credit": 0.0,
+            }))
+            # Credit: deductions (if any)
+            if deductions:
+                lines.append((0, 0, {
+                    "name": _("Deductions - %(employee)s", employee=employee),
+                    "debit": 0.0,
+                    "credit": deductions,
+                }))
+            # Credit: net pay payable
+            lines.append((0, 0, {
+                "name": _("Net pay - %(employee)s", employee=employee),
+                "debit": 0.0,
+                "credit": net,
+            }))
+        values = {
+            "move_type": "entry",
+            "company_id": company_id,
+            "journal_id": journal["id"],
+            "ref": reference,
+            "date": _date(payroll_date) if payroll_date else fields.Date.today(),
+            "line_ids": lines,
+        }
+        if currency_id:
+            values["currency_id"] = currency_id
+        marker = "[SGC-DOC %s-1]" % self.id
+        values["narration"] = self._narration([
+            _("Payroll journal: basic %(basic)s, allowances %(allow)s, "
+              "deductions %(ded)s, net %(net)s.") % {
+                "basic": round(total_basic, 2),
+                "allow": round(total_allowances, 2),
+                "ded": round(total_deductions, 2),
+                "net": round(total_net, 2),
+            },
+            marker,
+        ])
+        duplicate_domain = [
+            ("company_id", "=", company_id),
+            ("journal_id", "=", journal["id"]),
+            ("ref", "=", reference),
+            ("narration", "ilike", marker),
+        ]
+        summary = _(
+            "Draft payroll entry %(ref)s: %(employees)s employee(s), "
+            "net %(net)s.",
+            ref=reference or "-",
+            employees=len(rows),
+            net=round(total_net, 2),
+        )
+        return "account.move", duplicate_domain, values, summary
+
+    def _expense_receipt_values(self, reference, rows, headers, company_id, find, number):
+        """Create a draft vendor bill from expense receipt rows.
+
+        Treats each receipt as a single-line vendor bill with an expense
+        category note. The bill stays in draft for GL mapping by the
+        posting agent.
+        """
+        first = rows[0]
+        journals = find(
+            "account.journal",
+            [
+                ("type", "=", "purchase"),
+                ("company_id", "parent_of", company_id),
+            ],
+            ("id", "name", "company_id"),
+            20,
+        )
+        journal = _own(journals, company_id)
+        if not journal:
+            raise UserError(
+                _("Company %(company)s has no purchase journal", company=company_id)
+            )
+        notes = []
+        lines = []
+        total = 0.0
+        for row in rows:
+            amount = _number(_cell(headers, row, "Amount"))
+            tax_amount = _number(_cell(headers, row, "Tax Amount"))
+            row_total = _number(_cell(headers, row, "Total")) or amount + tax_amount
+            total += row_total
+            category = _cell(headers, row, "Category")
+            description = _cell(headers, row, "Description") or category or reference
+            lines.append({
+                "name": description,
+                "quantity": 1.0,
+                "price_unit": amount,
+                "tax_ids": [(6, 0, [])],
+            })
+            if tax_amount:
+                lines.append({
+                    "name": _("Tax for %(cat)s", cat=category),
+                    "quantity": 1.0,
+                    "price_unit": tax_amount,
+                    "tax_ids": [(6, 0, [])],
+                })
+        values = {
+            "move_type": "in_invoice",
+            "company_id": company_id,
+            "journal_id": journal["id"],
+            "invoice_line_ids": [(0, 0, line) for line in lines],
+        }
+        if reference:
+            values["ref"] = reference
+        receipt_date = _cell(headers, first, "Receipt Date")
+        if receipt_date:
+            values["invoice_date"] = _date(receipt_date)
+        payment_method = _cell(headers, first, "Payment Method")
+        if payment_method:
+            notes.append(_("Payment method: %(method)s.", method=payment_method))
+        self._set_party(values, headers, first, "Vendor Name", company_id, find, notes)
+        marker = "[SGC-DOC %s-%s]" % (self.id, number)
+        values["narration"] = self._narration(notes + [marker])
+        duplicate_domain = [
+            ("company_id", "=", company_id),
+            ("ref", "=", reference),
+            ("move_type", "=", "in_invoice"),
+            ("narration", "ilike", marker),
+        ]
+        summary = _(
+            "Draft expense bill %(ref)s: %(lines)s receipt(s), total %(total)s.",
+            ref=reference or "-",
+            lines=len(rows),
+            total=round(total, 2),
+        )
+        return "account.move", duplicate_domain, values, summary
+
         """Add the currency and the counterparty of the client database,
         creating the counterparty in the target company when it is new."""
         currency = _cell(headers, row, "Currency")

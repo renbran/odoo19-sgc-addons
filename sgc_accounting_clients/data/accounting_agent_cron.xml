@@ -33,5 +33,27 @@
             <field name="interval_type">days</field>
             <field name="active" eval="True"/>
         </record>
+        <!-- Every 5 minutes: process pending provisioning events (create client
+             databases, agent users, API keys) via the tenant receiver endpoint. -->
+        <record id="ir_cron_sgc_accounting_provision" model="ir.cron">
+            <field name="name">SGC Accounting: process provisioning events</field>
+            <field name="model_id" ref="model_sgc_accounting_provision_event"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_process_provision_events()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
+        <!-- Every 6 hours: dispatch queued reconciliation runs to client
+             databases as the reconciliation agent. -->
+        <record id="ir_cron_sgc_accounting_reconciliation" model="ir.cron">
+            <field name="name">SGC Accounting: dispatch reconciliation runs</field>
+            <field name="model_id" ref="model_sgc_accounting_reconciliation_run"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_dispatch_queued()</field>
+            <field name="interval_number">6</field>
+            <field name="interval_type">hours</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

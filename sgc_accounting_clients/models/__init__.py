@@ -5,4 +5,6 @@ from . import accounting_upload
 from . import accounting_upload_log
 from . import accounting_agent_run
 from . import accounting_provision_event
+from . import accounting_provision_processor
+from . import accounting_reconciliation
 from . import res_partner
