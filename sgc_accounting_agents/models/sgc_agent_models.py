@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import json
+import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 def normalize_tasks(value):
@@ -147,8 +150,14 @@ class SgcAgentCredential(models.Model):
         return True
 
     def action_touch(self):
-        self.write({"last_used_at": fields.Datetime.now()})
-        self.write({"use_count": self.use_count + 1})
+        now = fields.Datetime.now()
+        # Single write to avoid a race window between last_used_at and
+        # use_count updates, and to reduce DB round-trips.
+        for credential in self:
+            credential.write({
+                "last_used_at": now,
+                "use_count": credential.use_count + 1,
+            })
         return True
 
 
@@ -245,6 +254,11 @@ class SgcAgentAudit(models.Model):
         except Exception:
             # The agent user may not be committed yet, for example while a
             # test builds it. Fall back to the current transaction.
+            _logger.warning(
+                "Durable audit log failed for task %s on %s, falling back "
+                "to the current transaction.",
+                task, model_name, exc_info=True,
+            )
             try:
                 cursor.rollback()
             except Exception:
@@ -310,7 +324,38 @@ class SgcAgentPostingApproval(models.Model):
     note = fields.Text()
     create_date = fields.Datetime(default=fields.Datetime.now)
 
-    def action_approve(self):
+    # One active approval per move: prevents duplicate approval records that
+    # could confuse the posting guard's approved-move search. A partial unique
+    # index (not a table constraint) is required because PostgreSQL cannot
+    # express a conditional UNIQUE as a table constraint.
+    _move_active_uniq = models.UniqueIndex(
+        "(move_id) WHERE state IN ('pending', 'approved')",
+        "A move can have only one active posting approval.",
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Only a manager decides; a request made by anyone else starts pending.
+        if not self.env.su and not self.env.user.has_group(
+            "sgc_accounting_agents.group_sgc_agency_manager"
+        ):
+            for vals in vals_list:
+                vals.update(
+                    state="pending",
+                    approved_by_id=False,
+                    approved_at=False,
+                    requested_by_id=self.env.user.id,
+                )
+        return super().create(vals_list)
+
+    def action_approve(self, over_limit=False):
+        """Approve a pending posting request.
+
+        ``over_limit=True`` records the manager's explicit authorisation to post
+        an entry whose amount exceeds the posting role's
+        ``max_auto_post_aed`` ceiling. Without that flag the posting agent's
+        guard refuses the entry (see ``account_move_agent_guard.action_post``).
+        """
         for approval in self:
             if approval.state != "pending":
                 raise UserError(
@@ -322,11 +367,19 @@ class SgcAgentPostingApproval(models.Model):
                 raise UserError(
                     _("Only an agency manager can approve a posting request.")
                 )
+            checks = dict(approval.checks or {})
+            if over_limit:
+                checks["over_limit_approved"] = True
+                checks["over_limit_approved_by"] = self.env.user.login
+                checks["over_limit_approved_at"] = (
+                    fields.Datetime.now().isoformat()
+                )
             approval.write(
                 {
                     "state": "approved",
                     "approved_by_id": self.env.user.id,
                     "approved_at": fields.Datetime.now(),
+                    "checks": checks,
                 }
             )
         return True
