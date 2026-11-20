@@ -186,6 +186,14 @@ class SgcAccountingUpload(models.Model):
         readonly=True, copy=False,
         help="Fingerprint of the file the owner approved; a changed file needs a new approval.",
     )
+    gatekeeper_check_id = fields.Many2one(
+        "sgc.accounting.gatekeeper.check",
+        string="Gatekeeper Check",
+        readonly=True,
+        copy=False,
+        index=True,
+        help="The gatekeeper validation result for this upload.",
+    )
     booking_state = fields.Selection(
         BOOKING_STATES,
         string="Draft Booking",

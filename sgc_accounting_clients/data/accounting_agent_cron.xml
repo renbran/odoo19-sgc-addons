@@ -55,5 +55,16 @@
             <field name="interval_type">hours</field>
             <field name="active" eval="True"/>
         </record>
+        <!-- Every 3 minutes: run gatekeeper validation on uploads that haven't
+             been checked yet. -->
+        <record id="ir_cron_sgc_accounting_gatekeeper" model="ir.cron">
+            <field name="name">SGC Accounting: gatekeeper validation</field>
+            <field name="model_id" ref="model_sgc_accounting_gatekeeper_check"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_validate_pending_uploads()</field>
+            <field name="interval_number">3</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>
