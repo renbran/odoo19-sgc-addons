@@ -133,12 +133,28 @@ class SgcAccountingPortal(CustomerPortal):
         recent.sort(key=lambda item: item["date"] or "", reverse=True)
         recent = recent[:8]
 
-        # Subscription status.
+        # Subscription status. The billing fields live on the checkout sale
+        # order, so read the latest one for this client.
+        order = request.env["sale.order"].sudo().search(
+            [
+                ("acc_client_id", "=", client.id),
+                ("state", "not in", ("cancel", "draft")),
+            ],
+            order="acc_paid_until desc, id desc",
+            limit=1,
+        )
+        package_label = "-"
+        if order and order.acc_package:
+            selection = request.env["sale.order"].fields_get(["acc_package"])[
+                "acc_package"
+            ]["selection"]
+            package_label = dict(selection).get(order.acc_package, order.acc_package)
         subscription = {
-            "package": client.package_id.name if hasattr(client, "package_id") and client.package_id else "-",
-            "status": client.status if hasattr(client, "status") else "active",
-            "paid_until": client.acc_paid_until if hasattr(client, "acc_paid_until") else False,
-            "workspace_url": client.workspace_url if hasattr(client, "workspace_url") else False,
+            "package": package_label,
+            "status": client.status or "active",
+            "paid_until": order.acc_paid_until if order else False,
+            "workspace_url": client.workspace_url or False,
+            "order_name": order.name if order else False,
         }
 
         return {

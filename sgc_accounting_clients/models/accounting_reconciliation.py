@@ -174,9 +174,11 @@ class SgcAccountingReconciliationRun(models.Model):
                 for journal in journals:
                     if self.journal_name and journal["name"].lower() != self.journal_name.lower():
                         continue
-                    # Call the reconciliation method on the client DB.
+                    # Call the reconciliation method on the client DB. Odoo
+                    # refuses private (_-prefixed) methods over XML-RPC, so the
+                    # client module exposes action_reconcile_payments_agent.
                     result = rpc(
-                        conn, "account.journal", "_reconcile_from_payments",
+                        conn, "account.journal", "action_reconcile_payments_agent",
                         int(journal["id"]),
                     )
                     if isinstance(result, dict):

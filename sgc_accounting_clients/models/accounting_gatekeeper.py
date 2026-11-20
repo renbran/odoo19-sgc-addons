@@ -319,10 +319,14 @@ class SgcAccountingGatekeeperCheck(models.Model):
 
     @api.model
     def _cron_validate_pending_uploads(self):
-        """Run gatekeeper checks on uploads that haven't been validated yet."""
+        """Run gatekeeper checks on uploads that haven't been validated yet.
+
+        Runs before the booking cron picks the file up: a rejected upload is
+        moved to ``failed`` so ``_cron_book_pending`` never books it.
+        """
         Upload = self.env["sgc.accounting.upload"]
         uploads = Upload.search([
-            ("booking_state", "in", ("pending", "queued")),
+            ("booking_state", "=", "pending"),
             ("gatekeeper_check_id", "=", False),
         ], limit=50, order="create_date, id")
         for upload in uploads:
@@ -334,3 +338,4 @@ class SgcAccountingGatekeeperCheck(models.Model):
                 _logger.exception(
                     "Gatekeeper check failed for upload %s", upload.id
                 )
+        return True
