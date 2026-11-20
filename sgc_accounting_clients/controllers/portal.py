@@ -119,7 +119,7 @@ class SgcAccountingPortal(CustomerPortal):
         for upload in all_uploads[:5]:
             recent.append({
                 "type": "upload",
-                "name": upload.file_name,
+                "name": upload.filename,
                 "state": upload.booking_state or "new",
                 "date": upload.create_date,
             })
