@@ -76,6 +76,84 @@ class SgcAccountingPortal(CustomerPortal):
             .search(domain, order="name")
         )
 
+    def _pipeline_dashboard(self, client):
+        """Aggregate pipeline status for the client portal dashboard."""
+        Upload = request.env["sgc.accounting.upload"].sudo()
+        AgentRun = request.env["sgc.accounting.agent.run"].sudo()
+        ReconRun = request.env.get("sgc.accounting.reconciliation.run")
+        ReconRun = ReconRun.sudo() if ReconRun else None
+        domain = [("client_id", "=", client.id)]
+
+        # Upload counts by state.
+        all_uploads = Upload.search(domain)
+        upload_states = {}
+        for upload in all_uploads:
+            state = upload.booking_state or "new"
+            upload_states[state] = upload_states.get(state, 0) + 1
+
+        # Gatekeeper results.
+        Gatekeeper = request.env.get("sgc.accounting.gatekeeper.check")
+        gatekeeper_stats = {"passed": 0, "rejected": 0, "warning": 0, "pending": 0}
+        if Gatekeeper:
+            checks = Gatekeeper.sudo().search([("client_id", "=", client.id)])
+            for check in checks:
+                gatekeeper_stats[check.state] = gatekeeper_stats.get(check.state, 0) + 1
+
+        # Agent runs.
+        agent_runs = AgentRun.search(domain, order="create_date desc", limit=10)
+        agent_states = {}
+        for run in AgentRun.search(domain):
+            agent_states[run.state] = agent_states.get(run.state, 0) + 1
+
+        # Reconciliation runs.
+        recon_runs = ReconRun.search(domain, order="create_date desc", limit=5) if ReconRun else None
+        recon_stats = {"completed": 0, "failed": 0, "queued": 0, "running": 0}
+        recon_lines = 0
+        if ReconRun:
+            for run in ReconRun.search(domain):
+                recon_stats[run.state] = recon_stats.get(run.state, 0) + 1
+                recon_lines += run.lines_reconciled or 0
+
+        # Recent activity (last 5 events across uploads and agent runs).
+        recent = []
+        for upload in all_uploads[:5]:
+            recent.append({
+                "type": "upload",
+                "name": upload.file_name,
+                "state": upload.booking_state or "new",
+                "date": upload.create_date,
+            })
+        for run in agent_runs[:5]:
+            recent.append({
+                "type": "agent",
+                "name": run.name or str(run.id),
+                "state": run.state,
+                "date": run.create_date,
+            })
+        recent.sort(key=lambda item: item["date"] or "", reverse=True)
+        recent = recent[:8]
+
+        # Subscription status.
+        subscription = {
+            "package": client.package_id.name if hasattr(client, "package_id") and client.package_id else "-",
+            "status": client.status if hasattr(client, "status") else "active",
+            "paid_until": client.acc_paid_until if hasattr(client, "acc_paid_until") else False,
+            "workspace_url": client.workspace_url if hasattr(client, "workspace_url") else False,
+        }
+
+        return {
+            "upload_states": upload_states,
+            "total_uploads": len(all_uploads),
+            "gatekeeper": gatekeeper_stats,
+            "agent_states": agent_states,
+            "recent_agent_runs": agent_runs[:5],
+            "recon_stats": recon_stats,
+            "recon_lines_total": recon_lines,
+            "recent_recon_runs": recon_runs[:3] if recon_runs else [],
+            "recent_activity": recent,
+            "subscription": subscription,
+        }
+
     def _client_or_404(self, client_code):
         client = self._clients(client_code)[:1]
         if not client:
@@ -152,6 +230,8 @@ class SgcAccountingPortal(CustomerPortal):
                 candidate = None
             if candidate and candidate.exists() and candidate.client_id == client:
                 duplicate_upload = candidate
+        # Pipeline dashboard data.
+        dashboard = self._pipeline_dashboard(client)
         return request.render(
             "sgc_accounting_clients.portal_accounting_client",
             {
@@ -166,6 +246,7 @@ class SgcAccountingPortal(CustomerPortal):
                 "format_detail": detail,
                 "duplicate_upload": duplicate_upload,
                 "message": _(MESSAGES[message]) if message in MESSAGES else None,
+                "dashboard": dashboard,
                 "page_name": "accounting",
                 "no_breadcrumbs": True,
             },

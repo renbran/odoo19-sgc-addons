@@ -98,6 +98,81 @@
                 </div>
                 <div t-if="format_detail" class="alert alert-warning" role="alert"><t t-esc="format_detail"/></div>
 
+                <!-- Pipeline Dashboard -->
+                <div t-if="dashboard" class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">Pipeline Overview</h5>
+                        <p class="text-muted small mb-0">End-to-end status from upload to posting.</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <!-- Uploads by state -->
+                            <div class="col-md-3">
+                                <div class="border rounded p-3 text-center h-100">
+                                    <div class="display-6 fw-bold text-primary"><t t-esc="dashboard.get('total_uploads', 0)"/></div>
+                                    <div class="text-muted small">Total Uploads</div>
+                                    <div t-if="dashboard.get('upload_states')" class="mt-2">
+                                        <span t-foreach="dashboard['upload_states'].items()" t-as="state_count" class="badge text-bg-light me-1">
+                                            <t t-esc="state_count[0]"/>: <t t-esc="state_count[1]"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Gatekeeper -->
+                            <div class="col-md-3">
+                                <div class="border rounded p-3 text-center h-100">
+                                    <div class="display-6 fw-bold text-info"><t t-esc="dashboard.get('gatekeeper', {}).get('passed', 0)"/></div>
+                                    <div class="text-muted small">Validated</div>
+                                    <div t-if="dashboard.get('gatekeeper', {}).get('rejected', 0)" class="mt-2">
+                                        <span class="badge text-bg-danger"><t t-esc="dashboard['gatekeeper']['rejected']"/> rejected</span>
+                                    </div>
+                                    <div t-if="dashboard.get('gatekeeper', {}).get('warning', 0)" class="mt-1">
+                                        <span class="badge text-bg-warning"><t t-esc="dashboard['gatekeeper']['warning']"/> warnings</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Agent runs -->
+                            <div class="col-md-3">
+                                <div class="border rounded p-3 text-center h-100">
+                                    <div class="display-6 fw-bold text-success"><t t-esc="dashboard.get('agent_states', {}).get('completed', 0)"/></div>
+                                    <div class="text-muted small">Entries Drafted</div>
+                                    <div t-if="dashboard.get('agent_states')" class="mt-2">
+                                        <span t-foreach="dashboard['agent_states'].items()" t-as="state_count" class="badge text-bg-light me-1">
+                                            <t t-esc="state_count[0]"/>: <t t-esc="state_count[1]"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Reconciliation -->
+                            <div class="col-md-3">
+                                <div class="border rounded p-3 text-center h-100">
+                                    <div class="display-6 fw-bold text-secondary"><t t-esc="dashboard.get('recon_lines_total', 0)"/></div>
+                                    <div class="text-muted small">Lines Reconciled</div>
+                                    <div t-if="dashboard.get('recon_stats', {}).get('failed', 0)" class="mt-2">
+                                        <span class="badge text-bg-danger"><t t-esc="dashboard['recon_stats']['failed']"/> failed</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Recent activity -->
+                        <div t-if="dashboard.get('recent_activity')" class="mt-3">
+                            <h6 class="text-muted">Recent Activity</h6>
+                            <div class="list-group list-group-flush">
+                                <div t-foreach="dashboard['recent_activity']" t-as="event" class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                    <div>
+                                        <span class="badge text-bg-light me-2"><t t-esc="event['type']"/></span>
+                                        <t t-esc="event['name']"/>
+                                    </div>
+                                    <div>
+                                        <span class="badge text-bg-secondary me-2"><t t-esc="event['state']"/></span>
+                                        <small class="text-muted"><t t-esc="event['date']"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row g-4">
                     <div class="col-lg-7">
                         <div class="card border-0 shadow-sm mb-4">
