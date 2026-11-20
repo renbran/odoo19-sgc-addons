@@ -3,6 +3,7 @@ from odoo import fields, models
 
 LOG_EVENTS = [
     ("uploaded", "Uploaded"),
+    ("gatekeeper", "Gatekeeper validation"),
     ("booked", "Draft created"),
     ("duplicate", "Duplicate blocked"),
     ("waiting", "Waiting for database"),
