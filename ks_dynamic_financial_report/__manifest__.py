@@ -37,7 +37,7 @@
 
     'currency': 'EUR',
 
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
 
     'price': '119',
     # 'price': '95.2',
@@ -53,7 +53,10 @@
 
     'depends': ['base', 'mail', 'account', 'sale_management'],
 
-    'auto_install': True,
+    # Not auto-installed: this module writes to res.users and res.groups, so
+    # pulling it in silently with 'base' risks a registry load failure on a
+    # fresh database. Install it explicitly.
+    'auto_install': False,
 
     'data': ['security/ir.model.access.csv', 'data/ks_dfr_account_data.xml', 'data/ks_dynamic_financial_report.xml',
              'security/ks_access_file.xml',
