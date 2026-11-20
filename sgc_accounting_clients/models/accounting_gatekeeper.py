@@ -22,39 +22,48 @@ from collections import Counter
 
 from odoo import _, api, fields, models
 
+from .accounting_bucket import (
+    BUCKETS_BY_CODE,
+    DATE_COLUMNS,
+    NUMERIC_COLUMNS,
+)
+
 _logger = logging.getLogger(__name__)
 
 TASK_GATEKEEPER = "document.validate"
 
-REQUIRED_COLUMNS = {
-    "customer_invoices": ["Invoice Number", "Invoice Date", "Customer Name", "Amount"],
-    "vendor_bills": ["Bill Number", "Bill Date", "Vendor Name", "Amount"],
-    "credit_notes": ["Credit Note Number", "Credit Note Date", "Party Name", "Amount"],
-    "payments": ["Reference", "Date", "Amount"],
-    "bank_statements": ["Statement Date", "Description", "Debit", "Credit"],
-    "payroll_journals": ["Payroll Date", "Employee Name", "Net Pay"],
-    "expense_receipts": ["Receipt Date", "Vendor Name", "Amount"],
-}
+# The column lists are derived from the bucket definitions rather than typed
+# out here: the customer downloads the sample CSV built from the very same
+# definition, so a hardcoded list would drift from the format guide and start
+# rejecting files that match it.
 
-NUMERIC_COLUMNS = {
-    "customer_invoices": ["Amount", "Tax Amount", "Total"],
-    "vendor_bills": ["Amount", "Tax Amount", "Total"],
-    "credit_notes": ["Amount", "Tax Amount", "Total"],
-    "payments": ["Amount"],
-    "bank_statements": ["Debit", "Credit", "Balance"],
-    "payroll_journals": ["Basic Salary", "Allowances", "Deductions", "Net Pay"],
-    "expense_receipts": ["Amount", "Tax Amount", "Total"],
-}
+# Buckets whose rows are validated as documents (the others are free-form or
+# need a review before they become entries).
+VALIDATED_BUCKETS = (
+    "customer_invoices",
+    "vendor_bills",
+    "credit_notes",
+    "payments",
+    "bank_statements",
+    "payroll_journals",
+    "expense_receipts",
+)
 
-DATE_COLUMNS = {
-    "customer_invoices": ["Invoice Date"],
-    "vendor_bills": ["Bill Date"],
-    "credit_notes": ["Credit Note Date"],
-    "payments": ["Date"],
-    "bank_statements": ["Statement Date"],
-    "payroll_journals": ["Payroll Date"],
-    "expense_receipts": ["Receipt Date"],
-}
+
+def _bucket_columns(doc_type):
+    """Return the required columns of ``doc_type`` as a list."""
+    spec = BUCKETS_BY_CODE.get(doc_type) or {}
+    return list(spec.get("required") or [])
+
+
+def _numeric_columns(doc_type):
+    """Return the columns of ``doc_type`` that hold numbers."""
+    return list(NUMERIC_COLUMNS.get(doc_type) or [])
+
+
+def _date_columns(doc_type):
+    """Return the columns of ``doc_type`` that hold dates."""
+    return list(DATE_COLUMNS.get(doc_type) or [])
 
 
 class SgcAccountingGatekeeperCheck(models.Model):
@@ -144,7 +153,7 @@ class SgcAccountingGatekeeperCheck(models.Model):
         # 2. Required columns. Headers are canonicalised by read_rows, so a
         # logical label is resolved through the same alias chain the booking
         # code uses (find_column) instead of a plain string compare.
-        required = REQUIRED_COLUMNS.get(upload.doc_type, [])
+        required = _bucket_columns(upload.doc_type)
         resolved = {
             label: find_column(headers, label) for label in required
         }
@@ -173,7 +182,7 @@ class SgcAccountingGatekeeperCheck(models.Model):
             _record("required_values", "pass")
 
         # 4. Numeric columns.
-        numeric_cols = NUMERIC_COLUMNS.get(upload.doc_type, [])
+        numeric_cols = _numeric_columns(upload.doc_type)
         bad_numbers = 0
         for row in rows:
             for label in numeric_cols:
@@ -192,7 +201,7 @@ class SgcAccountingGatekeeperCheck(models.Model):
             _record("numeric_values", "pass")
 
         # 5. Date columns.
-        date_cols = DATE_COLUMNS.get(upload.doc_type, [])
+        date_cols = _date_columns(upload.doc_type)
         bad_dates = 0
         for row in rows:
             for label in date_cols:

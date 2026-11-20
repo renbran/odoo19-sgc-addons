@@ -377,6 +377,31 @@ BUCKETS = (
 BUCKETS_BY_CODE = {bucket["code"]: bucket for bucket in BUCKETS}
 DOC_TYPES = [(bucket["code"], bucket["name"]) for bucket in BUCKETS]
 
+# Columns that carry money, per bucket. Kept next to the bucket definitions so
+# the gatekeeper validates exactly the columns the format guide advertises.
+# A bucket missing from here simply has no numeric check.
+NUMERIC_COLUMNS = {
+    "customer_invoices": ["Quantity", "Unit Price", "Tax Rate", "Tax Amount", "Total"],
+    "vendor_bills": ["Quantity", "Unit Price", "Tax Rate", "Tax Amount", "Total"],
+    "credit_notes": ["Quantity", "Unit Price", "Tax Rate", "Tax Amount", "Total"],
+    "payments": ["Amount"],
+    "bank_statements": ["Debit", "Credit", "Balance"],
+    "payroll_journals": ["Basic Salary", "Allowances", "Deductions", "Net Pay"],
+    "expense_receipts": ["Amount", "Tax Amount", "Total"],
+}
+
+# Columns that carry a date, per bucket. A bucket missing from here has no
+# date check.
+DATE_COLUMNS = {
+    "customer_invoices": ["Invoice Date", "Due Date"],
+    "vendor_bills": ["Bill Date", "Due Date"],
+    "credit_notes": ["Credit Note Date"],
+    "payments": ["Payment Date"],
+    "bank_statements": ["Statement Date"],
+    "payroll_journals": ["Payroll Date"],
+    "expense_receipts": ["Receipt Date"],
+}
+
 
 def bucket(code):
     return BUCKETS_BY_CODE.get(code)
