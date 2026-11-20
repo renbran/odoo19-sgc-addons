@@ -103,7 +103,7 @@ class SgcAccountingGatekeeperCheck(models.Model):
     def _validate_upload(self):
         self.ensure_one()
         upload = self.upload_id
-        findings = {"doc_type": upload.doc_type, "file_name": upload.file_name, "checks": []}
+        findings = {"doc_type": upload.doc_type, "file_name": upload.filename, "checks": []}
         passed = failed = warnings = 0
 
         def _record(name, status, detail=None):
@@ -285,12 +285,22 @@ class SgcAccountingGatekeeperCheck(models.Model):
             upload._finish("failed", _("Gatekeeper: %s") % reason)
             upload.client_id.message_post(body=_(
                 "Document %(name)s was rejected by the gatekeeper: %(reason)s",
-                name=upload.file_name, reason=reason,
+                name=upload.filename, reason=reason,
             ))
         else:
-            # Allow the booking cron to pick it up.
-            if upload.booking_state in (False, "failed", "waiting"):
+            # Validated: hand it to the booking cron. An upload already parked
+            # in "waiting" (no client database linked yet) stays parked so the
+            # booking cron does not retry an unreachable client every cycle.
+            if upload.booking_state in (False, "failed"):
                 upload.sudo().write({"booking_state": "pending"})
+            upload._log(
+                "gatekeeper",
+                _("Gatekeeper validation passed: %(passed)s check(s) passed, "
+                  "%(warnings)s warning(s).") % {
+                    "passed": passed,
+                    "warnings": warnings,
+                },
+            )
         return True
 
     def _finish(self, state, findings, total, passed, failed, warnings, reason):
@@ -322,11 +332,13 @@ class SgcAccountingGatekeeperCheck(models.Model):
         """Run gatekeeper checks on uploads that haven't been validated yet.
 
         Runs before the booking cron picks the file up: a rejected upload is
-        moved to ``failed`` so ``_cron_book_pending`` never books it.
+        moved to ``failed`` so ``_cron_book_pending`` never books it. Uploads
+        already parked in ``waiting`` (no client database linked yet) are
+        validated too, so the check is never skipped for them.
         """
         Upload = self.env["sgc.accounting.upload"]
         uploads = Upload.search([
-            ("booking_state", "=", "pending"),
+            ("booking_state", "in", ("pending", "waiting")),
             ("gatekeeper_check_id", "=", False),
         ], limit=50, order="create_date, id")
         for upload in uploads:

@@ -503,8 +503,14 @@ class SgcAccountingUpload(models.Model):
 
     @api.model
     def _cron_book_pending(self, limit=50):
+        # Only uploads the gatekeeper has already validated are booked: the
+        # gatekeeper cron runs first and moves a rejected file to "failed",
+        # so nothing unvalidated can ever reach the client database.
         uploads = self.search(
-            [("booking_state", "in", ("pending", "waiting"))],
+            [
+                ("booking_state", "in", ("pending", "waiting")),
+                ("gatekeeper_check_id", "!=", False),
+            ],
             order="booking_state, id",
         )
         unlinked, blocked, tried = {}, set(), 0
