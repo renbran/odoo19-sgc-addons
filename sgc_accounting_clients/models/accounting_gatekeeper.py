@@ -122,7 +122,7 @@ class SgcAccountingGatekeeperCheck(models.Model):
         # 1. Parse the source file using the same reader as the booking cron.
         import base64
         try:
-            from .accounting_upload import read_rows, MAX_UPLOAD_ROWS
+            from .accounting_bucket import MAX_UPLOAD_ROWS, find_column, read_rows
             raw = base64.b64decode(upload.file) if upload.file else b""
             source = read_rows(upload.doc_type, upload.filename, raw, limit=MAX_UPLOAD_ROWS)
             rows = source.get("rows", []) if source else []
@@ -141,21 +141,30 @@ class SgcAccountingGatekeeperCheck(models.Model):
             return False
         _record("file_parse", "pass", "%d rows" % len(rows))
 
-        # 2. Required columns.
+        # 2. Required columns. Headers are canonicalised by read_rows, so a
+        # logical label is resolved through the same alias chain the booking
+        # code uses (find_column) instead of a plain string compare.
         required = REQUIRED_COLUMNS.get(upload.doc_type, [])
-        missing_cols = [col for col in required if col not in headers]
+        resolved = {
+            label: find_column(headers, label) for label in required
+        }
+        missing_cols = [label for label, key in resolved.items() if not key]
         if missing_cols:
             _record("required_columns", "fail",
                     _("Missing columns: %s") % ", ".join(missing_cols))
         else:
             _record("required_columns", "pass")
 
+        def _value(row, label):
+            key = resolved.get(label) or find_column(headers, label)
+            return row.get(key) if key else None
+
         # 3. Empty required cells.
         empty_cells = 0
         for row in rows:
-            for col in required:
-                if col in headers:
-                    val = row.get(headers.index(col))
+            for label in required:
+                if resolved.get(label):
+                    val = _value(row, label)
                     if val is None or str(val).strip() == "":
                         empty_cells += 1
         if empty_cells:
@@ -167,9 +176,9 @@ class SgcAccountingGatekeeperCheck(models.Model):
         numeric_cols = NUMERIC_COLUMNS.get(upload.doc_type, [])
         bad_numbers = 0
         for row in rows:
-            for col in numeric_cols:
-                if col in headers:
-                    val = row.get(headers.index(col))
+            for label in numeric_cols:
+                if find_column(headers, label):
+                    val = _value(row, label)
                     if val is None or str(val).strip() == "":
                         continue
                     try:
@@ -186,9 +195,9 @@ class SgcAccountingGatekeeperCheck(models.Model):
         date_cols = DATE_COLUMNS.get(upload.doc_type, [])
         bad_dates = 0
         for row in rows:
-            for col in date_cols:
-                if col in headers:
-                    val = row.get(headers.index(col))
+            for label in date_cols:
+                if find_column(headers, label):
+                    val = _value(row, label)
                     if val is None or str(val).strip() == "":
                         continue
                     if not self._try_parse_date(str(val)):
@@ -201,15 +210,15 @@ class SgcAccountingGatekeeperCheck(models.Model):
 
         # 6. Duplicate document numbers within the file.
         number_col = None
-        for col in ("Invoice Number", "Bill Number", "Credit Note Number",
-                     "Reference", "Receipt Number"):
-            if col in headers:
-                number_col = col
+        for label in ("Invoice Number", "Bill Number", "Credit Note Number",
+                      "Reference", "Receipt Number"):
+            number_col = find_column(headers, label)
+            if number_col:
                 break
         if number_col:
             numbers = []
             for row in rows:
-                val = row.get(headers.index(number_col))
+                val = row.get(number_col)
                 if val and str(val).strip():
                     numbers.append(str(val).strip())
             dupes = {k: v for k, v in Counter(numbers).items() if v > 1}
@@ -221,18 +230,18 @@ class SgcAccountingGatekeeperCheck(models.Model):
 
         # 7. Totals consistency.
         if upload.doc_type in ("customer_invoices", "vendor_bills", "credit_notes"):
-            amount_idx = headers.index("Amount") if "Amount" in headers else None
-            total_idx = headers.index("Total") if "Total" in headers else None
-            if amount_idx is not None and total_idx is not None:
+            amount_col = find_column(headers, "Amount")
+            total_col = find_column(headers, "Total")
+            tax_col = find_column(headers, "Tax Amount")
+            if amount_col and total_col:
                 mismatches = 0
                 for row in rows:
                     try:
-                        amount = float(str(row.get(amount_idx, "0")).replace(",", "") or 0)
-                        total = float(str(row.get(total_idx, "0")).replace(",", "") or 0)
-                        tax_idx = headers.index("Tax Amount") if "Tax Amount" in headers else None
+                        amount = float(str(row.get(amount_col, "0")).replace(",", "") or 0)
+                        total = float(str(row.get(total_col, "0")).replace(",", "") or 0)
                         tax = 0.0
-                        if tax_idx is not None:
-                            tax = float(str(row.get(tax_idx, "0")).replace(",", "") or 0)
+                        if tax_col:
+                            tax = float(str(row.get(tax_col, "0")).replace(",", "") or 0)
                         if abs((amount + tax) - total) > 0.01:
                             mismatches += 1
                     except (ValueError, TypeError):
@@ -248,18 +257,17 @@ class SgcAccountingGatekeeperCheck(models.Model):
             "customer_invoices", "vendor_bills", "credit_notes",
         ):
             trn_col = None
-            for col in ("TRN", "Tax Registration Number", "VAT Number"):
-                if col in headers:
-                    trn_col = col
+            for label in ("TRN", "Tax Registration Number", "VAT Number"):
+                trn_col = find_column(headers, label)
+                if trn_col:
                     break
             if trn_col is None:
                 _record("trn_presence", "warning",
                         _("TRN column not found but client requires TRN."))
             else:
-                trn_idx = headers.index(trn_col)
                 missing_trn = sum(
                     1 for row in rows
-                    if not str(row.get(trn_idx, "")).strip()
+                    if not str(row.get(trn_col, "")).strip()
                 )
                 if missing_trn:
                     _record("trn_presence", "warning",
