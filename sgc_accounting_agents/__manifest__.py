@@ -1,6 +1,6 @@
 {
     "name": "SGC Accounting Agents",
-    "version": "19.0.1.0.0",
+    "version": "19.0.1.4.0",
     "category": "Accounting/Accounting",
     "summary": "Least-privilege access control for the accounting agent workforce",
     "description": """
@@ -29,6 +29,13 @@ Guards
 * Agents cannot create, cancel, reset or delete journal entries outside their
   role.
 * Every agent action is written to ``sgc.agent.audit``.
+
+Tax Audit
+---------
+* ``sgc.agent.tax.audit`` validates the VAT output/input grid for a period,
+  detects missing output VAT, unexpected rates, and records findings as
+  ``sgc.agent.report`` entries with a full audit trail. A monthly cron runs
+  a VAT audit for the previous quarter for every company.
 """,
     "author": "SGC TECH AI",
     "license": "LGPL-3",
@@ -38,6 +45,7 @@ Guards
         "security/ir.model.access.csv",
         "security/ir.rule.xml",
         "data/sgc_agent_role_data.xml",
+        "data/sgc_agent_tax_audit_cron.xml",
     ],
     "installable": True,
     "application": False,

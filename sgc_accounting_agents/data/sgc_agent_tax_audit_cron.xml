@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Monthly: run a VAT audit for the previous quarter for every
+             company that has posted tax lines. -->
+        <record id="ir_cron_sgc_agent_tax_audit" model="ir.cron">
+            <field name="name">SGC Agent: scheduled VAT audit</field>
+            <field name="model_id" ref="model_sgc_agent_tax_audit"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_run_scheduled_audits()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_account_journal_form_pay_rec" model="ir.ui.view">
+        <field name="name">account.journal.form.payment.reconcile</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <header>
+                    <button name="action_reconcile_from_payments" type="object" string="Reconcile from Payments"
+                            class="btn-primary" invisible="type not in ('bank', 'cash')"
+                            groups="account.group_account_manager"
+                            help="Create a statement from this journal's unmatched registered payments and reconcile it."/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

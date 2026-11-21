@@ -16,7 +16,7 @@
         <field name="code">agent-01-intake</field>
         <field name="sequence">20</field>
         <field name="group_id" ref="group_sgc_agent_intake"/>
-        <field name="job_description">Turns an extracted document into a draft invoice or bill with its source file, SHA-256 and extraction payload, then hands the draft to the posting agent. It never posts and never changes a posted entry.</field>
+        <field name="job_description">Turns an extracted document into a draft invoice or bill with its source file, SHA-256 and extraction payload, then hands the draft to the posting agent. It matches an existing counterparty, it never creates a contact, never posts and never changes a posted entry.</field>
         <field name="allowed_tasks">["document.read", "move.create_draft", "approval.request"]</field>
         <field name="denied_tasks">["move.post", "gl.map", "reconcile.write", "report.build"]</field>
         <field name="can_post" eval="False"/>

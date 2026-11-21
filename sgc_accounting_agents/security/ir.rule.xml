@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Intake may create contacts (new vendors and customers from uploads),
+         only inside its own companies; it never edits or deletes contacts. -->
+    <record id="rule_sgc_agent_intake_partner_create" model="ir.rule">
+        <field name="name">SGC agent intake: new top-level contacts in own companies only</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <!-- Top-level only: never an address or person under an existing contact. -->
+        <field name="domain_force">[('company_id', 'in', company_ids), ('parent_id', '=', False)]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_intake'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Intake applies Chart of Accounts changes the portal owner approved:
+         it creates and updates (archives) accounts that belong only to its own
+         companies; it never deletes an account. -->
+    <record id="rule_sgc_agent_intake_account_own" model="ir.rule">
+        <field name="name">SGC agent intake: accounts of own companies only</field>
+        <field name="model_id" ref="account.model_account_account"/>
+        <field name="domain_force">[('company_ids', 'not any', [('id', 'not in', company_ids)])]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_intake'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <!-- Intake may only touch draft entries of its own companies. -->
     <record id="rule_sgc_agent_intake_move_draft" model="ir.rule">
         <field name="name">SGC agent intake: draft entries only</field>
@@ -69,4 +97,15 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Intake may only create and edit draft payments of its own companies. -->
+    <record id="rule_sgc_agent_intake_payment_draft" model="ir.rule">
+        <field name="name">SGC agent intake: draft payments only</field>
+        <field name="model_id" ref="account.model_account_payment"/>
+        <field name="domain_force">[('company_id', 'in', company_ids), ('state', '=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('sgc_accounting_agents.group_sgc_agent_intake'))]"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
 </odoo>

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import contextvars
+
 from odoo import _, api, models
 from odoo.exceptions import AccessError, UserError
 
@@ -6,6 +8,14 @@ TASK_CREATE_MOVE = "move.create_draft"
 TASK_POST_MOVE = "move.post"
 TASK_GL_MAP = "gl.map"
 TASK_REQUEST_APPROVAL = "approval.request"
+
+# Set only inside the guarded action_post below. Unlike env.context, an
+# XML-RPC caller cannot set it, so a state write is only allowed from there.
+_POSTING = contextvars.ContextVar("sgc_agent_posting", default=False)
+
+
+def _schedules_auto_post(vals):
+    return vals.get("auto_post") not in (None, False, "no")
 
 
 class AccountMoveAgentGuard(models.Model):
@@ -70,6 +80,10 @@ class AccountMoveAgentGuard(models.Model):
                     raise AccessError(
                         _("An agent may only create entries in draft state.")
                     )
+                if _schedules_auto_post(vals):
+                    raise AccessError(
+                        _("An agent cannot schedule an entry to post itself.")
+                    )
         moves = super().create(vals_list)
         if role:
             self.env["sgc.agent.audit"].sudo().log_durable(
@@ -83,13 +97,18 @@ class AccountMoveAgentGuard(models.Model):
     def write(self, vals):
         role = self._agent_role()
         if role:
-            internal = self.env.context.get("sgc_agent_posting")
-            if "state" in vals and not internal and vals["state"] != "draft":
+            if "state" in vals and not _POSTING.get() and vals["state"] != "draft":
                 self._refuse(
                     _(
                         "An agent cannot change the state of a journal entry "
                         "directly. Use the posting flow with an approval."
                     ),
+                    TASK_POST_MOVE,
+                )
+            if _schedules_auto_post(vals):
+                # The auto-post cron would post it as superuser, unapproved.
+                self._refuse(
+                    _("An agent cannot schedule an entry to post itself."),
                     TASK_POST_MOVE,
                 )
             if {"company_id"} & set(vals):
@@ -139,15 +158,57 @@ class AccountMoveAgentGuard(models.Model):
                     % {"moves": ", ".join(missing.mapped("display_name"))},
                     TASK_POST_MOVE,
                 )
-        moves = super(
-            AccountMoveAgentGuard, self.with_context(sgc_agent_posting=True)
-        ).action_post()
+            # Enforce the auto-post ceiling: moves above the role's limit
+            # need a manager's explicit approval recorded on the posting
+            # approval record. Moves at or below the ceiling are allowed.
+            if role.max_auto_post_aed > 0:
+                ceiling = role.max_auto_post_aed
+                over_limit = self.filtered(
+                    lambda move: abs(move.amount_total or 0.0) > ceiling
+                )
+                if over_limit:
+                    # Check if the approval has an explicit override note
+                    # from a manager authorising the over-limit post.
+                    over_ids = over_limit.ids
+                    manager_approved = approvals.filtered(
+                        lambda app: app.move_id.id in over_ids
+                        and app.approved_by_id
+                        and app.approved_by_id.has_group(
+                            "sgc_accounting_agents.group_sgc_agency_manager"
+                        )
+                        and (app.checks or {}).get("over_limit_approved")
+                    )
+                    still_over = over_limit - manager_approved.mapped("move_id")
+                    if still_over:
+                        self._refuse(
+                            _(
+                                "Journal entries %(moves)s exceed the auto-post "
+                                "ceiling of %(ceiling)s AED. A manager must "
+                                "approve the posting request with an explicit "
+                                "over-limit authorisation."
+                            )
+                            % {
+                                "moves": ", ".join(still_over.mapped("display_name")),
+                                "ceiling": ceiling,
+                            },
+                            TASK_POST_MOVE,
+                        )
+        token = _POSTING.set(True)
+        try:
+            moves = super().action_post()
+        finally:
+            _POSTING.reset(token)
         if role:
             self.env["sgc.agent.audit"].sudo().log_durable(
                 TASK_POST_MOVE,
                 self._name,
                 self.ids,
-                details={"role": role.code},
+                details={
+                    "role": role.code,
+                    "amounts": {
+                        move.id: move.amount_total for move in self
+                    },
+                },
             )
         return moves
 
