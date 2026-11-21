@@ -59,56 +59,50 @@ def _has_uae_edi(env):
     ]))
 
 
-def _find_bridge(env):
-    """Return the bridge view and its ir.model.data record, if any."""
-    data = env["ir.model.data"].sudo().search([
+def _arch_text(view):
+    """The view arch as text. Odoo 19 returns a {lang: arch} mapping."""
+    arch = view.arch or ""
+    if isinstance(arch, dict):
+        return " ".join(str(value) for value in arch.values())
+    return str(arch)
+
+
+def _arch_is_current(view):
+    """True when the stored arch is the shape this module expects.
+
+    The root must be <data> (Odoo's XML loader rewrites a
+    <template inherit_id="..."> into <data>), and the XPath must be the
+    tolerant one. Anything else - an older literal XPath, a <templates>
+    root left over from an earlier shape - has to be rebuilt.
+    """
+    text = _arch_text(view)
+    return (
+        view.mode == "extension"
+        and "<data" in text
+        and "contains(@t-call" in text
+    )
+
+
+def _bridge_views(env):
+    """Every view carrying the bridge key (there can be more than one after
+    a half-applied upgrade, so they are all handled)."""
+    return env["ir.ui.view"].sudo().search([("key", "=", BRIDGE_XMLID)])
+
+
+def _drop_bridge(env, views):
+    """Remove the bridge views and their xmlids."""
+    if views:
+        views.unlink()
+    env["ir.model.data"].sudo().search([
         ("module", "=", "sgc_report_theme_accounting"),
         ("name", "=", BRIDGE_NAME),
         ("model", "=", "ir.ui.view"),
-    ], limit=1)
-    if not data:
-        return env["ir.ui.view"].browse(), data
-    view = env["ir.ui.view"].sudo().browse(data.res_id)
-    if not view.exists():
-        return env["ir.ui.view"].browse(), data
-    return view, data
+    ]).unlink()
 
 
-def sync_invoice_bridge(env):
-    """Create or drop the invoice bridge depending on what is installed.
-
-    Returns True when the bridge is present afterwards.
-    """
-    view, data = _find_bridge(env)
+def _create_bridge(env):
+    """Create the bridge view and register its xmlid."""
     View = env["ir.ui.view"].sudo()
-
-    if _has_uae_edi(env):
-        if view:
-            _logger.info(
-                "%s is installed: removing the SGC invoice bridge so the two "
-                "layout rewrites cannot collide.", UAE_MODULE,
-            )
-            view.unlink()
-            data.unlink()
-        return False
-
-    if view:
-        # Already there (an upgraded database): keep it an extension and make
-        # sure it carries the tolerant XPath.
-        needs_update = (
-            view.mode != "extension"
-            or "contains(@t-call" not in (view.arch or "")
-        )
-        if needs_update:
-            _logger.info("Refreshing the SGC invoice bridge view.")
-            view.write({
-                "mode": "extension",
-                "priority": 99,
-                "arch": BRIDGE_ARCH,
-            })
-        return True
-
-    _logger.info("Creating the SGC invoice bridge view.")
     parent = env.ref("account.report_invoice_document")
     new_view = View.create({
         "name": BRIDGE_NAME,
@@ -127,6 +121,43 @@ def sync_invoice_bridge(env):
         "res_id": new_view.id,
         "noupdate": True,
     })
+    return new_view
+
+
+def sync_invoice_bridge(env):
+    """Create or drop the invoice bridge depending on what is installed.
+
+    Returns True when the bridge is present afterwards.
+    """
+    views = _bridge_views(env)
+
+    if _has_uae_edi(env):
+        if views:
+            _logger.info(
+                "%s is installed: removing the SGC invoice bridge so the two "
+                "layout rewrites cannot collide.", UAE_MODULE,
+            )
+            _drop_bridge(env, views)
+        return False
+
+    if views:
+        # An upgraded database: keep one view, drop any duplicate, and make
+        # sure it carries the tolerant XPath.
+        view = views[0]
+        if len(views) > 1:
+            views[1:].unlink()
+        if _arch_is_current(view):
+            return True
+        # The stored arch is an older shape: rebuild the view rather than
+        # writing over it (writing validates the combined arch, which is
+        # exactly what is broken).
+        _logger.info("Rebuilding the SGC invoice bridge view.")
+        _drop_bridge(env, view)
+        _create_bridge(env)
+        return True
+
+    _logger.info("Creating the SGC invoice bridge view.")
+    _create_bridge(env)
     return True
 
 

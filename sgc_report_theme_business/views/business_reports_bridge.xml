@@ -8,88 +8,121 @@
     t-field value expression is touched anywhere, preserving numeric
     fidelity. t-call is a plain XML attribute (unlike t-attf-class).
 
-    The XPath matches the layout call by NAME PATTERN, not by the exact
-    literal "web.external_layout". Another module may inherit the same
-    report template and rewrite that call first - account_edi_ubl_cii
-    (core Odoo 19, UAE e-invoicing) does exactly that on
-    account.report_invoice_document with primary="True", so it is applied
-    before this extension view and the literal value is already gone.
-    Matching the literal made this module fail with "Element '<xpath
-    expr=...>' cannot be located in parent view", which aborts the whole
-    registry load and takes the database down. The pattern matches
-    exactly one element per template ("web.html_container" does not
-    contain "layout", so it is never caught).
+    Every template here also keeps a HIDDEN ANCHOR: a web.external_layout
+    call inside a t-if="False" holder. It renders nothing and exists only
+    so that a module which rewrites the same layout call with a LITERAL
+    XPath still finds its target - account_edi_ubl_cii (core Odoo 19, UAE
+    e-invoicing) does exactly that on account.report_invoice_document.
+    Odoo combines extensions before primaries, so without the anchor the
+    core module's literal XPath can no longer be satisfied and the whole
+    registry load fails, taking the database down.
 -->
 
     <template id="report_sale_agreement_sgc"
               inherit_id="sale_agreement_report.report_sale_agreement"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_sale_agreement_yearly_sgc"
               inherit_id="sale_agreement_report.report_sale_agreement_yearly"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_risk_assessment_document_sgc"
               inherit_id="aml_compliance.report_risk_assessment_document"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_goaml_dossier_document_sgc"
               inherit_id="aml_compliance.report_goaml_dossier_document"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_screening_certificate_sgc"
               inherit_id="aml_compliance.report_screening_certificate"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_consolidated_kyc_sgc"
               inherit_id="aml_compliance.report_consolidated_kyc"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_kyc_approvals_summary_template_sgc"
               inherit_id="kyc_management.report_kyc_approvals_summary_template"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_followup_sgc"
               inherit_id="om_account_followup.report_followup"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
     <template id="report_journal_entries_sgc"
               inherit_id="accounting_pdf_reports.report_journal_entries"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 

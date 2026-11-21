@@ -6,39 +6,49 @@
     sgc_report_theme_business/_statement/_sales: changes ONLY the t-call
     target attribute, no t-esc/t-field value expression touched anywhere.
 
-    The XPath matches the layout call by NAME PATTERN rather than by the
-    exact literal "web.external_layout". That matters because
-    account_edi_ubl_cii (core Odoo 19, UAE e-invoicing) also inherits
-    account.report_invoice_document and rewrites the same call - it is a
-    primary="True" view, so it is applied BEFORE this extension view, and
-    the literal value is already "web.internal_layout" by the time we run.
-    Matching on the literal made this module fail with
-    "Element '<xpath expr="//t[@t-call='web.external_layout']">' cannot be
-    located in parent view", which aborts the whole registry load and takes
-    the database down.
+    WHY THE HIDDEN ANCHOR
+    ---------------------
+    account_edi_ubl_cii (core Odoo 19, UAE e-invoicing) inherits
+    account.report_invoice_document and rewrites the very same layout call
+    with a LITERAL XPath:
 
-    The pattern matches exactly one element per template (verified against
-    every bridged template): "web.html_container" does not contain
-    "layout", so it is never caught. Overriding the PDF layout does not
-    affect e-invoicing compliance - the UAE e-invoice XML is generated
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+
+    Odoo combines inherited views with EXTENSIONS FIRST and primaries after
+    (see ir_ui_view._combine), so this bridge - an extension - always runs
+    BEFORE account_edi_ubl_cii's primary view. Once this bridge changes the
+    t-call, the core module looks for a literal value that is no longer
+    there and the whole registry load fails:
+
+        Element '<xpath expr="//t[@t-call='web.external_layout']">' cannot
+        be located in parent view
+
+    That aborts the database initialisation - the site is down until
+    somebody removes one of the two modules. It is not hypothetical:
+    account_peppol auto-installs account_edi_ubl_cii, so installing
+    account_peppol was enough to take the database down.
+
+    The hidden anchor keeps a literal web.external_layout call reachable, so
+    the core module always finds its target. It sits in a t-if="False"
+    holder, so it renders nothing; it exists purely so the two rewrites
+    cannot collide. The invoice PDF still carries the SGC theme, and the
+    UAE e-invoice XML is unaffected either way - it is generated
     server-side by account_edi_xml_cii_facturx._export_invoice, not from
     this template.
 
-    priority="99" makes this view apply LAST. Odoo combines inherited views
-    in (priority, id) order, and the priority field exists exactly for this
-    ("force a view to be combined earlier or later"). Applying last means
-    any other module that rewrites the same layout call - account_edi_ubl_cii
-    rewrites it with a literal //t[@t-call='web.external_layout'] XPath -
-    finds its target still in place and succeeds. Without the priority the
-    two orders can collide and the whole registry load fails.
+    priority="99" applies this view last among the extensions, so any
+    other module that rewrites the same call keeps working too.
 -->
 
     <template id="report_invoice_document_sgc"
               inherit_id="account.report_invoice_document"
-              primary="True"
               priority="99">
-        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
+        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
+        </xpath>
+
+        <xpath expr="//t[@t-call='sgc_report_theme_core.external_layout_sgc']" position="after">
+            <t t-if="False"><t t-call="web.external_layout"/></t>
         </xpath>
     </template>
 
