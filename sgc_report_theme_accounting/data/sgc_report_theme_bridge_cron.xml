@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        The SGC invoice-report bridge cannot be declared in XML: it has to
+        yield to account_edi_ubl_cii (core Odoo 19, UAE e-invoicing), which
+        rewrites the same layout call with a literal XPath. The bridge is
+        therefore created by the module's post-init hook and kept in step
+        by this daily cron, so installing or removing the UAE e-invoicing
+        module later is picked up automatically instead of breaking the
+        next registry load.
+    -->
+    <record id="ir_cron_sgc_report_theme_bridge" model="ir.cron">
+        <field name="name">SGC Report Theme: synchronise report bridges</field>
+        <field name="model_id" ref="model_sgc_report_theme_bridge"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_sync_bridges()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>
