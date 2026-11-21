@@ -39,12 +39,15 @@ BRIDGE_XMLID = "sgc_report_theme_accounting.report_invoice_document_sgc"
 BRIDGE_NAME = "report_invoice_document_sgc"
 UAE_MODULE = "account_edi_ubl_cii"
 
+# The root element must be <data>: that is what Odoo's XML loader produces
+# for a <template inherit_id="..."> (it rewrites the tag to "data"), and the
+# inheritance engine only unwraps a <data> root into spec nodes.
 BRIDGE_ARCH = """
-<templates inherit_id="account.report_invoice_document">
+<data>
     <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
         <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
     </xpath>
-</templates>
+</data>
 """
 
 
