@@ -5,11 +5,29 @@
     sgc_report_theme_core.external_layout_sgc. Same pattern proven in
     sgc_report_theme_business/_statement/_sales: changes ONLY the t-call
     target attribute, no t-esc/t-field value expression touched anywhere.
+
+    The XPath matches the layout call by NAME PATTERN rather than by the
+    exact literal "web.external_layout". That matters because
+    account_edi_ubl_cii (core Odoo 19, UAE e-invoicing) also inherits
+    account.report_invoice_document and rewrites the same call - it is a
+    primary="True" view, so it is applied BEFORE this extension view, and
+    the literal value is already "web.internal_layout" by the time we run.
+    Matching on the literal made this module fail with
+    "Element '<xpath expr="//t[@t-call='web.external_layout']">' cannot be
+    located in parent view", which aborts the whole registry load and takes
+    the database down.
+
+    The pattern matches exactly one element per template (verified against
+    every bridged template): "web.html_container" does not contain
+    "layout", so it is never caught. Overriding the PDF layout does not
+    affect e-invoicing compliance - the UAE e-invoice XML is generated
+    server-side by account_edi_xml_cii_facturx._export_invoice, not from
+    this template.
 -->
 
     <template id="report_invoice_document_sgc"
               inherit_id="account.report_invoice_document">
-        <xpath expr="//t[@t-call='web.external_layout']" position="attributes">
+        <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
         </xpath>
     </template>
