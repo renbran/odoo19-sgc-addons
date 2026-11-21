@@ -8,3 +8,4 @@ from . import goaml_report
 from . import transaction_monitoring
 from . import sanctions_screening
 from . import opensanctions_config
+from . import investigation_case
