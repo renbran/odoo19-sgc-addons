@@ -1589,6 +1589,7 @@ class SgcAccountingUpload(models.Model):
         )
         return "account.move", duplicate_domain, values, summary
 
+    def _set_party(self, values, headers, row, partner_label, company_id, find, notes):
         """Add the currency and the counterparty of the client database,
         creating the counterparty in the target company when it is new."""
         currency = _cell(headers, row, "Currency")
