@@ -227,17 +227,10 @@ class SgcAgentTaxAudit(models.Model):
             move = line.move_id
             is_sale = move.move_type in ("out_invoice", "out_refund")
             is_purchase = move.move_type in ("in_invoice", "in_refund")
-            # Sum the tax amounts from the tax line's balance.
-            for tax_line in line.tax_ids:
-                tax_repartition_lines = self.env[
-                    "account.tax.repartition.line"
-                ].search([
-                    ("invoice_tax_id", "=", tax_line.id),
-                    ("account_id", "!=", False),
-                ])
-                if not tax_repartition_lines:
-                    continue
-            # Read the actual tax amounts from tax detail lines.
+            # Read the actual tax amounts from the tax detail lines. The
+            # repartition lines are not consulted: Odoo 19 renamed the link
+            # field on account.tax.repartition.line, and the amounts are
+            # carried by the tax_lines on the move itself.
             tax_detail_lines = self.env["account.move.line"].search([
                 ("move_id", "=", move.id),
                 ("tax_line_id", "!=", False),
