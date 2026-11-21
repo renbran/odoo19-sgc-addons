@@ -23,10 +23,19 @@
     affect e-invoicing compliance - the UAE e-invoice XML is generated
     server-side by account_edi_xml_cii_facturx._export_invoice, not from
     this template.
+
+    priority="99" makes this view apply LAST. Odoo combines inherited views
+    in (priority, id) order, and the priority field exists exactly for this
+    ("force a view to be combined earlier or later"). Applying last means
+    any other module that rewrites the same layout call - account_edi_ubl_cii
+    rewrites it with a literal //t[@t-call='web.external_layout'] XPath -
+    finds its target still in place and succeeds. Without the priority the
+    two orders can collide and the whole registry load fails.
 -->
 
     <template id="report_invoice_document_sgc"
-              inherit_id="account.report_invoice_document">
+              inherit_id="account.report_invoice_document"
+              priority="99">
         <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
         </xpath>
