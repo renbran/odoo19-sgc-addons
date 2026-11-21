@@ -180,7 +180,9 @@ class SgcAccountingProvisionEvent(models.Model):
                 _logger.exception(
                     "Provision event %s failed", event.event_id
                 )
-        # Mark dead events to the account manager.
+        # Mark dead events to the account manager. The to-do hangs on the
+        # CLIENT, not on the event: sgc.accounting.provision.event does not
+        # inherit mail.thread, so it has no activity_ids to write on.
         dead = self.search([("state", "=", "dead"), ("last_error", "!=", False)])
         for event in dead:
             event.client_id._todo(
@@ -193,6 +195,5 @@ class SgcAccountingProvisionEvent(models.Model):
                     n=event.attempts,
                     error=event.last_error,
                 ),
-                record=event,
             )
         return True
