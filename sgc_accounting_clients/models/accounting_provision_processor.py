@@ -32,12 +32,16 @@ class SgcAccountingProvisionEvent(models.Model):
     receiver_response = fields.Text(readonly=True)
 
     def _receiver_endpoint(self):
-        """Resolve the tenant receiver URL from system parameters or client."""
+        """Resolve the tenant receiver URL.
+
+        Only ``sgc_accounting_clients.provision_endpoint`` is used. The
+        agent endpoint (``/chat``) is the DOCUMENT EXTRACTION transport and
+        must never receive provisioning work: it answers with
+        "422 Field required: prompt" and burns every retry of every event
+        every five minutes.
+        """
         param = self.env["ir.config_parameter"].sudo()
         endpoint = param.get_param("sgc_accounting_clients.provision_endpoint")
-        if not endpoint:
-            # Fall back to the agent endpoint (the orchestrator may handle both).
-            endpoint = param.get_param("sgc_accounting_clients.agent_endpoint")
         return (endpoint or "").strip()
 
     def _receiver_token(self):
@@ -48,13 +52,93 @@ class SgcAccountingProvisionEvent(models.Model):
             .strip()
         )
 
+    def _build_body(self, endpoint, payload):
+        """Build the request body for ``endpoint``.
+
+        A chat-style receiver (the orchestrator's ``/chat``) expects
+        ``{"prompt": ..., "thread_id": ...}`` and answers 422 without a
+        prompt. A plain webhook expects the structured payload as it is.
+        The structured data always travels in the prompt as well, so a
+        chat-style receiver can act on it.
+        """
+        if not endpoint.rstrip("/").endswith("/chat"):
+            return payload
+        details = "\n".join(
+            "%s: %s" % (key, value) for key, value in sorted(payload.items())
+        )
+        prompt = (
+            "Provision the accounting tenant described below through the "
+            "tenant receiver, then reply with the connection details "
+            "(db_name, workspace_url, api_user_id) as JSON.\n\n%s" % details
+        )
+        return {
+            "prompt": prompt,
+            "thread_id": self.id,
+            "res_model": "sgc.accounting.provision.event",
+            "res_id": self.id,
+        }
+
+    @staticmethod
+    def _extract_connection(response):
+        """Pull the connection details out of the receiver's answer."""
+        data = None
+        try:
+            data = response.json()
+        except (ValueError, TypeError):
+            data = None
+        if isinstance(data, dict):
+            connection = data.get("connection")
+            if isinstance(connection, dict):
+                return connection
+            # A chat reply: {"message": "...json..."} or {"reply": "..."}.
+            for key in ("reply", "message", "content", "text", "output"):
+                value = data.get(key)
+                if isinstance(value, str) and "db_name" in value:
+                    parsed = SgcAccountingProvisionEvent._parse_json_object(value)
+                    if parsed:
+                        return parsed
+            if data.get("db_name"):
+                return data
+        text = getattr(response, "text", "") or ""
+        if "db_name" in text:
+            return SgcAccountingProvisionEvent._parse_json_object(text)
+        return {}
+
+    @staticmethod
+    def _parse_json_object(text):
+        """Return the first JSON object in ``text``, or an empty dict."""
+        import json
+        start = text.find("{")
+        while start != -1:
+            depth = 0
+            for index in range(start, len(text)):
+                if text[index] == "{":
+                    depth += 1
+                elif text[index] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        try:
+                            parsed = json.loads(text[start:index + 1])
+                        except ValueError:
+                            break
+                        if isinstance(parsed, dict):
+                            return parsed
+                        break
+            start = text.find("{", start + 1)
+        return {}
+
     def _send_to_receiver(self):
         """Send this event to the tenant receiver and update its state."""
         self.ensure_one()
         endpoint = self._receiver_endpoint()
         if not endpoint:
+            # No receiver configured is an operator setup issue, not a failed
+            # attempt: the event stays pending and keeps its attempts, so it
+            # is picked up as soon as an endpoint is configured instead of
+            # going dead and raising a to-do every five minutes.
             self.write({
-                "last_error": _("No provision endpoint is configured."),
+                "last_error": _("No provision endpoint is configured "
+                                "(sgc_accounting_clients.provision_endpoint)."),
                 "next_attempt_at": fields.Datetime.now() + timedelta(hours=1),
             })
             return False
@@ -78,9 +162,10 @@ class SgcAccountingProvisionEvent(models.Model):
         token = self._receiver_token()
         if token:
             headers["Authorization"] = "Bearer %s" % token
+        body = self._build_body(endpoint, payload)
         try:
             response = requests.post(
-                endpoint, json=payload, headers=headers, timeout=PROVISION_TIMEOUT,
+                endpoint, json=body, headers=headers, timeout=PROVISION_TIMEOUT,
             )
         except Exception as exc:
             self._record_provision_failure(str(exc)[:2000])
@@ -91,14 +176,10 @@ class SgcAccountingProvisionEvent(models.Model):
                 "HTTP %s: %s" % (response.status_code, body[:500])
             )
             return False
-        # The receiver may return connection details inline.
-        connection = {}
-        try:
-            data = response.json()
-            if isinstance(data, dict):
-                connection = data.get("connection", {})
-        except (ValueError, TypeError):
-            pass
+        # The receiver may return connection details inline. A webhook returns
+        # {"connection": {...}}; a chat-style receiver answers with a reply
+        # that carries the same JSON, so both shapes are accepted.
+        connection = self._extract_connection(response)
         self.write({
             "state": "sent",
             "sent_at": fields.Datetime.now(),
