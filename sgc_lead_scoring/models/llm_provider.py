@@ -3,6 +3,7 @@ import json
 import logging
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools import sql
 
 _logger = logging.getLogger(__name__)
 
@@ -120,17 +121,50 @@ class LlmProvider(models.Model):
     max_tokens = fields.Integer(string='Max Tokens', default=2000)
     timeout = fields.Integer(string='Timeout (seconds)', default=30)
     active = fields.Boolean(string='Active', default=True)
-    is_default = fields.Boolean(string='Is Default')
+    is_default = fields.Boolean(string='Is Default', default=False)
     company_id = fields.Many2one('res.company', string='Company',
                                   default=lambda self: self.env.company)
     total_requests = fields.Integer(string='Total Requests', default=0)
     failed_requests = fields.Integer(string='Failed Requests', default=0)
     last_used = fields.Datetime(string='Last Used')
 
-    _unique_default_per_company = models.Constraint(
-        'UNIQUE(is_default, company_id)',
+    # A partial unique index, not a table constraint: only ONE provider per
+    # company may be the default. A plain UNIQUE(is_default, company_id) would
+    # also forbid a second NON-default provider per company, which broke a
+    # fresh install of the six seeded providers (they all share one company
+    # and all have is_default = False).
+    #
+    # The attribute is named ..._idx so the index does not collide with the
+    # obsolete table constraint of the same name that an existing database
+    # still carries; init() drops that constraint.
+    _unique_default_per_company_idx = models.UniqueIndex(
+        '(company_id) WHERE is_default',
         'Only one provider can be default per company!',
     )
+
+    @api.model
+    def init(self):
+        """Drop the obsolete table constraint replaced by the partial index.
+
+        Older code declared UNIQUE(is_default, company_id) as a table
+        constraint. It was wrong (it also limited non-default providers) and
+        Odoo does not remove constraints that are no longer declared, so it
+        is dropped explicitly here.
+        """
+        super().init()
+        obsolete = 'llm_provider_unique_default_per_company'
+        try:
+            if sql.constraint_definition(self.env.cr, self._table, obsolete):
+                sql.drop_constraint(self.env.cr, self._table, obsolete)
+                _logger.info(
+                    "Dropped obsolete table constraint %s on %s",
+                    obsolete, self._table,
+                )
+        except Exception as exc:  # pragma: no cover - defensive
+            _logger.warning(
+                "Could not drop obsolete constraint %s on %s: %s",
+                obsolete, self._table, exc,
+            )
 
     @api.constrains('temperature')
     def _check_temperature(self):
