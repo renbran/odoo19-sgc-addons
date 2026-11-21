@@ -35,6 +35,7 @@
 
     <template id="report_invoice_document_sgc"
               inherit_id="account.report_invoice_document"
+              primary="True"
               priority="99">
         <xpath expr="//t[contains(@t-call,'external_layout') or contains(@t-call,'internal_layout')]" position="attributes">
             <attribute name="t-call">sgc_report_theme_core.external_layout_sgc</attribute>
