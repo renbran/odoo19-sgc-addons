@@ -7,7 +7,7 @@
     target attribute, no t-esc/t-field value expression touched anywhere.
 
     WHY THE HIDDEN ANCHOR
-    ---------------------
+
     account_edi_ubl_cii (core Odoo 19, UAE e-invoicing) inherits
     account.report_invoice_document and rewrites the very same layout call
     with a LITERAL XPath:
