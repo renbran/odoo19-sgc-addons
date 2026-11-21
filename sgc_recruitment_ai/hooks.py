@@ -189,8 +189,14 @@ TEMPLATE_BODIES = {
 }
 
 
-def post_init_hook(cr, registry):
-    """Run after module install/upgrade to apply branding changes."""
+def post_init_hook(env):
+    """Run after module install/upgrade to apply branding changes.
+
+    Odoo 19 calls the hook with the environment only; the old
+    (cr, registry) signature is refused with "post_init_hook() missing 1
+    required positional argument".
+    """
+    cr = env.cr
     # 1. Rename OdooBot partner to AIRA SGC TECH
     cr.execute(
         "UPDATE res_partner SET name = 'AIRA SGC TECH' WHERE id = 2 AND name = 'OdooBot'"
