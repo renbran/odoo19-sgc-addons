@@ -195,34 +195,28 @@ def post_init_hook(env):
     Odoo 19 calls the hook with the environment only; the old
     (cr, registry) signature is refused with "post_init_hook() missing 1
     required positional argument".
-    """
-    cr = env.cr
-    # 1. Rename OdooBot partner to AIRA SGC TECH
-    cr.execute(
-        "UPDATE res_partner SET name = 'AIRA SGC TECH' WHERE id = 2 AND name = 'OdooBot'"
-    )
-    if cr.rowcount:
-        _logger.info("Renamed OdooBot partner → AIRA SGC TECH")
 
-    # 2. Set avatar on the bot partner
-    cr.execute(
-        "UPDATE res_partner SET image_1920 = %s WHERE id = 2",
-        [AVATAR_SVG],
-    )
-    if cr.rowcount:
-        _logger.info("Set avatar for AIRA SGC TECH")
+    The partner branding goes through the ORM rather than raw SQL: Odoo 19
+    no longer stores image_1920 in a res_partner column, so
+    "UPDATE res_partner SET image_1920 = ..." fails with
+    'column "image_1920" of relation "res_partner" does not exist'.
+    """
+    Partner = env["res.partner"].sudo()
+    partner = Partner.search([("name", "=", "OdooBot")], limit=1)
+    if not partner:
+        partner = Partner.browse(2).exists()
+    if partner:
+        # 1. Rename the bot partner, 2. set its avatar.
+        values = {}
+        if partner.name == "OdooBot":
+            values["name"] = "AIRA SGC TECH"
+        values["image_1920"] = AVATAR_SVG
+        partner.write(values)
+        _logger.info("Applied AIRA SGC TECH branding to partner %s", partner.id)
 
     # 3. Update recruitment email template bodies with branded HTML
     for xml_name, body_html in TEMPLATE_BODIES.items():
-        cr.execute(
-            """UPDATE mail_template mt
-               SET body_html = %s
-               FROM ir_model_data imd
-               WHERE imd.model = 'mail.template'
-                 AND imd.module = 'hr_recruitment'
-                 AND imd.name = %s
-                 AND imd.res_id = mt.id""",
-            [body_html, xml_name],
-        )
-        if cr.rowcount:
+        template = env.ref("hr_recruitment.%s" % xml_name, raise_if_not_found=False)
+        if template:
+            template.body_html = body_html
             _logger.info("Updated mail template %s", xml_name)
