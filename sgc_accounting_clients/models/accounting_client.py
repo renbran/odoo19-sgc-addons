@@ -398,6 +398,80 @@ class SgcAccountingClient(models.Model):
             },
         }
 
+    def _role_connection(self, role_code):
+        """Return ``(connection, error)`` for one agent role of this client.
+
+        The role's own key file (``agent-<role>.env``) carries its URL, its
+        database and its user. The file is only accepted when it points at
+        THIS client's workspace, so one tenant's key can never be used against
+        another tenant's books.
+        """
+        self.ensure_one()
+        if not role_code or not re.match(r"^[a-z0-9-]+$", role_code):
+            return None, _("The agent role code is not valid.")
+        path = os.path.join(SECRETS_DIR, "agent-%s.env" % role_code)
+        try:
+            with open(path, encoding="utf-8") as handle:
+                lines = dict(
+                    line.strip().split("=", 1) for line in handle if "=" in line
+                )
+        except (OSError, ValueError) as exc:
+            return None, _(
+                "The API key file of agent %(role)s cannot be read: %(error)s",
+                role=role_code,
+                error=getattr(exc, "strerror", None) or exc,
+            )
+        missing = [
+            name for name in KEY_FILE_FIELDS
+            if name != "SGC_AGENT_ROLE" and not lines.get(name)
+        ]
+        if missing:
+            return None, _(
+                "The API key file of agent %(role)s lacks %(fields)s.",
+                role=role_code,
+                fields=", ".join(missing),
+            )
+        if lines.get("SGC_AGENT_ROLE") != role_code:
+            return None, _(
+                "The API key file of agent %(role)s belongs to role %(found)s.",
+                role=role_code,
+                found=lines.get("SGC_AGENT_ROLE"),
+            )
+        mismatch = [
+            label
+            for label, expected, found in (
+                (_("database"), self.db_name, lines["SGC_AGENT_DB"]),
+                (_("URL"), self.workspace_url, lines["SGC_AGENT_ODOO_URL"].rstrip("/")),
+            )
+            if expected and expected != found
+        ]
+        if mismatch:
+            return None, _(
+                "The API key of agent %(role)s is for another %(what)s than the "
+                "one linked on this client.",
+                role=role_code,
+                what=", ".join(mismatch),
+            )
+        try:
+            expires = fields.Datetime.to_datetime(
+                lines["SGC_AGENT_KEY_EXPIRES"][:19].replace("T", " ")
+            )
+        except ValueError:
+            return None, _("The API key file has an unreadable expiry date.")
+        if expires <= fields.Datetime.now():
+            return None, _(
+                "The API key of agent %(role)s expired on %(date)s.",
+                role=role_code,
+                date=expires,
+            )
+        return {
+            "url": lines["SGC_AGENT_ODOO_URL"].rstrip("/"),
+            "db": lines["SGC_AGENT_DB"],
+            "uid": int(lines["SGC_AGENT_USER_ID"]),
+            "key": lines["SGC_AGENT_API_KEY"],
+            "role": role_code,
+        }, False
+
     def _booking_connection(self):
         """Return ``(connection, error)`` for the client database.
 
