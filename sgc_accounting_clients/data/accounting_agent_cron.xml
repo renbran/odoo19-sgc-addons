@@ -66,5 +66,17 @@
             <field name="interval_type">minutes</field>
             <field name="active" eval="True"/>
         </record>
+        <!-- Every 5 minutes: open a posting request for every draft the
+             agent booked in a client database. A manager approves it, then
+             the posting agent posts the entry. -->
+        <record id="ir_cron_sgc_accounting_posting_requests" model="ir.cron">
+            <field name="name">SGC Accounting: open posting requests</field>
+            <field name="model_id" ref="model_sgc_accounting_posting_request"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_request_approvals()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+        </record>
     </data>
 </odoo>

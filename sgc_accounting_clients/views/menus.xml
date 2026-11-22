@@ -7,5 +7,7 @@
     <menuitem id="menu_sgc_accounting_documents" name="Documents" parent="menu_sgc_accounting_root" action="action_sgc_accounting_upload" sequence="30"/>
     <menuitem id="menu_sgc_accounting_upload_log" name="Upload Log" parent="menu_sgc_accounting_root" action="action_sgc_accounting_upload_log" sequence="33"/>
     <menuitem id="menu_sgc_accounting_agent_runs" name="Agent Runs" parent="menu_sgc_accounting_root" action="action_sgc_accounting_agent_run" sequence="35"/>
+    <menuitem id="menu_sgc_accounting_posting" name="Posting Requests" parent="menu_sgc_accounting_root" action="action_sgc_accounting_posting_request" sequence="35"/>
+
     <menuitem id="menu_sgc_accounting_provisioning" name="Provisioning" parent="menu_sgc_accounting_root" action="action_sgc_accounting_provision" sequence="40"/>
 </odoo>

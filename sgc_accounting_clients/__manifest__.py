@@ -35,6 +35,7 @@ Registry and client portal for the SGC accounting agency on app.sgctech.ai.
         "views/accounting_upload_views.xml",
         "views/accounting_agent_views.xml",
         "views/accounting_provision_views.xml",
+        "views/accounting_posting_views.xml",
         "views/res_partner_views.xml",
         "views/portal_templates.xml",
         "views/menus.xml",

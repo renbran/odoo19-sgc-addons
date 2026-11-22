@@ -8,4 +8,5 @@ from . import accounting_provision_event
 from . import accounting_provision_processor
 from . import accounting_reconciliation
 from . import accounting_gatekeeper
+from . import accounting_posting_request
 from . import res_partner
