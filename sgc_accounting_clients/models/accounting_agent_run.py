@@ -19,6 +19,9 @@ _logger = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 5
 CHAT_TIMEOUT = 120
+# The agent task this run performs. The orchestrator routes a chat request
+# carrying it to the model that was benchmarked and assigned for that task.
+AGENT_TASK_EXTRACTION = "accounting_extraction"
 # Rows per chat call. Each agent reply must stay inside the response budget
 # (~8k characters); 25 rows keeps it comfortably within that even for verbose
 # replies, while an upload may hold up to MAX_UPLOAD_ROWS rows in total.
@@ -105,6 +108,18 @@ class SgcAccountingAgentRun(models.Model):
     )
     response_code = fields.Integer()
     response_body = fields.Text()
+    agent_task = fields.Char(
+        readonly=True,
+        copy=False,
+        help="The agent task this run was routed to, e.g. "
+             "accounting_extraction.",
+    )
+    served_model = fields.Char(
+        readonly=True,
+        copy=False,
+        help="The model alias that served the run, as reported by the "
+             "orchestrator, so every run carries its own attribution.",
+    )
     attempts = fields.Integer(default=0)
     last_error = fields.Text()
     next_attempt_at = fields.Datetime(default=fields.Datetime.now)
@@ -777,7 +792,13 @@ class SgcAccountingAgentRun(models.Model):
             thread_id = (
                 self.id * 1000 + index if total_batches > 1 else self.id
             )
-            body = {"prompt": prompt, "thread_id": thread_id}
+            body = {
+                "prompt": prompt,
+                "thread_id": thread_id,
+                # The task routes the request to the agent that was assigned
+                # and benchmarked for it, instead of the shared default.
+                "task": AGENT_TASK_EXTRACTION,
+            }
             try:
                 response = requests.post(
                     endpoint,
@@ -821,6 +842,11 @@ class SgcAccountingAgentRun(models.Model):
             if isinstance(data, dict) and data.get("reply"):
                 reply = str(data["reply"])[:8000]
             last_reply = reply
+            # The orchestrator reports which assigned agent served the request,
+            # so every run carries its own attribution.
+            served_model = ""
+            if isinstance(data, dict):
+                served_model = str(data.get("model") or "")[:120]
 
             try:
                 result = self._parse_agent_reply(reply)
@@ -865,6 +891,10 @@ class SgcAccountingAgentRun(models.Model):
 
             matches.extend(validated["matches"])
             extraction.update(validated["extraction"] or {})
+            if served_model:
+                # Attribution: the assigned agent that served this batch.
+                self.write({"served_model": served_model,
+                            "agent_task": AGENT_TASK_EXTRACTION})
             if authoritative.get("total") is not None:
                 has_total = True
                 merged_total += authoritative["total"]
