@@ -21,6 +21,7 @@ Every step is recorded here and in the client database's own agent audit
 trail, so who approved what is never in doubt.
 """
 import logging
+from datetime import timedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
@@ -87,10 +88,21 @@ class SgcAccountingPostingRequest(models.Model):
     # ------------------------------------------------------------------
     # Steps
     # ------------------------------------------------------------------
+    def _conn_for(self, role_code):
+        """Return the connection for ``role_code`` against this client.
+
+        The intake role is reached through the client's own booking
+        connection, which is already validated to be this client's intake key.
+        The other roles have their own per-client key file.
+        """
+        if role_code == INTAKE_ROLE:
+            return self.client_id._booking_connection()
+        return self.client_id._role_connection(role_code)
+
     def _open_approval(self):
         """Ask the intake agent to open a posting request in the client database."""
         self.ensure_one()
-        conn, error = self.client_id._role_connection(INTAKE_ROLE)
+        conn, error = self._conn_for(INTAKE_ROLE)
         if error:
             self.write({"state": "failed", "last_error": error})
             return False
@@ -130,13 +142,15 @@ class SgcAccountingPostingRequest(models.Model):
             raise UserError(_("Only a waiting request can be approved."))
         if not self.approval_id:
             raise UserError(_("This draft has no posting request yet."))
-        conn, error = self.client_id._role_connection(MANAGER_ROLE)
+        conn, error = self._conn_for(MANAGER_ROLE)
         if error:
             self.write({"state": "failed", "last_error": error})
             raise UserError(error)
         try:
+            # The rpc helper maps *args to the record ids and **kwargs to the
+            # keyword arguments, so over_limit has to be a keyword here.
             rpc(conn, APPROVAL_MODEL, "action_approve", [self.approval_id],
-                {"over_limit": bool(self.over_limit)})
+                over_limit=bool(self.over_limit))
         except Exception as exc:
             message = rpc_error(exc)
             self.write({"last_error": message, "state": "failed"})
@@ -153,7 +167,7 @@ class SgcAccountingPostingRequest(models.Model):
         self.ensure_one()
         if self.state != "pending":
             raise UserError(_("Only a waiting request can be refused."))
-        conn, error = self.client_id._role_connection(MANAGER_ROLE)
+        conn, error = self._conn_for(MANAGER_ROLE)
         if error:
             self.write({"state": "failed", "last_error": error})
             raise UserError(error)
@@ -181,7 +195,7 @@ class SgcAccountingPostingRequest(models.Model):
         self.ensure_one()
         if self.state != "approved":
             raise UserError(_("Only an approved request can be posted."))
-        conn, error = self.client_id._role_connection(POSTING_ROLE)
+        conn, error = self._conn_for(POSTING_ROLE)
         if error:
             self.write({"state": "failed", "last_error": error})
             raise UserError(error)
@@ -205,7 +219,13 @@ class SgcAccountingPostingRequest(models.Model):
     def _cron_request_approvals(self):
         """Open a posting request for every draft a booking created."""
         Upload = self.env["sgc.accounting.upload"]
-        uploads = Upload.search([("booking_state", "=", "done")], order="id", limit=50)
+        # Only recent bookings: an old upload whose request was refused stays
+        # refused and must not be reopened on every run.
+        since = fields.Datetime.now() - timedelta(days=7)
+        uploads = Upload.search(
+            [("booking_state", "=", "done"), ("create_date", ">=", since)],
+            order="id", limit=50,
+        )
         opened = 0
         for upload in uploads:
             entries = upload.log_ids.filtered(

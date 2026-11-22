@@ -409,7 +409,13 @@ class SgcAccountingClient(models.Model):
         self.ensure_one()
         if not role_code or not re.match(r"^[a-z0-9-]+$", role_code):
             return None, _("The agent role code is not valid.")
-        path = os.path.join(SECRETS_DIR, "agent-%s.env" % role_code)
+        # The key file is named after THIS client and the role, so two
+        # tenants can each have their own posting agent without sharing a
+        # credential. The old per-agent name is accepted as a fallback and is
+        # still checked against this client's workspace below.
+        path = os.path.join(SECRETS_DIR, "acc-%s.%s.env" % (self.client_code, role_code))
+        if not os.path.exists(path):
+            path = os.path.join(SECRETS_DIR, "agent-%s.env" % role_code)
         try:
             with open(path, encoding="utf-8") as handle:
                 lines = dict(
