@@ -81,15 +81,10 @@ class ReportBankBook(models.AbstractModel):
         filters = " AND ".join(wheres).replace('account_move_line__move_id', 'm').replace('account_move_line', 'l')
 
         if not accounts:
-            journals = self.env['account.journal'].search([('type', '=', 'bank')])
-            accounts = self.env['account.account']
-            for journal in journals:
-                for acc_out in journal.outbound_payment_method_line_ids:
-                    if acc_out.payment_account_id:
-                        accounts += acc_out.payment_account_id
-                for acc_in in journal.inbound_payment_method_line_ids:
-                    if acc_in.payment_account_id:
-                        accounts += acc_in.payment_account_id
+            # never rebuild "accounts" here: move_lines above is keyed on the accounts
+            # we were given, so any other account would raise a KeyError below
+            raise UserError(_('No bank account found: select the accounts to print or '
+                              'configure the accounts of your bank journals.'))
 
         sql = ('''
             SELECT l.id AS lid, l.account_id AS account_id, l.date AS ldate, j.code AS lcode, 
@@ -144,6 +139,8 @@ class ReportBankBook(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         if not data.get('form') or not self.env.context.get('active_model'):
             raise UserError(_("Form content is missing, this report cannot be printed."))
+        # the entries are read with SQL: write the pending changes first
+        self.env.flush_all()
 
         model = self.env.context.get('active_model')
         docs = self.env[model].browse(self.env.context.get('active_ids', []))
@@ -161,12 +158,17 @@ class ReportBankBook(models.AbstractModel):
             journals = self.env['account.journal'].search([('type', '=', 'bank')])
             accounts = self.env['account.account']
             for journal in journals:
+                if journal.default_account_id:
+                    accounts += journal.default_account_id
                 for acc_out in journal.outbound_payment_method_line_ids:
                     if acc_out.payment_account_id:
                         accounts += acc_out.payment_account_id
                 for acc_in in journal.inbound_payment_method_line_ids:
                     if acc_in.payment_account_id:
                         accounts += acc_in.payment_account_id
+        if not accounts:
+            raise UserError(_('No bank account found: select the accounts to print or '
+                              'configure the accounts of your bank journals.'))
 
         record = self.with_context(data['form'].get('comparison_context', {}))._get_account_move_entry(
             accounts, init_balance, sortby, display_account

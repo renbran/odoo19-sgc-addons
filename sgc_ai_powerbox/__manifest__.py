@@ -1,6 +1,6 @@
 {
     'name': 'SGC AI Powerbox Command',
-    'version': '1.5.5',
+    'version': '19.0.1.5.5',
     'category': 'Tools',
     'summary': 'Add /sgcai command to Odoo Powerbox for custom SGC AI integration',
     'author': 'SGC TECH AI',
