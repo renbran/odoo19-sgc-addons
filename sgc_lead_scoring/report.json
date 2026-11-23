@@ -1,0 +1,141 @@
+{
+  "tech_name": "sgc_lead_scoring",
+  "module_name": "SGC - Lead Scoring",
+  "module_version": "19.0.1.0.0",
+  "target_odoo": "19.0",
+  "audit_date": "2026-06-22",
+  "quality_score": 78,
+  "market_price_estimate": 800.00,
+  "price_currency": "USD",
+  "summary": "AI-Powered Lead Scoring module with multi-LLM provider support. Well-structured with thorough documentation and tests, but core enrichment logic is stubbed and API keys are stored in plaintext, limiting production readiness.",
+  "checklist": [
+    {
+      "id": 1,
+      "category": "Manifest & Metadata",
+      "item": "Manifest Correctness",
+      "status": "PASS",
+      "score": 9,
+      "findings": "All manifest fields valid. Version 19.0.1.0.0, depends on base/crm/mail, LGPL-3 license, all referenced data files exist.",
+      "recommendation": "None required."
+    },
+    {
+      "id": 2,
+      "category": "Module Structure & Naming",
+      "item": "Module Structure & Naming",
+      "status": "PASS",
+      "score": 10,
+      "findings": "Standard Odoo 19 directory layout with models/, views/, security/, data/, wizards/, tests/, static/. sgc_ prefix ensures uniqueness.",
+      "recommendation": "None required."
+    },
+    {
+      "id": 3,
+      "category": "Model Design",
+      "item": "Model Design",
+      "status": "WARN",
+      "score": 6,
+      "findings": "API keys stored in plaintext Char field (no encryption). _enrich_lead() is a stub that sets status to completed without actual work. llm.service model is minimal.",
+      "recommendation": "Use fields.Binary with encryption for API keys. Implement actual LLM integration in _enrich_lead(). Enrich llm.service with meaningful fields."
+    },
+    {
+      "id": 4,
+      "category": "Security",
+      "item": "Security",
+      "status": "WARN",
+      "score": 5,
+      "findings": "Multi-company record rule present. ACL entries defined for all models. CRITICAL: API keys stored in plaintext with no encryption or password masking.",
+      "recommendation": "Implement encryption for API key storage using odoo.tools.crypt. Use password widget for API key field. Consider Odoo's built-in encrypted fields pattern."
+    },
+    {
+      "id": 5,
+      "category": "Views & UI",
+      "item": "Views & UI",
+      "status": "PASS",
+      "score": 9,
+      "findings": "Clean inheritance of crm form, tree, kanban views. AI Scoring tab with progressbar/gauge widgets. Batch actions for enrichment and report regeneration.",
+      "recommendation": "Minor: Add tooltips or help text to gauge widget. Consider UX polish for empty states."
+    },
+    {
+      "id": 6,
+      "category": "Data Files",
+      "item": "Data Files",
+      "status": "PASS",
+      "score": 8,
+      "findings": "Demo provider records for 7 LLM providers (inactive by default). Cron job defined with 50-lead batch limit. Proper noupdate='1' usage.",
+      "recommendation": "None required."
+    },
+    {
+      "id": 7,
+      "category": "Tests",
+      "item": "Tests",
+      "status": "PASS",
+      "score": 8,
+      "findings": "3 test files with mock-based LLM API tests, provider validation tests, and lead scoring algorithm tests. Tests use proper setUp/tearDown with mocks.",
+      "recommendation": "Increase test coverage for edge cases (empty leads, failed API calls). Add integration tests."
+    },
+    {
+      "id": 8,
+      "category": "Documentation",
+      "item": "Documentation",
+      "status": "PASS",
+      "score": 9,
+      "findings": "Comprehensive README with badges, module info table, architecture section. Separate API, Google Search, and Quick Start guides. Detailed CHANGELOG with version history.",
+      "recommendation": "None required."
+    },
+    {
+      "id": 9,
+      "category": "Code Quality",
+      "item": "Python Code Quality",
+      "status": "WARN",
+      "score": 6,
+      "findings": "Clean imports and error handling. Extra scripts in module root (test_groq_api.py, quick_install.py, emergency_security_fix.py) indicate development artifacts. Stub methods marked as placeholders.",
+      "recommendation": "Move utility scripts outside module or remove before distribution. Implement or document stubbed methods. Remove emergency fix scripts from production module."
+    },
+    {
+      "id": 10,
+      "category": "Odoo 19 Compatibility",
+      "item": "Odoo 19 Compatibility",
+      "status": "PASS",
+      "score": 9,
+      "findings": "Proper use of models.TransientModel, api.depends, api.onchange decorators. fields.Datetime.now() used. XML syntax follows Odoo 19 standards.",
+      "recommendation": "None required."
+    },
+    {
+      "id": 11,
+      "category": "Dependencies & Performance",
+      "item": "External Dependencies & Performance",
+      "status": "PASS",
+      "score": 8,
+      "findings": "Only requests as external Python dependency. DB indexes on ai_enrichment_status, ai_last_enrichment_date, auto_enrich fields. Cron batch limited to 50 leads.",
+      "recommendation": "Consider adding rate limiting for external API calls. Add index on ai_probability_score if used for sorting/filtering."
+    }
+  ],
+  "detailed": {
+    "files_analyzed": 22,
+    "lines_of_code": 0,
+    "test_count": 3,
+    "test_type": "unittest with mocks",
+    "security_issues": [
+      {
+        "severity": "CRITICAL",
+        "description": "API keys stored in plaintext in llm.provider.api_key field"
+      },
+      {
+        "severity": "LOW",
+        "description": "Emergency fix scripts included in module distribution"
+      }
+    ],
+    "stub_methods": [
+      "_enrich_lead() - no actual LLM integration (sets completed without work)",
+      "action_regenerate_report() - returns True without action",
+      "WebResearchService.search_google_custom() - requires external Google API setup"
+    ],
+    "strengths": [
+      "Excellent documentation with multiple guides and detailed changelog",
+      "Well-tested with mock-based test suite covering 3 test files",
+      "Multi-company security implemented via record rules",
+      "Clean UI integration with Odoo-native patterns (progressbar, gauge, kanban badges)",
+      "Minimal external dependencies (only requests library)",
+      "Batch enrichment wizard with user notifications"
+    ]
+  }
+}

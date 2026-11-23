@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from concurrent.futures import ThreadPoolExecutor
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
@@ -24,6 +25,12 @@ class LeadEnrichmentWizard(models.TransientModel):
         string='Force Customer Research',
         default=True,
         help='Research customer even if disabled in settings',
+    )
+
+    parallel = fields.Boolean(
+        string='Enrich in Parallel',
+        default=True,
+        help='Run web research + LLM calls for multiple leads concurrently (max 5 at a time).',
     )
 
     lead_count = fields.Integer(
@@ -63,13 +70,32 @@ class LeadEnrichmentWizard(models.TransientModel):
         success_count = 0
         failed_count = 0
 
-        for lead in self.lead_ids:
-            try:
-                lead._enrich_lead()
-                success_count += 1
-            except Exception as e:
-                failed_count += 1
-                continue
+        if self.parallel and len(self.lead_ids) > 1:
+            def _enrich_one(lead_id):
+                with self.env.registry.cursor() as cr:
+                    env = api.Environment(cr, self.env.uid, self.env.context)
+                    lead = env['crm.lead'].browse(lead_id)
+                    try:
+                        lead._enrich_lead()
+                        cr.commit()
+                        return True
+                    except Exception:
+                        lead.ai_enrichment_status = 'failed'
+                        cr.commit()
+                        return False
+
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                outcomes = list(executor.map(_enrich_one, self.lead_ids.ids))
+            success_count = sum(1 for o in outcomes if o)
+            failed_count = len(outcomes) - success_count
+        else:
+            for lead in self.lead_ids:
+                try:
+                    lead._enrich_lead()
+                    success_count += 1
+                except Exception:
+                    failed_count += 1
+                    continue
 
         # Show result notification
         if failed_count == 0:

@@ -193,3 +193,43 @@ class TestLLMProvider(TransactionCase):
         provider.increment_usage(success=False)
         self.assertEqual(provider.total_requests, initial_requests + 2)
         self.assertEqual(provider.failed_requests, initial_failed + 1)
+
+    def test_minimax_provider_type_selectable(self):
+        """MiniMax is a valid provider_type (added alongside openai/groq/...)."""
+        provider = self.LLMProvider.create({
+            'name': 'Test MiniMax',
+            'provider_type': 'minimax',
+            'api_key': 'test-key',
+            'model_name': 'MiniMax-M2.7',
+        })
+        self.assertEqual(provider.provider_type, 'minimax')
+
+    def test_circuit_breaker_closed_by_default(self):
+        provider = self.LLMProvider.create({
+            'name': 'Test Provider', 'provider_type': 'openai',
+            'api_key': 'k', 'model_name': 'gpt-4',
+        })
+        self.assertEqual(provider.circuit_state, 'closed')
+        self.assertTrue(provider.is_available())
+
+    def test_circuit_breaker_opens_after_failure_threshold(self):
+        provider = self.LLMProvider.create({
+            'name': 'Test Provider', 'provider_type': 'openai',
+            'api_key': 'k', 'model_name': 'gpt-4',
+        })
+        for _ in range(5):
+            provider._cb_record_failure()
+        self.assertEqual(provider.circuit_state, 'open')
+        self.assertFalse(provider.is_available())
+
+    def test_circuit_breaker_success_resets_after_failures(self):
+        provider = self.LLMProvider.create({
+            'name': 'Test Provider', 'provider_type': 'openai',
+            'api_key': 'k', 'model_name': 'gpt-4',
+        })
+        for _ in range(3):
+            provider._cb_record_failure()
+        provider._cb_record_success()
+        self.assertEqual(provider.circuit_state, 'closed')
+        self.assertEqual(provider.failure_timestamps, '[]')
+        self.assertTrue(provider.is_available())

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     "name": "SGC - Lead Scoring",
-    'version': '19.0.1.0.1',
+    "version": "19.0.1.8",
     "category": "CRM",
     "summary": "AI-Powered Lead Scoring with Multi-LLM Support",
     "description": """
@@ -29,9 +29,12 @@
  - Automate lead qualification
 
      """,
-    "author": "SmartClinic",
-    "website": "https://smartclinic.ae",
-    "license": "LGPL-3",
+    "author": "SGC TECH AI",
+    "website": "https://sgctech.ai",
+    "support": "bran@sgctech.ai",
+    "license": "OPL-1",
+    "price": 37,
+    "currency": "USD",
     "depends": [
         "base",
         "crm",
@@ -41,18 +44,16 @@
         "security/llm_provider_security.xml",
         "security/ir.model.access.csv",
         "data/llm_provider_data.xml",
+        "data/web_research_provider_data.xml",
         "data/ir_cron_data.xml",
         "wizards/lead_enrichment_wizard_views.xml",
         "wizards/google_search_setup_wizard_views.xml",
+        "wizards/setup_web_research_wizard_views.xml",
         "views/llm_provider_views.xml",
+        "views/web_research_provider_views.xml",
         "views/res_config_settings_views.xml",
         "views/crm_lead_views.xml",
     ],
-    "assets": {
-        "web.assets_backend": [
-            "sgc_lead_scoring/static/src/scss/lead_scoring.scss",
-        ],
-    },
     "external_dependencies": {
         "python": ["requests"],
     },
@@ -61,3 +62,4 @@
     "auto_install": False,
     "application": False,
 }
+

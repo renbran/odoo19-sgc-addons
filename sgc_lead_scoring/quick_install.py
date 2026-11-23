@@ -3,7 +3,7 @@
 """
 LLM Lead Scoring - Quick Installation Script
 ============================================
-Automated installation and configuration for scholarixv2/CloudPepper
+Automated installation and configuration for SGC TECH AI
 
 Usage:
     python quick_install.py [--test-mode]
@@ -211,8 +211,8 @@ def main():
     parser = argparse.ArgumentParser(description='Install LLM Lead Scoring module')
     parser.add_argument('--test-mode', action='store_true', 
                        help='Install in test database')
-    parser.add_argument('--database', default='scholarixv2',
-                       help='Target database name (default: scholarixv2)')
+    parser.add_argument('--database', default='sgc_lead_scoring',
+                       help='Target database name (default: sgc_lead_scoring)')
     parser.add_argument('--skip-validation', action='store_true',
                        help='Skip pre-installation validation')
     parser.add_argument('--skip-backup', action='store_true',

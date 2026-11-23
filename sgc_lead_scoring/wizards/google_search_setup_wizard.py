@@ -7,6 +7,12 @@ class GoogleSearchSetupWizard(models.TransientModel):
     _name = 'google.search.setup.wizard'
     _description = 'Google Custom Search Setup Guide'
 
+    deprecation_notice = fields.Char(
+        default='This wizard is deprecated as of 19.0.1.6 and will be removed in 19.0.2.0. '
+                'Use Settings > Web Research Providers > Manage Providers instead.',
+        readonly=True,
+    )
+
     step = fields.Selection([
         ('intro', 'Introduction'),
         ('api_key', 'Get API Key'),
@@ -102,7 +108,7 @@ Free quota: 100 searches/day
 """
             else:
                 self.test_success = False
-                self.test_result = f"❌ FAILED: {result['error']}\n\nPlease check your credentials and try again."
+                self.test_result = f"❌ FAILED: {result.get('reason', 'Unknown error')}\n\nPlease check your credentials and try again."
                 # Restore old values
                 config.set_param('llm_lead_scoring.google_search_api_key', old_key)
                 config.set_param('llm_lead_scoring.google_search_engine_id', old_engine)

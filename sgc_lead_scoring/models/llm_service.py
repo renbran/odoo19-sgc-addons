@@ -1,230 +1,328 @@
+# -*- coding: utf-8 -*-
+
+import requests
+import json
+import time
 import logging
+
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
-
-SCORING_PROMPT = """You are an expert B2B lead scoring analyst for a technology solutions company in the UAE.
-Analyze this lead and provide scores based on B2B sales best practices.
-
-Lead Information:
-- Name: {name}
-- Company: {company_name}
-- Email: {email} (verified: {email_verified})
-- Phone: {phone}
-- Website: {website}
-- Description: {description}
-- Industry (enriched): {enriched_industry}
-- Employee Count: {employee_count}
-- Annual Revenue: {annual_revenue}
-- Tech Stack: {tech_stack}
-- Contact Person: {contact_name}
-- Job Title: {job_title}
-- Seniority: {seniority}
-- Country: {country}
-- Location/Emirate: {emirate}
-- Territory: {territory}
-- Lead Source: {source}
-- Stage: {stage}
-
-Customer Research Data:
-{research_data}
-
-Score each category from 0-100:
-
-1. COMPLETENESS SCORE: How complete is the lead information? Consider filled fields, data quality, enrichment status.
-2. CLARITY SCORE: How clear and specific are the requirements/description?
-3. ENGAGEMENT SCORE: How engaged is the lead? Consider interaction history, response time, activity.
-4. INDUSTRY FIT SCORE: How well does the company's industry match technology/healthcare/real-estate/fintech verticals?
-5. AUTHORITY SCORE: Is the contact a decision-maker (C-suite, Director, Owner) or influencer?
-6. BUDGET CAPACITY SCORE: Based on employee count, revenue range, and funding — does this company have budget for technology investment?
-
-Provide your analysis in this exact JSON format:
-{{
-    "completeness_score": <0-100>,
-    "clarity_score": <0-100>,
-    "engagement_score": <0-100>,
-    "industry_fit_score": <0-100>,
-    "authority_score": <0-100>,
-    "budget_capacity_score": <0-100>,
-    "probability_score": <0-100>,
-    "summary": "<2-3 sentence B2B sales analysis>",
-    "recommendation": "<specific actionable recommendation for the salesperson>",
-    "sales_play": "<one of: Immediate Demo, Discovery Call, Educational Nurture, Deep Qualification, Re-engagement Campaign, Trigger Event Monitoring, Park / Low Priority>"
-}}
-"""
-
-RESEARCH_PROMPT = """Research this company based on the available information:
-- Company Name: {company_name}
-- Website: {website}
-- Industry: {industry}
-- Country: {country}
-
-Provide a concise research summary (max 150 words) covering:
-1. What this company likely does based on available data
-2. Their potential size/scale
-3. Key observations relevant to our sales approach
-"""
-
-DIGITAL_PRESENCE_PROMPT = """Analyze the digital presence for this company:
-- Company: {company_name}
-- Website: {website}
-
-Based on the name and website, infer:
-1. Likely tech stack (CMS, analytics, frameworks)
-2. Social media presence expectations
-3. SEO/Online visibility assessment
-
-Keep response concise, max 100 words.
-"""
 
 
 class LlmService(models.Model):
     _name = 'llm.service'
-    _description = 'LLM Scoring Service'
+    _description = 'LLM Service'
 
-    def score_lead(self, lead, provider=None):
-        provider = provider or self.env['llm.provider'].get_default_provider()
-        if not provider:
-            raise UserError(_('No LLM provider configured'))
+    name = fields.Char(string='Name')
+    provider_id = fields.Many2one('llm.provider', string='Provider', required=True)
+    active = fields.Boolean(string='Active', default=True)
 
-        customer_research = self._gather_customer_research(lead)
-        def _sf(obj, attr):
-            try:
-                f = obj._fields.get(attr)
-                if f and f.type == 'many2one':
-                    return getattr(obj, attr).name or ''
-                return getattr(obj, attr) or ''
-            except Exception:
-                return ''
-        prompt = SCORING_PROMPT.format(
-            name=lead.name or '',
-            company_name=lead.partner_name or '',
-            email=lead.email_from or '',
-            email_verified='Yes' if lead.x_email_verified else 'No',
-            phone=lead.phone or '',
-            website=lead.website or '',
-            description=lead.description or '',
-            enriched_industry=(lead.x_company_industry or _sf(lead, 'industry_id') or 'Unknown'),
-            employee_count=lead.x_employee_count or 0,
-            annual_revenue=(lead.x_annual_revenue or 'Unknown'),
-            tech_stack=(lead.x_tech_stack or 'Unknown'),
-            contact_name=(lead.contact_name or 'Unknown'),
-            job_title=(lead.x_job_title or 'Unknown'),
-            seniority=(lead.x_seniority or 'Unknown'),
-            country=(lead.country_id.name or ''),
-            emirate=(lead.x_emirate or 'Unknown'),
-            territory=(lead.x_territory or 'International'),
-            source=_sf(lead, 'source_id'),
-            stage=_sf(lead, 'stage_id'),
-            research_data=customer_research or 'No additional research data available',
-        )
+    _scoring_weights_cache = None
 
-        result = provider._make_request(prompt)
-        return self._parse_score_response(result, lead)
+    # Process-local circuit breaker: provider_id -> monotonic timestamp
+    # until which calls to that provider should fail fast instead of
+    # retrying. Without this, a provider that's out of quota gets
+    # independently re-discovered (and re-slept-through) by every lead in
+    # a cron batch, each one blocking its own DB cursor's open transaction
+    # for the full 1+2+4s backoff - with 50 leads across 5 worker threads
+    # that compounds into multi-minute "idle in transaction" backends that
+    # starve the connection pool for everyone else (see crm.lead's
+    # _cron_enrich_leads). A single 429 still gets its normal retry; only
+    # *subsequent* calls while the provider is known-exhausted skip it.
+    _rate_limited_until = {}
 
-    def research_customer(self, lead, provider=None):
-        provider = provider or self.env['llm.provider'].get_default_provider()
-        if not provider:
-            raise UserError(_('No LLM provider configured'))
+    @api.model
+    def _get_api_url(self, provider):
+        if provider.provider_type == 'custom' and provider.api_endpoint:
+            return provider.api_endpoint.rstrip('/') + '/chat/completions'
+        urls = {
+            'openai': 'https://api.openai.com/v1/chat/completions',
+            'groq': 'https://api.groq.com/openai/v1/chat/completions',
+            'anthropic': 'https://api.anthropic.com/v1/messages',
+            'mistral': 'https://api.mistral.ai/v1/chat/completions',
+            'minimax': 'https://api.minimax.io/v1/chat/completions',
+            'huggingface': f'https://api-inference.huggingface.co/models/{provider.model_name}',
+            'google': f'https://generativelanguage.googleapis.com/v1/models/{provider.model_name}:generateContent',
+        }
+        return urls.get(provider.provider_type, '')
 
-        def _sf(obj, attr):
-            try:
-                f = obj._fields.get(attr)
-                if f and f.type == 'many2one':
-                    return getattr(obj, attr).name or ''
-                return getattr(obj, attr) or ''
-            except Exception:
-                return ''
-        prompt = RESEARCH_PROMPT.format(
-            company_name=lead.partner_name or lead.name or '',
-            website=lead.website or '',
-            industry=_sf(lead, 'industry_id'),
-            country=_sf(lead, 'country_id'),
-        )
+    @api.model
+    def _get_headers(self, provider):
+        if provider.provider_type == 'anthropic':
+            return {
+                'x-api-key': provider.api_key,
+                'anthropic-version': '2023-06-01',
+                'Content-Type': 'application/json',
+            }
+        if provider.provider_type == 'google':
+            params = {'key': provider.api_key}
+            return {'Content-Type': 'application/json'}
+        return {
+            'Authorization': f'Bearer {provider.api_key}',
+            'Content-Type': 'application/json',
+        }
 
-        return provider._make_request(prompt)
+    @api.model
+    def _supports_structured_output(self, provider):
+        """Returns True if provider supports structured output (JSON schema mode)."""
+        return provider.provider_type in {'openai', 'groq', 'anthropic', 'mistral', 'google'}
 
-    def analyze_digital_presence(self, lead, provider=None):
-        provider = provider or self.env['llm.provider'].get_default_provider()
-        if not provider:
-            raise UserError(_('No LLM provider configured'))
+    @api.model
+    def _json_schema_response_format(self, response_schema):
+        """Shared `response_format` shape for providers that accept a
+        top-level JSON-schema response format (OpenAI/Groq/Mistral/Google)."""
+        return {
+            'type': 'json_schema',
+            'json_schema': response_schema,
+        }
 
-        prompt = DIGITAL_PRESENCE_PROMPT.format(
-            company_name=lead.partner_name or lead.name or '',
-            website=lead.website or '',
-        )
-
-        return provider._make_request(prompt)
-
-    def _gather_customer_research(self, lead):
-        parts = []
-        if lead.website:
-            parts.append('Website: %s' % lead.website)
-        if lead.partner_name:
-            parts.append('Company: %s' % lead.partner_name)
-
-        web_research = self.env.get('web.research.service')
-        if web_research and lead.partner_name:
-            try:
-                result = web_research.search_company_info(lead.partner_name, lead.website)
-                if result.get('success'):
-                    for r in result.get('results', []):
-                        parts.append('Web Research: %s - %s' % (r.get('title', ''), r.get('snippet', '')))
-            except Exception:
-                pass
-
-        return '\n'.join(parts) if parts else ''
-
-    def _parse_score_response(self, response, lead):
-        import re
-        import json
-
-        def _extract_json(text):
-            candidates = []
-            m = re.search(r'```(?:json)?\s*\n?(.*?)```', text, re.DOTALL)
-            if m:
-                candidates.append(m.group(1).strip())
-            depth = 0
-            start = -1
-            for i, ch in enumerate(text):
-                if ch == '{':
-                    if depth == 0:
-                        start = i
-                    depth += 1
-                elif ch == '}':
-                    depth -= 1
-                    if depth == 0 and start >= 0:
-                        candidates.append(text[start:i+1])
-                        start = -1
-            return candidates
-
-        candidates = _extract_json(response)
-        for candidate in candidates:
-            try:
-                data = json.loads(candidate)
-                required = ['completeness_score', 'clarity_score', 'engagement_score', 'probability_score']
-                if all(k in data for k in required):
-                    sales_play = data.get('sales_play', '')
-                    vals = {
-                        'ai_completeness_score': min(max(int(data['completeness_score']), 0), 100),
-                        'ai_clarity_score': min(max(int(data['clarity_score']), 0), 100),
-                        'ai_engagement_score': min(max(int(data['engagement_score']), 0), 100),
-                        'ai_probability_score': min(max(int(data['probability_score']), 0), 100),
-                        'ai_analysis_summary': data.get('summary', ''),
-                        'ai_enrichment_status': 'scored',
-                        'ai_last_enrichment_date': fields.Datetime.now(),
+    @api.model
+    def _get_payload(self, provider, messages, response_schema=None):
+        if provider.provider_type == 'anthropic':
+            payload = {
+                'model': provider.model_name,
+                'messages': messages,
+                'max_tokens': provider.max_tokens or 2000,
+                'temperature': provider.temperature or 0.7,
+            }
+            if response_schema is not None and self._supports_structured_output(provider):
+                payload['tools'] = [
+                    {
+                        'name': 'json_output',
+                        'description': 'Output structured JSON response',
+                        'input_schema': response_schema,
                     }
-                    if sales_play:
-                        vals['x_sales_play'] = sales_play[:64]
-                    lead.write(vals)
-                    return True
-            except (json.JSONDecodeError, ValueError, KeyError):
-                continue
+                ]
+                # Force the model to use the tool instead of defaulting to
+                # tool_choice "auto", which would allow free-text replies.
+                payload['tool_choice'] = {'type': 'tool', 'name': 'json_output'}
+            return payload
+        if provider.provider_type == 'google':
+            payload = {
+                'contents': [{'parts': [{'text': m['content']}]} for m in messages],
+                'generationConfig': {
+                    'maxOutputTokens': provider.max_tokens or 2000,
+                    'temperature': provider.temperature or 0.7,
+                },
+            }
+            if response_schema is not None and self._supports_structured_output(provider):
+                payload['response_format'] = self._json_schema_response_format(response_schema)
+            return payload
+        if provider.provider_type == 'huggingface':
+            return {
+                'inputs': messages[-1]['content'] if messages else '',
+                'parameters': {
+                    'max_new_tokens': provider.max_tokens or 2000,
+                    'temperature': provider.temperature or 0.7,
+                },
+            }
+        # OpenAI, Groq, Mistral, Custom
+        payload = {
+            'model': provider.model_name,
+            'messages': messages,
+            'max_tokens': provider.max_tokens or 2000,
+            'temperature': provider.temperature or 0.7,
+        }
+        if response_schema is not None and self._supports_structured_output(provider):
+            payload['response_format'] = self._json_schema_response_format(response_schema)
+        return payload
 
-        _logger.warning('Failed to parse LLM score response from: %s...', response[:200])
-        lead.write({
-            'ai_enrichment_status': 'failed',
-            'ai_last_enrichment_date': fields.Datetime.now(),
+    @api.model
+    def _parse_response(self, provider, response_data):
+        if provider.provider_type == 'anthropic':
+            content = ''
+            for block in response_data.get('content', []):
+                if block.get('type') == 'text':
+                    content += block.get('text', '')
+            return content
+        if provider.provider_type == 'google':
+            candidates = response_data.get('candidates', [])
+            if candidates:
+                parts = candidates[0].get('content', {}).get('parts', [])
+                return ' '.join(p.get('text', '') for p in parts)
+            return ''
+        if provider.provider_type == 'huggingface':
+            if isinstance(response_data, list):
+                return response_data[0].get('generated_text', '') if response_data else ''
+            return response_data.get('generated_text', '')
+        choices = response_data.get('choices', [])
+        if choices:
+            return choices[0].get('message', {}).get('content', '')
+        return ''
+
+    @api.model
+    def call_llm(self, messages, provider=None, max_retries=3, response_schema=None):
+        if not provider:
+            provider = self.env['llm.provider'].get_default_provider()
+        if not provider:
+            return {
+                'success': False,
+                'content': '',
+                'error': 'No LLM provider configured',
+                'retries': 0,
+            }
+
+        cooldown_until = LlmService._rate_limited_until.get(provider.id)
+        if cooldown_until and time.monotonic() < cooldown_until:
+            return {
+                'success': False,
+                'content': '',
+                'error': 'Provider is rate-limited (cooling down), skipped retry.',
+                'retries': 0,
+            }
+
+        if not provider.is_available():
+            return {
+                'success': False,
+                'content': '',
+                'error': 'Provider circuit breaker is open (too many recent failures), skipped call.',
+                'retries': 0,
+            }
+
+        url = self._get_api_url(provider)
+        headers = self._get_headers(provider)
+        payload = self._get_payload(provider, messages, response_schema=response_schema)
+
+        timeout = provider.timeout or 30
+
+        for attempt in range(max_retries + 1):
+            try:
+                if provider.provider_type == 'google':
+                    params = {'key': provider.api_key}
+                    response = requests.post(
+                        url, headers=headers, json=payload,
+                        params=params, timeout=timeout
+                    )
+                else:
+                    response = requests.post(
+                        url, headers=headers, json=payload, timeout=timeout
+                    )
+
+                if response.status_code == 200:
+                    data = response.json()
+
+                    # MiniMax can return HTTP 200 with an error embedded in
+                    # base_resp (e.g. insufficient balance, invalid params)
+                    # instead of a non-2xx status -- treat that as a failure
+                    # rather than silently returning empty/wrong content.
+                    base_resp = data.get('base_resp') or {}
+                    if provider.provider_type == 'minimax' and base_resp.get('status_code') not in (0, None):
+                        provider.write({'failed_requests': provider.failed_requests + 1})
+                        provider._cb_record_failure()
+                        return {
+                            'success': False,
+                            'content': '',
+                            'error': 'MiniMax API error: %s' % (
+                                base_resp.get('status_msg') or base_resp
+                            ),
+                            'retries': attempt,
+                        }
+
+                    content = self._parse_response(provider, data)
+                    provider.write({
+                        'total_requests': provider.total_requests + 1,
+                        'last_used': fields.Datetime.now(),
+                    })
+                    provider._cb_record_success()
+                    return {
+                        'success': True,
+                        'content': content,
+                        'error': '',
+                        'retries': attempt,
+                    }
+
+                if response.status_code == 429 and attempt < max_retries:
+                    _logger.warning(
+                        'Rate limited (429) on attempt %d/%d for provider %s. Retrying...',
+                        attempt + 1, max_retries, provider.name
+                    )
+                    time.sleep(2 ** attempt)
+                    continue
+
+                if response.status_code == 429:
+                    LlmService._rate_limited_until[provider.id] = time.monotonic() + 60
+                    provider.write({
+                        'failed_requests': provider.failed_requests + 1,
+                    })
+                    provider._cb_record_failure()
+                    return {
+                        'success': False,
+                        'content': '',
+                        'error': f'Rate limit exceeded after {max_retries} retries',
+                        'retries': attempt,
+                    }
+
+                provider.write({
+                    'failed_requests': provider.failed_requests + 1,
+                })
+                provider._cb_record_failure()
+                return {
+                    'success': False,
+                    'content': '',
+                    'error': f'API Error {response.status_code}: {response.text}',
+                    'retries': attempt,
+                }
+
+            except requests.exceptions.Timeout:
+                if attempt < max_retries:
+                    _logger.warning(
+                        'Timeout on attempt %d/%d for provider %s. Retrying...',
+                        attempt + 1, max_retries, provider.name
+                    )
+                    continue
+                provider.write({
+                    'failed_requests': provider.failed_requests + 1,
+                })
+                provider._cb_record_failure()
+                return {
+                    'success': False,
+                    'content': '',
+                    'error': f'Request timed out after {timeout}s and {max_retries} retries',
+                    'retries': attempt,
+                }
+
+            except requests.exceptions.RequestException as e:
+                provider.write({
+                    'failed_requests': provider.failed_requests + 1,
+                })
+                provider._cb_record_failure()
+                return {
+                    'success': False,
+                    'content': '',
+                    'error': str(e),
+                    'retries': attempt,
+                }
+
+        provider.write({
+            'failed_requests': provider.failed_requests + 1,
         })
-        return False
+        provider._cb_record_failure()
+        return {
+            'success': False,
+            'content': '',
+            'error': f'Failed after {max_retries} retries',
+            'retries': max_retries,
+        }
+
+    @api.model
+    def _get_scoring_weights(self):
+        if LlmService._scoring_weights_cache is not None:
+            return LlmService._scoring_weights_cache
+        params = self.env['ir.config_parameter'].sudo()
+        weights = {
+            'completeness': float(params.get_param('llm_lead_scoring.weight_completeness', '30.0')),
+            'clarity': float(params.get_param('llm_lead_scoring.weight_clarity', '40.0')),
+            'engagement': float(params.get_param('llm_lead_scoring.weight_engagement', '30.0')),
+        }
+        LlmService._scoring_weights_cache = weights
+        return weights
+
+    @api.model
+    def _get_config_bool(self, key, default='False'):
+        val = self.env['ir.config_parameter'].sudo().get_param(key, default)
+        return val.strip().lower() == 'true'
+
+    @api.model
+    def clear_caches(self):
+        LlmService._scoring_weights_cache = None

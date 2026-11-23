@@ -16,6 +16,7 @@
                                placeholder="Use default provider..."
                                context="{'form_view_ref': 'sgc_lead_scoring.view_llm_provider_form'}"/>
                         <field name="force_research"/>
+                        <field name="parallel"/>
                     </group>
                 </group>
                 <div class="alert alert-info" role="alert">

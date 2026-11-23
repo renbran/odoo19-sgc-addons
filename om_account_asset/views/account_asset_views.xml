@@ -10,7 +10,8 @@
                     <button name="validate" string="Confirm" type="object" class="oe_highlight" invisible="state != 'draft'"/>
                     <button type="object" name="compute_depreciation_board" string="Compute Depreciation"
                             invisible="state != 'draft'"/>
-                    <button name="set_to_close" invisible="state != 'open'" string="Sell or Dispose" type="object"
+                    <button name="%(action_asset_sell)d" type="action" string="Sell or Dispose"
+                            invisible="state not in ('open', 'close') or disposal_date"
                             class="oe_highlight"/>
                     <button name="set_to_draft" string="Set to Draft" type="object"
                             invisible="entry_count != 0 or state != 'open'"/>
@@ -23,6 +24,9 @@
                             <field string="Items" name="entry_count" widget="statinfo"/>
                         </button>
                     </div>
+                    <field name="disposal_move_id" invisible="1"/>
+                    <widget name="web_ribbon" title="Disposed" bg_color="text-bg-secondary"
+                            invisible="not disposal_date"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -57,6 +61,10 @@
                                    readonly="state != 'draft'"
                                    invisible="type == 'sale'"/>
                             <field name="value_residual" widget="monetary"/>
+                            <field name="book_value" widget="monetary"/>
+                            <field name="disposal_date" invisible="not disposal_date"/>
+                            <field name="disposal_result" widget="monetary"
+                                   invisible="not disposal_date"/>
                             <field name="partner_id" string="Vendor" widget="res_partner_many2one"
                                    readonly="state != 'draft'"
                                    context="{'res_partner_search_mode': 'supplier'}"/>
@@ -75,7 +83,7 @@
                                     <field name="amount" widget="monetary" string="Depreciation"/>
                                     <field name="depreciated_value" readonly="1"/>
                                     <field name="remaining_value" readonly="1" widget="monetary" string="Residual"/>
-                                    <field name="move_check" widget="deprec_lines_toggler"
+                                    <field name="move_check" readonly="1"
                                            invisible="parent_state != 'open'"/>
                                     <field name="move_posted_check" invisible="1"/>
                                     <field name="parent_state" invisible="1"/>
@@ -124,8 +132,8 @@
                                 <field name="method_period" readonly="state != 'draft'"/>
                                 <field name="method_end"
                                        readonly="state != 'draft'"
-                                       invisible="method_time == 'end'"
-                                       required="method_time == 'number'"/>
+                                       invisible="method_time != 'end'"
+                                       required="method_time == 'end'"/>
                             </group>
                         </page>
                     </notebook>
@@ -145,7 +153,7 @@
                 <field name="date"/>
                 <field name="state"/>
                 <templates>
-                    <t t-name="kanban-box">
+                    <t t-name="card">
                         <div t-attf-class="oe_kanban_global_click">
                             <div class="row mb4">
                                 <div class="col-6">
@@ -169,7 +177,7 @@
                                 </div>
                                 <div class="col-6">
                                     <span class="float-right text-end">
-                                        <field name="state" widget="kanban_label_selection"
+                                        <field name="state" widget="label_selection"
                                                options="{'classes': {'draft': 'primary', 'open': 'success', 'close': 'default'}}"/>
                                     </span>
                                 </div>

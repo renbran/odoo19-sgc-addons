@@ -4,7 +4,7 @@
 Emergency Fix for llm_lead_scoring Security Groups
 ===================================================
 
-ISSUE: CloudPepper deployment has old security/ir.model.access.csv with deprecated groups
+ISSUE: SGC TECH AI deployment has old security/ir.model.access.csv with deprecated groups
 FIX: Update security groups from crm.group_crm_* to sales_team.group_sale_*
 
 This script ensures the correct Odoo 17 security groups are in place.
@@ -121,24 +121,24 @@ def verify_fix(module_path):
 def print_deployment_instructions():
     """Print deployment instructions for CloudPepper"""
     print(f"\n{BOLD}{BLUE}{'='*70}{RESET}")
-    print(f"{BOLD}📦 CloudPepper Deployment Instructions:{RESET}\n")
+    print(f"{BOLD}📦 SGC TECH AI deployment Instructions:{RESET}\n")
     
     print(f"{BOLD}Option 1: Update Module via Web UI{RESET}")
-    print(f"  1. Login to CloudPepper: https://scholarixglobal.com/")
+    print(f"  1. Login to CloudPepper: https://sgctech.ai/")
     print(f"  2. Go to Apps → Update Apps List")
     print(f"  3. Find 'LLM Lead Scoring' → Click 'Upgrade'")
     print(f"  4. Restart Odoo service if needed\n")
     
     print(f"{BOLD}Option 2: Manual File Update{RESET}")
     print(f"  1. Upload fixed security/ir.model.access.csv to server")
-    print(f"  2. Path: /var/odoo/scholarixv2/addons/llm_lead_scoring/security/")
-    print(f"  3. Run: ./odoo-bin -d scholarixv2 -u llm_lead_scoring --stop-after-init")
+    print(f"  2. Path: /var/odoo/sgc_lead_scoring/addons/llm_lead_scoring/security/")
+    print(f"  3. Run: ./odoo-bin -d sgc_lead_scoring -u llm_lead_scoring --stop-after-init")
     print(f"  4. Restart Odoo: sudo systemctl restart odoo\n")
     
     print(f"{BOLD}Option 3: Command Line Update{RESET}")
-    print(f"  cd /var/odoo/scholarixv2/addons/llm_lead_scoring")
+    print(f"  cd /var/odoo/sgc_lead_scoring/addons/llm_lead_scoring")
     print(f"  python3 emergency_security_fix.py")
-    print(f"  ./odoo-bin -d scholarixv2 -u llm_lead_scoring --stop-after-init")
+    print(f"  ./odoo-bin -d sgc_lead_scoring -u llm_lead_scoring --stop-after-init")
     print(f"  sudo systemctl restart odoo\n")
     
     print(f"{YELLOW}⚠️  IMPORTANT: After update, you MUST upgrade the module in Odoo!{RESET}")
@@ -182,7 +182,7 @@ def main():
             # Show deployment instructions
             print_deployment_instructions()
             
-            print(f"{GREEN}✅ Fix complete! Ready for CloudPepper deployment.{RESET}\n")
+            print(f"{GREEN}✅ Fix complete! Ready for SGC TECH AI deployment.{RESET}\n")
             return 0
         else:
             print(f"\n{RED}❌ Verification failed!{RESET}")

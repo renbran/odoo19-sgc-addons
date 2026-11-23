@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Tavily — primary provider (spec: Tavily-primary chain) -->
+        <record id="web_research_provider_tavily" model="web.research.provider">
+            <field name="name">Tavily</field>
+            <field name="sequence">10</field>
+            <field name="provider_type">tavily</field>
+            <field name="api_key">your-tavily-api-key-here</field>
+            <field name="daily_quota_limit">1000</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- Exa — secondary provider -->
+        <record id="web_research_provider_exa" model="web.research.provider">
+            <field name="name">Exa</field>
+            <field name="sequence">20</field>
+            <field name="provider_type">exa</field>
+            <field name="api_key">your-exa-api-key-here</field>
+            <field name="daily_quota_limit">1000</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- Serper.dev — tertiary provider (Google results via Serper) -->
+        <record id="web_research_provider_serper" model="web.research.provider">
+            <field name="name">Serper.dev</field>
+            <field name="sequence">30</field>
+            <field name="provider_type">serper</field>
+            <field name="api_key">your-serper-api-key-here</field>
+            <field name="daily_quota_limit">2500</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- SerpAPI — quaternary provider (Google results via SerpAPI) -->
+        <record id="web_research_provider_serpapi" model="web.research.provider">
+            <field name="name">SerpAPI</field>
+            <field name="sequence">40</field>
+            <field name="provider_type">serpapi</field>
+            <field name="api_key">your-serpapi-api-key-here</field>
+            <field name="daily_quota_limit">100</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- SearXNG — self-hosted last-resort fallback -->
+        <record id="web_research_provider_searxng" model="web.research.provider">
+            <field name="name">SearXNG (self-hosted)</field>
+            <field name="sequence">50</field>
+            <field name="provider_type">searxng</field>
+            <field name="base_url">https://searxng.example.internal/search</field>
+            <field name="daily_quota_limit">10000</field>
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- Google Custom Search — legacy opt-in, lowest priority -->
+        <record id="web_research_provider_google" model="web.research.provider">
+            <field name="name">Google Custom Search (legacy)</field>
+            <field name="sequence">60</field>
+            <field name="provider_type">google</field>
+            <field name="api_key">your-google-api-key-here</field>
+            <field name="search_engine_id">your-google-search-engine-id-here</field>
+            <field name="daily_quota_limit">100</field>
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

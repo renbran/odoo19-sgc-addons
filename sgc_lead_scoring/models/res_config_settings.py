@@ -48,6 +48,30 @@ class ResConfigSettings(models.TransientModel):
         help='Use Google Custom Search API for real-time web research (Free: 100 queries/day)',
     )
 
+    allow_third_party_search = fields.Boolean(
+        string='Allow Third-Party Web Search',
+        config_parameter='llm_lead_scoring.allow_third_party_search',
+        default=False,
+        help='Master kill switch. When off, only the self-hosted SearXNG provider may run.',
+    )
+
+    anonymize_company_names = fields.Boolean(
+        string='Anonymize Company Names in Research Queries',
+        config_parameter='llm_lead_scoring.anonymize_company_names',
+        default=False,
+        help='Hash company name before sending to any third-party provider; results are re-associated locally.',
+    )
+
+    anonymize_customer_names = fields.Boolean(
+        string='Anonymize Customer Names in Lead Intelligence',
+        config_parameter='llm_lead_scoring.anonymize_customer_names',
+        default=False,
+        help='Hash contact name, lead name, and company name before sending to any third-party search '
+             'provider or LLM for the Lead Intelligence Engine; results are re-associated locally. '
+             'Relationship and conversation intelligence sections will be weaker as a result, since the '
+             'LLM never sees the real names.',
+    )
+
     google_search_api_key = fields.Char(
         string='Google Custom Search API Key',
         config_parameter='llm_lead_scoring.google_search_api_key',
@@ -109,27 +133,6 @@ class ResConfigSettings(models.TransientModel):
         config_parameter='llm_lead_scoring.weight_engagement',
         default=30.0,
         help='Weight of engagement level in final score',
-    )
-
-    # Apollo.io Settings
-    apollo_api_key = fields.Char(
-        string='Apollo.io API Key',
-        config_parameter='sgc_lead_scoring.apollo_api_key',
-        help='API key for Apollo.io company & contact enrichment. Get it from https://apollo.io > Settings > API Key',
-    )
-
-    # Abstract API Settings
-    abstract_api_key = fields.Char(
-        string='Abstract API Key',
-        config_parameter='sgc_lead_scoring.abstract_api_key',
-        help='API key for Abstract API company enrichment. Get it from https://abstractapi.com/api/company-enrichment',
-    )
-
-    # Hunter.io Settings
-    hunter_api_key = fields.Char(
-        string='Hunter.io API Key',
-        config_parameter='sgc_lead_scoring.hunter_api_key',
-        help='API key for Hunter.io company enrichment. Get it from https://hunter.io/api-keys',
     )
 
     @api.onchange('weight_completeness', 'weight_clarity', 'weight_engagement')

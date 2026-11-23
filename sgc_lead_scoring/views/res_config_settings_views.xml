@@ -27,7 +27,7 @@
                         </setting>
                     </block>
                     <block title="Web Research Configuration (Google Custom Search)">
-                        <div class="alert alert-info">
+                        <div class="alert alert-info" role="alert">
                             <strong>🌐 Live Web Research Integration (FREE)</strong>
                             <br/>
                             Google Custom Search API provides <strong>100 free searches per day</strong>.                            <br/>
@@ -52,8 +52,27 @@
                             </div>
                         </setting>
                     </block>
+                    <block title="Multi-Provider Web Research">
+                        <setting id="allow_third_party_search_setting" string="Allow Third-Party Web Search"
+                                 help="Master kill switch. Off by default: only self-hosted SearXNG may run until enabled.">
+                            <field name="allow_third_party_search"/>
+                        </setting>
+                        <setting id="anonymize_company_names_setting" string="Anonymize Company Names"
+                                 help="Hash company name before sending to any third-party search provider.">
+                            <field name="anonymize_company_names"/>
+                        </setting>
+                        <setting id="anonymize_customer_names_setting" string="Anonymize Customer Names"
+                                 help="Hash contact name, lead name, and company name before sending to any third-party search provider or LLM for the Lead Intelligence Engine.">
+                            <field name="anonymize_customer_names"/>
+                        </setting>
+                        <setting id="web_research_providers_setting" string="Web Research Providers"
+                                 help="Configure Tavily, Exa, SearXNG, and legacy Google Custom Search.">
+                            <button name="%(sgc_lead_scoring.action_web_research_provider)d" type="action"
+                                    string="Manage Providers" icon="fa-arrow-right" class="btn-link"/>
+                        </setting>
+                    </block>
                     <block title="Enhanced Research (Google Maps &amp; Digital Presence)">
-                        <div class="alert alert-warning">
+                        <div class="alert alert-warning" role="alert">
                             <strong>📍 Google Maps Integration</strong>
                             <br/>
                             Requires Google Maps Places API key. Provides business ratings, reviews, address verification.
@@ -76,55 +95,13 @@
                             <field name="enable_digital_presence" widget="boolean_toggle"/>
                         </setting>
                     </block>
-                    <block title="Apollo.io Enrichment (Primary)">
-                        <div class="alert alert-info">
-                            <strong>🚀 Apollo.io Enrichment — Primary</strong>
-                            <br/>
-                            Tried first. Fills missing contact &amp; company data (job title, industry, employee count, tech stack, funding, LinkedIn, verified email, mobile phone).
-                            Uses Apollo.io API v1 Organization &amp; People Match endpoints.
-                        </div>
-                        <setting string="Apollo.io API Key" help="API key for company/person enrichment. Get it from Apollo.io > Settings > API Key">
-                            <field name="apollo_api_key" password="True" placeholder="sk_..."/>
-                            <div class="text-muted">
-                                Get API key: <a href="https://apollo.io/settings" target="_blank">Apollo.io Settings</a>
-                            </div>
-                        </setting>
-                    </block>
-                    <block title="Abstract API Enrichment (Fallback)">
-                        <div class="alert alert-info">
-                            <strong>🔤 Abstract API Enrichment — Fallback 1</strong>
-                            <br/>
-                            Tried second if Apollo fails. Free tier: fills company data (industry, employee count, revenue, tech stack, LinkedIn, social profiles, description, logo).
-                            No credit card required. 100+ free lookups/month at 1 req/sec.
-                        </div>
-                        <setting string="Abstract API Key" help="API key for company enrichment. Get it from https://abstractapi.com/api/company-enrichment">
-                            <field name="abstract_api_key" password="True" placeholder="ee5e..." />
-                            <div class="text-muted">
-                                Get free API key: <a href="https://app.abstractapi.com/users/signup" target="_blank">Abstract API Signup</a>
-                            </div>
-                        </setting>
-                    </block>
-                    <block title="Hunter.io Enrichment (Fallback)">
-                        <div class="alert alert-info">
-                            <strong>🔍 Hunter.io Enrichment</strong>
-                            <br/>
-                            Third fallback tier. Company enrichment by domain with industry, tags, phone, email, social profiles.
-                            Free tier: 25 requests/month. Good UAE coverage.
-                        </div>
-                        <setting string="Hunter.io API Key" help="API key for company enrichment. Get it from https://hunter.io/api-keys">
-                            <field name="hunter_api_key" password="True" placeholder="21141c..." />
-                            <div class="text-muted">
-                                Get free API key: <a href="https://hunter.io/users/sign_up" target="_blank">Hunter.io Signup</a>
-                            </div>
-                        </setting>
-                    </block>
                     <block title="LLM Configuration">
                         <setting string="Default LLM Provider" help="Select the default LLM provider for lead scoring">
                             <field name="llm_provider_id" placeholder="Select LLM Provider..." context="{'form_view_ref': 'sgc_lead_scoring.view_llm_provider_form'}"/>
                         </setting>
                     </block>
                     <block title="Scoring Weights">
-                        <div class="alert alert-info">
+                        <div class="alert alert-info" role="alert">
                             Configure how different factors contribute to the AI probability score.
                             Total must equal 100%.
                         </div>

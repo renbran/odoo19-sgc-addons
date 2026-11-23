@@ -1,5 +1,11 @@
+from collections import defaultdict
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
+
+# computed, non-stored amounts that are aggregated by hand for grouped views
+COMPUTED_AMOUNT_FIELDS = ('practical_amount', 'theoritical_amount', 'percentage')
 
 
 class AccountBudgetPost(models.Model):
@@ -103,42 +109,65 @@ class CrossoveredBudgetLines(models.Model):
     crossovered_budget_state = fields.Selection(related='crossovered_budget_id.state', string='Budget State', store=True, readonly=True)
 
     @api.model
-    def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
-        # overrides the default read_group in order to compute the computed fields manually for the group
-        fields_list = {'practical_amount', 'theoritical_amount', 'percentage'}
-        fields = {field.split(':', 1)[0] if field.split(':', 1)[0] in fields_list else field for field in fields}
-        result = super(CrossoveredBudgetLines, self).read_group(domain, fields, groupby, offset=offset, limit=limit,
-                                                                orderby=orderby, lazy=lazy)
-        if any(x in fields for x in fields_list):
-            for group_line in result:
+    def fields_get(self, allfields=None, attributes=None):
+        res = super().fields_get(allfields=allfields, attributes=attributes)
+        # practical_amount, theoritical_amount and percentage are computed and not
+        # stored, so the ORM no longer advertises an aggregator for them. Without one
+        # the pivot and graph views refuse them as measures ("No aggregate function
+        # has been provided for the measure ...") and the list view shows no group
+        # totals. They are aggregated by hand below, so tell the client they can be.
+        if attributes is None or 'aggregator' in attributes:
+            for fname in COMPUTED_AMOUNT_FIELDS:
+                if fname in res:
+                    res[fname]['aggregator'] = 'sum'
+        return res
 
-                # initialise fields to compute to 0 if they are requested
-                if 'practical_amount' in fields:
-                    group_line['practical_amount'] = 0
-                if 'theoritical_amount' in fields:
-                    group_line['theoritical_amount'] = 0
-                if 'percentage' in fields:
-                    group_line['percentage'] = 0
-                    group_line['practical_amount'] = 0
-                    group_line['theoritical_amount'] = 0
+    def _split_computed_aggregates(self, aggregates):
+        """ Split the aggregates on the non-stored computed amounts, which cannot be
+        aggregated in SQL, from the ones the ORM can handle.
 
-                if group_line.get('__domain'):
-                    all_budget_lines_that_compose_group = self.search(group_line['__domain'])
-                else:
-                    all_budget_lines_that_compose_group = self.search([])
-                for budget_line_of_group in all_budget_lines_that_compose_group:
-                    if 'practical_amount' in fields or 'percentage' in fields:
-                        group_line['practical_amount'] += budget_line_of_group.practical_amount
+        :return: (sql aggregates, {aggregate spec: field name})
+        """
+        computed_specs = {spec: spec.split(':', 1)[0] for spec in aggregates
+                          if spec.split(':', 1)[0] in COMPUTED_AMOUNT_FIELDS}
+        return [spec for spec in aggregates if spec not in computed_specs], computed_specs
 
-                    if 'theoritical_amount' in fields or 'percentage' in fields:
-                        group_line['theoritical_amount'] += budget_line_of_group.theoritical_amount
+    def _fill_computed_aggregates(self, domain, groups, computed_specs):
+        """ Compute the non-stored amount fields manually for each group. """
+        lines_by_group = [
+            self.search(Domain(domain or []) & Domain(group.get('__extra_domain') or []))
+            for group in groups
+        ]
+        for group_line, lines in zip(groups, lines_by_group):
+            practical_amount = sum(lines.mapped('practical_amount'))
+            theoritical_amount = sum(lines.mapped('theoritical_amount'))
+            values = {
+                'practical_amount': practical_amount,
+                'theoritical_amount': theoritical_amount,
+                # same ratio as on the lines, weighted by the theoretical amounts
+                'percentage': practical_amount / theoritical_amount if theoritical_amount else 0.0,
+            }
+            for spec, field_name in computed_specs.items():
+                group_line[spec] = values[field_name]
 
-                    if 'percentage' in fields:
-                        if group_line['theoritical_amount']:
-                            # use a weighted average
-                            group_line['percentage'] = float(
-                                (group_line['practical_amount'] or 0.0) / group_line['theoritical_amount']) * 100
+    @api.model
+    def formatted_read_group(self, domain, groupby=(), aggregates=(), having=(), offset=0, limit=None, order=None):
+        # the web client (list and graph views) goes through this method
+        aggregates, computed_specs = self._split_computed_aggregates(aggregates)
+        result = super().formatted_read_group(domain, groupby, aggregates, having=having,
+                                              offset=offset, limit=limit, order=order)
+        if computed_specs:
+            self._fill_computed_aggregates(domain, result, computed_specs)
+        return result
 
+    @api.model
+    def formatted_read_grouping_sets(self, domain, grouping_sets, aggregates=(), *, order=None):
+        # same as formatted_read_group, used by the pivot view
+        aggregates, computed_specs = self._split_computed_aggregates(aggregates)
+        result = super().formatted_read_grouping_sets(domain, grouping_sets, aggregates, order=order)
+        if computed_specs:
+            for groups in result:
+                self._fill_computed_aggregates(domain, groups, computed_specs)
         return result
 
     def _is_above_budget(self):
@@ -158,45 +187,58 @@ class CrossoveredBudgetLines(models.Model):
                 computed_name += ' - ' + line.analytic_account_id.name
             line.name = computed_name
 
+    def _get_practical_amount_key(self):
+        """ Lines with the same key are computed by a single query. """
+        self.ensure_one()
+        accounts = tuple(sorted(self.general_budget_id.account_ids.ids))
+        period = (self.date_from, self.date_to, self.company_id.id)
+        if self.analytic_account_id:
+            # since the analytic plans, each root plan stores its accounts in its own column:
+            # account_id only holds the default plan's ones
+            return ('analytic', self.analytic_account_id.plan_id._column_name(), accounts, *period)
+        return ('journal', accounts, *period)
+
     def _compute_practical_amount(self):
+        lines_by_key = defaultdict(lambda: self.browse())
+        amounts = {}
         for line in self:
-            acc_ids = line.general_budget_id.account_ids.ids
-            date_to = line.date_to
-            date_from = line.date_from
-            if line.analytic_account_id.id:
-                analytic_line_obj = self.env['account.analytic.line']
-                domain = [('account_id', '=', line.analytic_account_id.id),
-                          ('date', '>=', date_from),
-                          ('date', '<=', date_to),
-                          ]
-                if acc_ids:
-                    domain += [('general_account_id', 'in', acc_ids)]
+            amounts[line] = 0.0
+            if line.date_from and line.date_to and (line.analytic_account_id or line.general_budget_id):
+                lines_by_key[line._get_practical_amount_key()] |= line
 
-                where_query = analytic_line_obj._where_calc(domain)
-                analytic_line_obj._apply_ir_rules(where_query, 'read')
-                from_string, from_params = where_query.from_clause
-                where_string, where_params = where_query.where_clause
-                from_clause, where_clause, where_clause_params = from_string, where_string, from_params + where_params
-
-                select = "SELECT SUM(amount) from " + from_clause + " where " + where_clause
-
+        for key, lines in lines_by_key.items():
+            if key[0] == 'analytic':
+                dummy, column, accounts, date_from, date_to, company_id = key
+                domain = [
+                    (column, 'in', lines.analytic_account_id.ids),
+                    ('date', '>=', date_from),
+                    ('date', '<=', date_to),
+                    ('company_id', 'in', [company_id, False]),
+                ]
+                if accounts:
+                    domain.append(('general_account_id', 'in', list(accounts)))
+                totals = dict(self.env['account.analytic.line']._read_group(
+                    domain, groupby=[column], aggregates=['amount:sum']))
+                for line in lines:
+                    amounts[line] = totals.get(line.analytic_account_id, 0.0)
             else:
-                aml_obj = self.env['account.move.line']
-                domain = [('account_id', 'in',
-                           line.general_budget_id.account_ids.ids),
-                          ('date', '>=', date_from),
-                          ('date', '<=', date_to)
-                          ]
-                where_query = aml_obj._where_calc(domain)
-                aml_obj._apply_ir_rules(where_query, 'read')
-                from_string, from_params = where_query.from_clause
-                where_string, where_params = where_query.where_clause
-                from_clause, where_clause, where_clause_params = from_string, where_string, from_params + where_params
+                dummy, accounts, date_from, date_to, company_id = key
+                if not accounts:
+                    continue
+                # the budget belongs to one company and only posted entries have actually
+                # been spent/earned
+                [(credit, debit)] = self.env['account.move.line']._read_group([
+                    ('account_id', 'in', list(accounts)),
+                    ('date', '>=', date_from),
+                    ('date', '<=', date_to),
+                    ('company_id', '=', company_id),
+                    ('parent_state', '=', 'posted'),
+                ], aggregates=['credit:sum', 'debit:sum'])
+                for line in lines:
+                    amounts[line] = (credit or 0.0) - (debit or 0.0)
 
-                select = "SELECT sum(credit)-sum(debit) from " + from_clause + " where " + where_clause
-
-            self.env.cr.execute(select, where_clause_params)
-            line.practical_amount = self.env.cr.fetchone()[0] or 0.0
+        for line, amount in amounts.items():
+            line.practical_amount = amount
 
     def _compute_theoritical_amount(self):
         # beware: 'today' variable is mocked in the python tests and thus, its implementation matter
@@ -208,9 +250,8 @@ class CrossoveredBudgetLines(models.Model):
                 else:
                     theo_amt = line.planned_amount
             else:
-                if not line.date_from or not line.date_to:
-                    theo_amt = 0.00
-                else:
+                theo_amt = 0
+                if line.date_to and line.date_from:
                     line_timedelta = line.date_to - line.date_from
                     elapsed_timedelta = today - line.date_from
 
@@ -231,18 +272,24 @@ class CrossoveredBudgetLines(models.Model):
             else:
                 line.percentage = 0.00
 
-    @api.constrains('general_budget_id', 'analytic_account_id')
+    # crossovered_budget_id is in the tuple so the check runs on create: a constraint
+    # only fires for the fields the values carry, and a line created with neither a
+    # position nor an analytic account carries neither of them
+    @api.constrains('general_budget_id', 'analytic_account_id', 'crossovered_budget_id')
     def _must_have_analytical_or_budgetary_or_both(self):
-        if not self.analytic_account_id and not self.general_budget_id:
-            raise ValidationError(
-                _("You have to enter at least a budgetary position or analytic account on a budget line."))
+        # constraints are called with the whole recordset: never touch a field on self
+        for line in self:
+            if not line.analytic_account_id and not line.general_budget_id:
+                raise ValidationError(
+                    _("You have to enter at least a budgetary position or analytic account on a budget line."))
 
-    
     def action_open_budget_entries(self):
+        self.ensure_one()
         if self.analytic_account_id:
             # if there is an analytic account, then the analytic items are loaded
             action = self.env['ir.actions.act_window']._for_xml_id('analytic.account_analytic_line_action_entries')
-            action['domain'] = [('account_id', '=', self.analytic_account_id.id),
+            analytic_column = self.analytic_account_id.plan_id._column_name()
+            action['domain'] = [(analytic_column, '=', self.analytic_account_id.id),
                                 ('date', '>=', self.date_from),
                                 ('date', '<=', self.date_to)
                                 ]

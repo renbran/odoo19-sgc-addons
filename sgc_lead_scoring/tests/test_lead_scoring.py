@@ -49,7 +49,7 @@ class TestLeadScoring(TransactionCase):
         # Check that fields exist and have default values
         self.assertEqual(lead.ai_probability_score, 0.0)
         self.assertEqual(lead.ai_enrichment_status, 'pending')
-        self.assertTrue(lead.auto_enrich)  # Default is True
+        self.assertFalse(lead.auto_enrich)  # Opt-in only: paid LLM, cron must not sweep by default
 
     def test_ai_score_color_computation(self):
         """Test AI score color indicator"""

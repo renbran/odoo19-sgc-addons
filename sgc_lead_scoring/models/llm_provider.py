@@ -1,107 +1,21 @@
-import requests
+# -*- coding: utf-8 -*-
 import json
-import logging
-from odoo import models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
-from odoo.tools import sql
+from datetime import timedelta
 
-_logger = logging.getLogger(__name__)
+from odoo import models, fields, api
 
-SUPPORTED_PROVIDERS = {
-    'openai': {
-        'name': 'OpenAI',
-        'default_endpoint': 'https://api.openai.com/v1/chat/completions',
-        'model_key': 'model',
-        'auth_header': 'Authorization',
-        'auth_prefix': 'Bearer ',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'model': model,
-            'messages': [{'role': 'user', 'content': prompt}],
-            'temperature': temp,
-            'max_tokens': max_tokens,
-        },
-        'response_parser': lambda resp: resp.json()['choices'][0]['message']['content'],
-    },
-    'groq': {
-        'name': 'Groq (via freellmapi gateway)',
-        'default_endpoint': 'http://freellmapi:3001/v1/chat/completions',
-        'model_key': 'model',
-        'auth_header': 'Authorization',
-        'auth_prefix': 'Bearer ',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'model': model,
-            'messages': [{'role': 'user', 'content': prompt}],
-            'temperature': temp,
-            'max_tokens': max_tokens,
-        },
-        'response_parser': lambda resp: resp.json()['choices'][0]['message']['content'],
-    },
-    'anthropic': {
-        'name': 'Anthropic',
-        'default_endpoint': 'https://api.anthropic.com/v1/messages',
-        'model_key': 'model',
-        'auth_header': 'x-api-key',
-        'auth_prefix': '',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'model': model,
-            'messages': [{'role': 'user', 'content': prompt}],
-            'max_tokens': max_tokens,
-        },
-        'response_parser': lambda resp: resp.json()['content'][0]['text'],
-    },
-    'google': {
-        'name': 'Google Gemini',
-        'default_endpoint': 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
-        'model_key': None,
-        'auth_header': 'x-goog-api-key',
-        'auth_prefix': '',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'contents': [{'parts': [{'text': prompt}]}],
-            'generationConfig': {
-                'temperature': temp,
-                'maxOutputTokens': max_tokens,
-            },
-        },
-        'response_parser': lambda resp: resp.json()['candidates'][0]['content']['parts'][0]['text'],
-    },
-    'huggingface': {
-        'name': 'HuggingFace',
-        'default_endpoint': 'https://api-inference.huggingface.co/models/{model}',
-        'model_key': None,
-        'auth_header': 'Authorization',
-        'auth_prefix': 'Bearer ',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'inputs': prompt,
-            'parameters': {
-                'temperature': temp,
-                'max_new_tokens': max_tokens,
-            },
-        },
-        'response_parser': lambda resp: resp.json()[0]['generated_text'],
-    },
-    'mistral': {
-        'name': 'Mistral AI',
-        'default_endpoint': 'https://api.mistral.ai/v1/chat/completions',
-        'model_key': 'model',
-        'auth_header': 'Authorization',
-        'auth_prefix': 'Bearer ',
-        'data_template': lambda model, prompt, temp, max_tokens, timeout: {
-            'model': model,
-            'messages': [{'role': 'user', 'content': prompt}],
-            'temperature': temp,
-            'max_tokens': max_tokens,
-        },
-        'response_parser': lambda resp: resp.json()['choices'][0]['message']['content'],
-    },
-}
+_FAILURE_WINDOW_SECONDS = 60
+_FAILURE_THRESHOLD = 5
+_DEFAULT_BACKOFF_SECONDS = 60
+_MAX_BACKOFF_SECONDS = 600
+
 
 class LlmProvider(models.Model):
     _name = 'llm.provider'
-    _description = 'LLM Provider Configuration'
+    _description = 'LLM Provider'
     _order = 'sequence, name'
-    _rec_name = 'name'
 
-    name = fields.Char(string='Name', required=True)
+    name = fields.Char(string='Name', required=True, translate=True)
     sequence = fields.Integer(string='Sequence', default=10)
     provider_type = fields.Selection([
         ('openai', 'OpenAI'),
@@ -110,177 +24,95 @@ class LlmProvider(models.Model):
         ('google', 'Google Gemini'),
         ('huggingface', 'HuggingFace'),
         ('mistral', 'Mistral AI'),
-        ('custom', 'Custom API'),
+        ('minimax', 'MiniMax'),
+        ('custom', 'Custom Endpoint'),
     ], string='Provider Type', required=True, default='openai')
     model_name = fields.Char(string='Model Name', required=True,
-                              help='Model identifier (e.g. gpt-4-turbo-preview, llama-3.3-70b-versatile)')
-    api_key = fields.Char(string='API Key', required=True)
-    api_endpoint = fields.Char(string='API Endpoint',
-                                help='Custom endpoint URL (only for Custom API type)')
-    temperature = fields.Float(string='Temperature', default=0.7)
+                             help='The model identifier (e.g. gpt-4, llama-3.3-70b)')
+    api_key = fields.Char(string='API Key', required=True,
+                          help='API authentication key')
+    api_endpoint = fields.Char(string='Custom API Endpoint',
+                               help='Base URL for custom API endpoint')
+    temperature = fields.Float(string='Temperature', default=0.7,
+                               help='Model temperature (0.0 - 1.0)')
     max_tokens = fields.Integer(string='Max Tokens', default=2000)
     timeout = fields.Integer(string='Timeout (seconds)', default=30)
+    is_default = fields.Boolean(string='Default Provider',
+                                help='Use as default provider for lead scoring')
     active = fields.Boolean(string='Active', default=True)
-    is_default = fields.Boolean(string='Is Default', default=False)
+    total_requests = fields.Integer(string='Total Requests', default=0, readonly=True)
+    failed_requests = fields.Integer(string='Failed Requests', default=0, readonly=True)
+    last_used = fields.Datetime(string='Last Used', readonly=True)
     company_id = fields.Many2one('res.company', string='Company',
-                                  default=lambda self: self.env.company)
-    total_requests = fields.Integer(string='Total Requests', default=0)
-    failed_requests = fields.Integer(string='Failed Requests', default=0)
-    last_used = fields.Datetime(string='Last Used')
+                                 default=lambda self: self.env.company)
 
-    # A partial unique index, not a table constraint: only ONE provider per
-    # company may be the default. A plain UNIQUE(is_default, company_id) would
-    # also forbid a second NON-default provider per company, which broke a
-    # fresh install of the six seeded providers (they all share one company
-    # and all have is_default = False).
-    #
-    # The attribute is named ..._idx so the index does not collide with the
-    # obsolete table constraint of the same name that an existing database
-    # still carries; init() drops that constraint.
-    _unique_default_per_company_idx = models.UniqueIndex(
-        '(company_id) WHERE is_default',
-        'Only one provider can be default per company!',
-    )
-
-    @api.model
-    def init(self):
-        """Drop the obsolete table constraint replaced by the partial index.
-
-        Older code declared UNIQUE(is_default, company_id) as a table
-        constraint. It was wrong (it also limited non-default providers) and
-        Odoo does not remove constraints that are no longer declared, so it
-        is dropped explicitly here.
-        """
-        super().init()
-        obsolete = 'llm_provider_unique_default_per_company'
-        try:
-            if sql.constraint_definition(self.env.cr, self._table, obsolete):
-                sql.drop_constraint(self.env.cr, self._table, obsolete)
-                _logger.info(
-                    "Dropped obsolete table constraint %s on %s",
-                    obsolete, self._table,
-                )
-        except Exception as exc:  # pragma: no cover - defensive
-            _logger.warning(
-                "Could not drop obsolete constraint %s on %s: %s",
-                obsolete, self._table, exc,
-            )
-
-    @api.constrains('temperature')
-    def _check_temperature(self):
-        for record in self:
-            if record.temperature < 0.0 or record.temperature > 2.0:
-                raise ValidationError(_('Temperature must be between 0.0 and 2.0'))
-
-    @api.constrains('max_tokens')
-    def _check_max_tokens(self):
-        for record in self:
-            if record.max_tokens < 1:
-                raise ValidationError(_('Max tokens must be greater than 0'))
+    # ---- Circuit breaker (mirrors web.research.provider) -- a paid,
+    # currently-misbehaving LLM provider must not get hammered by every
+    # retry/cron worker; this is DB-backed (unlike llm.service's
+    # process-local rate-limit cache) so it survives worker restarts.
+    circuit_state = fields.Selection([
+        ('closed', 'Closed'),
+        ('open', 'Open'),
+        ('half_open', 'Half-Open'),
+    ], default='closed', readonly=True)
+    circuit_open_until = fields.Datetime(readonly=True)
+    circuit_backoff_seconds = fields.Integer(default=_DEFAULT_BACKOFF_SECONDS, readonly=True)
+    failure_timestamps = fields.Text(default='[]', readonly=True)
 
     @api.model
     def get_default_provider(self):
-        provider = self.search([('is_default', '=', True), ('active', '=', True)], limit=1)
-        if not provider:
-            provider = self.search([('active', '=', True)], limit=1)
-        return provider
+        """Get the default active provider"""
+        return self.search([('is_default', '=', True), ('active', '=', True)], limit=1)
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('is_default'):
-                self.search([('is_default', '=', True)]).write({'is_default': False})
-        return super().create(vals_list)
-
-    def write(self, vals):
-        if vals.get('is_default'):
-            self.search([('is_default', '=', True)]).write({'is_default': False})
-        return super().write(vals)
-
-    def action_test_connection(self):
+    def is_available(self):
+        """True if this provider isn't tripped by the circuit breaker."""
         self.ensure_one()
-        try:
-            result = self._make_request('Test connection. Respond with exactly: OK')
-            if result.strip().upper() == 'OK' or 'OK' in result:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Connection Successful'),
-                        'message': _('Successfully connected to %s') % self.name,
-                        'type': 'success',
-                        'sticky': False,
-                    }
-                }
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Connection Warning'),
-                    'message': _('Connected but unexpected response: %s') % result[:200],
-                    'type': 'warning',
-                    'sticky': False,
-                }
-            }
-        except Exception as e:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Connection Failed'),
-                    'message': _('Error: %s') % str(e),
-                    'type': 'danger',
-                    'sticky': False,
-                }
-            }
+        if not self.active:
+            return False
+        self._cb_maybe_transition()
+        return self.circuit_state != 'open'
 
-    def _make_request(self, prompt):
+    def _cb_maybe_transition(self):
         self.ensure_one()
-        config = SUPPORTED_PROVIDERS.get(self.provider_type)
-        if not config and self.provider_type != 'custom':
-            raise UserError(_('Unsupported provider type: %s') % self.provider_type)
+        if (
+            self.circuit_state == 'open'
+            and self.circuit_open_until
+            and fields.Datetime.now() >= self.circuit_open_until
+        ):
+            self.sudo().write({'circuit_state': 'half_open'})
 
-        headers = {'Content-Type': 'application/json'}
+    def _cb_record_success(self):
+        self.ensure_one()
+        self.sudo().write({
+            'circuit_state': 'closed',
+            'circuit_open_until': False,
+            'circuit_backoff_seconds': _DEFAULT_BACKOFF_SECONDS,
+            'failure_timestamps': '[]',
+        })
 
-        if self.provider_type == 'custom':
-            if not self.api_endpoint:
-                raise UserError(_('Custom provider requires an API endpoint'))
-            endpoint = self.api_endpoint
-            headers[self.auth_header or 'Authorization'] = (self.auth_prefix or '') + self.api_key
-            data = json.loads(self.data_template) if hasattr(self, 'data_template') else {}
-        else:
-            endpoint = self.api_endpoint or config['default_endpoint']
-            endpoint = endpoint.replace('{model}', self.model_name or '')
-            headers[config['auth_header']] = config['auth_prefix'] + self.api_key
-            data = config['data_template'](self.model_name, prompt, self.temperature, self.max_tokens, self.timeout)
-
+    def _cb_record_failure(self):
+        self.ensure_one()
+        now = fields.Datetime.now()
+        if self.circuit_state == 'half_open':
+            backoff = min(self.circuit_backoff_seconds * 2, _MAX_BACKOFF_SECONDS)
+            self.sudo().write({
+                'circuit_state': 'open',
+                'circuit_open_until': now + timedelta(seconds=backoff),
+                'circuit_backoff_seconds': backoff,
+            })
+            return
+        window_start = now - timedelta(seconds=_FAILURE_WINDOW_SECONDS)
         try:
-            response = requests.post(
-                endpoint,
-                headers=headers,
-                json=data,
-                timeout=self.timeout,
-            )
-            response.raise_for_status()
-            self.total_requests += 1
-            self.last_used = fields.Datetime.now()
-
-            if self.provider_type == 'custom':
-                return response.text
-            return config['response_parser'](response)
-
-        except requests.exceptions.Timeout:
-            self.failed_requests += 1
-            raise UserError(_('Request timed out after %d seconds') % self.timeout)
-        except requests.exceptions.HTTPError as e:
-            self.failed_requests += 1
-            _logger.error('LLM provider HTTP error: %s - %s', self.name, str(e))
-            raise UserError(_('HTTP error: %s') % str(e))
-        except (requests.exceptions.ConnectionError, requests.exceptions.RequestException) as e:
-            self.failed_requests += 1
-            _logger.error('LLM provider connection error: %s - %s', self.name, str(e))
-            raise UserError(_('Connection error: %s') % str(e))
-        except (KeyError, IndexError, json.JSONDecodeError) as e:
-            self.failed_requests += 1
-            _logger.error('LLM provider parse error: %s - %s', self.name, str(e))
-            raise UserError(_('Failed to parse response: %s') % str(e))
+            raw = json.loads(self.failure_timestamps or '[]')
+            timestamps = [fields.Datetime.from_string(t) for t in raw]
+        except (ValueError, TypeError):
+            timestamps = []
+        timestamps = [t for t in timestamps if t >= window_start]
+        timestamps.append(now)
+        vals = {'failure_timestamps': json.dumps([fields.Datetime.to_string(t) for t in timestamps])}
+        if len(timestamps) >= _FAILURE_THRESHOLD:
+            vals.update({
+                'circuit_state': 'open',
+                'circuit_open_until': now + timedelta(seconds=self.circuit_backoff_seconds),
+            })
+        self.sudo().write(vals)

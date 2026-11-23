@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGC - Lead Scoring</title>
+    <style>
+        :root {
+            --navy: #1B3A57;
+            --gold: #C9A961;
+            --cream: #F5F3EE;
+            --white: #FFFFFF;
+            --text: #2C2C2C;
+            --border: #E6E2D8;
+            --success: #2E7D32;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+            color: var(--text);
+            background-color: var(--white);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: Georgia, Cambria, 'Times New Roman', serif;
+            color: var(--navy);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        section {
+            padding: 80px 0;
+        }
+
+        .section-cream {
+            background-color: var(--cream);
+        }
+
+        /* Defensive word-break: Odoo's app-store sanitizer can apply word-break: break-all
+           to descendant text, splitting words char-by-char into narrow grid cards. */
+        body, .container, .card, .card h3, .card p, .stat, .workflow-step,
+        .checklist li, .role-card, h1, h2, h3, h4, .intro-text {
+            word-break: normal;
+            overflow-wrap: break-word;
+            hyphens: none;
+        }
+
+
+        /* Hero Section */
+        .hero {
+            background-color: var(--navy);
+            color: var(--white);
+            text-align: center;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .hero-banner {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .hero-content {
+            padding: 60px 20px;
+            background-color: var(--white);
+        }
+
+        .hero-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin: 10px 0;
+            color: var(--navy);
+        }
+
+        .hero-summary {
+            font-size: 1.25rem;
+            color: var(--text);
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+
+        .hero-value {
+            font-weight: bold;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-gold {
+            background-color: var(--gold);
+            color: var(--navy);
+        }
+
+        .btn-outline {
+            border: 2px solid var(--navy);
+            color: var(--navy);
+        }
+
+        /* Introduction */
+        .intro-text {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .gold-highlight {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* Feature Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .checklist li {
+            padding-left: 35px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .checklist li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
+
+        /* Screenshots */
+        .screenshot-card {
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .screenshot-info {
+            padding: 25px;
+        }
+
+        /* Roles */
+        .role-grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .role-card {
+            background: var(--navy);
+            color: var(--white);
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .role-card h4 {
+            color: var(--gold);
+            margin: 0;
+        }
+
+        /* Technical Table */
+        .tech-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .tech-table th, .tech-table td {
+            padding: 15px 25px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tech-table th {
+            background-color: var(--navy);
+            color: var(--white);
+            font-family: 'Segoe UI', sans-serif;
+            width: 30%;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--navy);
+            color: var(--white);
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .footer-tagline {
+            color: var(--gold);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <img src="banner.png" alt="SGC - Lead Scoring Banner" class="hero-banner">
+    <div class="hero-content">
+        <div class="container">
+            <img src="icon.png" alt="Icon" class="hero-icon">
+            <span class="hero-value">AI-POWERED CRM ENHANCEMENT</span>
+            <h1>SGC - Lead Scoring</h1>
+            <p class="hero-summary">AI-Powered Lead Scoring with Multi-LLM Support, automated customer research, and intelligent probability forecasting.</p>
+            <div class="btn-group">
+                <a href="#features" class="btn btn-gold">Explore AI Features</a>
+                <a href="#contact" class="btn btn-outline">Get Started</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="section-white">
+    <div class="container">
+        <div class="intro-text">
+            <h2>Stop Chasing Dead Ends with <span class="gold-highlight">Predictive AI Scoring</span></h2>
+            <p>Every lead in your CRM represents a potential opportunity, but not all are created equal. SGC Lead Scoring uses <span class="gold-highlight">Large Language Models (LLMs)</span> to intelligently evaluate lead quality based on form completeness, requirement clarity, and automated web research. By assigning an AI probability score, we help your sales team prioritize high-intent prospects and automate the qualification bottleneck.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section-cream">
+    <div class="container">
+        <h2 id="features" style="text-align: center; margin-bottom: 50px;">Key Features</h2>
+        <div class="grid">
+            <div class="card">
+                <span class="card-icon">🤖</span>
+                <h3>Multi-LLM Provider Support</h3>
+                <p>Seamlessly integrate with OpenAI, Groq, HuggingFace, or Anthropic. Choose the best reasoning engine for your industry and lead types.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🔍</span>
+                <h3>Automated Web Research</h3>
+                <p>The system automatically researches prospects from public sources to enrich lead profiles with real-world context before your first call.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">🎯</span>
+                <h3>AI probability Forecasting</h3>
+                <p>Probability scoring grounded in LLM reasoning, considering engagement logs, clarity of requirements, and historical patterns.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">⚡</span>
+                <h3>Real-time Enrichment</h3>
+                <p>Enrich leads individually or in batches with a single click, instantly generating comprehensive analysis reports within Odoo CRM.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">📊</span>
+                <h3>Score Breakdown Widgets</h3>
+                <p>Visual progress bars and gauges showing completeness, clarity, and engagement scores for a transparent view of AI logic.</p>
+            </div>
+            <div class="card">
+                <span class="card-icon">📝</span>
+                <h3>Intelligent Note Logging</h3>
+                <p>Detailed AI analysis reports are logged directly into internal notes, providing sales reps with a ready-made dossier for every lead.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-white">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 50px;">What You Get</h2>
+        <ul class="checklist">
+            <li>AI Scoring Dashboard in CRM</li>
+            <li>Multi-LLM Configuration Panel</li>
+            <li>Google Search Setup Wizards</li>
+            <li>Lead Enrichment Sever Actions</li>
+            <li>Automated Lead Qualification Cron</li>
+            <li>Enrichment Status & Date Tracking</li>
+            <li>AI Probability Progress Bars</li>
+            <li>Customizable LLM Prompts</li>
+            <li>Raw JSON Data Logging for Audit</li>
+        </ul>
+    </div>
+</section>
+
+<section class="section-cream">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 50px;">Module Screenshots</h2>
+
+        <div class="screenshot-card">
+            <img src="screenshots/screenshot.png" alt="AI Scoring in CRM Lead">
+            <div class="screenshot-info">
+                <h3>Intelligent Lead Profile</h3>
+                <p>View AI probability gauges, score breakdowns, and comprehensive enrichment reports directly within the standard Odoo CRM form.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-white">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 50px;">Business Benefits</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Higher Conversion Rates</h3>
+                <p>Empower your sales team to focus on leads with the highest probability of closing, maximizing ROI on every hour worked.</p>
+            </div>
+            <div class="card">
+                <h3>Consistent Lead Quality</h3>
+                <p>Remove the subjectivity of lead qualification with standardized, data-driven AI evaluation criteria.</p>
+            </div>
+            <div class="card">
+                <h3>Reduced Manual Research</h3>
+                <p>Save your sales reps hours of manual LinkedIn and web searching by letting the AI generate prospect dossiers automatically.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-cream">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 40px;">Who Uses This Module</h2>
+        <div class="role-grid">
+            <div class="role-card">
+                <h4>Sales Executive</h4>
+                <p>Prioritize daily outreach</p>
+            </div>
+            <div class="role-card">
+                <h4>CRM Manager</h4>
+                <p>Audit pipeline quality</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-white">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 40px;">Technical Information</h2>
+        <table class="tech-table">
+            <tr>
+                <th>Module</th>
+                <td>sgc_lead_scoring</td>
+            </tr>
+            <tr>
+                <th>Version</th>
+                <td>19.0.1.0.0</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                <td>CRM</td>
+            </tr>
+            <tr>
+                <th>License</th>
+                <td>OPL-1</td>
+            </tr>
+            <tr>
+                <th>Dependencies</th>
+                <td>base, crm, mail</td>
+            </tr>
+            <tr>
+                <th>AI Engines</th>
+                <td>OpenAI, Groq, HuggingFace, Anthropic</td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<section class="section-cream">
+    <div class="container" style="text-align: center;">
+        <h2>Why Choose SGC TECH AI?</h2>
+        <p class="intro-text">Our modules are built with <strong>Enterprise Readiness</strong> in mind. We focus on clean code, seamless integration, and superior UI/UX to ensure that your Odoo experience is not just functional, but exceptional. Each SGC module undergoes rigorous testing to guarantee reliability and performance in high-stakes environments.</p>
+    </div>
+</section>
+
+<footer id="contact">
+    <div class="container">
+        <div class="footer-logo">SGC TECH AI</div>
+        <div class="footer-tagline">Finance. Systems. Technology.</div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 /**
- * SGC AI Powerbox — registers the /sgctechai Powerbox command on Odoo 19.
+ * SGC AI Powerbox — registers the /sgcai Powerbox command on Odoo 19.
  *
  * Strategy:
  *   1. Define a Plugin class (SgcAIPowerboxPlugin) with `resources =
@@ -11,7 +11,7 @@
  *      the existing `Plugins` array (which already contains MAIN_PLUGINS, etc.).
  *
  * Runtime behavior:
- *   - Type `/sgctechai` in any html_field to open the Powerbox.
+ *   - Type `/sgcai` in any html_field to open the Powerbox.
  *   - The item appears under a new category "SGC AI".
  *   - When selected, the plugin opens a dialog with a textarea so the user
  *     can type a prompt (or, if text was pre-selected, edit / extend it).
@@ -38,12 +38,19 @@ export class SgcAIPromptDialog extends Component {
             <div class="o_sgc_ai_powerbox_dialog p-3">
                 <p t-if="props.helpText" class="text-muted small mb-2" t-esc="props.helpText"/>
                 <textarea
-                    class="form-control"
+                    class="form-control mb-2"
                     rows="6"
                     t-att-placeholder="props.placeholder"
                     t-model="state.prompt"
                     t-on-keydown="onPromptKeydown"
                 />
+                <div class="d-flex align-items-center gap-2">
+                    <label class="text-muted small mb-0" for="sgc_ai_provider_select">AI backend:</label>
+                    <select id="sgc_ai_provider_select" class="form-select form-select-sm w-auto" t-model="state.provider">
+                        <option value="default">Default</option>
+                        <option value="minimax">MiniMax</option>
+                    </select>
+                </div>
                 <div t-if="state.error" class="alert alert-danger mt-3 mb-0" role="alert">
                     <t t-esc="state.error"/>
                 </div>
@@ -76,6 +83,7 @@ export class SgcAIPromptDialog extends Component {
     setup() {
         this.state = useState({
             prompt: this.props.initialPrompt || "",
+            provider: "default",
             busy: false,
             error: "",
         });
@@ -100,7 +108,7 @@ export class SgcAIPromptDialog extends Component {
         this.state.busy = true;
         this.state.error = "";
         try {
-            const result = await this.props.onConfirm(value);
+            const result = await this.props.onConfirm(value, this.state.provider);
             if (result && result.error) {
                 this.state.error = result.error;
                 this.state.busy = false;
@@ -130,20 +138,55 @@ export class SgcAIPowerboxPlugin extends Plugin {
         ],
         user_commands: [
             {
-                id: "sgctechai",
-                title: _t("Ask SGC TECH AI"),
+                id: "sgcai",
+                title: _t("Ask SGC AI"),
                 description: _t("Open a chat prompt. The response is inserted at the cursor."),
                 icon: "fa-magic",
-                run: () => this.executeSgctechai(),
+                run: () => this.executeSgcai(),
             },
         ],
         powerbox_items: [
             {
                 categoryId: "sgc_ai",
-                commandId: "sgctechai",
+                commandId: "sgcai",
             },
         ],
     };
+
+    /**
+     * Plain-text snapshot of everything currently rendered on the open form
+     * (every visible label + value -- company, email, salesperson, tags,
+     * scores, whatever tab is active, etc.), read straight from the DOM.
+     *
+     * A field-type-based snapshot (walking getRecordInfo().fields/.data) was
+     * tried first, but it either has to skip every relational field
+     * (Company, Salesperson, Sales Team, Tags -- all many2one/many2many, so
+     * the "known data" block was missing exactly the fields users look at
+     * first) or reimplement Odoo's relational-value unwrapping, which is
+     * fragile across versions. Reading the rendered sheet text sidesteps
+     * both problems: it's exactly "the information written on the open
+     * form" the user is looking at, whatever type each field is.
+     *
+     * Capped to MAX_FORM_SNAPSHOT_CHARS as a context-bloat guardrail --
+     * this is a paid LLM call, not a free one.
+     */
+    static MAX_FORM_SNAPSHOT_CHARS = 4000;
+
+    _getFormSnapshot() {
+        try {
+            const sheet = this.document.querySelector(
+                ".o_form_sheet, .o_form_view .o_form_sheet_bg"
+            );
+            if (!sheet) return "";
+            const text = (sheet.innerText || "").replace(/\n{2,}/g, "\n").trim();
+            if (!text) return "";
+            return text.length > SgcAIPowerboxPlugin.MAX_FORM_SNAPSHOT_CHARS
+                ? text.slice(0, SgcAIPowerboxPlugin.MAX_FORM_SNAPSHOT_CHARS) + "…"
+                : text;
+        } catch (_) {
+            return "";
+        }
+    }
 
     _getRecordContext() {
         // HtmlField exposes `getRecordInfo` via its config; the plugin context
@@ -155,6 +198,7 @@ export class SgcAIPowerboxPlugin extends Plugin {
                 res_model: info.resModel,
                 res_id: info.resId,
                 record_name: info.data?.display_name || info.data?.name || "",
+                form_snapshot: this._getFormSnapshot(),
             };
         } catch (_) {
             return {};
@@ -172,7 +216,7 @@ export class SgcAIPowerboxPlugin extends Plugin {
         }
     }
 
-    async executeSgctechai() {
+    async executeSgcai() {
         const selection = this.dependencies.selection.getEditableSelection();
         const selectedText = (selection?.textContent?.() || "").trim();
 
@@ -190,11 +234,11 @@ export class SgcAIPowerboxPlugin extends Plugin {
                 : _t(
                     "Type a prompt. The AI response will be inserted at the cursor."
                 ),
-            onConfirm: async (prompt) => {
+            onConfirm: async (prompt, provider) => {
                 return await this._askAiAndInsert(prompt, {
                     ...recordContext,
                     field_text: fieldSnapshot,
-                });
+                }, provider);
             },
         });
     }
@@ -215,10 +259,10 @@ export class SgcAIPowerboxPlugin extends Plugin {
         return fragment;
     }
 
-    async _askAiAndInsert(prompt, context) {
+    async _askAiAndInsert(prompt, context, provider) {
         let response;
         try {
-            response = await rpc(RPC_URL, { prompt, context });
+            response = await rpc(RPC_URL, { prompt, context, provider });
         } catch (error) {
             return {
                 error:

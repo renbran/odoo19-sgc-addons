@@ -5,3 +5,8 @@ access_llm_service_user,llm.service.user,model_llm_service,sales_team.group_sale
 access_web_research_service_user,web.research.service.user,model_web_research_service,sales_team.group_sale_salesman,1,0,0,0
 access_lead_enrichment_wizard_user,lead.enrichment.wizard.user,model_lead_enrichment_wizard,sales_team.group_sale_salesman,1,1,1,1
 access_google_search_setup_wizard_manager,google.search.setup.wizard.manager,model_google_search_setup_wizard,sales_team.group_sale_manager,1,1,1,1
+access_web_research_provider_user,web.research.provider.user,model_web_research_provider,sales_team.group_sale_salesman,1,0,0,0
+access_web_research_provider_manager,web.research.provider.manager,model_web_research_provider,sales_team.group_sale_manager,1,1,1,1
+access_web_research_result_user,web.research.result.user,model_web_research_result,sales_team.group_sale_salesman,1,1,1,0
+access_web_research_audit_user,web.research.audit.user,model_web_research_audit,sales_team.group_sale_salesman,1,1,1,0
+access_setup_web_research_wizard_manager,setup.web.research.wizard.manager,model_setup_web_research_wizard,sales_team.group_sale_manager,1,1,1,1

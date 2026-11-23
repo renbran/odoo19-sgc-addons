@@ -6,6 +6,9 @@
         <field name="model">google.search.setup.wizard</field>
         <field name="arch" type="xml">
             <form>
+                <div class="alert alert-warning" role="alert">
+                    <field name="deprecation_notice" readonly="1" nolabel="1"/>
+                </div>
                 <field name="step" invisible="1"/>
                 <field name="test_success" invisible="1"/>
 
