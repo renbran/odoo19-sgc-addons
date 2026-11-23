@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- The paperformat the accounting reports below use. It was dropped
+         from this module when the report definitions moved to their own
+         files, but om_account_daily_reports and the other accounting
+         reports still point at it: without it the module cannot be
+         installed fresh ("External ID not found in the system:
+         accounting_pdf_reports.paperformat_om_report") and the whole
+         registry fails to load. -->
+    <record id="paperformat_om_report" model="report.paperformat">
+        <field name="name">A4 - Accounting Report</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">22</field>
+        <field name="margin_bottom">16</field>
+        <field name="margin_left">7</field>
+        <field name="margin_right">7</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
     <record id="action_report_general_ledger" model="ir.actions.report">
         <field name="name">General Ledger</field>
         <field name="model">account.report.general.ledger</field>
