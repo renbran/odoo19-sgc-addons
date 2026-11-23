@@ -11,6 +11,8 @@ Routes:
 """
 
 import base64
+import hashlib
+import json
 import logging
 import random
 import string
@@ -23,8 +25,72 @@ _logger = logging.getLogger(__name__)
 
 OTP_EXPIRY_MINUTES = 10
 
+# ── OTP abuse throttling (persisted in ir.config_parameter so it holds
+#    across worker processes; no new model/security wiring needed) ────
+OTP_MAX_SEND_PER_EMAIL = 3      # sends per email per window
+OTP_MAX_SEND_PER_IP = 12        # sends per IP per window (catches multi-email spam)
+OTP_SEND_WINDOW_MINUTES = 15
+OTP_MIN_RESEND_SECONDS = 30     # cooldown between two sends to the same email
+OTP_MAX_VERIFY_ATTEMPTS = 5     # wrong codes allowed before forcing a resend
+
 
 class KYCPortalController(http.Controller):
+
+    # ── Throttle helpers ────────────────────────────────────────────
+    def _otp_throttle_key(self, bucket, identifier):
+        digest = hashlib.sha256(identifier.encode('utf-8')).hexdigest()
+        return f'kyc.otp.{bucket}.{digest}'
+
+    def _otp_throttle_get(self, key):
+        raw = request.env['ir.config_parameter'].sudo().get_param(key)
+        if not raw:
+            return {}
+        try:
+            return json.loads(raw)
+        except (ValueError, TypeError):
+            return {}
+
+    def _otp_throttle_set(self, key, data):
+        request.env['ir.config_parameter'].sudo().set_param(key, json.dumps(data))
+
+    def _otp_throttle_allow(self, key, max_count, window_minutes, min_gap_seconds=None):
+        """Sliding window counter. Returns True (and records the hit) if the
+        caller is still under the limit, False if throttled."""
+        now = datetime.utcnow()
+        state = self._otp_throttle_get(key)
+        window_start = state.get('window_start')
+        count = state.get('count', 0)
+        last_hit = state.get('last_hit')
+
+        if window_start:
+            try:
+                started = datetime.fromisoformat(window_start)
+                if now - started > timedelta(minutes=window_minutes):
+                    window_start = None
+                    count = 0
+            except ValueError:
+                window_start = None
+                count = 0
+
+        if min_gap_seconds and last_hit:
+            try:
+                if (now - datetime.fromisoformat(last_hit)).total_seconds() < min_gap_seconds:
+                    return False
+            except ValueError:
+                pass
+
+        if not window_start:
+            window_start = now.isoformat()
+
+        if count >= max_count:
+            return False
+
+        self._otp_throttle_set(key, {
+            'window_start': window_start,
+            'count': count + 1,
+            'last_hit': now.isoformat(),
+        })
+        return True
 
     # ─────────────────────────────────────────────────────────────
     # POST /contact/kyc/send-otp  — generate & email OTP (JSON)
@@ -36,6 +102,19 @@ class KYCPortalController(http.Controller):
 
         email = email.strip().lower()
 
+        email_key = self._otp_throttle_key('send', email)
+        ip_key = self._otp_throttle_key('send-ip', request.httprequest.remote_addr or 'unknown')
+
+        if not self._otp_throttle_allow(
+            email_key, OTP_MAX_SEND_PER_EMAIL, OTP_SEND_WINDOW_MINUTES,
+            min_gap_seconds=OTP_MIN_RESEND_SECONDS,
+        ):
+            return {'success': False, 'error': 'Please wait a moment before requesting another code.'}
+
+        if not self._otp_throttle_allow(ip_key, OTP_MAX_SEND_PER_IP, OTP_SEND_WINDOW_MINUTES):
+            _logger.warning("KYC OTP send throttled for IP %s", request.httprequest.remote_addr)
+            return {'success': False, 'error': 'Too many requests. Please try again later.'}
+
         # Generate 6-digit OTP
         otp = ''.join(random.choices(string.digits, k=6))
         expiry = (datetime.utcnow() + timedelta(minutes=OTP_EXPIRY_MINUTES)).isoformat()
@@ -46,29 +125,33 @@ class KYCPortalController(http.Controller):
         request.session['kyc_otp_expiry'] = expiry
         request.session['kyc_email_verified'] = False
 
+        # A fresh code resets any prior failed-attempt count for this email
+        self._otp_throttle_set(self._otp_throttle_key('verify-attempts', email), {'count': 0})
+
         # Send email via Odoo mail
         try:
-            email_sender = request.env['ir.config_parameter'].sudo().get_param('kyc.email_sender') or request.env.user.company_id.email or 'noreply@example.com'
+            company = request.env.company
+            email_sender = request.env['ir.config_parameter'].sudo().get_param('kyc.email_sender') or company.email or 'noreply@example.com'
+            company_footer = ' &nbsp;|&nbsp; '.join(filter(None, [company.name, company.phone, company.email]))
             mail_vals = {
-                'subject': 'Your OSUS KYC Email Verification Code',
+                'subject': 'Your KYC Email Verification Code',
                 'email_to': email,
                 'email_from': email_sender,
                 'body_html': f"""
                 <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:20px;">
-                  <div style="background:#800020;padding:20px 24px;border-radius:10px 10px 0 0;text-align:center;">
+                  <div style="background:#10243B;padding:20px 24px;border-radius:10px 10px 0 0;text-align:center;">
                     <h2 style="color:#fff;margin:0;font-size:1.3rem;">&#128272; Email Verification</h2>
-                    <p style="color:rgba(255,255,255,.8);margin:6px 0 0;font-size:.9rem;">OSUS Real Estate Brokerage LLC</p>
                   </div>
                   <div style="background:#fff;border:1px solid #e5e7eb;border-top:none;padding:28px 24px;border-radius:0 0 10px 10px;">
                     <p style="color:#374151;font-size:.95rem;">You are submitting a KYC application. Use the code below to verify your email address:</p>
-                    <div style="background:#f9fafb;border:2px dashed #800020;border-radius:10px;padding:20px;text-align:center;margin:20px 0;">
-                      <div style="font-size:2.5rem;font-weight:800;letter-spacing:12px;color:#800020;">{otp}</div>
+                    <div style="background:#f9fafb;border:2px dashed #C8A24A;border-radius:10px;padding:20px;text-align:center;margin:20px 0;">
+                      <div style="font-size:2.5rem;font-weight:800;letter-spacing:12px;color:#10243B;">{otp}</div>
                       <p style="color:#6b7280;font-size:.8rem;margin:8px 0 0;">Valid for {OTP_EXPIRY_MINUTES} minutes</p>
                     </div>
                     <p style="color:#6b7280;font-size:.82rem;">If you did not request this, please ignore this email.</p>
                     <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0;"/>
                     <p style="color:#9ca3af;font-size:.75rem;text-align:center;">
-                             Scholarix Global Consultants &nbsp;|&nbsp; +971-52-198-5231 &nbsp;|&nbsp; info@sgctech.ai
+                             {company_footer}
                     </p>
                   </div>
                 </div>""",
@@ -94,6 +177,13 @@ class KYCPortalController(http.Controller):
         email = email.strip().lower()
         otp = otp.strip()
 
+        attempts_key = self._otp_throttle_key('verify-attempts', email)
+        attempts_state = self._otp_throttle_get(attempts_key)
+        attempts = attempts_state.get('count', 0)
+
+        if attempts >= OTP_MAX_VERIFY_ATTEMPTS:
+            return {'success': False, 'error': 'Too many incorrect attempts. Please request a new code.'}
+
         stored_otp   = request.session.get('kyc_otp')
         stored_email = request.session.get('kyc_otp_email', '')
         stored_expiry = request.session.get('kyc_otp_expiry')
@@ -105,9 +195,13 @@ class KYCPortalController(http.Controller):
             return {'success': False, 'error': 'Verification code has expired. Please request a new one.'}
 
         if otp != stored_otp:
+            self._otp_throttle_set(attempts_key, {'count': attempts + 1})
+            if attempts + 1 >= OTP_MAX_VERIFY_ATTEMPTS:
+                return {'success': False, 'error': 'Too many incorrect attempts. Please request a new code.'}
             return {'success': False, 'error': 'Incorrect code. Please check your email and try again.'}
 
-        # Mark verified in session
+        # Mark verified in session; reset the attempt counter
+        self._otp_throttle_set(attempts_key, {'count': 0})
         request.session['kyc_email_verified'] = True
         request.session['kyc_verified_email'] = email
         _logger.info("KYC email verified: %s", email)
@@ -124,6 +218,7 @@ class KYCPortalController(http.Controller):
         source_wealth = env['kyc.source.wealth'].sudo().search([])
         currencies = env['res.currency'].sudo().search([('active', '=', True)], order='name')
         return request.render('kyc_management.portal_kyc_form', {
+            'company': env.company,
             'countries': countries,
             'source_funds': source_funds,
             'source_wealth': source_wealth,
@@ -147,16 +242,38 @@ class KYCPortalController(http.Controller):
         elif request.session.get('kyc_verified_email', '').lower() != post.get('email', '').strip().lower():
             error['email'] = 'Verified email does not match. Please re-verify.'
 
-        # ── Required field validation ──────────────────────────
-        required = [
+        # ── Required field validation (AML KYC mandatory fields) ──────────────────────────
+        # Core identity (always required)
+        core_required = [
             'first_name', 'last_name', 'email', 'phone',
             'date_of_birth', 'gender', 'nationality_id',
-            'passport_number', 'passport_expiry_date',
             'residential_address', 'residential_city', 'residential_country_id',
+        ]
+        for field in core_required:
+            if not post.get(field):
+                error[field] = 'This field is required.'
+
+        # Identity document: Passport (number + country + expiry) OR Emirates ID
+        has_passport_number = bool(post.get('passport_number', '').strip())
+        has_passport_country = bool(post.get('passport_country_id'))
+        has_passport_expiry = bool(post.get('passport_expiry_date'))
+        has_emirates_id = bool(post.get('emirates_id', '').strip())
+
+        if not has_emirates_id:
+            # If no Emirates ID, passport details are mandatory
+            if not has_passport_number:
+                error['passport_number'] = 'Passport Number is required (or provide Emirates ID).'
+            if not has_passport_country:
+                error['passport_country_id'] = 'Passport Issuing Country is required (or provide Emirates ID).'
+            if not has_passport_expiry:
+                error['passport_expiry_date'] = 'Passport Expiry Date is required (or provide Emirates ID).'
+
+        # Employment & Financial (AML mandatory)
+        employment_financial_required = [
             'employment_status', 'purpose_of_transaction', 'payment_method',
             'annual_income', 'politically_exposed_person',
         ]
-        for field in required:
+        for field in employment_financial_required:
             if not post.get(field):
                 error[field] = 'This field is required.'
 
@@ -189,6 +306,7 @@ class KYCPortalController(http.Controller):
             source_wealth = env['kyc.source.wealth'].sudo().search([])
             currencies = env['res.currency'].sudo().search([('active', '=', True)], order='name')
             return request.render('kyc_management.portal_kyc_form', {
+                'company': env.company,
                 'countries': countries,
                 'source_funds': source_funds,
                 'source_wealth': source_wealth,
@@ -343,6 +461,7 @@ class KYCPortalController(http.Controller):
             source_wealth = env['kyc.source.wealth'].sudo().search([])
             currencies = env['res.currency'].sudo().search([('active', '=', True)], order='name')
             return request.render('kyc_management.portal_kyc_form', {
+                'company': env.company,
                 'countries': countries,
                 'source_funds': source_funds,
                 'source_wealth': source_wealth,
@@ -365,6 +484,7 @@ class KYCPortalController(http.Controller):
             return request.not_found()
         return request.render('kyc_management.portal_kyc_success', {
             'application': application,
+            'company': application.company_id,
         })
 
     # ─────────────────────────────────────────────────────────────
@@ -379,6 +499,7 @@ class KYCPortalController(http.Controller):
             return request.not_found()
         return request.render('kyc_management.portal_kyc_status', {
             'application': application,
+            'company': application.company_id,
         })
 
 

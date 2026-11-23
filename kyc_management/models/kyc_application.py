@@ -5,11 +5,7 @@ Main model for KYC Enhanced module
 Handles KYC application lifecycle and approval workflow
 """
 
-import json
-import os
 import re
-import urllib.parse
-import urllib.request
 from datetime import datetime, timedelta
 from base64 import b64encode
 from odoo import api, fields, models, _
@@ -42,8 +38,7 @@ class KYCApplication(models.Model):
     _order = 'create_date DESC'
 
     _kyc_id_unique = models.Constraint(
-        'UNIQUE(kyc_id)',
-        'KYC ID must be unique.',
+        'UNIQUE(kyc_id)', 'KYC ID must be unique.',
     )
     
     # ==================== BASIC INFORMATION ====================
@@ -86,7 +81,16 @@ class KYCApplication(models.Model):
         required=True,
         help='Primary phone number'
     )
-    
+
+    company_id = fields.Many2one(
+        'res.company',
+        string='Company',
+        required=True,
+        index=True,
+        default=lambda self: self.env.company,
+        help='Tenant/company that owns this KYC application'
+    )
+
     # ==================== PERSONAL INFORMATION ====================
     
     # Name & Demographics
@@ -900,17 +904,13 @@ class KYCApplication(models.Model):
         template = self.env.ref('kyc_management.email_template_kyc_submitted', raise_if_not_found=False)
         if template:
             template.send_mail(self.id, force_send=True)
-        # Telegram notification
-        self._send_telegram_kyc_submitted()
-    
+
     def _notify_approval(self):
         """Send notification to applicant on approval"""
         template = self.env.ref('kyc_management.email_template_kyc_approved', raise_if_not_found=False)
         if template:
             template.send_mail(self.id, force_send=True)
-        # Telegram notification
-        self._send_telegram_kyc_approved()
-    
+
     def _notify_rejection(self):
         """Send notification to applicant on rejection"""
         template = self.env.ref(
@@ -935,243 +935,12 @@ class KYCApplication(models.Model):
                         'KYC %s: rejection email failed: %s',
                         self.kyc_id, exc,
                     )
-        # Telegram notification
-        self._send_telegram_kyc_rejected()
 
-    # ==================== TELEGRAM HELPERS ====================
-
-    def _load_env_file(self):
-        """Load environment variables from .env file"""
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-        candidate_paths = [
-            os.path.join(base_dir, '.env'),
-            os.path.abspath(
-                os.path.join(base_dir, os.pardir, os.pardir, '.env')
-            ),
-        ]
-        env_path = next(
-            (path for path in candidate_paths if os.path.exists(path)),
-            None,
-        )
-        if not env_path:
-            return
-        try:
-            with open(env_path, 'r', encoding='utf-8') as env_file:
-                for line in env_file:
-                    line = line.strip()
-                    if not line or line.startswith('#') or '=' not in line:
-                        continue
-                    key, value = line.split('=', 1)
-                    key = key.strip()
-                    value = value.strip().strip('"').strip("'")
-                    if key and key not in os.environ:
-                        os.environ[key] = value
-        except Exception as exc:
-            _logger.warning('KYC: Failed to load .env file: %s', exc)
-
-    def _get_telegram_config(self):
-        """Return (token, chat_id) from environment"""
-        self._load_env_file()
-        token = os.getenv('OSUS_TG_BOT_TOKEN')
-        chat_id = os.getenv('OSUS_TG_CHAT_ID')
-        return token, chat_id
-
-    def _send_telegram_message(self, token, chat_id, message):
-        """Send a Telegram message via Bot API"""
-        url = f'https://api.telegram.org/bot{token}/sendMessage'
-        data = {
-            'chat_id': chat_id,
-            'text': message,
-            'parse_mode': 'HTML',
-        }
-        encoded_data = urllib.parse.urlencode(data).encode('utf-8')
-        request = urllib.request.Request(url, data=encoded_data)
-        try:
-            response = urllib.request.urlopen(request, timeout=10)
-            payload = json.loads(response.read().decode('utf-8'))
-            if not payload.get('ok'):
-                _logger.warning('KYC Telegram API error: %s', payload)
-            else:
-                _logger.info('KYC Telegram message sent successfully')
-            return payload.get('ok', False)
-        except Exception as exc:
-            _logger.error('KYC Telegram notification failed: %s', exc)
-            return False
-
-    # ==================== TELEGRAM KYC NOTIFICATIONS ====================
-
-    def _send_telegram_kyc_submitted(self):
-        """Send Telegram notification when a KYC application is submitted"""
-        self.ensure_one()
-        token, chat_id = self._get_telegram_config()
-        if not token or not chat_id:
-            _logger.info('KYC Telegram config missing — skipping submitted notification')
-            return
-
-        applicant_name = ' '.join(filter(None, [self.first_name, self.last_name])) or 'N/A'
-        nationality = self.nationality_id.name if self.nationality_id else 'N/A'
-        country = self.residential_country_id.name if self.residential_country_id else 'N/A'
-        emp_status = dict(self._fields['employment_status'].selection).get(
-            self.employment_status, 'N/A'
-        ) if self.employment_status else 'N/A'
-        pep_label = dict(self._fields['politically_exposed_person'].selection).get(
-            self.politically_exposed_person, 'N/A'
-        ) if self.politically_exposed_person else 'N/A'
-
-        message = (
-            f"\U0001F4CB <b>New KYC Application Submitted</b>\n"
-            f"\n"
-            f"<b>KYC ID:</b> {self.kyc_id}\n"
-            f"<b>Applicant:</b> {applicant_name}\n"
-            f"<b>Email:</b> {self.email or 'N/A'}\n"
-            f"<b>Phone:</b> {self.phone or 'N/A'}\n"
-            f"<b>Nationality:</b> {nationality}\n"
-            f"<b>Country of Residence:</b> {country}\n"
-            f"<b>Employment Status:</b> {emp_status}\n"
-            f"<b>Occupation:</b> {self.occupation or 'N/A'}\n"
-            f"<b>PEP Status:</b> {pep_label}\n"
-            f"\n"
-            f"\u23F3 <i>Awaiting compliance officer review</i>"
-        )
-        self._send_telegram_message(token, chat_id, message)
-
-    def _send_telegram_kyc_approved(self):
-        """Send Telegram notification when a KYC application is approved,
-        including risk assessment details if available."""
-        self.ensure_one()
-        token, chat_id = self._get_telegram_config()
-        if not token or not chat_id:
-            _logger.info('KYC Telegram config missing — skipping approval notification')
-            return
-
-        applicant_name = ' '.join(filter(None, [self.first_name, self.last_name])) or 'N/A'
-        nationality = self.nationality_id.name if self.nationality_id else 'N/A'
-        country = self.residential_country_id.name if self.residential_country_id else 'N/A'
-        emp_status = dict(self._fields['employment_status'].selection).get(
-            self.employment_status, 'N/A'
-        ) if self.employment_status else 'N/A'
-        pep_label = dict(self._fields['politically_exposed_person'].selection).get(
-            self.politically_exposed_person, 'N/A'
-        ) if self.politically_exposed_person else 'N/A'
-        approver = self.approver_id.name if self.approver_id else 'N/A'
-        income = f"{self.annual_income:,.2f} {self.currency_id.name}" if self.annual_income else 'N/A'
-        purpose = dict(self._fields['purpose_of_transaction'].selection).get(
-            self.purpose_of_transaction, 'N/A'
-        ) if self.purpose_of_transaction else 'N/A'
-        payment = dict(self._fields['payment_method'].selection).get(
-            self.payment_method, 'N/A'
-        ) if self.payment_method else 'N/A'
-
-        # Source of funds / wealth
-        sof = ', '.join(self.source_of_funds_ids.mapped('name')) if self.source_of_funds_ids else 'N/A'
-        sow = ', '.join(self.source_of_wealth_ids.mapped('name')) if self.source_of_wealth_ids else 'N/A'
-
-        message = (
-            f"\u2705 <b>KYC Application Approved</b>\n"
-            f"\n"
-            f"<b>KYC ID:</b> {self.kyc_id}\n"
-            f"<b>Applicant:</b> {applicant_name}\n"
-            f"<b>Email:</b> {self.email or 'N/A'}\n"
-            f"<b>Phone:</b> {self.phone or 'N/A'}\n"
-            f"<b>Nationality:</b> {nationality}\n"
-            f"<b>Country of Residence:</b> {country}\n"
-            f"<b>Employment Status:</b> {emp_status}\n"
-            f"<b>Occupation:</b> {self.occupation or 'N/A'}\n"
-            f"<b>Approved By:</b> {approver}\n"
-            f"\n"
-            f"\U0001F4B0 <b>Financial Profile</b>\n"
-            f"<b>Annual Income:</b> {income}\n"
-            f"<b>Source of Funds:</b> {sof}\n"
-            f"<b>Source of Wealth:</b> {sow}\n"
-            f"<b>Purpose of Transaction:</b> {purpose}\n"
-            f"<b>Payment Method:</b> {payment}\n"
-            f"<b>PEP Status:</b> {pep_label}\n"
-        )
-
-        # Append risk assessment info if available (from aml_compliance)
-        risk_section = self._build_telegram_risk_section()
-        if risk_section:
-            message += risk_section
-
-        self._send_telegram_message(token, chat_id, message)
-
-    def _send_telegram_kyc_rejected(self):
-        """Send Telegram notification when a KYC application is rejected"""
-        self.ensure_one()
-        token, chat_id = self._get_telegram_config()
-        if not token or not chat_id:
-            _logger.info(
-                'KYC Telegram config missing — skipping rejection notification',
-            )
-            return
-
-        applicant_name = ' '.join(
-            filter(None, [self.first_name, self.last_name]),
-        ) or 'N/A'
-        rejector = self.approver_id.name if self.approver_id else 'N/A'
-
-        message = (
-            f"\u274C <b>KYC Application Rejected</b>\n"
-            f"\n"
-            f"<b>KYC ID:</b> {self.kyc_id}\n"
-            f"<b>Applicant:</b> {applicant_name}\n"
-            f"<b>Email:</b> {self.email or 'N/A'}\n"
-            f"<b>Phone:</b> {self.phone or 'N/A'}\n"
-            f"<b>Rejected By:</b> {rejector}\n"
-            f"\n"
-            f"\U0001F4DD <b>Rejection Reason:</b>\n"
-            f"{self.rejection_reason or 'N/A'}\n"
-        )
-        if self.rejection_suggestions:
-            message += (
-                f"\n\U0001F4A1 <b>Suggested Corrections:</b>\n"
-                f"{self.rejection_suggestions}\n"
-            )
-        self._send_telegram_message(token, chat_id, message)
-
-    def _build_telegram_risk_section(self):
-        """Build the risk assessment section for Telegram message.
-        Returns empty string if aml_compliance is not installed or no assessment exists."""
-        self.ensure_one()
-        if not hasattr(self, 'risk_assessment_ids'):
-            return ''
-        assessments = self.risk_assessment_ids.filtered(
-            lambda r: r.state in ('approved', 'reviewed', 'computed')
-        ).sorted('assessment_date', reverse=True)
-        if not assessments:
-            return '\n\u26A0\uFE0F <i>No risk assessment completed yet</i>\n'
-
-        latest = assessments[0]
-        risk_emoji = {
-            'low': '\U0001F7E2',
-            'medium': '\U0001F7E1',
-            'high': '\U0001F7E0',
-            'very_high': '\U0001F534',
-        }
-        level_label = dict(latest._fields['final_risk_level'].selection).get(
-            latest.final_risk_level, 'N/A'
-        )
-        emoji = risk_emoji.get(latest.final_risk_level, '')
-        overridden = ' (Overridden)' if latest.is_overridden else ''
-
-        section = (
-            f"\n\U0001F6E1 <b>Risk Assessment</b>\n"
-            f"<b>Risk Level:</b> {emoji} {level_label}{overridden}\n"
-            f"<b>Risk Score:</b> {latest.computed_risk_score:.1f}/100\n"
-            f"<b>Assessment Type:</b> {dict(latest._fields['assessment_type'].selection).get(latest.assessment_type, 'N/A')}\n"
-            f"<b>Requires EDD:</b> {'Yes' if latest.requires_edd else 'No'}\n"
-        )
-        if latest.override_reason:
-            section += f"<b>Override Reason:</b> {latest.override_reason}\n"
-        return section
-    
     def _create_approval_and_notify_officer(self):
         """Create a kyc.approval record for the first KYC Compliance Officer and notify them.
         Also sends a direct officer notification email (bound to kyc.application model).
         """
         self.ensure_one()
-        import logging
-        _logger = logging.getLogger(__name__)
         
         # Find the first KYC Compliance Officer
         approver_group = self.env.ref('kyc_management.group_kyc_approver', raise_if_not_found=False)
@@ -1320,7 +1089,21 @@ class KYCApplication(models.Model):
         if not self.residential_country_id and partner.country_id:
             vals['residential_country_id'] = partner.country_id.id
         if vals:
-            self.write(vals)
+            # D-9 fix: this write is internal bookkeeping only -- every value in
+            # `vals` is derived strictly from `self.partner_id`, a field the
+            # caller already legitimately supplied and can already read (it is
+            # their own partner in the self-service "KYC Applicant" case). It
+            # must run as sudo() because create()'s own post-insert defaulting
+            # step would otherwise be bound by the *creating* user's ACL: a
+            # self-service applicant has perm_create=1 but perm_write=0 by
+            # design (see security/ir.model.access.csv), and Odoo's create()
+            # calling self.write() internally re-checks 'write' access under
+            # that same user. This does not grant the applicant any new
+            # externally-invokable write capability -- perm_write stays 0, so
+            # the applicant still cannot edit the record themselves afterward
+            # (see KYC-02); it only lets create() finish computing defaults
+            # from data the record already owns.
+            self.sudo().write(vals)
     
     def unlink(self):
         """Prevent deletion of approved/rejected applications"""

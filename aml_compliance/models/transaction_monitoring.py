@@ -160,19 +160,6 @@ class TransactionAlert(models.Model):
         tracking=True,
     )
 
-    # --- Investigation case ---
-    # Inverse of aml.investigation.case.alert_ids. Without it the One2many
-    # cannot be resolved and the registry refuses to load:
-    #   'case_id' declared in 'aml.investigation.case.alert_ids' does not
-    #   exist on 'aml.transaction.alert'
-    case_id = fields.Many2one(
-        'aml.investigation.case',
-        string='Investigation Case',
-        ondelete='set null',
-        index=True,
-        tracking=True,
-    )
-
     # --- Transaction context ---
     transaction_amount = fields.Monetary(
         string='Transaction Amount (AED)',
@@ -229,6 +216,13 @@ class TransactionAlert(models.Model):
         'res.company',
         default=lambda self: self.env.company,
         required=True,
+    )
+
+    case_id = fields.Many2one(
+        'aml.investigation.case',
+        string='Investigation Case',
+        ondelete='set null',
+        index=True,
     )
 
     @api.model_create_multi

@@ -1,0 +1,208 @@
+/* KYC Form - Professional Compact Styling */
+
+.o_kyc_form .o_kyc_alert_banner {
+    margin-bottom: 16px;
+    border-radius: 6px;
+}
+
+.o_kyc_form .o_kyc_alert_banner .alert {
+    margin-bottom: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    border: none;
+    border-left: 4px solid;
+}
+
+.o_kyc_form .o_kyc_alert_banner .alert-danger {
+    background-color: #fef2f2;
+    border-left-color: #ef4444;
+    color: #991b1b;
+}
+
+.o_kyc_form .o_kyc_alert_banner .alert-warning {
+    background-color: #fffbeb;
+    border-left-color: #f59e0b;
+    color: #92400e;
+}
+
+.o_kyc_form .o_kyc_alert_banner .alert-info {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+}
+
+/* Header Card */
+.o_kyc_form .o_kyc_header_card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.o_kyc_form .o_kyc_stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.o_kyc_form .o_kyc_stat_label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+.o_kyc_form .o_kyc_stat_value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+/* Section styling */
+.o_kyc_form .o_kyc_section {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.o_kyc_form .o_kyc_section label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 13px;
+}
+
+.o_kyc_form .o_kyc_group_col {
+    min-width: 280px;
+}
+
+/* Document fields */
+.o_kyc_form .o_kyc_doc_row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.o_kyc_form .o_kyc_doc_field {
+    flex: 1;
+    min-width: 0;
+}
+
+.o_kyc_form .o_kyc_doc_preview {
+    max-width: 100%;
+    max-height: 200px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    padding: 8px;
+    background: #fafafa;
+    overflow: hidden;
+}
+
+.o_kyc_form .o_kyc_signature_preview {
+    max-width: 300px;
+    max-height: 100px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    padding: 8px;
+    background: #fafafa;
+    overflow: hidden;
+}
+
+/* The widget box is capped above, but the inner <img> keeps its natural
+   height and paints over neighbouring fields. Cap the image itself. */
+.o_kyc_form .o_kyc_doc_preview img {
+    max-width: 100% !important;
+    max-height: 184px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.o_kyc_form .o_kyc_signature_preview img {
+    max-width: 100% !important;
+    max-height: 84px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Field widgets */
+.o_kyc_form .o_field_widget .o_input {
+    font-size: 13px;
+}
+
+.o_kyc_form .o_field_many2manytags .o_m2m_tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* Badge widget for state */
+.o_kyc_form .o_field_widget.badge .o_field_char {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.o_kyc_form .o_field_widget.badge .o_field_char[readonly] {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+/* Kanban card */
+.o_kyc_kanban_card {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.o_kyc_kanban_content {
+    padding: 16px;
+}
+
+.o_kyc_kanban_title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.o_kyc_kanban_subtitle {
+    font-size: 13px;
+    color: #475569;
+    margin-bottom: 4px;
+}
+
+.o_kyc_kanban_text {
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.o_kyc_kanban_footer_left small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.o_kyc_kanban_footer_right {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.o_kyc_kanban_card_bottom {
+    border-top: 1px solid #f1f5f9;
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}

@@ -54,27 +54,15 @@
               action="action_transaction_alert"
               sequence="10"/>
 
-    <!-- NOTE: DISABLED - action_investigation_case is defined in
-         investigation_case_views.xml which is NOT in the manifest, and
-         aml.investigation.case is not imported in models/__init__.py.
-         Loading this menu breaks module upgrades. Re-enable together
-         with the model + views. -->
-    <!--
     <menuitem id="menu_aml_investigation_cases"
               name="Investigation Cases"
               parent="menu_aml_monitoring"
               action="action_investigation_case"
               sequence="20"/>
-    -->
 
     <!-- ======================== -->
     <!-- EDD & Investigations     -->
     <!-- ======================== -->
-    <!-- NOTE: DISABLED - action_edd_workflow is defined in
-         edd_workflow_views.xml which is NOT in the manifest, and
-         aml.edd.workflow has no model. Loading this menu breaks module
-         upgrades. Re-enable together with the model + views. -->
-    <!--
     <menuitem id="menu_aml_edd"
               name="Enhanced Due Diligence"
               parent="menu_aml_section"
@@ -85,7 +73,6 @@
               parent="menu_aml_edd"
               action="action_edd_workflow"
               sequence="10"/>
-    -->
 
     <!-- ======================== -->
     <!-- Sanctions Screening      -->
@@ -171,20 +158,11 @@
               action="action_pending_alerts"
               sequence="70"/>
 
-    <!--
-        The EDD Overview and Case Overview entries were removed on
-        2026-08-20 together with the records they point at: the
-        aml.edd.workflow model does not exist at all, and
-        aml.investigation.case exists in models/investigation_case.py but is
-        not imported in models/__init__.py, so it is not in the registry.
-        Leaving the menu items behind broke every FRESH install with
-        "External ID not found in the system:
-        aml_compliance.action_dashboard_edd" - an existing database kept
-        working because it still held the old records, so the breakage only
-        showed up when the database was rebuilt.
-
-        Re-add the entries together with the models they need.
-    -->
+    <menuitem id="menu_aml_dashboard_edd"
+              name="EDD Overview"
+              parent="menu_aml_dashboard"
+              action="action_dashboard_edd"
+              sequence="80"/>
 
     <menuitem id="menu_aml_dashboard_investigation"
               name="Case Overview"

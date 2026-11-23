@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'AML Compliance & goAML',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'category': 'Compliance/AML',
     'summary': 'UAE Anti-Money Laundering Compliance with goAML Export',
     'description': """
@@ -76,6 +76,7 @@ Aligned with:
         # Data
         'data/sequence_data.xml',
         'data/sequence_phase2_data.xml',
+        'data/edd_enquiry_data.xml',
         'data/risk_factor_data.xml',
         'data/fatf_jurisdiction_data.xml',
         'data/monitoring_rule_data.xml',
@@ -97,11 +98,12 @@ Aligned with:
         'views/dashboard_views.xml',
         'views/kyc_application_views.xml',
         'views/res_partner_views.xml',
+        'views/edd_workflow_views.xml',
+        'views/investigation_case_views.xml',
         'views/aml_menu.xml',
 
         # Wizard
         'wizard/risk_override_wizard_views.xml',
         'wizard/goaml_filing_wizard_views.xml',
-        'views/edd_wizard_views.xml',
     ],
 }

@@ -1,14 +1,14 @@
 /**
  * KYC Enhanced Module - Styles
- * OSUS Branding and professional KYC form styling
+ * SGC branding and professional KYC form styling
  */
 
 /* ===== COLOR SCHEME ===== */
 :root {
-    --osus-primary: #800020;      /* Burgundy */
-    --osus-dark: #5a0016;         /* Dark burgundy */
-    --osus-light: #f2c7d3;        /* Light pink */
-    --osus-accent: #c0504d;       /* Accent red */
+    --kyc-primary: #000000;       /* plain black */
+    --kyc-dark: #000000;          /* plain black */
+    --kyc-light: #dddddd;         /* light gray */
+    --kyc-required: #000000;      /* plain black */
     --border-color: #ddd;
     --text-muted: #6c757d;
 }
@@ -25,11 +25,11 @@
     text-align: center;
     margin-bottom: 40px;
     padding-bottom: 20px;
-    border-bottom: 3px solid var(--osus-primary);
+    border-bottom: 3px solid var(--kyc-primary);
 }
 
 .kyc-form-header h1 {
-    color: var(--osus-primary);
+    color: var(--kyc-primary);
     font-size: 2.5rem;
     font-weight: 700;
     margin: 0 0 10px 0;
@@ -57,12 +57,12 @@
 }
 
 .kyc-form-section h3 {
-    color: var(--osus-primary);
+    color: var(--kyc-primary);
     font-size: 1.4rem;
     font-weight: 600;
     margin: 0 0 20px 0;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--osus-light);
+    border-bottom: 2px solid var(--kyc-light);
 }
 
 .kyc-form-section .form-group {
@@ -82,7 +82,7 @@
 }
 
 .form-label .required {
-    color: var(--osus-accent);
+    color: var(--kyc-required);
     font-weight: 700;
 }
 
@@ -95,7 +95,7 @@
 }
 
 .form-control:focus {
-    border-color: var(--osus-primary);
+    border-color: var(--kyc-primary);
     box-shadow: 0 0 0 0.2rem rgba(128, 0, 32, 0.25);
     outline: none;
 }
@@ -105,7 +105,7 @@
 }
 
 .form-control.is-valid {
-    border-color: var(--osus-primary);
+    border-color: var(--kyc-primary);
 }
 
 select.form-control {
@@ -132,7 +132,7 @@ textarea.form-control {
 
 .valid-feedback {
     display: block;
-    color: var(--osus-primary);
+    color: var(--kyc-primary);
     font-size: 0.875rem;
     margin-top: 4px;
 }
@@ -153,15 +153,15 @@ textarea.form-control {
     width: 20px;
     height: 20px;
     margin-top: 3px;
-    accent-color: var(--osus-primary);
+    accent-color: var(--kyc-primary);
     cursor: pointer;
     border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
 .form-check-input:checked {
-    background-color: var(--osus-primary);
-    border-color: var(--osus-primary);
+    background-color: var(--kyc-primary);
+    border-color: var(--kyc-primary);
 }
 
 .form-check-label {
@@ -223,12 +223,12 @@ textarea.form-control {
 }
 
 .btn-primary {
-    background-color: var(--osus-primary);
+    background-color: var(--kyc-primary);
     color: #ffffff;
 }
 
 .btn-primary:hover {
-    background-color: var(--osus-dark);
+    background-color: var(--kyc-dark);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(128, 0, 32, 0.3);
 }
@@ -323,7 +323,7 @@ textarea.form-control {
 
 .progress-bar {
     height: 100%;
-    background-color: var(--osus-primary);
+    background-color: var(--kyc-primary);
     transition: width 0.3s ease;
 }
 
@@ -422,18 +422,18 @@ textarea.form-control {
 }
 
 .form-control:focus-visible {
-    outline: 2px solid var(--osus-primary);
+    outline: 2px solid var(--kyc-primary);
     outline-offset: 2px;
 }
 
-/* ===== OSUS BRANDING ===== */
-.osus-logo {
+/* ===== BRANDING ===== */
+.kyc-logo {
     max-width: 200px;
     height: auto;
     margin: 0 auto 20px;
 }
 
-.osus-footer {
+.kyc-footer {
     text-align: center;
     margin-top: 40px;
     padding-top: 20px;
@@ -442,11 +442,11 @@ textarea.form-control {
     font-size: 0.9rem;
 }
 
-.osus-footer a {
-    color: var(--osus-primary);
+.kyc-footer a {
+    color: var(--kyc-primary);
     text-decoration: none;
 }
 
-.osus-footer a:hover {
+.kyc-footer a:hover {
     text-decoration: underline;
 }

@@ -6,7 +6,7 @@ Know Your Customer application management with full compliance workflow
 
 | Field | Value |
 |-------|-------|
-| **Version** | 17.0.1.1.0 |
+| **Version** | 19.0.1.0.2 |
 | **Category** | Compliance |
 | **Author** | SGC TECH AI |
 | **License** | LGPL-3 |

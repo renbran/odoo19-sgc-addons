@@ -55,11 +55,11 @@ Aligned with:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 17.0.1.0.0 |
+| **Version** | 19.0.1.0.1 |
 | **Category** | Compliance/AML |
-| **Author** | OSUS Development Team |
+| **Author** | SGC TECH AI |
 | **License** | LGPL-3 |
-- **Website:** https://www.osusproperty.com
+- **Website:** https://www.sgctech.ai
 
 ## Dependencies
 

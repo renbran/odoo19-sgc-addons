@@ -6,7 +6,7 @@
  * - Mouse and touch support
  * - Draw, Clear, Submit functionality
  * - Base64 encoding for submission
- * - OSUS branding and styling
+ * - SGC branding and styling
  */
 
 (function() {
@@ -21,7 +21,7 @@
         lastY: 0,
         
         // Color configuration
-        strokeColor: '#800020',  // OSUS burgundy
+        strokeColor: '#10243B',  // SGC navy
         strokeWidth: 2,
         canvasWidth: 600,
         canvasHeight: 200,

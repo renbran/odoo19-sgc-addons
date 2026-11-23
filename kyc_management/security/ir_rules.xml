@@ -12,12 +12,48 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
-    <!-- KYC Application: Compliance Officers see all records -->
+    <!-- KYC Application: Compliance Officers see records within their own company/tenant only -->
     <record id="rule_kyc_application_approver_all" model="ir.rule">
-        <field name="name">KYC Application: Approver sees all</field>
+        <field name="name">KYC Application: Approver sees own company</field>
         <field name="model_id" ref="model_kyc_application"/>
         <field name="groups" eval="[(4, ref('group_kyc_approver'))]"/>
-        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- KYC Approval: officers restricted to approvals whose parent application is in their own company/tenant -->
+    <record id="rule_kyc_approval_company" model="ir.rule">
+        <field name="name">KYC Approval: Company-scoped</field>
+        <field name="model_id" ref="model_kyc_approval"/>
+        <field name="groups" eval="[(4, ref('group_kyc_approver'))]"/>
+        <field name="domain_force">[('kyc_application_id.company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- KYC Notification: applicants see notifications for their own applications only -->
+    <record id="rule_kyc_notification_user_own" model="ir.rule">
+        <field name="name">KYC Notification: User sees own</field>
+        <field name="model_id" ref="model_kyc_notification"/>
+        <field name="groups" eval="[(4, ref('group_kyc_user'))]"/>
+        <field name="domain_force">[('kyc_application_id.partner_id.user_ids', 'in', user.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- KYC Notification: officers restricted to notifications whose parent application is in their own company/tenant -->
+    <record id="rule_kyc_notification_company" model="ir.rule">
+        <field name="name">KYC Notification: Company-scoped</field>
+        <field name="model_id" ref="model_kyc_notification"/>
+        <field name="groups" eval="[(4, ref('group_kyc_approver'))]"/>
+        <field name="domain_force">[('kyc_application_id.company_id', 'in', company_ids)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>

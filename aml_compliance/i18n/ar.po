@@ -1,0 +1,201 @@
+# Arabic Translation for AML Compliance & goAML
+# Copyright (C) 2026 SGC TECH AI
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: AML Compliance & goAML 19.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-19 10:00+0400\n"
+"PO-Revision-Date: 2026-07-19 10:00+0400\n"
+"Last-Translator: SGC TECH AI <info@sgctech.ai>\n"
+"Language-Team: Arabic <info@sgctech.ai>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n>=3 && n<=10 ? 3 : n>=11 && n<=99 ? 4 : 5;\n"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,state
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,state
+msgid "Computed"
+msgstr "محسوب"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,state
+msgid "Reviewed"
+msgstr "تمت المراجعة"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,state
+msgid "Approved"
+msgstr "تمت الموافقة"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,state
+msgid "Overridden"
+msgstr "تم التجاوز"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,final_risk_level
+msgid "Low"
+msgstr "منخفض"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,final_risk_level
+msgid "Medium"
+msgstr "متوسط"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment,final_risk_level
+msgid "High"
+msgstr "مرتفع"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment
+msgid "Very High"
+msgstr "مرتفع جداً"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment
+msgid "Requires Enhanced Due Diligence"
+msgstr "يتطلب العناية الواجبة المعززة"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment
+msgid "Risk Assessment"
+msgstr "تقييم المخاطر"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment
+msgid "Customer"
+msgstr "العميل"
+
+#. module: aml_compliance
+#: model:aml.risk.assessment
+msgid "Assessment Date"
+msgstr "تاريخ التقييم"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "Transaction Alert"
+msgstr "تنبيه المعاملة"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "New"
+msgstr "جديد"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "Under Investigation"
+msgstr "قيد التحقيق"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "Escalated"
+msgstr "تم التصعيد"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "False Positive"
+msgstr "إيجابي كاذب"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "Closed — No Action"
+msgstr "مغلق - لا يوجد إجراء"
+
+#. module: aml_compliance
+#: model:aml.transaction.alert
+msgid "STR Filed"
+msgstr "تم تقديم تقرير المعاملات المشبوهة"
+
+#. module: aml_compliance
+#: model:aml.goaml.report
+msgid "STR"
+msgstr "تقرير المعاملات المشبوهة"
+
+#. module: aml_compliance
+#: model:aml.goaml.report
+msgid "SAR"
+msgstr "تقرير الأنشطة المشبوهة"
+
+#. module: aml_compliance
+#: model:aml.goaml.report
+msgid "CTR"
+msgstr "تقرير المعاملات النقدية"
+
+#. module: aml_compliance
+#: model:aml.edd.workflow
+msgid "Enhanced Due Diligence Workflow"
+msgstr "سير عمل العناية الواجبة المعززة"
+
+#. module: aml_compliance
+#: model:aml.edd.workflow
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: aml_compliance
+#: model:aml.edd.workflow
+msgid "Under Review"
+msgstr "قيد المراجعة"
+
+#. module: aml_compliance
+#: model:aml.edd.workflow
+msgid "Completed"
+msgstr "مكتمل"
+
+#. module: aml_compliance
+#: model:aml.edd.workflow
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: aml_compliance
+#: model:aml.edd.enquiry.type
+msgid "Source of Funds"
+msgstr "مصدر الأموال"
+
+#. module: aml_compliance
+#: model:aml.edd.enquiry.type
+msgid "Source of Wealth"
+msgstr "مصدر الثروة"
+
+#. module: aml_compliance
+#: model:aml.edd.enquiry.type
+msgid "Nature of Business"
+msgstr "طبيعة العمل"
+
+#. module: aml_compliance
+#: model:aml.investigation.case
+msgid "Investigation Case"
+msgstr "قضية تحقيق"
+
+#. module: aml_compliance
+#: model:aml.investigation.case
+msgid "Open"
+msgstr "مفتوح"
+
+#. module: aml_compliance
+#: model:aml.investigation.case
+msgid "Closed"
+msgstr "مغلق"
+
+#. module: aml_compliance
+#: model:aml.compliance
+msgid "AML Compliance Officer"
+msgstr "مسؤول الامتثال لمكافحة غسل الأموال"
+
+#. module: aml_compliance
+#: model:aml.compliance
+msgid "AML Manager"
+msgstr "مدير مكافحة غسل الأموال"
+
+#. module: aml_compliance
+#: model:aml.compliance
+msgid "MLRO (Money Laundering Reporting Officer)"
+msgstr "مسؤول الإبلاغ عن غسل الأموال"

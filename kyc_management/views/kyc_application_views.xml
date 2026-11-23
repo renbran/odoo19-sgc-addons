@@ -9,7 +9,6 @@
             <field name="model">kyc.application</field>
             <field name="arch" type="xml">
                 <search>
-                    <!-- Search by basic fields -->
                     <field name="kyc_id"/>
                     <field name="partner_id"/>
                     <field name="first_name"/>
@@ -24,13 +23,6 @@
                     <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
                     <filter name="filter_rejected" string="Rejected" domain="[('state', '=', 'rejected')]"/>
                     
-                    <!-- Risk Filters -->
-                    <!-- <filter name="filter_pep_yes" string="Politically Exposed" domain="[('politically_exposed_person', '=', 'yes')]"/> -->
-                    <!-- Note: is_passport_valid and is_kyc_complete are computed fields, not searchable in filters -->
-                    <!-- <filter name="filter_passport_invalid" string="Passport Expired" domain="[('is_passport_valid', '=', False)]"/> -->
-                    <!-- <filter name="filter_incomplete" string="Incomplete KYC" domain="[('is_kyc_complete', '=', False)]"/> -->
-                    
-                    <!-- Grouping -->
                     <filter name="group_by_state" string="Group By Status" context="{'group_by': 'state'}"/>
                     <filter name="group_by_nationality" string="Group By Nationality" context="{'group_by': 'nationality_id'}"/>
                     <filter name="group_by_submitter" string="Group By Submitter" context="{'group_by': 'user_id'}"/>
@@ -40,7 +32,7 @@
             </field>
         </record>
         
-        <!-- ==================== KYC APPLICATION TREE VIEW ==================== -->
+        <!-- ==================== KYC APPLICATION LIST VIEW ==================== -->
         
         <record id="view_kyc_application_tree" model="ir.ui.view">
             <field name="name">kyc.application.tree</field>
@@ -54,13 +46,11 @@
                     <field name="submitted_date"/>
                     <field name="approver_id" optional="hide"/>
                     <field name="approval_date" optional="hide"/>
-                    <field name="is_kyc_complete" optional="hide"/>
-                    <field name="politically_exposed_person" optional="hide"/>
                 </list>
             </field>
         </record>
         
-        <!-- ==================== KYC APPLICATION FORM VIEW ==================== -->
+        <!-- ==================== KYC APPLICATION FORM VIEW (IMPROVED) ==================== -->
         
         <record id="view_kyc_application_form" model="ir.ui.view">
             <field name="name">kyc.application.form</field>
@@ -92,170 +82,190 @@
                     <!-- Sheet -->
                     <sheet class="o_kyc_sheet">
                         
-                        <!-- Note: Conditional alerts disabled for Odoo 17 compatibility -->
-                        <!-- Incomplete KYC Alert -->
-                        <!-- <div class="alert alert-warning" role="alert"> Please complete all required fields. </div> -->
-                        
-                        <!-- Passport Warning Alert -->
-                        <!-- <div class="alert alert-danger" role="alert"> Applicant's passport has expired. </div> -->
-                        
-                        <!-- PEP Alert -->
-                        <!-- <div class="alert alert-danger" role="alert"> This applicant is flagged as a Politically Exposed Person. </div> -->
-                        
-                        <!-- Header Section -->
-                        <div class="oe_title o_kyc_title_block">
-                            <h1>
-                                <field name="kyc_id" readonly="1"/>
-                            </h1>
-                            <div class="row o_kyc_summary_row">
-                                <div class="col-md-4 o_kyc_summary_item">
-                                    <strong>Status:</strong>
-                                    <field name="state" readonly="1"/>
+                        <!-- Alert Banner (conditional) -->
+                        <div class="o_kyc_alert_banner" invisible="state == 'draft'">
+                            <div class="alert alert-danger" role="alert" invisible="politically_exposed_person != 'yes'">
+                                <i class="fa fa-exclamation-triangle"/> <strong>PEP Alert:</strong> Applicant is flagged as a Politically Exposed Person.
+                            </div>
+                            <div class="alert alert-warning" role="alert" invisible="is_passport_valid == True">
+                                <i class="fa fa-passport"/> <strong>Passport Expired:</strong> Applicant's passport has expired.
+                            </div>
+                            <div class="alert alert-info" role="alert" invisible="is_kyc_complete == True">
+                                <i class="fa fa-info-circle"/> <strong>Incomplete:</strong> Some required fields are missing.
+                            </div>
+                        </div>
+
+                        <!-- Header Summary Card -->
+                        <div class="o_kyc_header_card oe_title">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="o_kyc_stat">
+                                        <span class="o_kyc_stat_label">KYC ID</span>
+                                        <span class="o_kyc_stat_value"><field name="kyc_id" readonly="1"/></span>
+                                    </div>
                                 </div>
-                                <div class="col-md-4 o_kyc_summary_item">
-                                    <strong>KYC Complete:</strong>
-                                    <field name="is_kyc_complete" readonly="1" widget="boolean"/>
+                                <div class="col-md-3">
+                                    <div class="o_kyc_stat">
+                                        <span class="o_kyc_stat_label">Status</span>
+                                        <span class="o_kyc_stat_value"><field name="state" readonly="1" widget="badge"/></span>
+                                    </div>
                                 </div>
-                                <div class="col-md-4 o_kyc_summary_item">
-                                    <strong>Submitted:</strong>
-                                    <field name="submitted_date" readonly="1"/>
+                                <div class="col-md-3">
+                                    <div class="o_kyc_stat">
+                                        <span class="o_kyc_stat_label">Submitted</span>
+                                        <span class="o_kyc_stat_value"><field name="submitted_date" readonly="1"/></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="o_kyc_stat">
+                                        <span class="o_kyc_stat_label">KYC Complete</span>
+                                        <span class="o_kyc_stat_value"><field name="is_kyc_complete" readonly="1" widget="boolean"/></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Tabs -->
+
+                        <!-- Tabs: 4 consolidated sections instead of 7 -->
                         <notebook>
-                            <!-- PERSONAL INFORMATION TAB -->
-                            <page string="Personal Information" name="personal_info">
-                                <group>
-                                    <group string="Contact Information">
-                                        <field name="partner_id"/>
+                            <!-- TAB 1: IDENTITY &amp; PERSONAL -->
+                            <page string="Identity" name="identity" autofocus="autofocus">
+                                <!-- Personal Details -->
+                                <group string="Personal Details" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
                                         <field name="first_name" required="1"/>
                                         <field name="last_name" required="1"/>
-                                        <field name="email" required="1"/>
-                                        <field name="phone" required="1"/>
-                                    </group>
-                                    <group string="Demographics">
                                         <field name="date_of_birth" required="1"/>
-                                        <field name="age" readonly="1"/>
+                                        <field name="age" readonly="1" invisible="age == 0"/>
                                         <field name="gender"/>
-                                        <field name="nationality_id" required="1"/>
+                                        <field name="nationality_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <field name="partner_id" options="{'no_create': True}"/>
+                                        <field name="email" required="1" widget="email"/>
+                                        <field name="phone" required="1" widget="phone"/>
+                                        <field name="place_of_birth"/>
+                                        <field name="residency_visa_no"/>
+                                        <field name="residency_expiry_date"/>
+                                    </group>
+                                </group>
+
+                                <!-- Identification Documents -->
+                                <group string="Identification Documents" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <label for="passport_number" string="Passport"/>
+                                        <div class="o_kyc_doc_row">
+                                            <field name="passport_number" required="1" class="o_kyc_doc_field"/>
+                                            <field name="passport_country_id" required="1" options="{'no_create': True, 'no_create_edit': True}" class="o_kyc_doc_field"/>
+                                        </div>
+                                        <field name="passport_issue_date" required="1" class="o_kyc_doc_field"/>
+                                        <field name="passport_expiry_date" required="1" class="o_kyc_doc_field"/>
+                                        <field name="passport_document" widget="image" class="o_kyc_doc_preview"/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <label for="emirates_id" string="Emirates ID"/>
+                                        <div class="o_kyc_doc_row">
+                                            <field name="emirates_id" class="o_kyc_doc_field"/>
+                                        </div>
+                                        <field name="emirates_id_document" widget="image" class="o_kyc_doc_preview"/>
                                     </group>
                                 </group>
                             </page>
-                            
-                            <!-- IDENTIFICATION TAB -->
-                            <page string="Identification" name="identification">
-                                <group string="Passport Information">
-                                    <field name="passport_number" required="1"/>
-                                    <field name="passport_country_id" required="1"/>
-                                    <field name="passport_issue_date" required="1"/>
-                                    <field name="passport_expiry_date" required="1"/>
-                                    <field name="is_passport_valid" readonly="1" widget="boolean"/>
-                                    <field name="passport_document" widget="image" class="oe_inline"/>
+
+                            <!-- TAB 2: ADDRESS &amp; EMPLOYMENT -->
+                            <page string="Address &amp; Employment" name="address_employment">
+                                <group string="Residential Address" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <field name="residential_address" required="1" colspan="2" placeholder="Full address including street, building, apartment"/>
+                                        <field name="residential_city" required="1"/>
+                                        <field name="residential_state" required="1"/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <field name="residential_country_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                        <field name="residential_postal_code"/>
+                                        <field name="proof_of_address_document" widget="image" class="o_kyc_doc_preview"/>
+                                    </group>
                                 </group>
-                                
-                                <group string="Other Identification Documents">
-                                    <field name="emirates_id"/>
-                                    <field name="emirates_id_document" widget="image" class="oe_inline"/>
-                                </group>
-                                
-                                <group string="Address Proof">
-                                    <field name="proof_of_address_document" widget="image" class="oe_inline"/>
-                                </group>
-                            </page>
-                            
-                            <!-- ADDRESS TAB -->
-                            <page string="Address" name="address">
-                                <group string="Residential Address">
-                                    <field name="residential_address" required="1" colspan="2"/>
-                                    <field name="residential_city" required="1"/>
-                                    <field name="residential_state" required="1"/>
-                                    <field name="residential_country_id" required="1"/>
-                                    <field name="residential_postal_code"/>
-                                </group>
-                            </page>
-                            
-                            <!-- EMPLOYMENT TAB -->
-                            <page string="Employment" name="employment">
-                                <group>
-                                    <group string="Employment Details">
+
+                                <group string="Employment Details" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
                                         <field name="employment_status" required="1"/>
                                         <field name="occupation"/>
                                         <field name="years_in_role"/>
                                     </group>
-                                    <group string="Employer Information">
+                                    <group class="o_kyc_group_col">
                                         <field name="employer_name"/>
-                                        <field name="employer_address"/>
+                                        <field name="employer_address" colspan="2"/>
                                     </group>
                                 </group>
                             </page>
-                            
-                            <!-- FINANCIAL INFORMATION TAB -->
-                            <page string="Financial Information" name="financial">
-                                <group string="Income Information">
-                                    <field name="annual_income" colspan="1"/>
-                                    <field name="currency_id" colspan="1"/>
+
+                            <!-- TAB 3: FINANCIAL &amp; RISK -->
+                            <page string="Financial &amp; Risk" name="financial_risk">
+                                <group string="Financial Profile" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <field name="annual_income" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                        <field name="currency_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <field name="source_of_funds_ids" widget="many2many_tags" colspan="2" nolabel="1" placeholder="Select source(s) of funds..."/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <field name="source_of_wealth_ids" widget="many2many_tags" colspan="2" nolabel="1" placeholder="Select source(s) of wealth..."/>
+                                    </group>
                                 </group>
-                                
-                                <group string="Source of Funds" colspan="2">
-                                    <field name="source_of_funds_ids" widget="many2many_tags" colspan="2" nolabel="1"/>
+
+                                <group string="Transaction Details" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <field name="purpose_of_transaction" required="1"/>
+                                        <field name="payment_method"/>
+                                    </group>
                                 </group>
-                                
-                                <group string="Source of Wealth" colspan="2">
-                                    <field name="source_of_wealth_ids" widget="many2many_tags" colspan="2" nolabel="1"/>
-                                </group>
-                                
-                                <group string="Transaction Information">
-                                    <field name="purpose_of_transaction" required="1" colspan="1"/>
-                                    <field name="payment_method" colspan="1"/>
-                                </group>
-                            </page>
-                            
-                            <!-- RISK ASSESSMENT TAB -->
-                            <page string="Risk Assessment" name="risk_assessment">
-                                <group>
-                                    <group string="PEP Status">
-                                        <field name="politically_exposed_person" required="1"/>
-                                        <field name="pep_details"/>
+
+                                <group string="Risk Assessment" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <field name="politically_exposed_person" required="1" widget="radio"/>
+                                        <field name="pep_details" invisible="politically_exposed_person != 'yes'" placeholder="Provide details if PEP"/>
                                     </group>
                                 </group>
                             </page>
-                            
-                            <!-- SIGNATURES & CONSENT TAB -->
-                            <page string="Signature &amp; Consent" name="signature">
-                                <group string="Digital Signature">
-                                    <field name="signature_image" widget="image" class="oe_inline"/>
-                                    <field name="signature_timestamp" readonly="1"/>
-                                    <field name="signature_location"/>
+
+                            <!-- TAB 4: CONSENT &amp; APPROVAL -->
+                            <page string="Consent &amp; Approval" name="consent_approval">
+                                <group string="Digital Signature &amp; Consents" class="o_kyc_section">
+                                    <group class="o_kyc_group_col">
+                                        <field name="signature_image" widget="image" class="o_kyc_signature_preview"/>
+                                        <field name="signature_timestamp" readonly="1" invisible="not signature_timestamp"/>
+                                        <field name="signature_location" invisible="not signature_image"/>
+                                    </group>
+                                    <group class="o_kyc_group_col">
+                                        <field name="consent_terms_conditions" required="1"/>
+                                        <field name="consent_privacy_policy" required="1"/>
+                                        <field name="consent_data_processing" required="1"/>
+                                        <field name="consent_aml_kyc" required="1"/>
+                                    </group>
                                 </group>
-                                
-                                <group string="Consents &amp; Agreements">
-                                    <field name="consent_terms_conditions" required="1"/>
-                                    <field name="consent_privacy_policy" required="1"/>
-                                    <field name="consent_data_processing" required="1"/>
-                                    <field name="consent_aml_kyc" required="1"/>
-                                </group>
-                            </page>
-                            
-                            <!-- APPROVAL TAB -->
-                            <page string="Approval" name="approval">
-                                <group>
-                                    <group string="Approval Information">
+
+                                <group string="Approval Workflow" class="o_kyc_section" invisible="state == 'draft'">
+                                    <group class="o_kyc_group_col">
+                                        <label for="approver_id" string="Approved By"/>
                                         <field name="approver_id" readonly="1"/>
                                         <field name="approval_date" readonly="1"/>
                                     </group>
-                                    <group string="Rejection Information">
+                                    <group class="o_kyc_group_col" invisible="state != 'rejected'">
+                                        <label for="rejection_reason" string="Rejection Reason"/>
                                         <field name="rejection_reason" readonly="1"/>
                                         <field name="rejection_suggestions" readonly="1"/>
                                     </group>
-                                    <group string="Submission Info">
+                                </group>
+
+                                <group string="Submission &amp; Migration" class="o_kyc_section" invisible="state == 'draft'">
+                                    <group class="o_kyc_group_col">
                                         <field name="submitted_date" readonly="1"/>
                                         <field name="user_id" readonly="1"/>
                                     </group>
-                                    <group string="Migration Info">
+                                    <group class="o_kyc_group_col">
                                         <field name="is_migrated_to_contact" readonly="1" widget="boolean"/>
-                                        <field name="migration_date" readonly="1"/>
+                                        <field name="migration_date" readonly="1" invisible="not is_migrated_to_contact"/>
                                     </group>
                                 </group>
                             </page>
@@ -341,7 +351,7 @@
             <field name="search_view_id" ref="view_kyc_application_search"/>
             <field name="context">{}</field>
             <field name="help" type="html">
-                <p class="o_view_nocontent_smiling_face">
+                <p class="oe_view_nocontent_create">
                     Click to start a new KYC application.
                 </p>
             </field>
@@ -373,4 +383,3 @@
         
     </data>
 </odoo>
-

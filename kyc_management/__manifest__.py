@@ -5,36 +5,38 @@
     'website': 'https://www.sgctech.ai',
     'mobile': '+971-52-198-5231',
     'support': 'info@sgctech.ai',
-        'version': '19.0.1.0.0',
+        'version': '19.0.1.0.3',
     'summary': 'Know Your Customer application management with full compliance workflow',
     'category': 'Compliance',
     'depends': ['base', 'contacts', 'mail', 'portal', 'web', 'website', 'crm'],
     'data': [
-        # ── Security (load order matters) ───────────────────────────
+        # Security (load order matters)
         'security/groups.xml',
         'security/ir.model.access.csv',
         'security/ir_rules.xml',
-        # ── Migration compatibility placeholder ─────────────────────
+        # Migration compatibility placeholder
         'data/legacy_security_compat.xml',
-            # ── CRM Integration ────────────────────────────────────────
+            # CRM Integration
             'data/crm_data.xml',
-        # ── Reports (must load before views that reference them) ────
+        # Reports (must load before views that reference them)
         'reports/kyc_application_report.xml',
         'reports/kyc_approvals_summary_report.xml',
-        # ── Wizard views (must be before approval views) ────────────
+        # Wizard views (must be before approval views)
         'wizard/kyc_wizard_views.xml',
-        # ── Views & actions (must be before menu) ───────────────────
+        # Views & actions (must be before menu)
         'views/kyc_application_views.xml',
         'views/kyc_approval_views.xml',
         'views/kyc_notification_views.xml',
-        # ── Menus & actions ─────────────────────────────────────────
+        # Menus & actions
         'views/kyc_menu.xml',
-        # ── Portal / frontend KYC form ───────────────────────────────
+        # Portal / frontend KYC form
         'views/portal_kyc_templates.xml',
-    ],
+        # Assets
+            ],
     'assets': {
         'web.assets_backend': [
             'kyc_management/static/src/css/kyc_backend.css',
+            'kyc_management/static/src/css/kyc_form.css',
             'kyc_management/static/src/js/kyc_dashboard.js',
             'kyc_management/static/src/xml/kyc_dashboard.xml',
         ],

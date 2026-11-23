@@ -1,10 +1,15 @@
+from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 from odoo.exceptions import ValidationError
 
 
+@tagged('post_install', '-at_install', 'aml_compliance')
 class TestGoAMLReportValidation(TransactionCase):
     def setUp(self):
         super().setUp()
+        self.env.user.write({
+            'group_ids': [(4, self.env.ref('aml_compliance.group_aml_officer').id)],
+        })
         self.partner = self.env['res.partner'].create({
             'name': 'KYC Test Customer',
             'email': 'kyc.test@example.com',

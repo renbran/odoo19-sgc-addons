@@ -259,6 +259,15 @@
             sequence="5"
             action="action_kyc_dashboard"
             groups="kyc_management.group_kyc_approver,kyc_management.group_kyc_admin"/>
-        
+
+        <!-- ==================== WEBSITE MENU ==================== -->
+        <!-- Public KYC Application Form accessible from website navbar -->
+        <record id="website_menu_kyc_apply" model="website.menu">
+            <field name="name">KYC Application</field>
+            <field name="url">/contact/kyc</field>
+            <field name="parent_id" ref="website.main_menu"/>
+            <field name="sequence">90</field>
+        </record>
+
     </data>
 </odoo>

@@ -25,3 +25,13 @@ access_opensanctions_config_officer,aml.opensanctions.config officer,model_aml_o
 access_opensanctions_config_manager,aml.opensanctions.config manager,model_aml_opensanctions_config,group_aml_manager,1,1,1,1
 access_goaml_filing_wizard_mlro,aml.goaml.filing.wizard mlro,model_aml_goaml_filing_wizard,aml_compliance.group_mlro,1,1,1,1
 access_goaml_acknowledgement_wizard_mlro,aml.goaml.acknowledgement.wizard mlro,model_aml_goaml_acknowledgement_wizard,aml_compliance.group_mlro,1,1,1,1
+access_edd_workflow_officer,aml.edd.workflow officer,model_aml_edd_workflow,aml_compliance.group_aml_officer,1,1,1,0
+access_edd_workflow_manager,aml.edd.workflow manager,model_aml_edd_workflow,aml_compliance.group_aml_manager,1,1,1,1
+access_edd_enquiry_type_officer,aml.edd.enquiry.type officer,model_aml_edd_enquiry_type,aml_compliance.group_aml_officer,1,0,0,0
+access_edd_enquiry_type_manager,aml.edd.enquiry.type manager,model_aml_edd_enquiry_type,aml_compliance.group_aml_manager,1,1,1,1
+access_edd_enquiry_response_officer,aml.edd.enquiry.response officer,model_aml_edd_enquiry_response,aml_compliance.group_aml_officer,1,1,1,0
+access_edd_enquiry_response_manager,aml.edd.enquiry.response manager,model_aml_edd_enquiry_response,aml_compliance.group_aml_manager,1,1,1,1
+access_edd_document_officer,aml.edd.document officer,model_aml_edd_document,aml_compliance.group_aml_officer,1,1,1,0
+access_edd_document_manager,aml.edd.document manager,model_aml_edd_document,aml_compliance.group_aml_manager,1,1,1,1
+access_investigation_case_officer,aml.investigation.case officer,model_aml_investigation_case,aml_compliance.group_aml_officer,1,1,1,0
+access_investigation_case_manager,aml.investigation.case manager,model_aml_investigation_case,aml_compliance.group_aml_manager,1,1,1,1
