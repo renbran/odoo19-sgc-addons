@@ -6,8 +6,7 @@
     Report : aml_compliance.report_consolidated_kyc
     Purpose: Single branded PDF combining KYC profile, Risk Assessment
              score and Sanctions Screening results for UAE DNFBP compliance
-    Author : SGC TECH AI
-    Depends: no external CSS module — styling is self-contained below.
+    Author : OSUS Development Team
 -->
 <odoo>
     <data>
@@ -33,36 +32,6 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.external_layout">
-                        <style>
-                            .document-title {
-                                text-align: center;
-                                background: linear-gradient(135deg, #10243B 0%, #1B3A5C 100%);
-                                color: #ffffff;
-                                padding: 14pt 10pt;
-                                border-radius: 4pt;
-                                margin-bottom: 10pt;
-                                -webkit-print-color-adjust: exact;
-                                print-color-adjust: exact;
-                            }
-                            hr.sgc-divider, hr.gold-divider {
-                                border: none;
-                                border-top: 2px solid #C8A24A;
-                                margin: 10pt 0;
-                            }
-                            .signature-block {
-                                border-top: 2px solid #10243B;
-                                padding-top: 8pt;
-                                margin-top: 10pt;
-                                text-align: center;
-                            }
-                            .note-box {
-                                border-left: 5px solid #C8A24A;
-                                background-color: #FAF7EE;
-                                padding: 8pt 12pt;
-                                margin: 8pt 0;
-                                font-size: 8.5pt;
-                            }
-                        </style>
                         <div class="page">
 
                             <!-- =========================================== -->
@@ -100,7 +69,7 @@
                                 </div>
                             </div>
 
-                            <hr class="sgc-divider"/>
+                            <hr class="osus-divider"/>
 
                             <!-- =========================================== -->
                             <!-- SECTION 1 — PERSONAL INFORMATION            -->
@@ -282,7 +251,7 @@
                                         <tr>
                                             <td><strong>Risk Score</strong></td>
                                             <td>
-                                                <strong style="font-size:11pt; color:#10243B;">
+                                                <strong style="font-size:11pt; color:#800020;">
                                                     <t t-esc="'%.1f' % latest_ra.computed_risk_score"/>
                                                 </strong>
                                             </td>

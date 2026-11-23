@@ -50,10 +50,12 @@ class RiskFactor(models.Model):
     description = fields.Text(string='Description')
 
     _code_uniq = models.Constraint(
-        'unique(code)', 'Risk factor code must be unique.',
+        'unique(code)',
+        'Risk factor code must be unique.',
     )
     _weight_positive = models.Constraint(
-        'CHECK(weight >= 0)', 'Weight must be non-negative.',
+        'CHECK(weight >= 0)',
+        'Weight must be non-negative.',
     )
 
 

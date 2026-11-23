@@ -34,46 +34,5 @@
             <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
         </record>
 
-        <!-- EDD Workflow multi-company -->
-        <record id="rule_edd_workflow_company" model="ir.rule">
-            <field name="name">EDD Workflow: Multi-Company</field>
-            <field name="model_id" ref="model_aml_edd_workflow"/>
-            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
-        </record>
-
-        <!-- Investigation Case multi-company -->
-        <record id="rule_investigation_case_company" model="ir.rule">
-            <field name="name">Investigation Case: Multi-Company</field>
-            <field name="model_id" ref="model_aml_investigation_case"/>
-            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
-        </record>
-
-        <!-- goAML Involved Party: scoped via its parent report's company (direct
-             queries against this model previously bypassed the report's own rule) -->
-        <record id="rule_goaml_involved_party_company" model="ir.rule">
-            <field name="name">goAML Involved Party: Multi-Company</field>
-            <field name="model_id" ref="model_aml_goaml_involved_party"/>
-            <field name="domain_force">[('report_id.company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
-        </record>
-
-        <!-- EDD Document: scoped via its parent workflow's company -->
-        <record id="rule_edd_document_company" model="ir.rule">
-            <field name="name">EDD Document: Multi-Company</field>
-            <field name="model_id" ref="model_aml_edd_document"/>
-            <field name="domain_force">[('workflow_id.company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
-        </record>
-
-        <!-- EDD Enquiry Response: scoped via its parent workflow's company -->
-        <record id="rule_edd_enquiry_response_company" model="ir.rule">
-            <field name="name">EDD Enquiry Response: Multi-Company</field>
-            <field name="model_id" ref="model_aml_edd_enquiry_response"/>
-            <field name="domain_force">[('workflow_id.company_id', 'in', company_ids)]</field>
-            <field name="groups" eval="[(4, ref('group_aml_officer'))]"/>
-        </record>
-
     </data>
 </odoo>

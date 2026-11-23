@@ -160,6 +160,12 @@
     <!-- =============================== -->
     <!-- EDD Workflow Pivot & Graph      -->
     <!-- =============================== -->
+    <!-- NOTE: DISABLED - aml.edd.workflow model does not exist (no model
+         file in aml_compliance/models/, and edd_workflow_views.xml is not
+         in the manifest). Loading these records breaks every module upgrade
+         with "Model not found: aml.edd.workflow". Re-enable only together
+         with the model. -->
+    <!--
     <record id="view_edd_workflow_pivot" model="ir.ui.view">
         <field name="name">aml.edd.workflow.pivot</field>
         <field name="model">aml.edd.workflow</field>
@@ -191,10 +197,15 @@
             </p>
         </field>
     </record>
+    -->
 
     <!-- =============================== -->
     <!-- Investigation Case Pivot & Graph -->
     <!-- =============================== -->
+    <!-- RE-ENABLED 2026-11-21: models/investigation_case.py is now
+         imported in models/__init__.py, so aml.investigation.case is in
+         the registry and these records load. The "Case Overview" dashboard
+         is reachable again. -->
     <record id="view_investigation_case_pivot" model="ir.ui.view">
         <field name="name">aml.investigation.case.pivot</field>
         <field name="model">aml.investigation.case</field>

@@ -251,7 +251,7 @@ class AMLRiskAssessment(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('goAML Reports'),
             'res_model': 'aml.goaml.report',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('risk_assessment_id', '=', self.id)],
             'context': {'default_risk_assessment_id': self.id},
         }

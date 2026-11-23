@@ -125,7 +125,7 @@ class ResPartnerAML(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Risk Assessments'),
             'res_model': 'aml.risk.assessment',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
@@ -156,7 +156,7 @@ class ResPartnerAML(models.Model):
                 'type': 'ir.actions.act_window',
                 'name': _('Screening Results'),
                 'res_model': 'aml.screening.result',
-                'view_mode': 'tree,form',
+                'view_mode': 'list,form',
                 'domain': [('id', 'in', results.ids)],
             }
         return {
@@ -177,7 +177,7 @@ class ResPartnerAML(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Screening Results'),
             'res_model': 'aml.screening.result',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
         }
 
@@ -188,7 +188,7 @@ class ResPartnerAML(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('goAML Reports'),
             'res_model': 'aml.goaml.report',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
             'context': {'default_partner_id': self.id},
         }
@@ -200,6 +200,6 @@ class ResPartnerAML(models.Model):
             'type': 'ir.actions.act_window',
             'name': _('Transaction Alerts'),
             'res_model': 'aml.transaction.alert',
-            'view_mode': 'tree,form',
+            'view_mode': 'list,form',
             'domain': [('partner_id', '=', self.id)],
         }
