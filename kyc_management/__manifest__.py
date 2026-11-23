@@ -5,7 +5,7 @@
     'website': 'https://www.sgctech.ai',
     'mobile': '+971-52-198-5231',
     'support': 'info@sgctech.ai',
-        'version': '19.0.1.0.3',
+        'version': '19.0.1.0.4',
     'summary': 'Know Your Customer application management with full compliance workflow',
     'category': 'Compliance',
     'depends': ['base', 'contacts', 'mail', 'portal', 'web', 'website', 'crm'],
