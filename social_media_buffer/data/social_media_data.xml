@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Park Group
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo noupdate="1">
+    <record id="social_media_buffer" model="social.media">
+        <field name="name">Buffer</field>
+        <field name="media_type">buffer</field>
+        <field
+            name="description"
+        >Import Buffer channels and publish or schedule posts without leaving Odoo</field>
+    </record>
+</odoo>

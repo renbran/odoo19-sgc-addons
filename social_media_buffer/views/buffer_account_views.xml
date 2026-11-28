@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Park Group
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="buffer_account_view_form" model="ir.ui.view">
+        <field name="name">buffer.account.form</field>
+        <field name="model">buffer.account</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_import_channels"
+                        string="Import Channels"
+                        type="object"
+                        class="oe_highlight"
+                        groups="social_media_base.group_social_media_manager"
+                        title="Read the organizations available to this API key and create or refresh one social account per Buffer channel."
+                    />
+                </header>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <field name="image_1920" widget="image" class="oe_avatar" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Buffer connection name" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="api_key" password="1" />
+                            <field name="organization_id" />
+                        </group>
+                        <group>
+                            <field name="active" invisible="1" />
+                            <field name="color" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="buffer_account_view_tree" model="ir.ui.view">
+        <field name="name">buffer.account.list</field>
+        <field name="model">buffer.account</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="organization_id" />
+                <field name="active" widget="boolean_toggle" />
+            </list>
+        </field>
+    </record>
+
+    <record id="buffer_account_action" model="ir.actions.act_window">
+        <field name="name">Buffer Connections</field>
+        <field name="path">buffer-connections</field>
+        <field name="res_model">buffer.account</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Connect Buffer with an API key
+            </p>
+            <p>
+                Create a connection, enter its Buffer API key and import its
+                channels. The key is only visible to system administrators.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="buffer_account_menu"
+        name="Buffer Connections"
+        parent="social_media_base.social_configuration_menu"
+        action="buffer_account_action"
+        sequence="4"
+        groups="social_media_base.group_social_media_manager"
+    />
+</odoo>

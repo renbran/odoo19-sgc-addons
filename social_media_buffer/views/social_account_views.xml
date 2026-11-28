@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 Park Group
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="social_account_view_form_inherit_buffer" model="ir.ui.view">
+        <field name="name">social.account.view.form.inherit.buffer</field>
+        <field name="model">social.account</field>
+        <field name="inherit_id" ref="social_media_base.social_account_view_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//page[@name='account_configuration']/group[@name='account_configuration']"
+                position="after"
+            >
+                <group name="buffer_configuration" invisible="media_type != 'buffer'">
+                    <field name="buffer_account_id" readonly="1" />
+                    <field name="buffer_channel_id" readonly="1" />
+                    <field name="buffer_service" readonly="1" />
+                    <field name="buffer_channel_type" readonly="1" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
